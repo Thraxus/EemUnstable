@@ -1,0 +1,190 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PirateAntennas>
+
+<!-- EEM BeACONS - encounter system redone -->
+
+<!-- Trade Routes -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>TradeRouteStart</SubtypeId>
+      </Id>
+      <Name>FOLLOW TRADE BEACONS</Name>
+      <SpawnDistance>4500</SpawnDistance>
+      <SpawnTimeMs>9999999</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>EEM_Beacon_TradeRoute_Waypoint</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>TradeRouteWaypoint</SubtypeId>
+      </Id>
+      <Name>KEEP FOLLOWING THE ROUTE</Name>
+      <SpawnDistance>4500</SpawnDistance>
+      <SpawnTimeMs>1000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>EEM_Beacon_TradeRoute_Waypoint</Group>
+        <Group>PE_XMC_99_Refinery</Group>
+        <Group>PE_XMC_603_Factory</Group>
+        <Group>PE_XMC_718_Trading_Outpost</Group>
+        <Group>PE_Mahriane_34_Trading_Outpost</Group>
+        <Group>PE_Mahriane_56_Trading_Outpost</Group>
+        <Group>PE_Mahriane_8724_Service_Platform</Group>
+        <Group>PE_IMDC_1781_Service_Platform</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- Encounters -->
+
+<!--    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>EncounterSmall</SubtypeId>
+      </Id>
+      <Name>SMALL OBJECT FOUND</Name>
+      <SpawnDistance>600</SpawnDistance>
+      <SpawnTimeMs>1000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>Asp_Cop_Car</Group>
+        <Group>AI_Guard_Advanced_Mk.I</Group>
+        <Group>Grinder_Drone</Group>
+        <Group>Miner_Drone</Group>
+        <Group>Repair_Drone</Group>
+        <Group>Little_Bird</Group>
+        <Group>Loot_Large_Container</Group>
+        <Group>Loot_Medium_Container</Group>
+        <Group>Oxygen_Tank</Group>
+        <Group>Police_Hover_Bike</Group>
+        <Group>Shuttle_C3B2_Seraphim_Sentinel</Group>
+        <Group>Worker_Mk.II</Group>
+        <Group>Asp_Fighter</Group>
+        <Group>Eagle</Group>
+        <Group>Vixen_D2</Group>
+        <Group>G-101_Torden</Group>
+        <Group>Space_Motorcycle_ADC-300S</Group>
+        <Group>Lemon_Augmented</Group>
+        <Group>Viper_Headhunter</Group>
+        <Group>AI_Fighter_Drone_Swarm</Group>
+        <Group>AI_Guard_Advanced_Swarm</Group>
+        <Group>AI_Old_Drone_Swarm</Group>
+        <Group>AI_Panzerklein_Mech_Swarm</Group>
+        <Group>Grinder_Drone_Pirate</Group>
+        <Group>Raptor_Drone_Pirate</Group>
+        <Group>Informant_mk.1</Group>
+        <Group>PirateBand_Small</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>EncounterMedium</SubtypeId>
+      </Id>
+      <Name>MEDIUM OBJECT FOUND</Name>
+      <SpawnDistance>2000</SpawnDistance>
+      <SpawnTimeMs>1000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>Amphion_Hydrozoa_Waystation</Group>
+        <Group>Amphion_Diatom_Waystation</Group>
+        <Group>Amphion_Polyp_Small_Outpost</Group>
+        <Group>Amphion_Rotifer_Waystation</Group>
+        <Group>Feathered_Elevator</Group>
+        <Group>Space_Express</Group>
+        <Group>Wayfarer_Prototype</Group>
+        <Group>VOID</Group>
+        <Group>SQUASH_Minefield</Group>
+        <Group>WKS_Fessenden_1.3B</Group>
+        <Group>Drop_Ship</Group>
+        <Group>EEV_01_Planetary_Lander</Group>
+        <Group>Police_Outpost</Group>
+        <Group>Mining_Station_Cirva</Group>
+        <Group>MGE_Plight_Of_Pegasus</Group>
+        <Group>MGE_Armadillo</Group>
+        <Group>PirateBand_Medium</Group>
+        <Group>PirateBand_Small</Group>
+        <Group>B-30_Privateer_Pirate</Group>
+        <Group>IMDC_Defense_Platform_NPC</Group>
+        <Group>PirateCarrier</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>EncounterLarge</SubtypeId>
+      </Id>
+      <Name>LARGE OBJECT FOUND</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>1000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>KUS_Einartoft_Industrial_Station</Group>
+        <Group>KUS_Waystation</Group>
+        <Group>PE_XMC_5019_Core_Station</Group>
+        <Group>ES_Agora_Station</Group>
+        <Group>Amphion_Reef_Barrier_Station</Group>
+        <Group>Object_Defense_Platform_Echo</Group>
+        <Group>Neutral_Solar_Power_Plant_S</Group>
+        <Group>HS_Viper_Destroyer</Group>
+        <Group>G08TX-043A_Arclight</Group>
+        <Group>B8_Barracuda_Pirate</Group>
+        <Group>FE-201_Enforcer_Pirate</Group>
+        <Group>The_Artifact_Research_Station</Group>
+        <Group>The_Salvador_Salvage_Team</Group>
+        <Group>Computer_Part_Factory_(No_Mods)</Group>
+        <Group>Raiding_Station_-_Scourge</Group>
+        <Group>ES_Assault_Cruiser_EAC</Group>
+        <Group>IMDC_Cerberus_Destroyer_Mk.3</Group>
+        <Group>PirateBand_Big</Group>
+        <Group>PirateBand_Medium</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>EncounterDebris</SubtypeId>
+      </Id>
+      <Name>DEBRIS FOUND</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>1000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>Cicada_Experemental_Debris</Group>
+        <Group>Defence_Systems_Forge_Debris</Group>
+        <Group>Junk_Field</Group>
+        <Group>Military_Station_Debris_trap</Group>
+        <Group>Missile_Factory_Debris_mines</Group>
+        <Group>Space_Port_Debris_mines</Group>
+        <Group>Weapon_Component_Factory_Debris_trap</Group>
+        <Group>Seeder_Wreckage</Group>
+        <Group>Dead_Station_1</Group>
+        <Group>Dead_Station_2_signal</Group>
+        <Group>Dead_Station_3</Group>
+        <Group>Dead_Station_4_signal</Group>
+        <Group>Dead_Station_5_signal</Group>
+        <Group>Dead_Station_6_signal</Group>
+        <Group>PirateBand_Big</Group>
+        <Group>PirateBand_Medium</Group>
+        <Group>PirateBand_Small</Group>
+        <Group>B-30_Privateer_Pirate</Group>
+      </SpawnGroups>
+    </Antenna> -->
+
+  </PirateAntennas>
+</Definitions>

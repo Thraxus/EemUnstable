@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <GlobalEvents>
+    <GlobalEvent>
+      <Id>
+        <TypeId>EventDefinition</TypeId>
+        <SubtypeId>SpawnCargoShip</SubtypeId>
+      </Id>
+<!-- DEBUG MODE      <MinActivationTimeMs>150000</MinActivationTimeMs>
+      <MaxActivationTimeMs>150000</MaxActivationTimeMs>
+      <FirstActivationTimeMs>3000</FirstActivationTimeMs> -->
+
+      <MinActivationTimeMs>300000</MinActivationTimeMs>
+      <MaxActivationTimeMs>450000</MaxActivationTimeMs>
+      <FirstActivationTimeMs>90000</FirstActivationTimeMs>
+    </GlobalEvent>
+  </GlobalEvents>
+</Definitions>

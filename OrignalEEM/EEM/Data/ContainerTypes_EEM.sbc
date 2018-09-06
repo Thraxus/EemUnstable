@@ -1,0 +1,1817 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ContainerTypes>
+    
+<!-- EEM Custom Randomized Loot - working only for cargoships for now :C <- FIXIT! -->
+    <!-- Full list of current sets:
+    
+    <ContainerType>EEMLootCargoshipComponentsSmall01</ContainerType>
+    <ContainerType>EEMLootCargoshipComponentsSmall02</ContainerType>
+    <ContainerType>EEMLootCargoshipComponentsLarge01</ContainerType>
+    <ContainerType>EEMLootCargoshipComponentsLarge02</ContainerType>
+    
+    <ContainerType>EEMLootCargoshipOresSmall01</ContainerType>
+    <ContainerType>EEMLootCargoshipOresSmall02</ContainerType>
+    <ContainerType>EEMLootCargoshipOresLarge01</ContainerType>
+    <ContainerType>EEMLootCargoshipOresLarge02</ContainerType>
+    
+    <ContainerType>EEMLootCargoshipIngotsSmall01</ContainerType>
+    <ContainerType>EEMLootCargoshipIngotsSmall02</ContainerType>
+    <ContainerType>EEMLootCargoshipIngotsLarge01</ContainerType>
+    <ContainerType>EEMLootCargoshipIngotsLarge02</ContainerType>
+    
+    <ContainerType>EEMLootCargoshipTools01</ContainerType>
+    <ContainerType>EEMLootCargoshipTools02</ContainerType>
+    
+    <ContainerType>EEMLootScrapMetalSmall</ContainerType>
+    <ContainerType>EEMLootScrapMetalMedium</ContainerType>
+    <ContainerType>EEMLootScrapMetalLarge</ContainerType>
+    
+    <ContainerType>EEMLootCreditsSmall</ContainerType>
+    <ContainerType>EEMLootCreditsMedium</ContainerType>
+    <ContainerType>EEMLootCreditsLarge</ContainerType>
+    
+    -->
+
+<!-- Components (Small) -->
+    
+    <ContainerType CountMin="3" CountMax="5">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipComponentsSmall01</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="500" AmountMax="5000">
+          <Frequency>10.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="20" AmountMax="100">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Construction</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5" AmountMax="40">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>MetalGrid</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="25" AmountMax="150">
+          <Frequency>4.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>InteriorPlate</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="30" AmountMax="200">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SteelPlate</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5" AmountMax="30">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Girder</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="15" AmountMax="80">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SmallTube</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="10">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>LargeTube</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5" AmountMax="80">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Motor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5" AmountMax="15">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Display</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10" AmountMax="40">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>BulletproofGlass</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="20">
+          <Frequency>0.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Superconductor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="25" AmountMax="150">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Computer</SubtypeId>
+          </Id>
+        </Item>
+          <Item AmountMin="1" AmountMax="20">
+            <Frequency>0.5</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Reactor</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="5" AmountMax="10">
+            <Frequency>0.2</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Thrust</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="1" AmountMax="6">
+            <Frequency>0.1</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>GravityGenerator</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="3" AmountMax="15">
+            <Frequency>0.2</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Medical</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="1" AmountMax="10">
+            <Frequency>0.5</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>RadioCommunication</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="3" AmountMax="25">
+            <Frequency>0.5</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Detector</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="1" AmountMax="15">
+            <Frequency>0.1</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Explosives</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="2" AmountMax="20">
+            <Frequency>1.0</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>SolarCell</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="2" AmountMax="20">
+            <Frequency>1.0</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>PowerCell</SubtypeId>
+            </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <ContainerType CountMin="3" CountMax="5">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipComponentsSmall02</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="3000" AmountMax="10000">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="20" AmountMax="100">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Construction</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5" AmountMax="40">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>MetalGrid</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="25" AmountMax="150">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>InteriorPlate</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="30" AmountMax="200">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SteelPlate</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5" AmountMax="30">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Girder</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="15" AmountMax="80">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SmallTube</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="10">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>LargeTube</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5" AmountMax="80">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Motor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5" AmountMax="15">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Display</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10" AmountMax="40">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>BulletproofGlass</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="20">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Superconductor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="25" AmountMax="150">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Computer</SubtypeId>
+          </Id>
+        </Item>
+          <Item AmountMin="1" AmountMax="20">
+            <Frequency>2.0</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Reactor</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="5" AmountMax="10">
+            <Frequency>1.0</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Thrust</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="1" AmountMax="6">
+            <Frequency>1.0</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>GravityGenerator</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="3" AmountMax="15">
+            <Frequency>1.5</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Medical</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="1" AmountMax="10">
+            <Frequency>1.5</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>RadioCommunication</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="3" AmountMax="25">
+            <Frequency>1.5</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Detector</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="1" AmountMax="15">
+            <Frequency>1.0</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Explosives</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="2" AmountMax="20">
+            <Frequency>2.0</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>SolarCell</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="2" AmountMax="20">
+            <Frequency>2.0</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>PowerCell</SubtypeId>
+            </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <!-- Components (Large) -->
+    
+    <ContainerType CountMin="5" CountMax="7">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipComponentsLarge01</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="2000" AmountMax="5000">
+          <Frequency>10.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="200" AmountMax="1500">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Construction</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="600">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>MetalGrid</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="150" AmountMax="1000">
+          <Frequency>4.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>InteriorPlate</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="5000">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SteelPlate</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="300">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Girder</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="150" AmountMax="1500">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SmallTube</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="30" AmountMax="600">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>LargeTube</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="800">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Motor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="300">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Display</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="400">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>BulletproofGlass</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="300">
+          <Frequency>0.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Superconductor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="250" AmountMax="1200">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Computer</SubtypeId>
+          </Id>
+        </Item>
+          <Item AmountMin="100" AmountMax="500">
+            <Frequency>0.5</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Reactor</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="50" AmountMax="300">
+            <Frequency>0.2</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Thrust</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="10" AmountMax="100">
+            <Frequency>0.1</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>GravityGenerator</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="25" AmountMax="150">
+            <Frequency>0.2</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Medical</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="40" AmountMax="200">
+            <Frequency>0.5</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>RadioCommunication</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="25" AmountMax="200">
+            <Frequency>0.5</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Detector</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="25" AmountMax="150">
+            <Frequency>0.1</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>Explosives</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="64" AmountMax="512">
+            <Frequency>1.0</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>SolarCell</SubtypeId>
+            </Id>
+          </Item>
+          <Item AmountMin="20" AmountMax="240">
+            <Frequency>1.0</Frequency>
+            <Id>
+              <TypeId>Component</TypeId>
+              <SubtypeId>PowerCell</SubtypeId>
+            </Id>
+          </Item>
+      </Items>
+    </ContainerType>
+
+    <ContainerType CountMin="5" CountMax="7">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipComponentsLarge02</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="4000" AmountMax="8000">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="200" AmountMax="1500">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Construction</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="600">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>MetalGrid</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="150" AmountMax="1000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>InteriorPlate</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="5000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SteelPlate</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="300">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Girder</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="150" AmountMax="1500">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SmallTube</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="30" AmountMax="600">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>LargeTube</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="800">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Motor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="300">
+          <Frequency>2.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Display</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="400">
+          <Frequency>2.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>BulletproofGlass</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="300">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Superconductor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="250" AmountMax="1200">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Computer</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="500">
+          <Frequency>2.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Reactor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="300">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Thrust</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10" AmountMax="100">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>GravityGenerator</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="25" AmountMax="150">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Medical</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="40" AmountMax="200">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>RadioCommunication</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="25" AmountMax="200">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Detector</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="25" AmountMax="150">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Explosives</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="64" AmountMax="512">
+          <Frequency>2.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SolarCell</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="20" AmountMax="240">
+          <Frequency>2.5</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>PowerCell</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+<!-- Ores (small) -->
+    
+    <ContainerType CountMin="3" CountMax="5">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipOresSmall01</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="1000" AmountMax="4000">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Stone</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5000" AmountMax="20000">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Iron</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="5000">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Nickel</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="2000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Cobalt</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="3000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Magnesium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="6000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Silicon</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="2000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Silver</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="2000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Gold</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="200" AmountMax="1500">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Platinum</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="200" AmountMax="2000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Uranium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="4000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Ice</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+    
+    <ContainerType CountMin="3" CountMax="5">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipOresSmall02</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="1000" AmountMax="4000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Stone</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5000" AmountMax="20000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Iron</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="5000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Nickel</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="2000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Cobalt</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="3000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Magnesium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="6000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Silicon</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="2000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Silver</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="2000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Gold</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="200" AmountMax="1500">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Platinum</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="200" AmountMax="2000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Uranium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="4000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Ice</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <!-- Ores (large) -->
+    
+    <ContainerType CountMin="4" CountMax="6">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipOresLarge01</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="3000" AmountMax="5000">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Stone</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="15000" AmountMax="100000">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Iron</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10000" AmountMax="50000">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Nickel</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5000" AmountMax="30000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Cobalt</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="3000" AmountMax="15000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Magnesium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="30000" AmountMax="80000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Silicon</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="3000" AmountMax="15000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Silver</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="3000" AmountMax="15000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Gold</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="2000" AmountMax="10000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Platinum</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="2000" AmountMax="12000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Uranium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10000" AmountMax="100000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Ice</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <ContainerType CountMin="4" CountMax="6">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipOresLarge02</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="3000" AmountMax="5000">
+          <Frequency>0.5</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Stone</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="15000" AmountMax="100000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Iron</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10000" AmountMax="50000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Nickel</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5000" AmountMax="30000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Cobalt</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="3000" AmountMax="15000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Magnesium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="30000" AmountMax="80000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Silicon</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="3000" AmountMax="15000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Silver</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="3000" AmountMax="15000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Gold</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="2000" AmountMax="10000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Platinum</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="2000" AmountMax="12000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Uranium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10000" AmountMax="100000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Ice</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+    
+<!-- Ingots (small) -->
+    
+    <ContainerType CountMin="3" CountMax="5">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipIngotsSmall01</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="500" AmountMax="5000">
+          <Frequency>10.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="1000">
+          <Frequency>4.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Stone</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="4000">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Iron</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="1000">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Nickel</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="500">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Cobalt</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="300">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Magnesium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="150" AmountMax="500">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Silicon</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="200">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Silver</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="200">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Gold</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="15" AmountMax="50">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Platinum</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10" AmountMax="100">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Uranium</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <ContainerType CountMin="3" CountMax="5">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipIngotsSmall02</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="2000" AmountMax="5000">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="1000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Stone</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="4000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Iron</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="1000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Nickel</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="500">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Cobalt</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="300">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Magnesium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="150" AmountMax="500">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Silicon</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="200">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Silver</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="200">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Gold</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="15" AmountMax="50">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Platinum</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10" AmountMax="100">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Uranium</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <!-- Ingots (large) -->
+
+    <ContainerType CountMin="4" CountMax="6">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipIngotsLarge01</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="5000" AmountMax="8000">
+          <Frequency>10.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="3000" AmountMax="5000">
+          <Frequency>4.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Stone</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10000" AmountMax="20000">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Iron</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="3000" AmountMax="8000">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Nickel</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="5000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Cobalt</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="3000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Magnesium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="2000" AmountMax="8000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Silicon</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="250" AmountMax="1000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Silver</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="250" AmountMax="1000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Gold</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="150" AmountMax="300">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Platinum</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="200">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Uranium</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <ContainerType CountMin="4" CountMax="6">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipIngotsLarge02</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="5000" AmountMax="8000">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="3000" AmountMax="5000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Stone</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10000" AmountMax="20000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Iron</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="3000" AmountMax="8000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Nickel</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1000" AmountMax="5000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Cobalt</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="500" AmountMax="3000">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Magnesium</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="2000" AmountMax="8000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Silicon</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="250" AmountMax="1000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Silver</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="250" AmountMax="1000">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Gold</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="150" AmountMax="300">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Platinum</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="200">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Uranium</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <!-- Tools & Ammo -->
+
+    <ContainerType CountMin="3" CountMax="4">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipTools01</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="500" AmountMax="5000">
+          <Frequency>10.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>OxygenContainerObject</TypeId>
+            <SubtypeId>OxygenBottle</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>GasContainerObject</TypeId>
+            <SubtypeId>HydrogenBottle</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>AutomaticRifleItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>PreciseAutomaticRifleItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>RapidFireAutomaticRifleItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="1">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>UltimateAutomaticRifleItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>WelderItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>Welder2Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>Welder3Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="1">
+          <Frequency>0.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>Welder4Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>AngleGrinderItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>AngleGrinder2Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>AngleGrinder3Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="1">
+          <Frequency>0.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>AngleGrinder4Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>HandDrillItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>HandDrill2Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>HandDrill3Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="1">
+          <Frequency>0.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>HandDrill4Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10" AmountMax="100">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>AmmoMagazine</TypeId>
+            <SubtypeId>NATO_5p56x45mm</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="10">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>AmmoMagazine</TypeId>
+            <SubtypeId>NATO_25x184mm</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="2" AmountMax="8">
+          <Frequency>0.5</Frequency>
+          <Id>
+            <TypeId>AmmoMagazine</TypeId>
+            <SubtypeId>Missile200mm</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <ContainerType CountMin="4" CountMax="5">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCargoshipTools02</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="2000" AmountMax="5000">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>OxygenContainerObject</TypeId>
+            <SubtypeId>OxygenBottle</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>GasContainerObject</TypeId>
+            <SubtypeId>HydrogenBottle</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>AutomaticRifleItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>PreciseAutomaticRifleItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>RapidFireAutomaticRifleItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="1">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>UltimateAutomaticRifleItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>WelderItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>Welder2Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>Welder3Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="1">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>Welder4Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>AngleGrinderItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>AngleGrinder2Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>AngleGrinder3Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="1">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>AngleGrinder4Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="3">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>HandDrillItem</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>HandDrill2Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="2">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>HandDrill3Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="1" AmountMax="1">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>PhysicalGunObject</TypeId>
+            <SubtypeId>HandDrill4Item</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="50" AmountMax="300">
+          <Frequency>3.0</Frequency>
+          <Id>
+            <TypeId>AmmoMagazine</TypeId>
+            <SubtypeId>NATO_5p56x45mm</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10" AmountMax="50">
+          <Frequency>2.5</Frequency>
+          <Id>
+            <TypeId>AmmoMagazine</TypeId>
+            <SubtypeId>NATO_25x184mm</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="8" AmountMax="16">
+          <Frequency>1.5</Frequency>
+          <Id>
+            <TypeId>AmmoMagazine</TypeId>
+            <SubtypeId>Missile200mm</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+    
+    <!-- Scrap Metal -->
+
+    <ContainerType CountMin="1" CountMax="1">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootScrapMetalSmall</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="50" AmountMax="500">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Scrap</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <ContainerType CountMin="1" CountMax="1">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootScrapMetalMedium</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="500" AmountMax="1500">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Scrap</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <ContainerType CountMin="1" CountMax="1">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootScrapMetalLarge</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="1500" AmountMax="5000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Scrap</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <!-- Credits only -->
+    
+    <ContainerType CountMin="1" CountMax="1">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCreditsSmall</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="1000" AmountMax="5000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <ContainerType CountMin="1" CountMax="1">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCreditsMedium</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="5000" AmountMax="10000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+
+    <ContainerType CountMin="1" CountMax="1">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>EEMLootCreditsLarge</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="10000" AmountMax="25000">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Credits</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+    
+  </ContainerTypes>
+</Definitions>

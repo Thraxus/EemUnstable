@@ -1,0 +1,1728 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Prefabs>
+    <Prefab xsi:type="MyObjectBuilder_PrefabDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_PrefabDefinition</TypeId>
+        <SubtypeId>Unknown_Recon_Drone</SubtypeId>
+      </Id>
+      <CubeGrids>
+        <CubeGrid>
+          <SubtypeName />
+          <EntityId>107258520744916179</EntityId>
+          <PersistentFlags>CastShadows InScene</PersistentFlags>
+          <PositionAndOrientation>
+            <Position x="0" y="0" z="0" />
+            <Forward x="-0.148186043" y="0.1541589" z="-0.9768705" />
+            <Up x="-0.787027955" y="0.579756141" z="0.210878655" />
+            <Orientation>
+              <X>0.102748305</X>
+              <Y>0.03174186</Y>
+              <Z>0.44672665</Z>
+              <W>0.888183832</W>
+            </Orientation>
+          </PositionAndOrientation>
+          <GridSizeEnum>Small</GridSizeEnum>
+          <CubeBlocks>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_MyProgrammableBlock">
+              <SubtypeName>SmallProgrammableBlock</SubtypeName>
+              <EntityId>83319763758712480</EntityId>
+              <Min x="0" y="2" z="2" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <CustomName>Programmable block Find</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <Program>void Main(string argument) 
+{ 
+    var list = new List&lt;IMyTerminalBlock&gt;(); 
+    GridTerminalSystem.GetBlocksOfType&lt;IMyRemoteControl&gt;(list); 
+    if (list.Count &gt; 0) 
+    { 
+        var remote = list[0] as IMyRemoteControl; 
+        remote.ClearWaypoints(); 
+        Vector3D player = new Vector3D(0, 0, 0); 
+        bool success = remote.GetNearestPlayer(out player); 
+        if (success) 
+        { 
+            remote.AddWaypoint(player, "Player"); 
+            remote.SetAutoPilotEnabled(true); 
+        } 
+    } 
+} 
+</Program>
+              <Storage />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_RemoteControl">
+              <SubtypeName>SmallBlockRemoteControl</SubtypeName>
+              <EntityId>93582416783443069</EntityId>
+              <Min x="0" y="2" z="1" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <CustomName>_Remote Control&lt;InUse&gt;</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <UseSingleWeaponMode>false</UseSingleWeaponMode>
+              <ControlWheels>true</ControlWheels>
+              <Toolbar>
+                <ToolbarType>Character</ToolbarType>
+                <SelectedSlot xsi:nil="true" />
+                <Slots />
+              </Toolbar>
+              <SelectedGunId xsi:nil="true" />
+              <IsMainCockpit>false</IsMainCockpit>
+              <HorizonIndicatorEnabled>true</HorizonIndicatorEnabled>
+              <BuildToolbar>
+                <ToolbarType>Character</ToolbarType>
+                <SelectedSlot xsi:nil="true" />
+                <Slots />
+              </BuildToolbar>
+              <PreviousControlledEntityId xsi:nil="true" />
+              <AutoPilotEnabled>false</AutoPilotEnabled>
+              <FlightMode>0</FlightMode>
+              <CurrentWaypointIndex>-1</CurrentWaypointIndex>
+              <Waypoints />
+              <Direction>0</Direction>
+              <DockingModeEnabled>false</DockingModeEnabled>
+              <CollisionAvoidance>true</CollisionAvoidance>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_TimerBlock">
+              <SubtypeName>TimerBlockSmall</SubtypeName>
+              <EntityId>107315514732632660</EntityId>
+              <Min x="0" y="2" z="0" />
+              <BlockOrientation Forward="Right" Up="Up" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <CustomName>Timer _Loop</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <Toolbar>
+                <ToolbarType>Character</ToolbarType>
+                <SelectedSlot xsi:nil="true" />
+                <Slots>
+                  <Slot>
+                    <Index>0</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
+                      <Action>Start</Action>
+                      <BlockEntityId>107315514732632660</BlockEntityId>
+                    </Data>
+                  </Slot>
+                  <Slot>
+                    <Index>1</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
+                      <Action>Run</Action>
+                      <Parameters>
+                        <MyObjectBuilder_ToolbarItemActionParameter>
+                          <TypeCode>String</TypeCode>
+                          <Value />
+                        </MyObjectBuilder_ToolbarItemActionParameter>
+                      </Parameters>
+                      <BlockEntityId>83319763758712480</BlockEntityId>
+                    </Data>
+                  </Slot>
+                  <Slot>
+                    <Index>2</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
+                      <Action>Run</Action>
+                      <Parameters>
+                        <MyObjectBuilder_ToolbarItemActionParameter>
+                          <TypeCode>String</TypeCode>
+                          <Value />
+                        </MyObjectBuilder_ToolbarItemActionParameter>
+                      </Parameters>
+                      <BlockEntityId>131321230975633631</BlockEntityId>
+                    </Data>
+                  </Slot>
+                </Slots>
+              </Toolbar>
+              <Delay>1000</Delay>
+              <CurrentTime>0</CurrentTime>
+              <IsCountingDown>false</IsCountingDown>
+              <Silent>true</Silent>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>SmallBlockSmallThrust</SubtypeName>
+              <EntityId>80289650671608254</EntityId>
+              <Min x="-1" y="2" z="1" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <CustomName>Small Thruster 5</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>false</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>SmallBlockSmallThrust</SubtypeName>
+              <EntityId>129999546595154661</EntityId>
+              <Min x="0" y="3" z="1" />
+              <BlockOrientation Forward="Right" Up="Down" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <CustomName>Small Thruster 7</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>false</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>SmallBlockSmallThrust</SubtypeName>
+              <EntityId>88416713008700967</EntityId>
+              <Min x="1" y="1" z="1" />
+              <BlockOrientation Forward="Down" Up="Left" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <CustomName>Small Thruster 6</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>false</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>SmallBlockSmallThrust</SubtypeName>
+              <EntityId>78651630926034952</EntityId>
+              <Min x="-1" y="1" z="1" />
+              <BlockOrientation Forward="Left" Up="Up" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <CustomName>Small Thruster 8</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>false</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>SmallBlockSmallThrust</SubtypeName>
+              <EntityId>126172317223483570</EntityId>
+              <Min x="-1" y="2" z="2" />
+              <BlockOrientation Forward="Backward" Up="Up" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <CustomName>Small Thruster 9</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>false</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>SmallBlockSmallThrust</SubtypeName>
+              <EntityId>125083186361915837</EntityId>
+              <Min x="1" y="2" z="2" />
+              <BlockOrientation Forward="Backward" Up="Up" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <CustomName>Small Thruster 10</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>false</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>SmallBlockSmallThrust</SubtypeName>
+              <EntityId>78988312292059450</EntityId>
+              <Min x="0" y="1" z="-1" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <CustomName>Small Thruster 11</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>false</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorSlope</SubtypeName>
+              <Min x="0" y="3" z="3" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_TimerBlock">
+              <SubtypeName>TimerBlockSmall</SubtypeName>
+              <EntityId>103375967447289255</EntityId>
+              <Min x="0" y="3" z="0" />
+              <BlockOrientation Forward="Right" Up="Up" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <CustomName>Timer _Flee</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <Toolbar>
+                <ToolbarType>Character</ToolbarType>
+                <SelectedSlot xsi:nil="true" />
+                <Slots>
+                  <Slot>
+                    <Index>0</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
+                      <Action>OnOff_On</Action>
+                      <Parameters>
+                        <MyObjectBuilder_ToolbarItemActionParameter>
+                          <TypeCode>String</TypeCode>
+                          <Value />
+                        </MyObjectBuilder_ToolbarItemActionParameter>
+                      </Parameters>
+                      <BlockEntityId>131321230975633631</BlockEntityId>
+                    </Data>
+                  </Slot>
+                  <Slot>
+                    <Index>1</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
+                      <Action>OnOff_Off</Action>
+                      <BlockEntityId>83319763758712480</BlockEntityId>
+                    </Data>
+                  </Slot>
+                  <Slot>
+                    <Index>2</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
+                      <Action>OnOff_Off</Action>
+                      <BlockEntityId>94004133579313667</BlockEntityId>
+                    </Data>
+                  </Slot>
+                  <Slot>
+                    <Index>4</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalGroup">
+                      <Action>OnOff_On</Action>
+                      <GridEntityId>0</GridEntityId>
+                      <BlockEntityId>103375967447289255</BlockEntityId>
+                      <GroupName>Warnings</GroupName>
+                    </Data>
+                  </Slot>
+                  <Slot>
+                    <Index>5</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
+                      <Action>OnOff_Off</Action>
+                      <BlockEntityId>134949266953405085</BlockEntityId>
+                    </Data>
+                  </Slot>
+                </Slots>
+              </Toolbar>
+              <Delay>1200</Delay>
+              <CurrentTime>0</CurrentTime>
+              <IsCountingDown>false</IsCountingDown>
+              <Silent>false</Silent>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Gyro">
+              <SubtypeName>SmallBlockGyro</SubtypeName>
+              <EntityId>107664018933502780</EntityId>
+              <Min x="-1" y="2" z="0" />
+              <BlockOrientation Forward="Down" Up="Left" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorCorner</SubtypeName>
+              <Min x="1" y="1" z="-1" />
+              <BlockOrientation Forward="Backward" Up="Right" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorInvCorner2Tip</SubtypeName>
+              <Min x="-1" y="1" z="0" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorInvCorner2Tip</SubtypeName>
+              <Min x="-1" y="3" z="0" />
+              <BlockOrientation Forward="Forward" Up="Down" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorInvCorner2Tip</SubtypeName>
+              <Min x="1" y="3" z="0" />
+              <BlockOrientation Forward="Forward" Up="Left" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="3" z="3" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorInvCorner2Tip</SubtypeName>
+              <Min x="-1" y="3" z="2" />
+              <BlockOrientation Forward="Backward" Up="Right" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_MyProgrammableBlock">
+              <SubtypeName>SmallProgrammableBlock</SubtypeName>
+              <EntityId>131321230975633631</EntityId>
+              <Min x="0" y="1" z="2" />
+              <BlockOrientation Forward="Forward" Up="Down" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <CustomName>Programmable block AI Flee</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <Program>//001.001  
+//Const. vital/non-vital Block's names  
+const string strClock = "_Loop"; //Timer for this script  
+const string strRemSuff = "_Remote";  //Remote Control  
+const string strFTSuff = "_FireL";  //TimerBlock for shooting light weapons 
+const string strHTSuff = "_FireH";  //TimerBlock for shooting heavy weapons 
+const string strTDSuff = "_FireT";  //Turret for enemy check 
+const string strRTSuff = "_Flee";  //TimerBlock for flee needs 
+ 
+bool bForceFlee=true;//If true, ship will flee from player, regardless weapons status 
+ 
+double dAttackRadius=20000;//Attack on smaller distances  
+double dFireRadius=800;//Fires on smaller distances  
+double dFleeRadius=100;//Closest distance before flee  
+double dMinRadius=50;//Approach to target till this distance  
+double dMaxRadius=500000;//Flee distance  
+  
+IMyTimerBlock FT = null;    
+IMyTimerBlock HT = null;  
+IMyTimerBlock RT = null;  
+IMyTimerBlock ClockTimer = null;    
+IMyRemoteControl Rem = null;     
+IMyLargeTurretBase TDir = null; 
+ 
+bool bHalt = true;   
+bool bFast = false;   
+bool bReset = false;  
+  
+double dRSphere=0; 
+double iTimer = 0;  
+double dSlow=0;  
+ 
+int iTF = 0; 
+bool bInit=true;  
+bool bFleed=false; 
+ 
+Vector3D vecLastMe = new Vector3D(0,0,0);  
+Vector3D vecPla = new Vector3D(0,0,0);  
+Vector3D vecGra = new Vector3D(0,0,0);  
+  
+void Main(string argument)    
+{   
+    if (iTimer&gt;3600)   
+    {   
+        iTimer=0;   
+    }   
+    else   
+    {   
+        iTimer = iTimer+1;   
+    }    
+    string SArg="";   
+    string EArg="";   
+    if (argument.IndexOf(':')&gt;-1)   
+    {   
+        SArg=argument.Substring(0,argument.IndexOf(':'));   
+        EArg=argument.Substring(argument.IndexOf(':')+1);   
+    }   
+    else   
+    {   
+        SArg=argument;   
+        EArg="";   
+    }    
+    SArg=SArg.Trim().ToLower();    
+    argument=argument.Trim().ToLower();  
+    bool bArmed=false;    
+    IMyTerminalBlock Block = null;    
+    List&lt;IMyTerminalBlock&gt; Blocks = new List&lt;IMyTerminalBlock&gt;();   
+    if (argument=="")   
+    {   
+        Echo ("Zero");   
+    }   
+    else   
+    {    
+        Echo (argument);   
+    }    
+    if (Rem==null)    
+    {    
+        Rem = GetRemote (strRemSuff);   
+    }    
+    if (ClockTimer==null)   
+    {   
+        Blocks = new List&lt;IMyTerminalBlock&gt;();    
+        GridTerminalSystem.GetBlocksOfType&lt;IMyTimerBlock&gt;(Blocks);   
+        Blocks.RemoveAll (b =&gt; b.CubeGrid != Me.CubeGrid);    
+        Block=GetBlock(Blocks, null,0,strClock);  
+        if (Block!=null)   
+        {   
+            ClockTimer=Block as IMyTimerBlock;   
+            ClockTimer.ApplyAction ("OnOff_On");    
+            ClockTimer.SetValueFloat("TriggerDelay", 1.0f);   
+        }   
+    }    
+    if (FT==null)   
+    {   
+        Blocks = new List&lt;IMyTerminalBlock&gt;();    
+        GridTerminalSystem.GetBlocksOfType&lt;IMyTimerBlock&gt;(Blocks);   
+        Block=GetBlock(Blocks, null,0,strFTSuff);  
+        if (Block!=null)   
+        {   
+            FT=Block as IMyTimerBlock;    
+        }   
+    } 
+    if (HT==null)   
+    {   
+        Blocks = new List&lt;IMyTerminalBlock&gt;();    
+        GridTerminalSystem.GetBlocksOfType&lt;IMyTimerBlock&gt;(Blocks);   
+        Block=GetBlock(Blocks, null,0,strHTSuff);  
+        if (Block!=null)   
+        {   
+            HT=Block as IMyTimerBlock;    
+        }   
+    } 
+    if (RT==null)   
+    {   
+        Blocks = new List&lt;IMyTerminalBlock&gt;();    
+        GridTerminalSystem.GetBlocksOfType&lt;IMyTimerBlock&gt;(Blocks);   
+        Block=GetBlock(Blocks, null,0,strRTSuff);  
+        if (Block!=null)   
+        {   
+            RT=Block as IMyTimerBlock;    
+        }   
+    } 
+    if (TDir==null || !TDir.IsFunctional)   
+    {   
+        Blocks = new List&lt;IMyTerminalBlock&gt;();    
+        GridTerminalSystem.GetBlocksOfType&lt;IMyLargeTurretBase&gt;(Blocks); 
+        Block=GetBlock(Blocks, null,0,strTDSuff);  
+        if (Block!=null)   
+        {    
+            if ((Rem.WorldMatrix.Forward).Dot(Block.WorldMatrix.Up)&gt;-0.000001 &amp;&amp; Block.IsFunctional) 
+            { 
+                TDir=Block as IMyLargeTurretBase; 
+                TDir.SetValue&lt;bool&gt; ("EnableIdleMovement",false); 
+                TDir.SetValue&lt;bool&gt; ("TargetMeteors",false); 
+                TDir.SetValue&lt;bool&gt; ("TargetMoving",false); 
+                TDir.SetValue&lt;bool&gt; ("TargetMissiles",false); 
+                TDir.SetValue&lt;bool&gt; ("TargetSmallShips", true); 
+                TDir.SetValue&lt;bool&gt; ("TargetLargeShips", true); 
+                TDir.SetValue&lt;bool&gt; ("TargetCharacters",false); 
+                TDir.SetValue&lt;bool&gt; ("TargetStations", true); 
+                TDir.SetValue&lt;bool&gt; ("TargetNeutrals",false); 
+            }     
+        }  
+    }  
+    if (Rem!=null)  
+    { 
+        if (dRSphere==0) 
+        { 
+            if ((Rem.Position-Rem.CubeGrid.Min).Length()&gt;(Rem.Position-Rem.CubeGrid.Max).Length()) 
+            { 
+                dRSphere=(Rem.Position-Rem.CubeGrid.Min).Length()*(Rem.BlockDefinition.ToString().Contains("Large")?2.5:0.5); 
+            } 
+            else 
+            { 
+                dRSphere=(Rem.Position-Rem.CubeGrid.Max).Length()*(Rem.BlockDefinition.ToString().Contains("Large")?2.5:0.5); 
+            } 
+        } 
+        if (!bForceFlee) 
+        { 
+            Blocks = new List&lt;IMyTerminalBlock&gt;();    
+            GridTerminalSystem.GetBlocksOfType&lt;IMyUserControllableGun&gt;(Blocks);  
+            for(int i = 0;i &lt; Blocks.Count;i++)   
+            {  
+                if (!Blocks[i].BlockDefinition.ToString().Contains("Interior"))  
+                {  
+                    IMyUserControllableGun Gun = Blocks[i] as IMyUserControllableGun;  
+                    if (Gun.Enabled &amp;&amp; Gun.IsFunctional &amp;&amp; Gun.HasInventory() &amp;&amp; Gun.GetInventory(0).IsItemAt(0))  
+                    {  
+                        bArmed=true;  
+                    }  
+                }  
+            } 
+        } 
+        Rem.GetNearestPlayer(out vecPla);  
+        vecGra=Rem.GetNaturalGravity();  
+        if (vecPla.GetDim(0)!=0)  
+        {  
+            Vector3D vecAim=vecPla-Rem.GetPosition();  
+            vecAim.Normalize();  
+            if (bArmed)  
+            {  
+                if ((Rem.GetPosition()-vecPla).Length()&lt;dAttackRadius)  
+                {  
+                    if (bInit)  
+                    {  
+                        bFast=true;  
+                        Rem.SetValue&lt;bool&gt; ("DampenersOverride", true);  
+                        bInit=(CheckThrust ()?false:true);  
+                    }  
+                    else  
+                    {  
+                        vecAim=Rem.GetFreeDestination(vecAim, (float)dMaxRadius, (float)dRSphere);  
+                        vecAim.Normalize();  
+                        if ((Rem.GetPosition()-vecPla).Length()&gt;dSlow)  
+                        {  
+                            bFast=true;  
+                            SetThrustVec (vecAim,2);  
+                        }  
+                        else  
+                        {  
+                            SetThrustVec (vecAim,0);  
+                        }  
+                        if (vecAim.Dot(Rem.WorldMatrix.Forward)&lt;0.999)  
+                        {  
+                            bFast=true;  
+                            SetGyro (1);  
+                            AimAtSimple(vecAim+Rem.GetPosition(), vecGra);  
+                        }  
+                        else  
+                        {  
+                            if (FT!=null &amp;&amp; (Rem.GetPosition()-vecPla).Length()&lt;dFireRadius)  
+                            {  
+                                double dCheckDist=PathCheck(vecAim,(Rem.GetPosition()-vecPla).Length(),(float)dRSphere); 
+                                if (dCheckDist==(Rem.GetPosition()-vecPla).Length()) 
+                                { 
+                                    FT.ApplyAction("TriggerNow"); 
+                                } 
+                                else 
+                                { 
+                                    if (TDir!=null) 
+                                    { 
+                                        Vector3D vecTF =(Math.Cos(TDir.Azimuth)*TDir.WorldMatrix.Forward+Math.Sin(TDir.Azimuth)*TDir.WorldMatrix.Left); 
+                                        vecTF=(Math.Cos(TDir.Elevation)*vecTF+Math.Sin(TDir.Elevation)*TDir.WorldMatrix.Up); 
+                                        vecTF.Normalize(); 
+                                        if (vecAim.Dot(vecTF)&gt;0.985 &amp;&amp; HT!=null) 
+                                        { 
+                                            HT.ApplyAction("TriggerNow"); 
+                                        } 
+                                    } 
+                                    else 
+                                    { 
+                                        FT.ApplyAction("TriggerNow"); 
+                                    } 
+                                } 
+                            }  
+                            SetGyro (0);  
+                            SetGyro (1);  
+                        }  
+                        dSlow = (Rem.GetPosition()-vecLastMe).Length()*(bFast?60:1);  
+                        dSlow=dMinRadius+(dSlow*dSlow/2)/dTB;  
+                        vecLastMe=Rem.GetPosition();  
+                    }  
+                }  
+            }  
+            else  
+            {  
+                if ((Rem.GetPosition()-vecPla).Length()&lt;dFleeRadius || bFleed)  
+                {  
+                    vecAim=Rem.GetFreeDestination(-vecAim, (float)dMaxRadius, (float)dRSphere);  
+                    vecAim.Normalize();  
+                    Rem.SetValue&lt;bool&gt; ("DampenersOverride", true);  
+                    SetThrustVec (vecAim,2);  
+                    bFleed=true; 
+                    if (RT!=null) 
+                    { 
+                        RT.ApplyAction("TriggerNow"); 
+                    } 
+                    if (vecAim.Dot(Rem.WorldMatrix.Forward)&lt;0.999)  
+                    {  
+                        bFast=true;  
+                        SetGyro (1);  
+                        AimAtSimple(vecAim+Rem.GetPosition(), vecGra);  
+                    }  
+                    else  
+                    {  
+                        SetGyro (0);  
+                        SetGyro (1);  
+                    }  
+                }  
+            }  
+            if ((Rem.GetPosition()-vecPla).Length()&gt;dMaxRadius)  
+            {  
+                Rem.SetValue&lt;bool&gt; ("DampenersOverride", false);  
+                SetGyro (0);  
+            }  
+        }  
+    }  
+    if (bHalt)   
+    {    
+        bHalt=false;   
+        SetThrustVec (vecPla);  
+        SetGyro (0);  
+        ClockMe(ClockTimer, 0);   
+    }    
+    else if (bFast)   
+    {    
+        bFast=false;   
+        ClockMe(ClockTimer, 1);   
+    }    
+    else   
+    {    
+        ClockMe(ClockTimer, 2);    
+    }    
+}    
+ 
+IMyTerminalBlock GetBlock(List&lt;IMyTerminalBlock&gt; Blocks, IMyTerminalBlock Block=null, int iLimit=0, string strSuffix="")   
+{   
+    double dDist=10000;    
+    IMyTerminalBlock TargetBlock=null;    
+    for(int i = 0;i &lt; Blocks.Count;i++)   
+    {    
+        if (iLimit==0)    
+        {   
+            if (Block==null)    
+            {    
+                if (dDist&gt;(Blocks[i].GetPosition()-Me.GetPosition()).Length() &amp;&amp; Blocks[i].CustomName.Contains(strSuffix))    
+                {    
+                    dDist = (Blocks[i].GetPosition()-Me.GetPosition()).Length();    
+                    TargetBlock = Blocks[i];    
+                }   
+            }    
+            else    
+            {    
+                if (dDist&gt;(Blocks[i].GetPosition()-Block.GetPosition()).Length() &amp;&amp; Blocks[i].CustomName.Contains(strSuffix))    
+                {    
+                    dDist = (Blocks[i].GetPosition()-Block.GetPosition()).Length();    
+                    TargetBlock = Blocks[i];    
+                }   
+            }    
+        }    
+        else    
+        {    
+            if (Block==null)    
+            {    
+                if (iLimit&gt;(Blocks[i].GetPosition()-Me.GetPosition()).Length() &amp;&amp; dDist&gt;(Blocks[i].GetPosition()-Me.GetPosition()).Length() &amp;&amp; Blocks[i].CustomName.Contains(strSuffix))    
+                {    
+                    dDist = (Blocks[i].GetPosition()-Me.GetPosition()).Length();    
+                    TargetBlock = Blocks[i];    
+                }   
+            }    
+            else    
+            {    
+                if (iLimit&gt;(Blocks[i].GetPosition()-Block.GetPosition()).Length() &amp;&amp; dDist&gt;(Blocks[i].GetPosition()-Block.GetPosition()).Length() &amp;&amp; Blocks[i].CustomName.Contains(strSuffix))    
+                {    
+                    dDist = (Blocks[i].GetPosition()-Block.GetPosition()).Length();    
+                    TargetBlock = Blocks[i];    
+                }   
+            }    
+        }    
+                     
+    }   
+    if (TargetBlock!=null)   
+    {    
+        return TargetBlock;    
+    }   
+    return null;    
+}    
+   
+void ClockMe(IMyTimerBlock Timer=null, int iMode=1)   
+{   
+    if (Timer==null)   
+    {   
+        List&lt;IMyTerminalBlock&gt; Blocks = new List&lt;IMyTerminalBlock&gt;();    
+        GridTerminalSystem.GetBlocksOfType&lt;IMyTimerBlock&gt;(Blocks);    
+        for(int i = 0;i &lt; Blocks.Count;i++)   
+            {   
+            if  (Blocks[i].CustomName.Contains(strClock))    
+            {    
+                Timer = Blocks[i] as IMyTimerBlock;    
+            }    
+        }   
+    }   
+    if (iMode==0)   
+    {   
+        if (Timer!= null)    
+        {   
+             Timer.GetActionWithName("Stop").Apply(Timer);   
+        }    
+    }   
+    else if (iMode==1)   
+    {   
+        if (Timer!= null)   
+        {   
+            Timer.GetActionWithName("TriggerNow").Apply(Timer);   
+        }   
+    }   
+    else if (iMode==2)   
+    {   
+        if (Timer!= null)   
+        {   
+            Timer.GetActionWithName("Start").Apply(Timer);   
+        }   
+    }    
+}    
+  
+IMyRemoteControl GetRemote (string strSuff, int iMode=1)   
+{   
+    IMyRemoteControl Remote = null;   
+    List&lt;IMyTerminalBlock&gt; Blocks = new List&lt;IMyTerminalBlock&gt;();    
+    GridTerminalSystem.GetBlocksOfType&lt;IMyRemoteControl&gt;(Blocks);   
+    IMyTerminalBlock Block = null;    
+    if (iMode==0)   
+    {   
+        for(int i = 0;i &lt; Blocks.Count;i++)   
+        {   
+            if (Blocks[i].CustomName.Contains(strSuff))   
+            {   
+                GetSuffix (Blocks[i], true);   
+            }   
+        }   
+    }   
+    else if (iMode==1)   
+    {    
+        for(int i = 0;i &lt; Blocks.Count;i++)   
+        {   
+            if (Blocks[i].CustomName.Contains(strSuff))   
+            {   
+                GetSuffix (Blocks[i], true);   
+            }   
+        }   
+        Blocks.RemoveAll (b =&gt; b.CubeGrid != Me.CubeGrid);   
+        Block=GetBlock(Blocks, null,0,strSuff);   
+        if (Block!=null)   
+        {   
+            Remote = Block as IMyRemoteControl;    
+            SendSuffix (Block, "InUse");   
+        }     
+    }   
+    else if (iMode==2 || iMode==3)   
+    {   
+        IMyTerminalBlock FirstBlock = null;   
+        bool bInUse = false;   
+        for(int i = 0;i &lt; Blocks.Count;i++)   
+        {   
+            IMyShipController ShipCon = Blocks[i] as IMyShipController;    
+            if (Blocks[i].CustomName.Contains(strSuff) &amp;&amp; ((iMode==3 &amp;&amp; ShipCon.IsUnderControl) || iMode==2))   
+            {   
+                if (FirstBlock==null)   
+                {   
+                    FirstBlock=Blocks[i];   
+                }   
+                if (bInUse)   
+                {   
+                    SendSuffix (Blocks[i], "InUse");    
+                    Remote = Blocks[i] as IMyRemoteControl;    
+                    return Remote;   
+                }   
+                else if (GetSuffix (Blocks[i], true)=="InUse" &amp;&amp; !bInUse)   
+                {   
+                    bInUse=true;   
+                }   
+            }   
+        }    
+        for(int i = 0;i &lt; Blocks.Count;i++)   
+        {   
+            if (Blocks[i].CustomName.Contains(strSuff))   
+            {   
+                GetSuffix (Blocks[i], true);   
+            }   
+        }   
+        if (FirstBlock!=null)   
+        {   
+            SendSuffix (FirstBlock, "InUse");   
+            Remote = FirstBlock as IMyRemoteControl;    
+            return Remote;   
+        }   
+    }    
+    return Remote;   
+}   
+   
+void SendSuffix (IMyTerminalBlock Block, string strSuffix)    
+{    
+    Block.SetCustomName(Block.CustomName+"&lt;");    
+    string strInfo = "";    
+    int iSAct = Block.CustomName.IndexOf('&lt;');    
+    if (iSAct != -1)    
+    {    
+        Block.SetCustomName (Block.CustomName.Substring (0, iSAct));    
+    }    
+    Block.SetCustomName (Block.CustomName+"&lt;"+strSuffix+"&gt;");    
+}    
+   
+string GetSuffix (IMyTerminalBlock Block, bool bClean=false)    
+{    
+    string strInfo = "";    
+    int iSAct = Block.CustomName.IndexOf('&lt;');    
+    int iEAct = Block.CustomName.IndexOf('&gt;');    
+    if (iSAct != -1 &amp;&amp; iEAct != -1)    
+    {    
+        strInfo = Block.CustomName.Substring (iSAct+1, iEAct-iSAct-1);    
+        if (bClean)    
+        {   
+            Block.SetCustomName (Block.CustomName.Substring (0, iSAct));    
+        }    
+    }    
+    return strInfo;    
+}  
+  
+double PathCheck (Vector3D vecDir, double dDist=100, double dFR=1)  
+{  
+    double dRes=dDist;  
+    if (vecDir.GetDim(0)!=0 &amp;&amp; Rem!=null)  
+    {  
+        double dCheck;  
+        vecDir.Normalize();  
+        Vector3D vecCheck=Rem.GetFreeDestination(vecDir+Rem.GetPosition(), (float)dDist, (float)dFR);  
+        dCheck=(vecCheck-Rem.GetPosition()).Length();  
+        vecCheck=vecCheck-Rem.GetPosition();  
+        vecCheck.Normalize();  
+  
+        if (vecCheck.Dot(vecDir)&lt;0.995 &amp;&amp; dCheck&gt;=dFR)   
+        {  
+            vecDir=vecDir-(vecCheck-vecDir)*(-0.5);  
+            vecDir.Normalize();  
+            vecCheck=Rem.GetFreeDestination(vecDir+Rem.GetPosition(), (float)dDist, (float)dFR);  
+            dRes=(dCheck+(vecCheck-Rem.GetPosition()).Length())/2;  
+        }  
+    }  
+    return dRes;  
+}  
+  
+double dCoof = 1.5;  
+double dTB = 0;  
+double dTU = 0;  
+double dDumbSpeed=0.001;  
+int iCount = 0;  
+Vector3D posMe = new Vector3D();  
+  
+bool CheckThrust ()  
+{  
+    if (Rem!=null)  
+    {  
+        bool bStart=false;  
+        bool bStop=false;  
+        if (iCount&gt;21)   
+        {  
+            iCount=0;  
+        }  
+        else   
+        {  
+            iCount = iCount+1;  
+        }  
+        if ((Rem.GetPosition()-posMe).Length()&gt;dDumbSpeed &amp;&amp; !(dTB&lt;0 || dTU&lt;0))  
+        {  
+            iCount=0;  
+            posMe = Rem.GetPosition();  
+        }  
+        if (iCount==1)  
+        {  
+            bStart=true;  
+        }  
+        if (iCount==21)  
+        {  
+            bStop=true;  
+        }  
+        if (bStart)  
+        {  
+            posMe = Rem.GetPosition();  
+            if (dTB==0)  
+            {  
+               dTB=-1;  
+               SetThrustVec(Rem.WorldMatrix.Backward,2);  
+            }  
+            else if (dTU==0)  
+            {  
+               dTU=-1;  
+               SetThrustVec(Rem.WorldMatrix.Up,2);  
+            }  
+        }  
+        else if (bStop)  
+        {  
+            SetThrustVec(new Vector3D(),0);  
+            dTB=(dTB&lt;0?(Rem.GetPosition()-posMe).Length()*18:dTB);  
+            dTU=(dTU&lt;0?(Rem.GetPosition()-posMe).Length()*18:dTU);  
+        }  
+        if (dTB&gt;0 &amp;&amp; dTU&gt;0)  
+        {  
+            return true;  
+        }  
+    }  
+    return false;  
+}  
+  
+List&lt;IMyThrust&gt; Thrusts = new List&lt;IMyThrust&gt;();  
+List&lt;Vector3D&gt; vecThrust = new List&lt;Vector3D&gt;();  
+double[] dMThrust = null;  
+  
+bool SetThrustVec (Vector3D vecF, int iMode=0, bool bCalc=false)  
+{  
+    vecF=-vecF;  
+    vecF.Normalize();  
+    Vector3D vecU = Vector3D.CalculatePerpendicularVector(vecF);  
+    Vector3D vecL = Vector3D.Cross(vecF,vecU);  
+    vecU.Normalize();  
+    vecL.Normalize();  
+    double dAng = 0;  
+    IMyThrust Thrust = null;  
+    bool bPass = false;  
+    if (Thrusts.Count&lt;1 || bCalc)  
+    {  
+        Thrusts.Clear();  
+        List&lt;IMyTerminalBlock&gt; Blocks = new List&lt;IMyTerminalBlock&gt;();  
+        Blocks = new List&lt;IMyTerminalBlock&gt;();  
+        GridTerminalSystem.GetBlocksOfType&lt;IMyThrust&gt;(Blocks);  
+        if (Rem!=null)  
+        {  
+            if (Blocks.Count&gt;0)  
+            {  
+                dMThrust = new double[Blocks.Count];  
+                Thrusts = new List&lt;IMyThrust&gt;(Blocks.Count);  
+                vecThrust = new List&lt;Vector3D&gt;(Blocks.Count);  
+                for(int i = 0;i &lt; Blocks.Count;i++)  
+                {  
+                    Thrust = Blocks[i] as IMyThrust;  
+                    Thrusts.Add(Thrust);  
+                    vecThrust.Add(Thrust.WorldMatrix.Forward);  
+                    dMThrust[i] = Convert.ToDouble(Thrust.GetMaximum&lt;float&gt;("Override"));  
+                }  
+            }  
+        }  
+    }  
+    if (Thrusts.Count&gt;0)  
+    {  
+        double[] dCThrust = new double[Thrusts.Count];  
+        double dUSum = 0;  
+        double dDSum = 0;  
+        double dUCoof = 0;  
+        double dDCoof = 0;  
+        double dLSum = 0;  
+        double dRSum = 0;  
+        double dLCoof = 0;  
+        double dRCoof = 0;   
+        string strPower = "OnOff_On";  
+        if (iMode==1)  
+        {  
+            strPower = "OnOff_Off";  
+        }  
+        else if (iMode==2)  
+        {  
+            for(int i = 0;i &lt; Thrusts.Count;i++)  
+            {  
+                dAng = vecF.Dot(Thrusts[i].WorldMatrix.Forward);  
+                if (dAng&lt;0.001)  
+                {  
+                    dCThrust[i]=1;  
+                }  
+                else   
+                {  
+                    dCThrust[i]=dMThrust[i];  
+                    dAng = vecL.Dot(Thrusts[i].WorldMatrix.Forward);  
+                    if (dAng&gt;0.001)  
+                    {  
+                        dRSum=dRSum+dAng*dCThrust[i];  
+                    }  
+                    else if (dAng&lt;-0.001)  
+                    {  
+                        dLSum=dLSum-dAng*dCThrust[i];  
+                    }  
+                    dLCoof=(dRSum&lt;dLSum?dRSum/dLSum:1);  
+                    dRCoof=(dLSum&lt;dRSum?dLSum/dRSum:1);  
+                    dAng = vecU.Dot(Thrusts[i].WorldMatrix.Forward);  
+                    if (dAng&gt;0.001)  
+                    {  
+                        dUSum=dUSum+dAng*dCThrust[i];  
+                    }  
+                    else if (dAng&lt;-0.001)  
+                    {  
+                        dDSum=dDSum-dAng*dCThrust[i];  
+                    }  
+                    dUCoof=(dDSum&lt;dUSum?dDSum/dUSum:1);  
+                    dDCoof=(dUSum&lt;dDSum?dUSum/dDSum:1);  
+                }  
+            }  
+            for(int i = 0;i &lt; Thrusts.Count;i++)  
+            {  
+                dAng = vecF.Dot(Thrusts[i].WorldMatrix.Forward);  
+                if (dAng&gt;=0.001)  
+                {  
+                    dAng = vecL.Dot(Thrusts[i].WorldMatrix.Forward);  
+                    if (dAng&gt;0.001)  
+                    {  
+                        dCThrust[i]=dCThrust[i]*dRCoof;  
+                    }  
+                    else if (dAng&lt;-0.001)  
+                    {  
+                        dCThrust[i]=dCThrust[i]*dLCoof;  
+                    }  
+                    dAng = vecU.Dot(Thrusts[i].WorldMatrix.Forward);  
+                    if (dAng&gt;0.001)  
+                    {  
+                        dCThrust[i]=dCThrust[i]*dUCoof;  
+                    }  
+                    else if (dAng&lt;-0.001)  
+                    {  
+                        dCThrust[i]=dCThrust[i]*dDCoof;  
+                    }  
+                }  
+            }  
+        }  
+        for(int i = 0;i &lt; Thrusts.Count;i++)  
+        {  
+            Thrusts[i].ApplyAction (strPower);  
+            Thrusts[i].SetValueFloat("Override", (float)dCThrust[i]);  
+        }  
+        return true;  
+    }  
+    return false;  
+}  
+  
+List&lt;IMyGyro&gt; Gyros = new List&lt;IMyGyro&gt;();  
+string[] strPitch = null;  
+string[] strYaw = null;  
+string[] strRoll = null;  
+int[] iPitch = null;  
+int[] iYaw = null;  
+int[] iRoll = null;  
+  
+bool SetGyro (int iMode=1, string strDim = "", double dVal = -1, bool bCalc=false)  
+{  
+    IMyGyro Gyro = null;  
+    if (Gyros.Count&lt;1 || bCalc)  
+    {  
+        Gyros.Clear();  
+        List&lt;IMyTerminalBlock&gt; Blocks = new List&lt;IMyTerminalBlock&gt;();  
+        Blocks = new List&lt;IMyTerminalBlock&gt;();  
+        GridTerminalSystem.GetBlocksOfType&lt;IMyGyro&gt;(Blocks);  
+        Blocks.RemoveAll (b =&gt; b.CubeGrid != Me.CubeGrid);  
+        if (Rem!=null)  
+        {  
+            Vector3 V3For =Base6Directions.GetVector(Rem.Orientation.TransformDirection(Base6Directions.Direction.Forward));  
+            Vector3 V3Up =Base6Directions.GetVector(Rem.Orientation.TransformDirection(Base6Directions.Direction.Up));  
+            V3For.Normalize();  
+            V3Up.Normalize();  
+            Base6Directions.Direction B6DFor = Base6Directions.GetDirection(V3For);  
+            Base6Directions.Direction B6DTop = Base6Directions.GetDirection(V3Up);  
+            Base6Directions.Direction B6DLef = Base6Directions.GetLeft(B6DTop, B6DFor);  
+            if (Blocks.Count&gt;0)  
+            {  
+                strPitch = new string[Blocks.Count];  
+                strYaw = new string[Blocks.Count];  
+                strRoll = new string[Blocks.Count];  
+                iPitch = new int[Blocks.Count];  
+                iYaw = new int[Blocks.Count];  
+                iRoll = new int[Blocks.Count];  
+                for(int i = 0;i &lt; Blocks.Count;i++)  
+                {  
+                    Gyro = Blocks[i] as IMyGyro;  
+                    Gyros.Add(Gyro);  
+                    Base6Directions.Direction GyroUp = Blocks[i].Orientation.TransformDirectionInverse(B6DTop);  
+                    Base6Directions.Direction GyroForward = Blocks[i].Orientation.TransformDirectionInverse(B6DFor);  
+                    Base6Directions.Direction GyroLeft = Blocks[i].Orientation.TransformDirectionInverse(B6DLef);  
+                      
+                    switch (GyroUp)  
+                    {  
+                        case Base6Directions.Direction.Up:                    
+                            strYaw[i] = "Yaw";  
+                            iYaw[i] = 1;  
+                            break;  
+                        case Base6Directions.Direction.Down:                    
+                            strYaw[i] = "Yaw";  
+                            iYaw[i] = -1;  
+                            break;  
+                        case Base6Directions.Direction.Left:                    
+                            strYaw[i] = "Pitch";  
+                            iYaw[i] = 1;  
+                            break;  
+                        case Base6Directions.Direction.Right:                    
+                            strYaw[i] = "Pitch";  
+                            iYaw[i] = -1;  
+                            break;  
+                        case Base6Directions.Direction.Backward:                    
+                            strYaw[i] = "Roll";  
+                            iYaw[i] = 1;  
+                            break;  
+                        case Base6Directions.Direction.Forward:                    
+                            strYaw[i] = "Roll";  
+                            iYaw[i] = -1;  
+                            break;  
+                    }  
+                    switch (GyroLeft)  
+                    {  
+                        case Base6Directions.Direction.Up:                    
+                            strPitch[i] = "Yaw";  
+                            iPitch[i] = -1;  
+                            break;  
+                        case Base6Directions.Direction.Down:                    
+                            strPitch[i] = "Yaw";  
+                            iPitch[i] = 1;  
+                            break;  
+                        case Base6Directions.Direction.Left:                    
+                            strPitch[i] = "Pitch";  
+                            iPitch[i] = -1;  
+                            break;  
+                        case Base6Directions.Direction.Right:                    
+                            strPitch[i] = "Pitch";  
+                            iPitch[i] = 1;  
+                            break;  
+                        case Base6Directions.Direction.Backward:                    
+                            strPitch[i] = "Roll";  
+                            iPitch[i] = -1;  
+                            break;  
+                        case Base6Directions.Direction.Forward:                    
+                            strPitch[i] = "Roll";  
+                            iPitch[i] = 1;  
+                            break;  
+                    }  
+                    switch (GyroForward)  
+                    {  
+                        case Base6Directions.Direction.Up:                    
+                            strRoll[i] = "Yaw";  
+                            iRoll[i] = -1;  
+                            break;  
+                        case Base6Directions.Direction.Down:                    
+                            strRoll[i] = "Yaw";  
+                            iRoll[i] = 1;  
+                            break;  
+                        case Base6Directions.Direction.Left:                    
+                            strRoll[i] = "Pitch";  
+                            iRoll[i] = -1;  
+                            break;  
+                        case Base6Directions.Direction.Right:                    
+                            strRoll[i] = "Pitch";  
+                            iRoll[i] = 1;  
+                            break;  
+                        case Base6Directions.Direction.Backward:                    
+                            strRoll[i] = "Roll";  
+                            iRoll[i] = -1;  
+                            break;  
+                        case Base6Directions.Direction.Forward:                    
+                            strRoll[i] = "Roll";  
+                            iRoll[i] = 1;  
+                            break;  
+                    }  
+                }  
+            }  
+        }  
+    }  
+    if (Gyros.Count&gt;0)  
+    {  
+        if (Rem!=null)   
+        {  
+            if (iMode==0)  
+            {  
+                for(int i = 0;i &lt; Gyros.Count;i++)  
+                {  
+                    Gyros[i].SetValue&lt;bool&gt; ("Override", false);  
+                    Gyros[i].SetValueFloat("Yaw", 0);  
+                    Gyros[i].SetValueFloat("Pitch", 0);  
+                    Gyros[i].SetValueFloat("Roll", 0);  
+                }  
+                return true;  
+            }  
+            else if (iMode==1)  
+            {  
+                for(int i = 0;i &lt; Gyros.Count;i++)  
+                {  
+                    Gyros[i].SetValue&lt;bool&gt; ("Override", true);  
+                }  
+                return true;  
+            }  
+            else if (iMode==2)  
+            {  
+                if (strDim!="" &amp;&amp; dVal!=-1)  
+                {  
+                    for(int i = 0;i &lt; Gyros.Count;i++)  
+                    {  
+                        if (strDim=="Yaw")  
+                        {  
+                            Gyros[i].SetValueFloat(strYaw[i], (float)dVal*iYaw[i]);  
+                        }  
+                        else if (strDim=="Pitch")  
+                        {  
+                            Gyros[i].SetValueFloat(strPitch[i], (float)dVal*iPitch[i]);  
+                        }  
+                        else if (strDim=="Roll")  
+                        {  
+                            Gyros[i].SetValueFloat(strRoll[i], (float)dVal*iRoll[i]);  
+                        }  
+                    }  
+                    return true;  
+                }  
+            }  
+        }  
+    }  
+    return false;  
+}  
+  
+//-----Alysius----------  
+  
+double lastYawError = 0;//Last error       
+double lastYawIntegral = 0;//Last integral       
+double lastPitchError = 0;//Last error       
+double lastPitchIntegral = 0;//Last integral     
+double lastRollError = 0;//Last error       
+double lastRollIntegral = 0;//Last integral      
+  
+Vector3D Z_VECTOR = new Vector3D(0, 0, 1);  
+Vector3D Y_VECTOR = new Vector3D(0, 1, 0);  
+Vector3D POINT_ZERO = new Vector3D(0, 0, 0);  
+  
+const double RPM_FACTOR = 1800 / Math.PI;  
+const double ACOS_FACTOR = 180 / Math.PI;  
+const float GYRO_FACTOR = (float)(Math.PI / 30);  
+  
+double AIM_P = 0;//The proportional gain of the gyroscope turning (Set useDefaultPIDValues to true to use default values)   
+double AIM_I = 0;//The integral gain of the gyroscope turning (Set useDefaultPIDValues to true to use default values)   
+double AIM_D = 0;//The derivative gain of the gyroscope turning (Set useDefaultPIDValues to true to use default values)   
+double AIM_LIMIT = 30;//Limit value of both yaw and pitch combined       
+  
+void AimAtSimple(Vector3D AAT, Vector3D GAT)  
+{  
+    if (Rem!=null)  
+    {  
+        if (AIM_P==0)  
+        {  
+            if (Rem.BlockDefinition.ToString().Contains("Large"))   
+            {  
+                AIM_P = 50;//50  
+                AIM_I = 0.5;//0.5  
+                AIM_D = 4;//4  
+            }  
+            else   
+            {  
+                AIM_P = 48;//240  
+                AIM_I = 0;//0  
+                AIM_D = 40;//200  
+                AIM_LIMIT = 60;  
+            }  
+        }  
+        // ------- Tar Vector---------------   
+        Vector3D vecTar = AAT - Rem.GetPosition();  
+        Vector3D vecGr1 = GAT;  
+        Vector3D vecGr2 = GAT;  
+        Vector3D yawVector = new Vector3D();  
+        Vector3D pitchVector = new Vector3D();  
+        Vector3D rollVector = new Vector3D();  
+        double targetYawAngle = 0;  
+        double targetPitchAngle = 0;  
+        double targetRollAngle = 0;  
+        vecTar.Normalize();  
+        vecTar = Vector3D.Transform(vecTar, MatrixD.CreateLookAt(POINT_ZERO, Rem.WorldMatrix.Backward, Rem.WorldMatrix.Up));  
+        vecTar.Normalize();  
+        if (vecGr1.GetDim(0)!=0)  
+        {  
+            vecGr1 = Vector3D.Transform(vecGr1, MatrixD.CreateLookAt(POINT_ZERO, Rem.WorldMatrix.Up, Rem.WorldMatrix.Forward));  
+            vecGr2 = Vector3D.Transform(vecGr2, MatrixD.CreateLookAt(POINT_ZERO, Rem.WorldMatrix.Backward, Rem.WorldMatrix.Down));  
+            vecGr1.Normalize();  
+            vecGr2.Normalize();  
+            //---------- Activate Gyroscopes To Turn Towards Target ----------    
+            pitchVector = new Vector3D(0, vecGr1.GetDim(1), vecGr1.GetDim(2));  
+            rollVector = new Vector3D(vecGr2.GetDim(0), vecGr2.GetDim(1), 0);  
+            pitchVector.Normalize();  
+            rollVector.Normalize();  
+            targetPitchAngle = Math.Acos(pitchVector.Dot(Z_VECTOR)) * GetMultiplierSign(vecGr1.GetDim(1));  
+            targetRollAngle = Math.Acos(rollVector.Dot(Y_VECTOR)) * GetMultiplierSign(vecGr2.GetDim(0));  
+        }  
+        else  
+        {  
+            //---------- Activate Gyroscopes To Turn Towards Target ----------       
+            pitchVector = new Vector3D(0, vecTar.GetDim(1), vecTar.GetDim(2));  
+            pitchVector.Normalize();  
+            targetPitchAngle = Math.Acos(pitchVector.Dot(Z_VECTOR)) * GetMultiplierSign(vecTar.GetDim(1));  
+        }  
+        //---------- Activate Gyroscopes To Turn Towards Target ----------  
+        yawVector = new Vector3D(vecTar.GetDim(0), 0, vecTar.GetDim(2));  
+        yawVector.Normalize();  
+        targetYawAngle = Math.Acos(yawVector.Dot(Z_VECTOR)) * GetMultiplierSign(vecTar.GetDim(0));  
+        //---------- PID Controller Adjustment ----------       
+        double yawDerivative = (targetYawAngle - lastYawError) * 60;//60   
+        lastYawIntegral = lastYawIntegral + (targetYawAngle / 60);  
+        lastYawError = targetYawAngle;  
+        targetYawAngle = (AIM_P * targetYawAngle) + (AIM_I * lastYawIntegral) + (AIM_D * yawDerivative);  
+        double pitchDerivative = (targetPitchAngle - lastPitchError) * 60;//60      
+        lastPitchIntegral = lastPitchIntegral + (targetPitchAngle / 60);  
+        lastPitchError = targetPitchAngle;  
+        targetPitchAngle = (AIM_P * targetPitchAngle) + (AIM_I * lastPitchIntegral) + (AIM_D * pitchDerivative);  
+        double rollDerivative = (targetRollAngle - lastRollError) * 60;//60   
+        lastRollIntegral = lastRollIntegral + (targetRollAngle / 60);  
+        lastRollError = targetRollAngle;  
+        targetRollAngle = (AIM_P * targetRollAngle) + (AIM_I * lastRollIntegral) + (AIM_D * rollDerivative);  
+        if (Math.Abs(targetYawAngle)+Math.Abs(targetPitchAngle)+Math.Abs(targetRollAngle)&gt; AIM_LIMIT)   
+        {  
+            double adjust = AIM_LIMIT / (Math.Abs(targetYawAngle)+Math.Abs(targetPitchAngle)+Math.Abs(targetRollAngle));  
+            targetYawAngle *= adjust;  
+            targetPitchAngle *= adjust;  
+            targetRollAngle *= adjust;  
+        }  
+        //---------- Set Gyroscope Parameters ----------  k   
+        SetGyro (2,"Yaw",targetYawAngle*GYRO_FACTOR);  
+        SetGyro (2,"Pitch",targetPitchAngle*GYRO_FACTOR);  
+        SetGyro (2,"Roll",targetRollAngle*GYRO_FACTOR);  
+    }  
+}  
+   
+int GetMultiplierSign(double value)   
+{  
+    return (value &lt; 0 ? 1 : -1);  
+}  
+</Program>
+              <Storage />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="1" z="3" />
+              <BlockOrientation Forward="Up" Up="Backward" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorInvCorner2Tip</SubtypeName>
+              <Min x="-1" y="1" z="2" />
+              <BlockOrientation Forward="Backward" Up="Up" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallHeavyBlockArmorCorner</SubtypeName>
+              <Min x="1" y="3" z="-1" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallHeavyBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="3" z="-1" />
+              <BlockOrientation Forward="Down" Up="Forward" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorInvCorner2Tip</SubtypeName>
+              <Min x="1" y="1" z="0" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallHeavyBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="1" z="-1" />
+              <BlockOrientation Forward="Backward" Up="Down" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorCorner</SubtypeName>
+              <Min x="1" y="3" z="3" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorInvCorner2Tip</SubtypeName>
+              <Min x="1" y="3" z="2" />
+              <BlockOrientation Forward="Backward" Up="Down" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorCorner</SubtypeName>
+              <Min x="1" y="1" z="3" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorInvCorner2Tip</SubtypeName>
+              <Min x="1" y="1" z="2" />
+              <BlockOrientation Forward="Backward" Up="Left" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorSlope</SubtypeName>
+              <Min x="0" y="3" z="-1" />
+              <BlockOrientation Forward="Down" Up="Forward" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Reactor">
+              <SubtypeName>SmallBlockSmallGenerator</SubtypeName>
+              <EntityId>85487299628693472</EntityId>
+              <Min x="0" y="3" z="2" />
+              <BlockOrientation Forward="Up" Up="Backward" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items>
+                        <MyObjectBuilder_InventoryItem>
+                          <Amount>13</Amount>
+                          <PhysicalContent xsi:type="MyObjectBuilder_Ingot">
+                            <SubtypeName>Uranium</SubtypeName>
+                          </PhysicalContent>
+                          <ItemId>0</ItemId>
+                        </MyObjectBuilder_InventoryItem>
+                      </Items>
+                      <nextItemId>1</nextItemId>
+                      <Volume>0.125</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <MaxItemCount>2147483647</MaxItemCount>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanReceive</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <Inventory>
+                <Items>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>13</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_Ingot">
+                      <SubtypeName>Uranium</SubtypeName>
+                    </PhysicalContent>
+                    <ItemId>0</ItemId>
+                  </MyObjectBuilder_InventoryItem>
+                </Items>
+                <nextItemId>1</nextItemId>
+                <Volume>0.125</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <MaxItemCount>2147483647</MaxItemCount>
+                <Size xsi:nil="true" />
+                <InventoryFlags>CanReceive</InventoryFlags>
+                <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+              </Inventory>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ReflectorLight">
+              <SubtypeName>SmallBlockFrontLight</SubtypeName>
+              <EntityId>94004133579313667</EntityId>
+              <Min x="1" y="2" z="0" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <Radius>1.96424961</Radius>
+              <ReflectorRadius>120</ReflectorRadius>
+              <ColorGreen>0.8392157</ColorGreen>
+              <ColorBlue>0.670588255</ColorBlue>
+              <Falloff>1</Falloff>
+              <Intensity>1.98987317</Intensity>
+              <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
+              <BlinkLenght>10</BlinkLenght>
+              <BlinkOffset>0</BlinkOffset>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CameraBlock">
+              <SubtypeName>SmallCameraBlock</SubtypeName>
+              <EntityId>134949266953405085</EntityId>
+              <Min x="0" y="2" z="-1" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <IsActive>false</IsActive>
+              <Fov>1.04719758</Fov>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_TextPanel">
+              <SubtypeName>SmallTextPanel</SubtypeName>
+              <EntityId>127172786220630377</EntityId>
+              <Min x="2" y="2" z="1" />
+              <BlockOrientation Forward="Left" Up="Up" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>false</Enabled>
+              <Description />
+              <Title>Title</Title>
+              <AccessFlag>READ_AND_WRITE_ALL</AccessFlag>
+              <ChangeInterval>0.5</ChangeInterval>
+              <SelectedImages>
+                <string>Danger</string>
+                <string>Online</string>
+              </SelectedImages>
+              <FontSize>1</FontSize>
+              <PublicDescription />
+              <PublicTitle>Public title</PublicTitle>
+              <ShowText>NONE</ShowText>
+              <FontColor>
+                <PackedValue>4294967295</PackedValue>
+                <R>255</R>
+                <G>255</G>
+                <B>255</B>
+                <A>255</A>
+              </FontColor>
+              <BackgroundColor>
+                <PackedValue>4278190080</PackedValue>
+                <R>0</R>
+                <G>0</G>
+                <B>0</B>
+                <A>255</A>
+              </BackgroundColor>
+              <CurrentShownTexture>1</CurrentShownTexture>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>SmallBlockArmorSlope2Tip</SubtypeName>
+              <Min x="-1" y="2" z="-1" />
+              <BlockOrientation Forward="Right" Up="Forward" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_TextPanel">
+              <SubtypeName>SmallTextPanel</SubtypeName>
+              <EntityId>142540865430727707</EntityId>
+              <Min x="-2" y="2" z="1" />
+              <BlockOrientation Forward="Right" Up="Up" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <CustomName>Text panel 2</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>false</Enabled>
+              <Description />
+              <Title>Title</Title>
+              <AccessFlag>READ_AND_WRITE_ALL</AccessFlag>
+              <ChangeInterval>0.5</ChangeInterval>
+              <SelectedImages>
+                <string>Danger</string>
+                <string>Online</string>
+              </SelectedImages>
+              <FontSize>1</FontSize>
+              <PublicDescription />
+              <PublicTitle>Public title</PublicTitle>
+              <ShowText>NONE</ShowText>
+              <FontColor>
+                <PackedValue>4294967295</PackedValue>
+                <R>255</R>
+                <G>255</G>
+                <B>255</B>
+                <A>255</A>
+              </FontColor>
+              <BackgroundColor>
+                <PackedValue>4278190080</PackedValue>
+                <R>0</R>
+                <G>0</G>
+                <B>0</B>
+                <A>255</A>
+              </BackgroundColor>
+              <CurrentShownTexture>1</CurrentShownTexture>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_TextPanel">
+              <SubtypeName>SmallTextPanel</SubtypeName>
+              <EntityId>116421396033068078</EntityId>
+              <Min x="0" y="4" z="1" />
+              <BlockOrientation Forward="Down" Up="Backward" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <CustomName>Text panel 3</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>false</Enabled>
+              <Description />
+              <Title>Title</Title>
+              <AccessFlag>READ_AND_WRITE_ALL</AccessFlag>
+              <ChangeInterval>0.5</ChangeInterval>
+              <SelectedImages>
+                <string>Danger</string>
+                <string>Online</string>
+              </SelectedImages>
+              <FontSize>1</FontSize>
+              <PublicDescription />
+              <PublicTitle>Public title</PublicTitle>
+              <ShowText>NONE</ShowText>
+              <FontColor>
+                <PackedValue>4294967295</PackedValue>
+                <R>255</R>
+                <G>255</G>
+                <B>255</B>
+                <A>255</A>
+              </FontColor>
+              <BackgroundColor>
+                <PackedValue>4278190080</PackedValue>
+                <R>0</R>
+                <G>0</G>
+                <B>0</B>
+                <A>255</A>
+              </BackgroundColor>
+              <CurrentShownTexture>1</CurrentShownTexture>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_TextPanel">
+              <SubtypeName>SmallTextPanel</SubtypeName>
+              <EntityId>119432025169811028</EntityId>
+              <Min x="0" y="0" z="1" />
+              <BlockOrientation Forward="Up" Up="Backward" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.34" />
+              <Owner>144115188075855873</Owner>
+              <ShareMode>Faction</ShareMode>
+              <CustomName>Text panel 4</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>false</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>false</Enabled>
+              <Description />
+              <Title>Title</Title>
+              <AccessFlag>READ_AND_WRITE_ALL</AccessFlag>
+              <ChangeInterval>0.5</ChangeInterval>
+              <SelectedImages>
+                <string>Danger</string>
+                <string>Online</string>
+              </SelectedImages>
+              <FontSize>1</FontSize>
+              <PublicDescription />
+              <PublicTitle>Public title</PublicTitle>
+              <ShowText>NONE</ShowText>
+              <FontColor>
+                <PackedValue>4294967295</PackedValue>
+                <R>255</R>
+                <G>255</G>
+                <B>255</B>
+                <A>255</A>
+              </FontColor>
+              <BackgroundColor>
+                <PackedValue>4278190080</PackedValue>
+                <R>0</R>
+                <G>0</G>
+                <B>0</B>
+                <A>255</A>
+              </BackgroundColor>
+              <CurrentShownTexture>1</CurrentShownTexture>
+            </MyObjectBuilder_CubeBlock>
+          </CubeBlocks>
+          <XMirroxPlane x="0" y="1" z="0" />
+          <BlockGroups>
+            <MyObjectBuilder_BlockGroup>
+              <Name>Warnings</Name>
+              <Blocks>
+                <Vector3I>
+                  <X>2</X>
+                  <Y>2</Y>
+                  <Z>1</Z>
+                </Vector3I>
+                <Vector3I>
+                  <X>-2</X>
+                  <Y>2</Y>
+                  <Z>1</Z>
+                </Vector3I>
+                <Vector3I>
+                  <X>0</X>
+                  <Y>4</Y>
+                  <Z>1</Z>
+                </Vector3I>
+                <Vector3I>
+                  <X>0</X>
+                  <Y>0</Y>
+                  <Z>1</Z>
+                </Vector3I>
+              </Blocks>
+            </MyObjectBuilder_BlockGroup>
+          </BlockGroups>
+          <DisplayName>Unknown Recon Drone</DisplayName>
+          <DestructibleBlocks>true</DestructibleBlocks>
+          <CreatePhysics>false</CreatePhysics>
+          <EnableSmallToLargeConnections>false</EnableSmallToLargeConnections>
+          <IsRespawnGrid>false</IsRespawnGrid>
+          <LocalCoordSys>8</LocalCoordSys>
+        </CubeGrid>
+      </CubeGrids>
+    </Prefab>
+  </Prefabs>
+</Definitions>

@@ -1,0 +1,635 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PirateAntennas>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>EEMAnotherTest</SubtypeId>
+      </Id>
+      <Name>TEST SPAWN</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>1000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>Mining1</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- EXPLORATION ENHANCEMENT MOD NEW ANTENNAS -->
+
+<!-- TORPEDOS - becaues it's much easier to make them like drones -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>TorpedoShortRange</SubtypeId>
+      </Id>
+      <Name>SHORT-RANGE TORPEDO LAUNCHED</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>30000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>5</MaxDrones>
+      <SpawnGroups>
+        <Group>EEM_Short_Range_Torpedo</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>TorpedoLongRange</SubtypeId>
+      </Id>
+      <Name>LONG-RANGE TORPEDO LAUNCHED</Name>
+      <SpawnDistance>120</SpawnDistance>
+      <SpawnTimeMs>60000</SpawnTimeMs>
+      <FirstSpawnTimeMs>5000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>EEM_Long_Range_Torpedo</Group>
+      </SpawnGroups>
+    </Antenna> 
+
+<!-- DRONES - cargoships spawns them, like ejecting from cargo (yeah, I'm X3 fan) -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>DronesSimple</SubtypeId>
+      </Id>
+      <Name>DRONES EJECTED</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>10000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>AI_Fighter_Drone_Mk.IV_Swarm</Group>
+        <Group>Defender_Drone_Swarm</Group>        
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>DronesAdvanced</SubtypeId>
+      </Id>
+      <Name>ADVANCED DRONES EJECTED</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>1000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>AI_Guard_Advanced_Police_Swarm</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- LEVEL 1 - maximum level, spawn destroyers, frigates and fighters wings -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>Distress1</SubtypeId>
+      </Id>
+      <Name>DISTRESS SIGNAL LEVEL 1</Name>
+      <SpawnDistance>2500</SpawnDistance>
+      <SpawnTimeMs>300000</SpawnTimeMs>
+      <FirstSpawnTimeMs>5000</FirstSpawnTimeMs>
+      <MaxDrones>4</MaxDrones>
+      <SpawnGroups>
+        <Group>Lachesis_Heavy_Cruiser</Group>
+        <Group>Military_Kodiak_Destroyer</Group>
+        <Group>Military_Dagger_With_Wolfs</Group>
+	      <Group>Cicada_Experemental_Military</Group>
+        <Group>Shanxi_Torpedo_Cruiser_Military</Group>
+        <Group>Donau_Torpedo_Corvette_With_Wing</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- LEVEL 2 - medium level, spawn military corvettes and police fighters -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>Distress2</SubtypeId>
+      </Id>
+      <Name>DISTRESS SIGNAL LEVEL 2</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>300000</SpawnTimeMs>
+      <FirstSpawnTimeMs>5000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>Police_Patrol_Heavy</Group>
+        <Group>Centaur_With_Wing</Group>
+        <Group>Satyr_Police</Group>
+        <Group>Satyr_With_Drones</Group>
+        <Group>Police_Firespark_Mk.II</Group>
+	      <Group>Eagle_Police</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- LEVEL 3 - low priority, spawn police light fighters and drones -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>Distress3</SubtypeId>
+      </Id>
+      <Name>DISTRESS SIGNAL LEVEL 3</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>300000</SpawnTimeMs>
+      <FirstSpawnTimeMs>10000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>Police_Patrol_Light</Group>
+        <Group>Police_Firespark_Mk.II</Group>
+        <Group>Police_Butterfly</Group>
+        <Group>AI_Guard_Advanced_Police_Swarm</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- ATMOSPHERIC - planetary, calls for atmo police ships -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>AtmoDistress</SubtypeId>
+      </Id>
+      <Name>PLANETARY DISTRESS SIGNAL</Name>
+      <SpawnDistance>6000</SpawnDistance>
+      <SpawnTimeMs>300000</SpawnTimeMs>
+      <FirstSpawnTimeMs>5000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>Eagle_Atmo_Police</Group>
+        <Group>Police_Colibri_VTOL_Squad</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- LOST SIGNALS - hidden antennas on trade outposts for patrol ships to check -->
+    
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>OPLostSignal</SubtypeId>
+      </Id>
+      <Name>STATION: LOST SIGNAL</Name>
+      <SpawnDistance>8000</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>900000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>Eagle_Police_Station_Patrol</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>DromedaryLostSignal</SubtypeId>
+      </Id>
+      <Name>DROMEDARY: ADVANCED DISTRESS</Name>
+      <SpawnDistance>6000</SpawnDistance>
+      <SpawnTimeMs>60000</SpawnTimeMs>
+      <FirstSpawnTimeMs>300000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>Eagle_Police_Station_Patrol</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- POLICE PATROL - Police patrol ship found suspects on captured trading station -->
+    
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>PolicePatrolCheckStation</SubtypeId>
+      </Id>
+      <Name>TRADER ATTACKED, CHASING SUSPECTS</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>5000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>Eagle_Police</Group>
+        <Group>G-201_Devastator_Police_Chief</Group>
+        <Group>Police_Patrol_Heavy</Group>
+        <Group>Centaur_With_Wing</Group>
+        <Group>Satyr_With_Drones</Group>
+        <Group>Police_Patrol_Light</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- Traps -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>Encoded_Signal_0001</SubtypeId>
+      </Id>
+      <Name>ENCODED SIGNAL 0001</Name>
+      <SpawnDistance>5000</SpawnDistance>
+      <SpawnTimeMs>1000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+          <Group>Piranha_Atmo_Fighter</Group>
+	  <Group>Atmo_PirateBand_Small</Group>
+	  <Group>Cottonmouth_Pirate</Group>
+	  <Group>Shockwave_Heavy_Fighter_Pirate</Group>
+   	  <Group>Robber_Fly_LPR-I_Pirate</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>Encoded_Signal_2374</SubtypeId>
+      </Id>
+      <Name>ENCODED SIGNAL 2374</Name>
+      <SpawnDistance>5000</SpawnDistance>
+      <SpawnTimeMs>1000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>PirateBand_Big</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>Encoded_Signal_1487</SubtypeId>
+      </Id>
+      <Name>ENCODED SIGNAL 1487</Name>
+      <SpawnDistance>7000</SpawnDistance>
+      <SpawnTimeMs>1000</SpawnTimeMs>
+      <FirstSpawnTimeMs>1000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>Lachesis_Heavy_Cruiser</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- Military and police ships calling for reinforcements if damaged -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>PoliceChiefReinforcement</SubtypeId>
+      </Id>
+      <Name>I AM THE LAW</Name>
+      <SpawnDistance>2000</SpawnDistance>
+      <SpawnTimeMs>60000</SpawnTimeMs>
+      <FirstSpawnTimeMs>20000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+	      <Group>Eagle_Police</Group>
+        <Group>Police_Firespark_Mk.II</Group>
+        <Group>Satyr_Police</Group>
+        <Group>Satyr_With_Drones</Group>
+	      <Group>Wolf_VIII_Military_Wing</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>PoliceReinforcement</SubtypeId>
+      </Id>
+      <Name>SUSPECT ARMED, BACKUP REQUESTED</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>20000</FirstSpawnTimeMs>
+      <MaxDrones>4</MaxDrones>
+      <SpawnGroups>
+       	<Group>Police_Asp</Group>
+        <Group>Satyr_Police</Group>
+	      <Group>Police_Butterfly</Group>
+        <Group>Police_Firespark_Mk.II</Group>
+	      <Group>AI_Guard_Advanced_Police_Swarm</Group>
+        <Group>G-201_Devastator_Police_Chief</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>PoliceReinforcementAtmo</SubtypeId>
+      </Id>
+      <Name>SUSPECT ARMED, ATMO BACKUP REQUESTED</Name>
+      <SpawnDistance>5000</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>20000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+       	<Group>Police_Colibri_VTOL</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>MilitaryReinforcement</SubtypeId>
+      </Id>
+      <Name>REQUIRED ASSISTANCE</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>20000</FirstSpawnTimeMs>
+      <MaxDrones>4</MaxDrones>
+      <SpawnGroups>
+        <Group>F-47_Flicker_Military</Group>
+        <Group>Aurora_Military</Group>
+	      <Group>Wolf_VIII_Military</Group>
+	      <Group>AS-9M_Moondust_Military</Group>
+        <Group>Asp_Privateer</Group>
+        <Group>LRHF-2_Andrealphus_Military</Group>
+        <Group>Hearts_Military</Group>
+        <Group>Midnight_Gunship_Military</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>MilitaryReinforcementHeavy</SubtypeId>
+      </Id>
+      <Name>REQUIRED MAJOR ASSISTANCE</Name>
+      <SpawnDistance>4800</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>15000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>Rescue_2_Refit_Military_Drone_With_Wing</Group>
+        <Group>AS-9M_Moondust_Military_Wing</Group>
+        <Group>Aurora_Military_Wing</Group>
+        <Group>Wolf_VIII_Military_Wing</Group>
+        <Group>AS-9M_Moondust_Military_Wing</Group>
+        <Group>LRHF-2_Andrealphus_Military_Wing</Group>
+        <Group>Sable_Privateer</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- Pirate smallship calling for his bros to help -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>PirateDistress</SubtypeId>
+      </Id>
+      <Name>NEED HELP</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>180000</SpawnTimeMs>
+      <FirstSpawnTimeMs>20000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+	      <Group>Cyanide_Pirate</Group>
+	      <Group>SFB-1_Pirate</Group>
+	      <Group>Mosquito_Pirate</Group>
+	      <Group>Crow_Fighter_Pirate</Group>
+	      <Group>AI_Old_Drone_Pirate_Swarm</Group>
+        <Group>AI_Old_Drone_Mk.II_Pirate_Swarm</Group>
+	      <Group>Kite_EW_Pirate</Group>
+        <Group>Skull_Drone_Pirate</Group>
+        <Group>Razor_Pirate</Group>
+        <Group>Turcopoli_Pirate</Group>
+        <Group>Turmfalke_EF-01_Pirate</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- Pirate planetary stations -->
+
+    <Antenna>
+	<Id>
+	<TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+	<SubtypeId>PirateCommunicationStation</SubtypeId>
+	</Id>
+	<Name>Communication Station</Name>
+	<SpawnDistance>80</SpawnDistance>
+	<SpawnTimeMs>300000</SpawnTimeMs>
+	<FirstSpawnTimeMs>60000</FirstSpawnTimeMs> 
+	<MaxDrones>3</MaxDrones> 
+	<SpawnGroups>
+  	  <Group>R-1B_Hover_Bike_Pirate</Group>
+  	  <Group>Robber_Fly_LPR-I_Pirate</Group>
+   	  <Group>Scouting_Pod_Atmo</Group>
+    	  <Group>Firefly_Drone_Pirate_Swarm</Group>
+	</SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+	<Id>
+	<TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+	<SubtypeId>PirateRelayStation</SubtypeId>
+	</Id>
+	<Name>Relay Station</Name>
+	<SpawnDistance>80</SpawnDistance>
+	<SpawnTimeMs>300000</SpawnTimeMs>
+	<FirstSpawnTimeMs>60000</FirstSpawnTimeMs> 
+	<MaxDrones>2</MaxDrones> 
+	<SpawnGroups>
+  	  <Group>R-1B_Hover_Bike_Pirate</Group>
+  	  <Group>Robber_Fly_LPR-I_Pirate</Group>
+   	  <Group>Scouting_Pod_Atmo</Group>
+    	  <Group>Firefly_Drone_Pirate_Swarm</Group>
+	</SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+	<Id>
+	  <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+	  <SubtypeId>PirateGastown</SubtypeId>
+	</Id>
+	<Name>Gastown</Name>
+	<SpawnDistance>80</SpawnDistance>
+	<SpawnTimeMs>300000</SpawnTimeMs>
+	<FirstSpawnTimeMs>60000</FirstSpawnTimeMs> 
+	<MaxDrones>4</MaxDrones> 
+	<SpawnGroups>
+	  <Group>Atmo_PirateBand_Small</Group>
+	  <Group>Cottonmouth_Pirate</Group>
+	  <Group>Shockwave_Heavy_Fighter_Pirate</Group>
+    	  <Group>Robber_Fly_LPR-I_Pirate</Group>
+	</SpawnGroups>
+    </Antenna>
+
+    <Antenna>      
+      <Id>
+	  <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+	  <SubtypeId>PirateCitadel</SubtypeId>
+	</Id>
+	<Name>Citadel</Name>
+	<SpawnDistance>100</SpawnDistance>
+	<SpawnTimeMs>300000</SpawnTimeMs>
+	<FirstSpawnTimeMs>30000</FirstSpawnTimeMs>
+	<MaxDrones>4</MaxDrones>
+	<SpawnGroups>
+	  <Group>Atmo_PirateBand_Large</Group>
+	  <Group>Atmo_PirateBand_Medium</Group>
+	  <Group>Atmo_PirateBand_Small</Group>		
+	</SpawnGroups>
+    </Antenna>
+
+<!-- MGE corp calling for reinforcements -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>MGEDistress</SubtypeId>
+      </Id>
+      <Name>MGE SHIP UNDER ATTACK</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>150000</SpawnTimeMs>
+      <FirstSpawnTimeMs>10000</FirstSpawnTimeMs>
+      <MaxDrones>1</MaxDrones>
+      <SpawnGroups>
+        <Group>MGE_Operative_Squad_1</Group>
+        <Group>MGE_Operative_Squad_2</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>MGEReinforcement</SubtypeId>
+      </Id>
+      <Name>MGE NEED HELP</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>150000</SpawnTimeMs>
+      <FirstSpawnTimeMs>20000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>MGE_Cobra_Fighter</Group>
+        <Group>MGE_NUK-F_Hornet</Group>
+        <Group>MGE_Harpy</Group>
+        <Group>MGE_Firehawk</Group>
+        <Group>MGE_Haunter</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- AMPHION corp calling for reinforcements -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>AmphionDistress</SubtypeId>
+      </Id>
+      <Name>AMPHION UNDER ATTACK</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>300000</SpawnTimeMs>
+      <FirstSpawnTimeMs>10000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>Amphion_Operative_Squad_1</Group>
+        <Group>Amphion_Operative_Squad_2</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- Hyperion Systems calling for reinforcements -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>HS_Distress</SubtypeId>
+      </Id>
+      <Name>HYPERION UNDER ATTACK</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>150000</SpawnTimeMs>
+      <FirstSpawnTimeMs>10000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>HS_Operative_Squad_Big</Group>
+        <Group>HS_Operative_Squad_Small</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- KUS Shipyards calling for reinforcements -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>KUS_Distress</SubtypeId>
+      </Id>
+      <Name>KUS UNDER ATTACK</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>10000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>KUS_Operative_Squad</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- Mahriane Industries distress signal -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>MAH_Distress</SubtypeId>
+      </Id>
+      <Name>MAHRIANE DISTRESS SIGNAL</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>150000</SpawnTimeMs>
+      <FirstSpawnTimeMs>2000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>MAH_Security_Elite_Squad_1</Group>
+        <Group>MAH_Security_Elite_Squad_2</Group>
+        <Group>MAH_Security_Elite_Squad_3</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>MAH_Help</SubtypeId>
+      </Id>
+      <Name>MAHRIANE UNDER ATTACK</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>180000</SpawnTimeMs>
+      <FirstSpawnTimeMs>3000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>MAH_Security_Squad_1</Group>
+        <Group>MAH_Security_Squad_2</Group>
+        <Group>MAH_Omega_A_Security</Group>
+      </SpawnGroups>
+    </Antenna>
+
+<!-- XMC distress signal -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>XMC_Distress</SubtypeId>
+      </Id>
+      <Name>XMC DISTRESS SIGNAL</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>150000</SpawnTimeMs>
+      <FirstSpawnTimeMs>2000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>XMC_Security_Elite_Squad_1</Group>
+        <Group>XMC_Security_Elite_Squad_2</Group>
+        <Group>XMC_Security_Elite_Squad_3</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>XMC_Help</SubtypeId>
+      </Id>
+      <Name>XMC UNDER ATTACK</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>180000</SpawnTimeMs>
+      <FirstSpawnTimeMs>10000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>XMC_Security_Squad_1</Group>
+        <Group>XMC_Security_Squad_2</Group>
+      </SpawnGroups>
+    </Antenna>
+
+  </PirateAntennas>
+</Definitions>

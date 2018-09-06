@@ -1,0 +1,275 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PirateAntennas>
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RaidingBase</SubtypeId>
+      </Id>
+      <Name>TIME TO DIE</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>180000</SpawnTimeMs>
+      <FirstSpawnTimeMs>5000</FirstSpawnTimeMs>
+      <MaxDrones>5</MaxDrones>
+      <SpawnGroups>
+        <Group>Pirate_Gunship</Group>
+	      <Group>PirateBand_Big</Group>
+	      <Group>V-2_Gunboat_Pirate</Group>
+	      <Group>B-30_Privateer_Pirate</Group>
+	      <Group>Razor_Pirate</Group>
+	      <Group>Cyanide_Pirate</Group>
+	      <Group>Crow_Fighter_Pirate</Group>
+	      <Group>SFB-1_Pirate</Group>
+	      <Group>Storm_Eagle_Pirate</Group>
+        <Group>Turcopoli_Pirate</Group>
+        <Group>Turmfalke_EF-01_Pirate</Group>
+        <Group>Redcore_Frigate_Pirate</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>CallForRaid</SubtypeId>
+      </Id>
+      <Name>BOOTY FOUND</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>60000</SpawnTimeMs>
+      <FirstSpawnTimeMs>20000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+	      <Group>PirateBand_Small</Group>
+        <Group>PirateBand_Grinders</Group>
+	      <Group>V-2_Gunboat_Pirate</Group>
+	      <Group>Cyanide_Pirate</Group>
+	      <Group>Crow_Fighter_Pirate</Group>
+	      <Group>Storm_Eagle_Pirate</Group>
+	      <Group>SFB-1_Pirate</Group>
+	      <Group>Razor_Pirate</Group>
+        <Group>Turcopoli_Pirate</Group>
+	      <Group>Mosquito_Pirate</Group>
+        <Group>Turmfalke_EF-01_Pirate</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RequestMilitaryAssistance</SubtypeId>
+      </Id>
+      <Name>Hostiles detected - Requesting Backup</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>30000</SpawnTimeMs>
+      <FirstSpawnTimeMs>5000</FirstSpawnTimeMs>
+      <MaxDrones>4</MaxDrones>
+      <SpawnGroups>
+	      <Group>Aurora_Military_Wing</Group>
+	      <Group>Wolf_VIII_Military_Wing</Group>
+	      <Group>AS-9M_Moondust_Military_Wing</Group>
+        <Group>G-201_Devastator_Police_Chief</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RequestAssistance</SubtypeId>
+      </Id>
+      <Name>EMERGENCY - REQUESTING ASSISTANCE</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>60000</SpawnTimeMs>
+      <FirstSpawnTimeMs>5000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>Police_Patrol_Heavy</Group>
+        <Group>Police_Asp</Group>
+	      <Group>Police_Eagle_Police</Group>
+      </SpawnGroups>
+    </Antenna>
+    
+      <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RaidingStation</SubtypeId>
+      </Id>
+      <Name>GET OVER HERE</Name>
+      <SpawnDistance>100</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>20000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+	      <Group>PirateBand_Medium</Group>
+	      <Group>PirateBand_Small</Group>
+	      <Group>AI_Old_Drone_Pirate_Swarm</Group>
+        <Group>AI_Old_Drone_Mk.II_Pirate_Swarm</Group>
+        <Group>Skull_Drone_Pirate</Group>
+	      <Group>AI_Guard_Advanced_Pirate_Ready</Group>
+	      <Group>Grinder_Drone_Pirate_Ready</Group>
+	      <Group>Trainspark_Pirate_Ready</Group>
+        <Group>Razor_Pirate</Group>
+        <Group>Turmfalke_EF-01_Pirate</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RaidingCarrier</SubtypeId>
+      </Id>
+      <Name>Light Drone Manufacturing</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>120000</FirstSpawnTimeMs>
+      <MaxDrones>5</MaxDrones>
+      <SpawnGroups>
+        <Group>Barb_Mk.2</Group>
+	      <Group>Skull_Drone_Pirate</Group>
+        <Group>AI_Old_Drone_Pirate_Swarm</Group>
+        <Group>AI_Old_Drone_Mk.II_Pirate_Swarm</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RaidingCarrierHeavyDrone</SubtypeId>
+      </Id>
+      <Name>Heavy Drone Manufacturing</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>10000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+	        <Group>ArrowHead_Pirate</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>IMDCDistressSignal</SubtypeId>
+      </Id>
+      <Name>IMDC UNDER ATTACK</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>150000</SpawnTimeMs>
+      <FirstSpawnTimeMs>30000</FirstSpawnTimeMs>
+      <MaxDrones>4</MaxDrones>
+      <SpawnGroups>
+        <Group>IMDC_Vulture_Fighter_Bomber_Wing</Group>
+        <Group>IMDC_Kestrel_Wing</Group>
+        <Group>IMDC_Hornet_Fighter_Wing</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <!--    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>IMDCStation</SubtypeId>
+      </Id>
+      <Name>IMDC Station - No Trespassers</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>100000</SpawnTimeMs>
+      <FirstSpawnTimeMs>20000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>Rescue_2_Refit_Military_Drone_With_Wing</Group>
+        <Group>IMDC_Vulture_Fighter_Bomber_Wing</Group>
+      </SpawnGroups>
+    </Antenna> -->
+
+<!-- Planetary Signals -->
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>PirateDistressPlanet</SubtypeId>
+      </Id>
+      <Name>NEED HELP ON PLANET</Name>
+      <SpawnDistance>5000</SpawnDistance>
+      <SpawnTimeMs>180000</SpawnTimeMs>
+      <FirstSpawnTimeMs>60000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>Cottonmouth_Pirate</Group>
+        <Group>Cursor_Fighter_Pirate</Group>
+        <Group>Phorusrhacos_Pirate</Group>
+        <Group>Piranha_Atmo_Fighter</Group>
+        <Group>R-1B_Hover_Bike_Pirate</Group>
+        <Group>Robber_Fly_LPR-I_Pirate</Group>
+        <Group>Scouting_Pod_Atmo</Group>
+        <Group>Firefly_Drone_Pirate_Swarm</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+	<Id>
+	<TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+	<SubtypeId>EarthPirateSmall</SubtypeId>
+	</Id>
+	<Name>MiningOperationSite</Name>
+	<SpawnDistance>80</SpawnDistance>
+	<SpawnTimeMs>300000</SpawnTimeMs>
+	<FirstSpawnTimeMs>60000</FirstSpawnTimeMs> 
+	<MaxDrones>3</MaxDrones> 
+	<SpawnGroups>
+    <Group>R-1B_Hover_Bike_Pirate</Group>
+    <Group>Robber_Fly_LPR-I_Pirate</Group>
+    <Group>Scouting_Pod_Atmo</Group>
+    <Group>Firefly_Drone_Pirate_Swarm</Group>
+	</SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+	<Id>
+	  <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+	  <SubtypeId>EarthPirateMedium</SubtypeId>
+	</Id>
+	<Name>RemoteDroneAssembly</Name>
+	<SpawnDistance>80</SpawnDistance>
+	<SpawnTimeMs>300000</SpawnTimeMs>
+	<FirstSpawnTimeMs>60000</FirstSpawnTimeMs> 
+	<MaxDrones>4</MaxDrones> 
+	<SpawnGroups>
+	  <Group>Atmo_PirateBand_Small</Group>
+	  <Group>Cottonmouth_Pirate</Group>
+	  <Group>Shockwave_Heavy_Fighter_Pirate</Group>
+    <Group>Robber_Fly_LPR-I_Pirate</Group>
+	</SpawnGroups>
+    </Antenna>
+
+    <Antenna>      
+      <Id>
+	  <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+	  <SubtypeId>EarthPirateLarge</SubtypeId>
+	</Id>
+	<Name>Headquarters</Name>
+	<SpawnDistance>80</SpawnDistance>
+	<SpawnTimeMs>300000</SpawnTimeMs>
+	<FirstSpawnTimeMs>30000</FirstSpawnTimeMs>
+	<MaxDrones>4</MaxDrones>
+	<SpawnGroups>
+	  <Group>Atmo_PirateBand_Large</Group>
+	  <Group>Atmo_PirateBand_Medium</Group>
+	  <Group>Atmo_PirateBand_Small</Group>		
+	</SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>MoonPirateSmall</SubtypeId>
+      </Id>
+      <Name>MoonMiningOperationSite</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>500000</SpawnTimeMs>
+      <FirstSpawnTimeMs>60000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>Mosquito_Pirate</Group>
+        <Group>Skull_Drone_Pirate</Group>
+        <Group>V-2_Gunboat_Pirate</Group>
+      </SpawnGroups>
+    </Antenna>
+
+  </PirateAntennas>
+</Definitions>

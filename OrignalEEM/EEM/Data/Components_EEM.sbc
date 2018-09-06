@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Components>
+    <Component>
+      <Id>
+        <TypeId>Component</TypeId>
+        <SubtypeId>EEMPilotSoul</SubtypeId>
+      </Id>
+      <DisplayName>Pilot</DisplayName>
+      <Icon>Textures\GUI\Icons\AIOpenCockpit.dds</Icon>
+      <Size>
+        <X>0.5</X>
+        <Y>0.5</Y>
+        <Z>0.05</Z>
+      </Size>
+      <Mass>1</Mass>
+      <Volume>1</Volume>
+      <Model>Models\Cubes\OpenCockpitPilot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <MaxIntegrity>30</MaxIntegrity>
+      <DropProbability>0.95</DropProbability>
+      <Health>200</Health>
+    </Component>
+  </Components>
+
+  <PhysicalItems>
+    <PhysicalItem>
+      <Id>
+        <TypeId>Ingot</TypeId>
+        <SubtypeId>Credits</SubtypeId>
+      </Id>
+      <DisplayName>Credits</DisplayName>
+      <Icon>Textures\GUI\Icons\Credits.dds</Icon>
+      <Size>
+        <X>0.1</X>
+        <Y>0.1</Y>
+        <Z>0.02</Z>
+      </Size>
+      <Mass>0</Mass>
+      <Volume>0</Volume>
+      <Model>Models\EEMCredit.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+    </PhysicalItem>
+  </PhysicalItems>
+
+  <Blueprints>
+      <Blueprint>
+      <Id>
+        <TypeId>BlueprintDefinition</TypeId>
+        <SubtypeId>Credits</SubtypeId>
+      </Id>
+      <DisplayName>Credits</DisplayName>
+      <Icon>Textures\GUI\Icons\Credits.dds</Icon>
+      <Prerequisites>
+        <Item Amount="0.1" TypeId="Ore" SubtypeId="Organic" />
+      </Prerequisites>
+      <Result Amount="1" TypeId="Component" SubtypeId="Credits" />
+      <BaseProductionTimeInSeconds>666</BaseProductionTimeInSeconds>
+    </Blueprint>   
+
+      <Blueprint>
+      <Id>
+        <TypeId>BlueprintDefinition</TypeId>
+        <SubtypeId>EEMPilotSoul</SubtypeId>
+      </Id>
+      <DisplayName>Real Human Being</DisplayName>
+      <Icon>Textures\GUI\Icons\ore_biomass.dds</Icon>
+      <Prerequisites>
+        <Item Amount="100" TypeId="Ore" SubtypeId="Organic" />
+      </Prerequisites>
+      <Result Amount="1" TypeId="Component" SubtypeId="EEMPilotSoul" />
+      <BaseProductionTimeInSeconds>60</BaseProductionTimeInSeconds>
+    </Blueprint>
+  </Blueprints>
+</Definitions>

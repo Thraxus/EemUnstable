@@ -1,0 +1,43 @@
+Requirements:
+- any RC on grid
+- config in RC customdata (examples below)
+- [Damage] Timer - for fighters, trigger once on receiving any damage
+- [Security] Timer - for fighters, trigger once on receiving any damage and is randomized based on CallHelpProbability
+- [Alert_On] Timer - for stations, trigger once on receiving any damage
+- [Alert_Off] Timer - for stations, alarm cooldown
+- _Flee Timer - for freighters, "trigger now" that timer when flee behaviour is triggered
+
+Config examples:
+
+[EEM_AI]
+
+Type:Fighter
+
+Preset:EEMDefaultSmall
+CallHelpProbability:100
+
+SeekDistance:12000
+PlayerPriority:1
+Faction:SEPD
+AmbushMode:True
+
+[EEM_AI]
+
+Type:Freighter
+
+FleeOnlyWhenDamaged:False
+
+FleeTriggerDistance:600
+
+FleeSpeedCap:250
+Faction:CIVL
+
+[EEM_AI]
+
+Type:Station
+Faction:ISTG
+
+[EEM_AI]
+
+Type:None
+Faction:Nobody
