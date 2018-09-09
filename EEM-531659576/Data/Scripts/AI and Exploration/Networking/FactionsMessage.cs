@@ -47,7 +47,6 @@ namespace EemRdx.Networking
 					MyAPIGateway.Session.Factions.AcceptPeace(_leftFaction, _rightFaction);
 					break;
 				case (Constants.InitFactionsMessagePrefix):
-					Messaging.ShowLocalNotification($"InitFactionsMessagePrefix - {AiSessionCore.IsServer}", 20000);
 					foreach (IMyFaction leftFaction in Factions.LawfulFactions)
 					{
 						foreach (IMyFaction rightFaction in Factions.LawfulFactions)
