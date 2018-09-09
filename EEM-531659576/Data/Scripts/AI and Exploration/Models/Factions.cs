@@ -271,7 +271,7 @@ namespace EemRdx.Models
 		internal static void PlayerInitFactions()
 		{
 			if (PlayerFactionInitComplete) return;
-			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.InitFactionsMessagePrefix, 0, 0), ignore: MyAPIGateway.Multiplayer.MyId);
+			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.InitFactionsMessagePrefix, 0, 0));
 			PlayerFactionInitComplete = true;
 		}
 
