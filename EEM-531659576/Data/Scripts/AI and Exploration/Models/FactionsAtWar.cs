@@ -21,11 +21,6 @@ namespace EemRdx.Models
 			CooldownTime = Constants.FactionCooldown;
 		}
 
-		public void UpdateTimer(FactionsAtWar replacementWar)
-		{
-			CooldownTime = replacementWar.CooldownTime;
-		}
-
 		public override bool Equals(object obj)
 		{
 			return Equals(obj as FactionsAtWar);

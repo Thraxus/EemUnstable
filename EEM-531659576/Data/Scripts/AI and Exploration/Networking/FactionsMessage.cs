@@ -1,6 +1,8 @@
 ﻿using EemRdx.Helpers;
+using EemRdx.Models;
 using ProtoBuf;
 using Sandbox.ModAPI;
+using VRage.Game.ModAPI;
 
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable ExplicitCallerInfoArgument
@@ -43,6 +45,19 @@ namespace EemRdx.Networking
 					break;
 				case (Constants.AcceptPeaceMessagePrefix):
 					MyAPIGateway.Session.Factions.AcceptPeace(_leftFaction, _rightFaction);
+					break;
+				case (Constants.InitFactionsMessagePrefix):
+					Messaging.ShowLocalNotification($"InitFactionsMessagePrefix - {AiSessionCore.IsServer}", 20000);
+					foreach (IMyFaction leftFaction in Factions.LawfulFactions)
+					{
+						foreach (IMyFaction rightFaction in Factions.LawfulFactions)
+							if (leftFaction != rightFaction)
+								if (!leftFaction.IsPeacefulTo(rightFaction))
+								{
+									Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, leftFaction.FactionId, rightFaction.FactionId));
+									Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, rightFaction.FactionId, leftFaction.FactionId));
+								}
+					}
 					break;
 				default:
 					return;

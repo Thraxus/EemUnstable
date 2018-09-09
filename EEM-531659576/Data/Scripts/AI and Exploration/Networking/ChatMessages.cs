@@ -30,7 +30,6 @@ namespace EemRdx.Networking
 				return;
 			}
 				
-
 			switch (chatCommand[1])
 			{
 				case HelpPrefix:
@@ -58,8 +57,7 @@ namespace EemRdx.Networking
 					Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, rightPeaceFaction.FactionId, leftPeaceFaction.FactionId));
 					break;
 				case InitFactionPrefix:
-					Messaging.ShowLocalNotification($"InitFactionPrefix: AiSessionCore.IsServer{AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer}");
-					//Factions.NpcFactionPeace();
+					Messaging.ShowLocalNotification($"InitFactionPrefix: AiSessionCore.IsServer: {AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer}");
 					foreach (IMyFaction leftFaction in Factions.LawfulFactions)
 					{
 						foreach (IMyFaction rightFaction in Factions.LawfulFactions)
@@ -72,8 +70,7 @@ namespace EemRdx.Networking
 					}
 					break;
 				case GetCivlStandingsPrefix:
-					Messaging.ShowLocalNotification($"GetCivlStandings: AiSessionCore.IsServer{AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer}");
-					IMyFaction civl = MyAPIGateway.Session.Factions.TryGetFactionByTag("CIVL");
+					Messaging.ShowLocalNotification($"GetCivlStandings: AiSessionCore.IsServer: {AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer} Factions.PlayerFactionInitComplete: {Factions.PlayerFactionInitComplete}"); IMyFaction civl = MyAPIGateway.Session.Factions.TryGetFactionByTag("CIVL");
 					foreach (IMyFaction rightFaction in Factions.LawfulFactions)
 						Messaging.ShowLocalNotification($"The relationship between {civl.Tag} and {rightFaction.Tag} is {MyAPIGateway.Session.Factions.GetRelationBetweenFactions(civl.FactionId, rightFaction.FactionId)}");
 					break;

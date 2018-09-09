@@ -55,6 +55,7 @@ namespace EemRdx
 		{
 			if (!_inited) Initialize();
 			if (!IsServer) return;
+			if (MyAPIGateway.Multiplayer.Players.Count > 0 && !Factions.PlayerFactionInitComplete) { Factions.PlayerInitFactions(); }
 			TickTimer();
 		}
 

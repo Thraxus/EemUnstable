@@ -63,6 +63,8 @@ namespace EemRdx.Helpers
 
 		public const string AcceptPeaceMessagePrefix = "AcceptPeace";
 
+		public const string InitFactionsMessagePrefix = "InitFactions";
+
 		#endregion
 
 		// CleanUp.cs's constants:
