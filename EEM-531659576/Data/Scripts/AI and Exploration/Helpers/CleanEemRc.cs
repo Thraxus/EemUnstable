@@ -36,7 +36,7 @@ namespace EemRdx.Helpers
 				if (grid.Physics == null || !rc.IsWorking || !Constants.NpcFactions.Contains(rc.GetOwnerFactionTag()))
 				{
 					if (Constants.CleanupDebug)
-						Log.Info(grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") is not valid; " + (grid.Physics == null ? "Phys=null" : "Phys OK") + "; " + (rc.IsWorking ? "RC OK" : "RC Not working!") + "; " + (!Constants.NpcFactions.Contains(rc.GetOwnerFactionTag()) ? "Owner faction tag is not in NPC list (" + rc.GetOwnerFactionTag() + ")" : "Owner Faction OK"));
+						//Log.Info(grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") is not valid; " + (grid.Physics == null ? "Phys=null" : "Phys OK") + "; " + (rc.IsWorking ? "RC OK" : "RC Not working!") + "; " + (!Constants.NpcFactions.Contains(rc.GetOwnerFactionTag()) ? "Owner faction tag is not in NPC list (" + rc.GetOwnerFactionTag() + ")" : "Owner Faction OK"));
 
 					return;
 				}
@@ -44,7 +44,7 @@ namespace EemRdx.Helpers
 				if (!rc.CustomData.Contains(Constants.CleanupRcTag))
 				{
 					if (Constants.CleanupDebug)
-						Log.Info(grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain the " + Constants.CleanupRcTag + "tag!");
+						//Log.Info(grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain the " + Constants.CleanupRcTag + "tag!");
 
 					return;
 				}
@@ -56,56 +56,56 @@ namespace EemRdx.Helpers
 					if (!hasExtraTag)
 					{
 						if (Constants.CleanupDebug)
-							Log.Info(grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain one of the extra tags!");
+							//Log.Info(grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain one of the extra tags!");
 
 						return;
 					}
 				}
 
-				if (Constants.CleanupDebug)
-					Log.Info("Checking RC '" + rc.CustomName + "' from grid '" + grid.DisplayName + "' (" + grid.EntityId + ") for any nearby players...");
+				//if (Constants.CleanupDebug)
+					//Log.Info("Checking RC '" + rc.CustomName + "' from grid '" + grid.DisplayName + "' (" + grid.EntityId + ") for any nearby players...");
 
 				int rangeSq = CleanEem.RangeSq;
 				Vector3D gridCenter = grid.WorldAABB.Center;
 
-				if (rangeSq <= 0)
-				{
-					if (Constants.CleanupDebug)
-						Log.Info("- WARNING: Range not assigned yet, ignoring grid for now.");
+				//if (rangeSq <= 0)
+				//{
+					//if (Constants.CleanupDebug)
+						//Log.Info("- WARNING: Range not assigned yet, ignoring grid for now.");
 
-					return;
-				}
+				//	return;
+				//}
 
 				//check if any player is within range of the ship
-				foreach (IMyPlayer player in CleanEem.Players)
-				{
-					if (Vector3D.DistanceSquared(player.GetPosition(), gridCenter) <= rangeSq)
-					{
-						if (Constants.CleanupDebug)
-							Log.Info(" - player '" + player.DisplayName + "' is within " + Math.Round(Math.Sqrt(rangeSq), 1) + "m of it, not removing.");
+				//foreach (IMyPlayer player in CleanEem.Players)
+				//{
+				//	if (Vector3D.DistanceSquared(player.GetPosition(), gridCenter) <= rangeSq)
+				//	{
+				//		if (Constants.CleanupDebug)
+				//			Log.Info(" - player '" + player.DisplayName + "' is within " + Math.Round(Math.Sqrt(rangeSq), 1) + "m of it, not removing.");
 
-						return;
-					}
-				}
+				//		return;
+				//	}
+				//}
 
-				if (Constants.CleanupDebug)
-					Log.Info(" - no player is within " + Math.Round(Math.Sqrt(rangeSq), 1) + "m of it, removing...");
+				//if (Constants.CleanupDebug)
+					//Log.Info(" - no player is within " + Math.Round(Math.Sqrt(rangeSq), 1) + "m of it, removing...");
 
-				Log.Info("NPC ship '" + grid.DisplayName + "' (" + grid.EntityId + ") removed.");
+				//Log.Info("NPC ship '" + grid.DisplayName + "' (" + grid.EntityId + ") removed.");
 
 				CleanEem.GetAttachedGrids(grid); // this gets all connected grids and places them in Exploration.grids (it clears it first)
 
 				foreach(IMyCubeGrid g in CleanEem.Grids)
 				{
 					g.Close(); // this only works server-side
-					Log.Info("  - subgrid '" + g.DisplayName + "' (" + g.EntityId + ") removed.");
+					//Log.Info("  - subgrid '" + g.DisplayName + "' (" + g.EntityId + ") removed.");
 				}
 
 				grid.Close(); // this only works server-side
 			}
 			catch(Exception e)
 			{
-				Log.Error(e);
+				//Log.Error(e);
 			}
 		}
 	}

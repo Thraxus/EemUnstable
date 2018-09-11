@@ -11,7 +11,7 @@ namespace EemRdx.Helpers
 	{
 		public override void LoadData()
 		{
-			Log.SetUp("EEM", 531659576); // mod name and workshop ID
+			//Log.SetUp("EEM", 531659576); // mod name and workshop ID
 		}
 
 		private bool _init;
@@ -26,14 +26,14 @@ namespace EemRdx.Helpers
 		public void Init()
 		{
 			_init = true;
-			Log.Init();
+			//Log.Init();
 			MyAPIGateway.Session.SessionSettings.MaxDrones = Constants.ForceMaxDrones;
 		}
 
 		protected override void UnloadData()
 		{
 			_init = false;
-			Log.Close();
+			//Log.Close();
 
 			Players.Clear();
 			Grids.Clear();
@@ -69,7 +69,7 @@ namespace EemRdx.Helpers
 			}
 			catch(Exception e)
 			{
-				Log.Error(e);
+				//Log.Error(e);
 			}
 		}
 
