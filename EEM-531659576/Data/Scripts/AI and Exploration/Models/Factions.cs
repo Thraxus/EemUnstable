@@ -284,7 +284,7 @@ namespace EemRdx.Models
 		private static void ClientPeaceDeclaration(long factionOne, long factionTwo)
 		{
 			if (!AiSessionCore.IsServer) return;
-			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, factionOne, factionTwo), ignore: MyAPIGateway.Multiplayer.MyId);
+			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, factionOne, factionTwo));
 		}
 
 		/// <summary>
@@ -295,8 +295,7 @@ namespace EemRdx.Models
 		/// <param name="factionTwo">Self documented name</param>
 		private static void ClientPeaceAcceptance(long factionOne, long factionTwo)
 		{
-			if (!AiSessionCore.IsServer) return;
-			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, factionOne, factionTwo), ignore: MyAPIGateway.Multiplayer.MyId);
+			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, factionOne, factionTwo));
 		}
 
 		/// <summary>
@@ -308,7 +307,7 @@ namespace EemRdx.Models
 		private static void ClientWarDeclaration(long factionOne, long factionTwo)
 		{
 			if (!AiSessionCore.IsServer) return;
-			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclareWarMessagePrefix, factionOne, factionTwo), ignore: MyAPIGateway.Multiplayer.MyId);
+			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclareWarMessagePrefix, factionOne, factionTwo));
 		}
 	}
 }
