@@ -1,5 +1,6 @@
 ﻿using EemRdx.Helpers;
 using EemRdx.Models;
+using EemRdx.Utilities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
 
@@ -12,6 +13,9 @@ namespace EemRdx.Networking
 		private const string InitFactionPrefix = "initfactions";
 		private const string GetCivlStandingsPrefix = "getcivlstandings";
 		private const string SetPeacePrefix = "setpeace";
+		private const string ShowDebugLogPrefix = "showdebuglog";
+		private const string ShowProfilingLogPrefix = "showprofilinglog";
+		private const string ShowGeneralLogPrefix = "showgenerallog";
 
 		public static void HandleChatMessage(string message)
 		{
@@ -34,6 +38,30 @@ namespace EemRdx.Networking
 			{
 				case HelpPrefix:
 					PrintHelpCommands();
+					break;
+				case ShowDebugLogPrefix:
+					if (!Constants.DebugMode)
+					{
+						Messaging.ShowLocalNotification("Debug mode is not enabled");
+						break;
+					}
+					AiSessionCore.DebugLog.GetTailMessages();
+					break;
+				case ShowProfilingLogPrefix:
+					if (!Constants.EnableProfilingLog)
+					{
+						Messaging.ShowLocalNotification("Profiling is not enabled");
+						break;
+					}
+					AiSessionCore.ProfilingLog.GetTailMessages();
+					break;
+				case ShowGeneralLogPrefix:
+					if (Constants.EnableGeneralLog)
+					{
+						Messaging.ShowLocalNotification("General logging is not enabled");
+						break;
+					}
+					AiSessionCore.GeneralLog.GetTailMessages();
 					break;
 				case SetPeacePrefix:
 					if (chatCommand.Length < 4)

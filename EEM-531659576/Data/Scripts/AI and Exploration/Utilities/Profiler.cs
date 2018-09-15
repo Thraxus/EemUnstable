@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EemRdx.Helpers;
+using EemRdx.Utilities;
 using VRage.Utils;
 
 namespace EemRdx.Scripts.Utilities
@@ -26,7 +28,7 @@ namespace EemRdx.Scripts.Utilities
 
 		public Profiler(string name = "unnamed")
 		{
-			this._name = name;
+			_name = name;
 			_start = Stopwatch.GetTimestamp();
 		}
 
@@ -34,8 +36,8 @@ namespace EemRdx.Scripts.Utilities
 		{
 			long end = Stopwatch.GetTimestamp();
 			TimeSpan timespan = new TimeSpan(end - _start);
-
-			MyLog.Default.Info($"PROFILE: {_name}: {timespan.TotalMilliseconds:0.##########} ms");
+			if(Constants.EnableProfilingLog && AiSessionCore.LogSetupComplete)
+				AiSessionCore.ProfilingLog.WriteToLog(_name, $"{timespan.TotalMilliseconds:0.##########}ms");
 		}
 	}
 }

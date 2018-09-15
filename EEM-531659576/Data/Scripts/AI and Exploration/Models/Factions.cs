@@ -1,9 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using EemRdx.Extensions;
 using EemRdx.Helpers;
 using EemRdx.Networking;
+using EemRdx.Scripts.Utilities;
 using Sandbox.Definitions;
+using Sandbox.Game;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.ModAPI;
@@ -16,11 +21,15 @@ namespace EemRdx.Models
 	{
 		public static bool SetupComplete;
 
-		public static List<IMyFaction> LawfulFactions { get; private set; }
+		internal static List<IMyFaction> LawfulFactions { get; private set; }
 
-		public static List<IMyFaction> EnforcementFactions { get; private set; }
+		internal static List<IMyFaction> EnforcementFactions { get; private set; }
 
-		internal static List<FactionsAtWar> FactionsAtWar { get; set; } = new List<FactionsAtWar>();
+		internal static List<FactionsAtWar> FactionsAtWar { get; set; }
+
+		internal static List<IMyFaction> PlayerFactions { get; private set; }
+
+		internal static List<IMyFaction> OtherFactions { get; private set; }
 
 		/// <summary>
 		/// These factions are considered lawful. When they go hostile towards someone,
@@ -58,7 +67,7 @@ namespace EemRdx.Models
 
 		public static List<string> EnforcementFactionsTags { get; } = new List<string>
 		{
-			"SEPD","UCMF"
+			"SEPD", "UCMF"
 		};
 
 		#region Extension Methods
@@ -76,7 +85,9 @@ namespace EemRdx.Models
 		/// </summary>
 		public static bool IsPeacefulTo(this IMyFaction leftFaction, IMyFaction rightFaction)
 		{
-			return MyAPIGateway.Session.Factions.GetRelationBetweenFactions(leftFaction.FactionId, rightFaction.FactionId) != MyRelationsBetweenFactions.Enemies;
+			if (leftFaction == null || rightFaction == null) return false;
+			return MyAPIGateway.Session.Factions.GetRelationBetweenFactions(leftFaction.FactionId,
+				       rightFaction.FactionId) != MyRelationsBetweenFactions.Enemies;
 		}
 
 		/// <summary>
@@ -84,7 +95,9 @@ namespace EemRdx.Models
 		/// </summary>
 		public static bool IsPeacePendingTo(this IMyFaction leftFaction, IMyFaction rightFaction)
 		{
-			return MyAPIGateway.Session.Factions.IsPeaceRequestStatePending(leftFaction.FactionId, rightFaction.FactionId);
+			if (leftFaction == null || rightFaction == null) return false;
+			return MyAPIGateway.Session.Factions.IsPeaceRequestStatePending(leftFaction.FactionId,
+				rightFaction.FactionId);
 		}
 
 		/// <summary>
@@ -92,7 +105,8 @@ namespace EemRdx.Models
 		/// </summary>
 		public static bool IsHostle(this IMyFaction leftFaction, IMyFaction rightFaction)
 		{
-			return MyAPIGateway.Session.Factions.GetRelationBetweenFactions(leftFaction.FactionId, rightFaction.FactionId) == MyRelationsBetweenFactions.Enemies;
+			return MyAPIGateway.Session.Factions.GetRelationBetweenFactions(leftFaction.FactionId,
+				       rightFaction.FactionId) == MyRelationsBetweenFactions.Enemies;
 		}
 
 		/// <summary>
@@ -102,7 +116,8 @@ namespace EemRdx.Models
 		public static void ProposePeaceToAllAi(this IMyFaction playerFaction)
 		{
 			foreach (IMyFaction faction in LawfulFactions)
-				if (!IsPeacefulTo(playerFaction, faction)) MyAPIGateway.Session.Factions.SendPeaceRequest(faction.FactionId, playerFaction.FactionId);
+				if (!IsPeacefulTo(playerFaction, faction))
+					MyAPIGateway.Session.Factions.SendPeaceRequest(faction.FactionId, playerFaction.FactionId);
 		}
 
 		/// <summary>
@@ -112,6 +127,7 @@ namespace EemRdx.Models
 		/// <param name="rightFaction">The faction receiving a war declaration</param>
 		public static void DeclareWar(this IMyFaction leftFaction, IMyFaction rightFaction)
 		{
+			if (leftFaction == null || rightFaction == null) return;
 			if (!leftFaction.IsPeacefulTo(rightFaction)) return;
 			MyAPIGateway.Session.Factions.DeclareWar(leftFaction.FactionId, rightFaction.FactionId);
 			ClientWarDeclaration(leftFaction.FactionId, rightFaction.FactionId);
@@ -124,6 +140,7 @@ namespace EemRdx.Models
 		/// <param name="rightFaction">The faction receiving the peace proposal</param>
 		public static void ProposePeaceTo(this IMyFaction leftFaction, IMyFaction rightFaction)
 		{
+			if (leftFaction == null || rightFaction == null) return;
 			if (!leftFaction.IsHostle(rightFaction)) return;
 			MyAPIGateway.Session.Factions.SendPeaceRequest(leftFaction.FactionId, rightFaction.FactionId);
 			ClientPeaceDeclaration(leftFaction.FactionId, rightFaction.FactionId);
@@ -136,9 +153,22 @@ namespace EemRdx.Models
 		/// <param name="rightFaction">The faction who has proposed peace</param>
 		public static void AcceptPeaceFrom(this IMyFaction leftFaction, IMyFaction rightFaction)
 		{
+			if (leftFaction == null || rightFaction == null) return;
 			if (!leftFaction.IsPeacePendingTo(rightFaction)) return;
 			MyAPIGateway.Session.Factions.AcceptPeace(leftFaction.FactionId, rightFaction.FactionId);
 			ClientPeaceAcceptance(leftFaction.FactionId, rightFaction.FactionId);
+		}
+
+		/// <summary>
+		/// Accepts a peace proposal from a faction
+		/// </summary>
+		/// <param name="leftFaction">The faction who to accept peace</param>
+		/// <param name="rightFaction">The faction who has proposed peace</param>
+		public static void AutoPeace(this IMyFaction leftFaction, IMyFaction rightFaction)
+		{
+			if (leftFaction == null || rightFaction == null) return;
+			leftFaction.ProposePeaceTo(rightFaction);
+			rightFaction.AcceptPeaceFrom(leftFaction);
 		}
 
 		#endregion
@@ -148,8 +178,11 @@ namespace EemRdx.Models
 		/// </summary>
 		public static void Init()
 		{
-			EnforcementFactions = MyAPIGateway.Session.Factions.Factions.Values.Where(x => EnforcementFactionsTags.Contains(x.Tag)).ToList();
-			LawfulFactions = MyAPIGateway.Session.Factions.Factions.Values.Where(x => LawfulFactionsTags.Contains(x.Tag)).ToList();
+			EnforcementFactions = MyAPIGateway.Session.Factions.Factions.Values
+				.Where(x => EnforcementFactionsTags.Contains(x.Tag)).ToList();
+			LawfulFactions = MyAPIGateway.Session.Factions.Factions.Values
+				.Where(x => LawfulFactionsTags.Contains(x.Tag)).ToList();
+			FactionsAtWar = new List<FactionsAtWar>();
 			NpcFactionPeace();
 			SetupNpcFaction();
 			SetupComplete = true;
@@ -184,9 +217,65 @@ namespace EemRdx.Models
 			}
 		}
 
-		/// <summary>
-		/// Manages faction relations
-		/// </summary>
+		private enum Disposition
+		{
+			Lawful, Enforcement, Pirate, Player
+		}
+
+		private static Dictionary<long, Disposition> FactionDictionary { get; set; }
+
+		public static void Register()
+		{
+			MyAPIGateway.Session.Factions.FactionCreated += FactionCreated;
+			MyAPIGateway.Session.Factions.FactionStateChanged += FactionStateChanged;
+		}
+
+		public static void Unload()
+		{
+			MyAPIGateway.Session.Factions.FactionCreated -= FactionCreated;
+			MyAPIGateway.Session.Factions.FactionStateChanged -= FactionStateChanged;
+		}
+
+		private static void FactionStateChanged(MyFactionStateChange action, long fromFaction, long toFaction, long playerId, long senderId)
+		{
+			//throw new System.NotImplementedException();
+		}
+
+		private static void Initialize()
+		{
+			foreach (KeyValuePair<long, IMyFaction> factions in MyAPIGateway.Session.Factions.Factions)
+			{
+				if (LawfulFactionsTags.Contains(factions.Value.Tag))
+				{
+					FactionDictionary.Add(factions.Key, Disposition.Lawful);
+					continue;
+				}
+				if (EnforcementFactionsTags.Contains(factions.Value.Tag))
+				{
+					FactionDictionary.Add(factions.Key, Disposition.Enforcement);
+					continue;
+				}
+				if (factions.Value.IsEveryoneNpc())
+				{
+					FactionDictionary.Add(factions.Key, Disposition.Pirate);
+					continue;
+				}
+				FactionDictionary.Add(factions.Key, Disposition.Player);
+			}
+		}
+
+		private static void FactionCreated(long factionId)
+		{
+			//IMyFaction newFaction = factionId.GetFactionById();
+			//if (newFaction == null) return;
+			//if (newFaction.IsEveryoneNpc())
+		}
+
+		private static IMyFaction GetFactionById(this long factionId)
+		{
+			return MyAPIGateway.Session.Factions.TryGetFactionById(factionId);
+		}
+
 		public static void ManageFactions()
 		{
 			if (!SetupComplete) Init();                                     // If the faction system hasn't been setup, now's the time
@@ -200,12 +289,12 @@ namespace EemRdx.Models
 				foreach (FactionsAtWar factionsAtWar in FactionsAtWar)      // Iterates through all current faction wars
 					if (factionsAtWar.PlayerFaction == playerFaction)       // Check to see if this player is involved in a current war
 						warringFactions.Add(factionsAtWar.AiFaction);       // If one is found, save the npc faction
-				List<IMyFaction> proposePeaceFactions = LawfulFactions;		// Copy the current Lawful Factions list
-				proposePeaceFactions.RemoveAll(warringFactions.Contains);	// Remove all warring factions
+				List<IMyFaction> proposePeaceFactions = LawfulFactions;     // Copy the current Lawful Factions list
+				proposePeaceFactions.RemoveAll(warringFactions.Contains);   // Remove all warring factions
 				foreach (IMyFaction npcfaction in proposePeaceFactions)     // Iterate through the remaining factions to propose peace to
 				{
 					if (npcfaction.IsPeacefulTo(playerFaction)) continue;   // If the factions are already peaceful, our work here is done
-					npcfaction.ProposePeaceTo(playerFaction);				// Propose peace to the player
+					npcfaction.ProposePeaceTo(playerFaction);               // Propose peace to the player
 				}
 			}
 		}
@@ -216,13 +305,35 @@ namespace EemRdx.Models
 		public static void AssessFactionWar()
 		{
 			for (int counter = FactionsAtWar.Count - 1; counter >= 0; counter--)
-				if ((FactionsAtWar[counter].CooldownTime -= Constants.WasAssessmentCounterLimit) <= 0)
+				if ((FactionsAtWar[counter].CooldownTime -= Constants.WarAssessmentCounterLimit) <= 0)
 				{
 					ProposePeaceTo(FactionsAtWar[counter].AiFaction, FactionsAtWar[counter].PlayerFaction);
 					if (FactionsAtWar[counter].AiFaction.IsEveryoneNpc() && FactionsAtWar[counter].PlayerFaction.IsEveryoneNpc())
 						AcceptPeaceFrom(FactionsAtWar[counter].PlayerFaction, FactionsAtWar[counter].AiFaction);
 					FactionsAtWar.RemoveAtFast(counter);
 				}
+		}
+
+		/// <summary>
+		/// Declares a war against the player with the provided AI faction
+		/// </summary>
+		/// <param name="aiFaction">Faction to declare ar against the player with</param>
+		/// <param name="player">The player</param>
+		public static void DeclareFactionWar(IMyFaction aiFaction, IMyPlayer player)
+		{
+			DeclareFactionWar(aiFaction, player.GetFaction());
+		}
+
+		/// <summary>
+		/// Declares war against players with the provided AI faction
+		/// </summary>
+		/// <param name="aiFaction">Computer controlled faction</param>
+		/// <param name="players"></param>
+		public static void DeclareFactionWar(IMyFaction aiFaction, IEnumerable<IMyPlayer> players)
+		{
+			if (!(AiSessionCore.IsServer)) return;
+			List<IMyFaction> factions = players.GroupBy(x => x.GetFaction()).Select(x => x.Key).ToList();
+			foreach (IMyFaction faction in factions) DeclareFactionWar(aiFaction, faction);
 		}
 
 		/// <summary>
@@ -259,6 +370,24 @@ namespace EemRdx.Models
 		}
 
 		/// <summary>
+		/// Used as a last resort - this declares war against the player from all neutral factions
+		/// </summary>
+		/// <param name="playerFaction">Player controlled faction</param>
+		internal static void DeclareFullAiWar(IMyFaction playerFaction)
+		{
+			if (!(AiSessionCore.IsServer)) return;
+			foreach (IMyFaction enforcementFaction in Factions.LawfulFactions)
+			{
+				FactionsAtWar war = new FactionsAtWar(enforcementFaction, playerFaction);
+				int index = FactionsAtWar.IndexOf(war);
+				if (index != -1)
+					FactionsAtWar[index] = war;
+				else
+					FactionsAtWar.Add(war);
+			}
+		}
+
+		/// <summary>
 		/// Ensures PlayerInitFactions doesn't spam the server with requests to init factions
 		/// Bug: This is required to address a current SE issue with the server ignoring all faction status change requests 
 		/// </summary>
@@ -284,7 +413,7 @@ namespace EemRdx.Models
 		private static void ClientPeaceDeclaration(long factionOne, long factionTwo)
 		{
 			if (!AiSessionCore.IsServer) return;
-			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, factionOne, factionTwo), ignore: MyAPIGateway.Multiplayer.MyId);
+			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, factionOne, factionTwo));
 		}
 
 		/// <summary>
@@ -296,7 +425,7 @@ namespace EemRdx.Models
 		private static void ClientPeaceAcceptance(long factionOne, long factionTwo)
 		{
 			if (!AiSessionCore.IsServer) return;
-			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, factionOne, factionTwo), ignore: MyAPIGateway.Multiplayer.MyId);
+			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, factionOne, factionTwo));
 		}
 
 		/// <summary>
@@ -308,7 +437,7 @@ namespace EemRdx.Models
 		private static void ClientWarDeclaration(long factionOne, long factionTwo)
 		{
 			if (!AiSessionCore.IsServer) return;
-			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclareWarMessagePrefix, factionOne, factionTwo), ignore: MyAPIGateway.Multiplayer.MyId);
+			Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclareWarMessagePrefix, factionOne, factionTwo));
 		}
 	}
 }
