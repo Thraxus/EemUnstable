@@ -67,10 +67,9 @@ namespace EemRdx
 
 		private void Initialize()
 		{
-			if (Constants.DebugMode) DebugLog.WriteToLog("Initialize",$"Initializing - IsServer: {IsServer}", true, 20000);
-			if (!Factions.SetupComplete) Factions.ManageFactions();
+			if (Constants.DebugMode) DebugLog.WriteToLog("Initialize",$"Debug Active - IsServer: {IsServer}", true, 20000);
+			if (!Factions.SetupComplete) Factions.Initialize();
 			Messaging.Register();
-			Factions.Register();
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(0, DamageRefHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(0, GenericDamageHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterDestroyHandler(0, GenericDamageHandler);
@@ -128,7 +127,7 @@ namespace EemRdx
 		{
 			_tickTimer++;
 			if (_tickTimer % Constants.WarAssessmentCounterLimit == 0) Factions.AssessFactionWar();
-			if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.ManageFactions();
+			//if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.ManageFactions();
 		}
 
 		public void DamageRefHandler(object damagedObject, ref MyDamageInformation damage)

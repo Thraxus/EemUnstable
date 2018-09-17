@@ -1,4 +1,5 @@
-﻿using EemRdx.Helpers;
+﻿using System.Collections.Generic;
+using EemRdx.Helpers;
 using EemRdx.Models;
 using ProtoBuf;
 using Sandbox.ModAPI;
@@ -47,16 +48,20 @@ namespace EemRdx.Networking
 					MyAPIGateway.Session.Factions.AcceptPeace(_leftFaction, _rightFaction);
 					break;
 				case (Constants.InitFactionsMessagePrefix):
-					foreach (IMyFaction leftFaction in Factions.LawfulFactions)
-					{
-						foreach (IMyFaction rightFaction in Factions.LawfulFactions)
-							if (leftFaction != rightFaction)
-								if (!leftFaction.IsPeacefulTo(rightFaction))
-								{
-									Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, leftFaction.FactionId, rightFaction.FactionId));
-									Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, rightFaction.FactionId, leftFaction.FactionId));
-								}
-					}
+					//Factions.SetupFactionDictionaries();
+					Factions.SetupPlayerRelations();
+					Factions.SetupNpcRelations();
+					Factions.SetupPirateRelations();
+					//foreach (KeyValuePair<long, IMyFaction> leftFaction in Factions.LawfulFactionDictionary)
+					//{
+					//	foreach (KeyValuePair<long, IMyFaction> rightFaction in Factions.LawfulFactionDictionary)
+					//		if (leftFaction.Key != rightFaction.Key)
+					//			if (!leftFaction.Value.IsPeacefulTo(rightFaction.Value))
+					//			{
+					//				Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, leftFaction.Key, rightFaction.Key));
+					//				Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, rightFaction.Key, leftFaction.Key));
+					//			}
+					//}
 					break;
 				default:
 					return;

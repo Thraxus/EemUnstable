@@ -1,6 +1,7 @@
-﻿using EemRdx.Helpers;
+﻿using System;
+using System.Collections.Generic;
+using EemRdx.Helpers;
 using EemRdx.Models;
-using EemRdx.Utilities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
 
@@ -10,9 +11,7 @@ namespace EemRdx.Networking
 	{
 		internal const string EemChatCommandPrefix = "/eemdev";
 		private const string HelpPrefix = "help";
-		private const string InitFactionPrefix = "initfactions";
 		private const string GetCivlStandingsPrefix = "getcivlstandings";
-		private const string SetPeacePrefix = "setpeace";
 		private const string ShowDebugLogPrefix = "showdebuglog";
 		private const string ShowProfilingLogPrefix = "showprofilinglog";
 		private const string ShowGeneralLogPrefix = "showgenerallog";
@@ -33,7 +32,7 @@ namespace EemRdx.Networking
 				PrintHelpCommands();
 				return;
 			}
-				
+
 			switch (chatCommand[1])
 			{
 				case HelpPrefix:
@@ -63,44 +62,13 @@ namespace EemRdx.Networking
 					}
 					AiSessionCore.GeneralLog.GetTailMessages();
 					break;
-				case SetPeacePrefix:
-					if (chatCommand.Length < 4)
-					{
-						Messaging.ShowLocalNotification($"{SetPeacePrefix}: Invalid number of factions (2 required)");
-						break;
-					}
-					IMyFaction leftPeaceFaction = MyAPIGateway.Session.Factions.TryGetFactionByTag(chatCommand[2]);
-					IMyFaction rightPeaceFaction = MyAPIGateway.Session.Factions.TryGetFactionByTag(chatCommand[3]);
-					if (leftPeaceFaction == null)
-					{
-						Messaging.ShowLocalNotification($"{SetPeacePrefix}: Faction tag {chatCommand[2]} is invalid.");
-						break;
-					}
-					if (rightPeaceFaction == null)
-					{
-						Messaging.ShowLocalNotification($"{SetPeacePrefix}: Faction tag {chatCommand[3]} is invalid.");
-						break;
-					}
-					Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, leftPeaceFaction.FactionId, rightPeaceFaction.FactionId));
-					Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, rightPeaceFaction.FactionId, leftPeaceFaction.FactionId));
-					break;
-				case InitFactionPrefix:
-					Messaging.ShowLocalNotification($"InitFactionPrefix: AiSessionCore.IsServer: {AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer}");
-					foreach (IMyFaction leftFaction in Factions.LawfulFactions)
-					{
-						foreach (IMyFaction rightFaction in Factions.LawfulFactions)
-							if (leftFaction != rightFaction)
-								if (!leftFaction.IsPeacefulTo(rightFaction))
-								{
-									Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, leftFaction.FactionId, rightFaction.FactionId));
-									Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, rightFaction.FactionId, leftFaction.FactionId));
-								}
-					}
-					break;
 				case GetCivlStandingsPrefix:
-					Messaging.ShowLocalNotification($"GetCivlStandings: AiSessionCore.IsServer: {AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer} Factions.PlayerFactionInitComplete: {Factions.PlayerFactionInitComplete}"); IMyFaction civl = MyAPIGateway.Session.Factions.TryGetFactionByTag("CIVL");
-					foreach (IMyFaction rightFaction in Factions.LawfulFactions)
-						Messaging.ShowLocalNotification($"The relationship between {civl.Tag} and {rightFaction.Tag} is {MyAPIGateway.Session.Factions.GetRelationBetweenFactions(civl.FactionId, rightFaction.FactionId)}");
+					List<string> standings = new List<string>();
+					Messaging.ShowLocalNotification($"GetCivlStandings: AiSessionCore.IsServer: {AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer} Factions.PlayerFactionInitComplete: {Factions.PlayerFactionInitComplete}");
+					IMyFaction civl = MyAPIGateway.Session.Factions.TryGetFactionByTag("CIVL");
+					foreach (KeyValuePair<long, IMyFaction> faction in MyAPIGateway.Session.Factions.Factions)
+						standings.Add($"The relationship between {civl.Tag} and {faction.Value.Tag} is {MyAPIGateway.Session.Factions.GetRelationBetweenFactions(civl.FactionId, faction.Key)}");
+					MyAPIGateway.Utilities.ShowMissionScreen("CIVL Standings", "", "", string.Join($"{Environment.NewLine}", standings.ToArray()));
 					break;
 				default:
 					PrintHelpCommands();
@@ -114,9 +82,10 @@ namespace EemRdx.Networking
 		private static void PrintHelpCommands()
 		{
 			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {HelpPrefix}' will show this message");
-			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {InitFactionPrefix}' will initialize factions to their default settings with one another");
 			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {GetCivlStandingsPrefix}' will show the standings between CIVL and all other lawful factions");
-			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {SetPeacePrefix} <tag1> <tag2>' will declare peace between the two factions");
+			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {ShowDebugLogPrefix}' will show the last 20 lines of the Debug Log");
+			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {ShowProfilingLogPrefix}' will show the last 20 lines of the Profiling Log");
+			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {ShowGeneralLogPrefix}' will show the last 20 lines of the General Log");
 		}
 	}
 }

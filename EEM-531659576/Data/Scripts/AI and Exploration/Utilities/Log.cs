@@ -1,23 +1,9 @@
 ﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using EemRdx.Helpers;
 using EemRdx.Networking;
-using Sandbox.Game;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Screens;
-using Sandbox.Game.SessionComponents.Clipboard;
 using Sandbox.ModAPI;
 using VRage.Game;
-using VRage.Game.Definitions.SessionComponents;
-using VRage.Game.ModAPI;
-using VRage.Library.Utils;
-using VRage.Utils;
-using VRageRender;
 
 namespace EemRdx.Utilities
 {
@@ -63,15 +49,7 @@ namespace EemRdx.Utilities
 
 		public void GetTailMessages()
 		{
-			//TextReader fileInLocalStorage = MyAPIGateway.Utilities.ReadFileInLocalStorage(LogName, typeof(Logger));
 			MyAPIGateway.Utilities.ShowMissionScreen(LogName, "", "", string.Join($"{Environment.NewLine}{Environment.NewLine}", _messageQueue.GetQueue()));
-			//IMyHudObjectiveLine debugLines = new MyHudObjectiveLine
-			//{
-			//	Title = LogName,
-			//	Objectives = MessageQueue.GetQueue().ToList()
-			//};
-			//debugLines.Show();
-			//MyAPIGateway.Utilities.GetObjectiveLine();
 		}
 
 		private static void BuildHudNotification(string caller, string message, int duration, string color)

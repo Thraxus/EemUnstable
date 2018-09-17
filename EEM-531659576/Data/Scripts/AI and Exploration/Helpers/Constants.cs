@@ -41,9 +41,9 @@ namespace EemRdx.Helpers
 		/// </summary>
 		public static bool AllowThrowingErrors { get; } = true;
 
-		private const int TicksPerSecond = 60;
+		public const int TicksPerSecond = 60;
 
-		private const int TicksPerMinute = TicksPerSecond * 60;
+		public const int TicksPerMinute = TicksPerSecond * 60;
 
 		public const int DefaultLocalMessageDisplayTime = 5000;
 
