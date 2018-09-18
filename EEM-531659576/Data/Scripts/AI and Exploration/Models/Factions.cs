@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EemRdx.Extensions;
 using EemRdx.Helpers;
 using EemRdx.Networking;
 using EemRdx.Scripts.Utilities;
+using Sandbox.Game.GameSystems;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.ModAPI;
@@ -15,6 +17,8 @@ namespace EemRdx.Models
 	public static class Factions
 	{
 		public static bool SetupComplete;
+
+		private static Random FactionsRandom { get; set; }
 		
 		internal static List<FactionsAtWar> FactionsAtWar { get; set; }
 
@@ -166,8 +170,13 @@ namespace EemRdx.Models
 			return !PirateFactionDictionary.ContainsKey(leftFaction.FactionId) && !PirateFactionDictionary.ContainsKey(rightFaction.FactionId);
 		}
 
+		private static bool CheckErrantPlayerFaction(this long playerFactionId, long npcFactionId)
+		{
+			return BadRelations.IndexOf(new BadRelation(playerFactionId, npcFactionId)) != -1;
+		}
+
 		#endregion
-		
+
 		public static void Register()
 		{
 			MyAPIGateway.Session.Factions.FactionCreated += FactionCreated;
@@ -185,9 +194,58 @@ namespace EemRdx.Models
 		private static void FactionStateChanged(MyFactionStateChange action, long fromFaction, long toFaction, long playerId, long senderId)
 		{
 			AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Action: {action} fromFaction: {fromFaction.GetFactionById().Tag} toFaction: {toFaction.GetFactionById().Tag} playerId: {playerId} senderId: {senderId} isServer: {AiSessionCore.IsServer}");
-			if (action == MyFactionStateChange.SendPeaceRequest && fromFaction.GetFactionById().IsNeutral(toFaction.GetFactionById().FounderId))
-				MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFaction, toFaction);
+			switch (action)
+			{
+				case MyFactionStateChange.SendPeaceRequest:
 
+					if (fromFaction.GetFactionById().IsNeutral(toFaction.GetFactionById().FounderId)
+					    || (fromFaction.GetFactionById().IsEveryoneNpc() && toFaction.CheckErrantPlayerFaction(fromFaction)))
+					{
+						AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Peace Request Canceled fromFaction: {fromFaction.GetFactionById().Tag} toFaction: {toFaction.GetFactionById().Tag}", true);
+						MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFaction, toFaction);
+						break;
+					}
+
+					if (!fromFaction.GetFactionById().IsEveryoneNpc() &&
+					    fromFaction.CheckErrantPlayerFaction(toFaction))
+					{
+						HandleRemorsefulErrantPlayerFaction(fromFaction, toFaction);
+						break;
+					}
+					AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Peace Accepted fromFaction: {fromFaction.GetFactionById().Tag} toFaction: {toFaction.GetFactionById().Tag}", true);
+					//TODO: Something is wonky here on Penitent peace, need to figure it out.
+					toFaction.GetFactionById().AcceptPeaceFrom(fromFaction.GetFactionById());
+					break;
+				case MyFactionStateChange.RemoveFaction:
+					break;
+				case MyFactionStateChange.CancelPeaceRequest:
+					break;
+				case MyFactionStateChange.AcceptPeace:
+					break;
+				case MyFactionStateChange.DeclareWar:
+					if (!fromFaction.GetFactionById().IsEveryoneNpc())
+						HandleNewErrantPlayerFaction(fromFaction, toFaction);
+					break;
+				case MyFactionStateChange.FactionMemberSendJoin:
+					break;
+				case MyFactionStateChange.FactionMemberCancelJoin:
+					break;
+				case MyFactionStateChange.FactionMemberAcceptJoin:
+					break;
+				case MyFactionStateChange.FactionMemberKick:
+					break;
+				case MyFactionStateChange.FactionMemberPromote:
+					break;
+				case MyFactionStateChange.FactionMemberDemote:
+					break;
+				case MyFactionStateChange.FactionMemberLeave:
+					break;
+				case MyFactionStateChange.FactionMemberNotPossibleJoin:
+					break;
+				default:
+					AiSessionCore.GeneralLog?.WriteToLog(nameof(action), action.ToString());
+					break;
+			}
 			//TODO: Finish this
 		}
 
@@ -195,7 +253,6 @@ namespace EemRdx.Models
 		{
 			if (PlayerFactionDictionary.ContainsKey(factionId) ||
 			    PirateFactionDictionary.ContainsKey(factionId)) return;
-			AiSessionCore.DebugLog?.WriteToLog("FactionCreated", $"newFaction Entered: {factionId} IsServer: {AiSessionCore.IsServer}");
 			IMyFaction newFaction;
 			if (!ValidateFactionEvents(factionId, out newFaction)) return;
 			if (newFaction.IsEveryoneNpc() || PlayerFactionExclusionList.Any(x => newFaction.Description.StartsWith(x)))
@@ -205,13 +262,12 @@ namespace EemRdx.Models
 				return;
 			}
 			AddToPlayerFactionDictionary(factionId, newFaction);
-			newFaction.NewFriendly();
+			//newFaction.NewFriendly();
 			AiSessionCore.DebugLog?.WriteToLog("FactionCreated", $"newFaction: {newFaction.Tag}");
 		}
 
 		private static void FactionEdited(long factionId)
 		{
-			AiSessionCore.DebugLog?.WriteToLog("FactionEdited", $"editedFaction Enter: {factionId} IsServer: {AiSessionCore.IsServer}");
 			IMyFaction editedFaction;
 			if (!ValidateFactionEvents(factionId, out editedFaction) || editedFaction.IsEveryoneNpc()) return;
 			if (!PlayerFactionExclusionList.Any(x => editedFaction.Description.StartsWith(x)) && PirateFactionDictionary.ContainsKey(factionId))
@@ -234,28 +290,67 @@ namespace EemRdx.Models
 			newFaction = factionId.GetFactionById();
 			return SetupComplete && newFaction != null;
 		}
-
+		
 		private static List<BadRelation> BadRelations { get; set; }
+
+		private static List<BadRelation> PenitentFactions { get; set; }
 
 		private struct BadRelation
 		{
-			public Dictionary<long, IMyFaction> PlayerFaction;
-			public Dictionary<long, IMyFaction> NpcFaction;
+			public readonly long PlayerFaction;
+			public readonly long NpcFaction;
 
-			public BadRelation(Dictionary<long, IMyFaction> playerFaction, Dictionary<long, IMyFaction> npcFaction)
+			public BadRelation(long playerFaction, long npcFaction)
 			{
 				PlayerFaction = playerFaction;
 				NpcFaction = npcFaction;
 			}
 		}
+		
+		private static void HandleNewErrantPlayerFaction(long playerFactionId, long npcFactionId)
+		{
+			BadRelation newEvil = new BadRelation(playerFactionId, npcFactionId);
+			if (BadRelations.IndexOf(newEvil) != -1)
+				return;
+			BadRelations.Add(newEvil);
+		}
 
-		public static Dictionary<long, IMyFaction> PlayerFactionDictionary { get; set; }
+		private static void HandleRemorsefulErrantPlayerFaction(long playerFactionId, long npcFactionId)
+		{
+			BadRelation penitentFaction = new BadRelation(playerFactionId, npcFactionId);
+			BadRelations.Remove(penitentFaction);
+			AiSessionCore.DebugLog?.WriteToLog("HandleRemorsefulErrantPlayerFaction", $"BadRelations.Count: {BadRelations.Count} PenitentFactions.Count: {PenitentFactions.Count}", true);
+			PenitentFactions.Add(penitentFaction);
+		}
 
-		public static Dictionary<long, IMyFaction> PirateFactionDictionary { get; set; }
+		public static void FactionAssessment()
+		{
+			for (int i = PenitentFactions.Count - 1; i >= 0; i--)
+			{
+				int randomNumber = FactionsRandom.Next(0, 100);
+				AiSessionCore.DebugLog?.WriteToLog("FactionAssessment", $"Random roll: {randomNumber} Iteration: {i} PenitentFactions.Count: {PenitentFactions.Count}", true);
+				if (randomNumber < 75) continue;
+				BadRelation timeServed = PenitentFactions[i];
+				PenitentFactions.RemoveAtFast(i);
+				timeServed.NpcFaction.GetFactionById().ProposePeaceTo(timeServed.PlayerFaction.GetFactionById());
+				string messageSender = timeServed.NpcFaction.GetFactionById().Tag;
+				string penatantFactionTag = timeServed.PlayerFaction.GetFactionById().Tag;
+				foreach (KeyValuePair<long, MyFactionMember> factionMember in timeServed.PlayerFaction.GetFactionById().Members)
+				{
+					Messaging.SendMessageToPlayer($"After some deliberation, we've decided to give {penatantFactionTag} another chance...  Don't make us regret this!", messageSender, factionMember.Key, MyFontEnum.Red);
+				}
+			}
+		}
 
-		public static Dictionary<long, IMyFaction> EnforcementFactionDictionary { get; set; }
+		//public static List<KeyValuePair<long, long>> BadRelations;
 
-		public static Dictionary<long, IMyFaction> LawfulFactionDictionary { get; set; }
+		public static Dictionary<long, IMyFaction> PlayerFactionDictionary { get; private set; }
+
+		public static Dictionary<long, IMyFaction> PirateFactionDictionary { get; private set; }
+
+		public static Dictionary<long, IMyFaction> EnforcementFactionDictionary { get; private set; }
+
+		public static Dictionary<long, IMyFaction> LawfulFactionDictionary { get; private set; }
 
 		public static void Initialize()
 		{
@@ -263,8 +358,10 @@ namespace EemRdx.Models
 			{
 				if (SetupComplete) return;
 				Register();
-				FactionsAtWar = new List<FactionsAtWar>();
+				FactionsRandom = new Random();
 				BadRelations = new List<BadRelation>();
+				PenitentFactions = new List<BadRelation>();
+				FactionsAtWar = new List<FactionsAtWar>();
 				PlayerFactionDictionary = new Dictionary<long, IMyFaction>();
 				PirateFactionDictionary = new Dictionary<long, IMyFaction>();
 				EnforcementFactionDictionary = new Dictionary<long, IMyFaction>();
@@ -279,7 +376,6 @@ namespace EemRdx.Models
 
 		public static void SetupFactionDictionaries()
 		{
-			AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"IsServer: {AiSessionCore.IsServer}");
 			foreach (KeyValuePair<long, IMyFaction> factions in MyAPIGateway.Session.Factions.Factions)
 			{
 				if (LawfulFactionsTags.Contains(factions.Value.Tag))
@@ -308,7 +404,6 @@ namespace EemRdx.Models
 
 		public static void SetupPlayerRelations()
 		{
-			AiSessionCore.DebugLog?.WriteToLog("SetupPlayerRelations", $"IsServer: {AiSessionCore.IsServer}");
 			foreach (KeyValuePair<long, IMyFaction> playerFaction in PlayerFactionDictionary)
 			{
 				foreach (KeyValuePair<long, IMyFaction> lawfulFaction in LawfulFactionDictionary)
@@ -320,7 +415,6 @@ namespace EemRdx.Models
 
 		public static void SetupNpcRelations()
 		{
-			AiSessionCore.DebugLog?.WriteToLog("SetupNpcRelations", $"IsServer: {AiSessionCore.IsServer}");
 			foreach (KeyValuePair<long, IMyFaction> leftPair in LawfulFactionDictionary)
 			{
 				foreach (KeyValuePair<long, IMyFaction> rightPair in LawfulFactionDictionary)
@@ -333,7 +427,6 @@ namespace EemRdx.Models
 
 		public static void SetupPirateRelations()
 		{
-			AiSessionCore.DebugLog?.WriteToLog("SetupPirateRelations", $"IsServer: {AiSessionCore.IsServer}");
 			foreach (KeyValuePair<long, IMyFaction> factions in MyAPIGateway.Session.Factions.Factions)
 			{
 				foreach (KeyValuePair<long, IMyFaction> pirates in PirateFactionDictionary)
@@ -346,25 +439,21 @@ namespace EemRdx.Models
 
 		private static void AddToLawfulFactionDictionary(long factionId, IMyFaction faction)
 		{
-			AiSessionCore.DebugLog?.WriteToLog("AddToLawfulFactionDictionary", $"factionId: {factionId} IsServer: {AiSessionCore.IsServer}");
 			LawfulFactionDictionary.Add(factionId, faction);
 		}
 
 		private static void AddToEnforcementFactionDictionary(long factionId, IMyFaction faction)
 		{
-			AiSessionCore.DebugLog?.WriteToLog("AddToEnforcementFactionDictionary", $"factionId: {factionId} IsServer: {AiSessionCore.IsServer}");
 			EnforcementFactionDictionary.Add(factionId, faction);
 		}
 
 		private static void AddToPirateFactionDictionary(long factionId, IMyFaction faction)
 		{
-			AiSessionCore.DebugLog?.WriteToLog("AddToPirateFactionDictionary", $"factionId: {factionId} IsServer: {AiSessionCore.IsServer}");
 			PirateFactionDictionary.Add(factionId, faction);
 		}
 
 		private static void AddToPlayerFactionDictionary(long factionId, IMyFaction faction)
 		{
-			AiSessionCore.DebugLog?.WriteToLog("AddToPlayerFactionDictionary", $"factionId: {factionId} IsServer: {AiSessionCore.IsServer}");
 			PlayerFactionDictionary.Add(factionId, faction);
 		}
 

@@ -127,7 +127,8 @@ namespace EemRdx
 		{
 			_tickTimer++;
 			if (_tickTimer % Constants.WarAssessmentCounterLimit == 0) Factions.AssessFactionWar();
-			//if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.ManageFactions();
+			//if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.FactionAssessment();
+			if (_tickTimer % (Constants.TicksPerSecond * 30) == 0) Factions.FactionAssessment();
 		}
 
 		public void DamageRefHandler(object damagedObject, ref MyDamageInformation damage)

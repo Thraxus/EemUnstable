@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EemRdx.Extensions;
 using EemRdx.Helpers;
 using Sandbox.Game;
 using Sandbox.ModAPI;
@@ -116,6 +117,7 @@ namespace EemRdx.Networking
 		/// <param name="color">Optional.  Color of the sender's name in chat</param>
 		public static void SendMessageToPlayer(string message, string sender, long recipient, string color = MyFontEnum.Blue)
 		{
+			//if(MyAPIGateway.Multiplayer.Players.GetPlayerById(recipient).Character.IsPlayer)
 			MyVisualScriptLogicProvider.SendChatMessage(message, sender, recipient, color);
 		}
 	}
