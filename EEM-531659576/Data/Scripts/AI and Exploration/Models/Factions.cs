@@ -334,10 +334,10 @@ namespace EemRdx.Models
 				PenitentFactions.RemoveAtFast(i);
 				timeServed.NpcFaction.GetFactionById().ProposePeaceTo(timeServed.PlayerFaction.GetFactionById());
 				string messageSender = timeServed.NpcFaction.GetFactionById().Tag;
-				string penatantFactionTag = timeServed.PlayerFaction.GetFactionById().Tag;
+				string penitentFactionTag = timeServed.PlayerFaction.GetFactionById().Tag;
 				foreach (KeyValuePair<long, MyFactionMember> factionMember in timeServed.PlayerFaction.GetFactionById().Members)
 				{
-					Messaging.SendMessageToPlayer($"After some deliberation, we've decided to give {penatantFactionTag} another chance...  Don't make us regret this!", messageSender, factionMember.Key, MyFontEnum.Red);
+					Messaging.SendMessageToPlayer($"After some deliberation, we've decided to give {penitentFactionTag} another chance...  Don't make us regret this!", messageSender, factionMember.Key, MyFontEnum.Red);
 				}
 			}
 		}
