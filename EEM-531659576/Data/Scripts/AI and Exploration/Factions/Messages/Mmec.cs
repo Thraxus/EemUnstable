@@ -10,7 +10,7 @@ namespace EemRdx.Factions.Messages
 
 		public static readonly Func<string> PeaceNotInterested = () => PeaceNotInterestedMessages.ElementAt(Factions.FactionsRandom.Next(PeaceNotInterestedMessages.Count));
 
-		private static HashSet<string> PeaceNotInterestedMessages { get; } = new HashSet<string>()
+		private static readonly List<string> PeaceNotInterestedMessages = new List<string>()
 		{
 			"The MMEC is not interested in peace.  You leave us alone, and we'll leave you alone.",
 			"MMEC Message Two",

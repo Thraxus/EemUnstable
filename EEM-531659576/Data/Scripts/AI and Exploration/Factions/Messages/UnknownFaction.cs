@@ -8,7 +8,7 @@ namespace EemRdx.Factions.Messages
 	{
 		public static readonly Func<string> PeaceNotInterested = () => PeaceNotInterestedMessages.ElementAt(Factions.FactionsRandom.Next(PeaceNotInterestedMessages.Count));
 
-		private static HashSet<string> PeaceNotInterestedMessages { get; } = new HashSet<string>()
+		private static readonly List<string> PeaceNotInterestedMessages = new List<string>()
 		{
 			"Why would you think we'd be interested in peace with someone like you?  Heh, go find another patsy to play your tricks on.",
 			"Unknown Message Two",

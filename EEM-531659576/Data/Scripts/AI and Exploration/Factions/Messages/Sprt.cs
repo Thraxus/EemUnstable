@@ -10,7 +10,7 @@ namespace EemRdx.Factions.Messages
 
 		public static readonly Func<string> PeaceNotInterested = () => PeaceNotInterestedMessages.ElementAt(Factions.FactionsRandom.Next(PeaceNotInterestedMessages.Count));
 
-		private static HashSet<string> PeaceNotInterestedMessages { get; } = new HashSet<string>()
+		private static readonly List<string> PeaceNotInterestedMessages = new List<string>()
 		{
 			"YOU WHELPS!  Pirates can't be bargained with!  Thanks for letting us know where you're at though...",
 			"You're either mad, or a fool.  Who exactly do you think you're speaking to?",
