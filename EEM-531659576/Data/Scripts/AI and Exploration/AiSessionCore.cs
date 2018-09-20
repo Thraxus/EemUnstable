@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using EemRdx.Helpers;
-using EemRdx.Models;
 using EemRdx.Networking;
 using EemRdx.Utilities;
 using Sandbox.ModAPI;
@@ -61,14 +60,14 @@ namespace EemRdx
 		{
 			if (!_initialized) Initialize();
 			if (!IsServer) return;
-			if (MyAPIGateway.Multiplayer.Players.Count > 0 && !Factions.PlayerFactionInitComplete) { Factions.PlayerInitFactions(); }
+			if (MyAPIGateway.Multiplayer.Players.Count > 0 && !Factions.Factions.PlayerFactionInitComplete) { Factions.Factions.PlayerInitFactions(); }
 			TickTimer();
 		}
 
 		private void Initialize()
 		{
 			if (Constants.DebugMode) DebugLog.WriteToLog("Initialize",$"Debug Active - IsServer: {IsServer}", true, 20000);
-			if (!Factions.SetupComplete) Factions.Initialize();
+			if (!Factions.Factions.SetupComplete) Factions.Factions.Initialize();
 			Messaging.Register();
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(0, DamageRefHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(0, GenericDamageHandler);
@@ -110,7 +109,7 @@ namespace EemRdx
 		/// </summary>
 		protected override void UnloadData()
 		{
-			Factions.Unload();
+			Factions.Factions.Unload();
 			Messaging.Unregister();
 			CloseLogs();
 		}
@@ -126,9 +125,9 @@ namespace EemRdx
 		private void TickTimer()
 		{
 			_tickTimer++;
-			if (_tickTimer % Constants.WarAssessmentCounterLimit == 0) Factions.AssessFactionWar();
+			if (_tickTimer % Constants.WarAssessmentCounterLimit == 0) Factions.Factions.AssessFactionWar();
 			//if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.FactionAssessment();
-			if (_tickTimer % (Constants.TicksPerSecond * 30) == 0) Factions.FactionAssessment();
+			if (_tickTimer % (Constants.TicksPerSecond * 30) == 0) Factions.Factions.FactionAssessment();
 		}
 
 		public void DamageRefHandler(object damagedObject, ref MyDamageInformation damage)

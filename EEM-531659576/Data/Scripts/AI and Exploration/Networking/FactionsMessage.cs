@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using EemRdx.Helpers;
-using EemRdx.Models;
+﻿using EemRdx.Helpers;
 using ProtoBuf;
 using Sandbox.ModAPI;
-using VRage.Game.ModAPI;
 
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable ExplicitCallerInfoArgument
@@ -49,9 +46,9 @@ namespace EemRdx.Networking
 					break;
 				case (Constants.InitFactionsMessagePrefix):
 					//Factions.SetupFactionDictionaries();
-					Factions.SetupPlayerRelations();
-					Factions.SetupNpcRelations();
-					Factions.SetupPirateRelations();
+					Factions.Factions.SetupPlayerRelations();
+					Factions.Factions.SetupNpcRelations();
+					Factions.Factions.SetupPirateRelations();
 					//foreach (KeyValuePair<long, IMyFaction> leftFaction in Factions.LawfulFactionDictionary)
 					//{
 					//	foreach (KeyValuePair<long, IMyFaction> rightFaction in Factions.LawfulFactionDictionary)

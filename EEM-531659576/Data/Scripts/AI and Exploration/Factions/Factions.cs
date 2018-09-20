@@ -5,21 +5,21 @@ using EemRdx.Extensions;
 using EemRdx.Helpers;
 using EemRdx.Networking;
 using EemRdx.Scripts.Utilities;
-using Sandbox.Game.GameSystems;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Game.ModAPI;
+using EemRdx.Factions.Messages;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace EemRdx.Models
+namespace EemRdx.Factions
 {
 	public static class Factions
 	{
 		public static bool SetupComplete;
 
-		private static Random FactionsRandom { get; set; }
+		public static Random FactionsRandom { get; set; }
 
 		internal static List<FactionsAtWar> FactionsAtWar { get; set; }
 
@@ -147,13 +147,6 @@ namespace EemRdx.Models
 			return MyAPIGateway.Session.Factions.TryGetFactionById(factionId);
 		}
 
-		private static IMyPlayer GetPlayerById(this long playerId)
-		{
-			
-			//TODO: This is bad, crashes the game.  Find a better / real way to get a player from ID.
-			return MyAPIGateway.Multiplayer.Players.GetPlayerById(playerId);
-		}
-
 		public static void NewPirate(this IMyFaction newPirate)
 		{
 			foreach (KeyValuePair<long, IMyFaction> factions in MyAPIGateway.Session.Factions.Factions)
@@ -199,22 +192,23 @@ namespace EemRdx.Models
 			MyAPIGateway.Session.Factions.FactionEdited -= FactionEdited;
 		}
 
-		private static void HandlePiratePeaceRequest(IMyFaction pirateFaction, IMyFaction playerFaction, long playerId)
+		private static Dictionary<string, Func<string>> FactionPeaceNotInterested { get; set; }
+
+		private static void InitMessageDictionaries()
 		{
-			string message = "";
-			switch (pirateFaction.Tag)
+			FactionPeaceNotInterested = new Dictionary<string, Func<string>>
 			{
-				case "MMEC":
-					message = $"The MMEC is not interested in peace, {playerId.GetPlayerById().DisplayName}.  You leave us alone, and we'll leave you alone.";
-					break;
-				case "SPRT":
-					message = $"{playerId.GetPlayerById().DisplayName} YOU WHELP!  Pirates can't be bargained with!  Thanks for letting us know where you're at though...";
-					break;
-				default:
-					message = $"Grrr....";
-					break;
-			}
-			SendFactionMessageToAllFactionMembers(message, pirateFaction.Tag, playerFaction.Members);
+				{Sprt.Tag, Sprt.PeaceNotInterested},
+				{Mmec.Tag, Mmec.PeaceNotInterested}
+			};
+		}
+
+		private static void HandlePiratePeaceRequest(IMyFaction pirateFaction, IMyFaction playerFaction)
+		{
+			Func<string> message;
+			if (!FactionPeaceNotInterested.TryGetValue(pirateFaction.Tag, out message))
+				message = UnknownFaction.PeaceNotInterested;
+			SendFactionMessageToAllFactionMembers(message.Invoke(), pirateFaction.Tag, playerFaction.Members);
 		}
 
 		private static void FactionStateChanged(MyFactionStateChange action, long fromFaction, long toFaction, long playerId, long senderId)
@@ -226,7 +220,7 @@ namespace EemRdx.Models
 
 					if (PirateFactionDictionary.ContainsKey(toFaction))
 					{
-						HandlePiratePeaceRequest(toFaction.GetFactionById(), fromFaction.GetFactionById(), playerId);
+						HandlePiratePeaceRequest(toFaction.GetFactionById(), fromFaction.GetFactionById());
 						MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFaction, toFaction);
 						break;
 					}
@@ -408,6 +402,7 @@ namespace EemRdx.Models
 			{
 				if (SetupComplete) return;
 				Register();
+				InitMessageDictionaries();
 				FactionsRandom = new Random();
 				BadRelations = new List<BadRelation>();
 				PenitentFactions = new List<BadRelation>();

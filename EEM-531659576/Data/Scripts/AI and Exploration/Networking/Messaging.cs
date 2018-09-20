@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using EemRdx.Extensions;
 using EemRdx.Helpers;
 using Sandbox.Game;
 using Sandbox.ModAPI;

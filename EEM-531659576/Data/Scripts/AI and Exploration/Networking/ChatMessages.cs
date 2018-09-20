@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using EemRdx.Helpers;
-using EemRdx.Models;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
 
@@ -64,7 +63,7 @@ namespace EemRdx.Networking
 					break;
 				case GetCivlStandingsPrefix:
 					List<string> standings = new List<string>();
-					Messaging.ShowLocalNotification($"GetCivlStandings: AiSessionCore.IsServer: {AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer} Factions.PlayerFactionInitComplete: {Factions.PlayerFactionInitComplete}");
+					Messaging.ShowLocalNotification($"GetCivlStandings: AiSessionCore.IsServer: {AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer} Factions.PlayerFactionInitComplete: {Factions.Factions.PlayerFactionInitComplete}");
 					IMyFaction civl = MyAPIGateway.Session.Factions.TryGetFactionByTag("CIVL");
 					foreach (KeyValuePair<long, IMyFaction> faction in MyAPIGateway.Session.Factions.Factions)
 						standings.Add($"The relationship between {civl.Tag} and {faction.Value.Tag} is {MyAPIGateway.Session.Factions.GetRelationBetweenFactions(civl.FactionId, faction.Key)}");

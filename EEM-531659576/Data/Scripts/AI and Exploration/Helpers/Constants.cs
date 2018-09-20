@@ -19,7 +19,7 @@ namespace EemRdx.Helpers
 			"EXMC",
 			"IMDC"
 		};
-
+		
 		#region General
 
 		public static bool DebugMode { get; } = true;
