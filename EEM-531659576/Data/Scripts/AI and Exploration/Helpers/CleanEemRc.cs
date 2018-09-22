@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using EemRdx.Utilities;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;
 using VRage.Game.Components;
@@ -8,105 +9,101 @@ using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRageMath;
 
-//using System.Linq;
-
-//using VRageMath;
-
 namespace EemRdx.Helpers
 {
-	[MyEntityComponentDescriptor(typeof(MyObjectBuilder_RemoteControl), false)]
-	public class CleanEemRc : MyGameLogicComponent
-	{
-		public override void Init(MyObjectBuilder_EntityBase objectBuilder)
-		{
-			NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
-		}
-		
-		public override void UpdateAfterSimulation100()
-		{
-			try
-			{
-				//if(!MyAPIGateway.Multiplayer.IsServer) // only server-side/SP
-				if(!AiSessionCore.IsServer)
-					return;
+    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_RemoteControl), false)]
+    public class CleanEemRc : MyGameLogicComponent
+    {
+        public override void Init(MyObjectBuilder_EntityBase objectBuilder)
+        {
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+        }
 
-				IMyRemoteControl rc = (IMyRemoteControl)Entity;
-				IMyCubeGrid grid = rc.CubeGrid;
+        public override void UpdateAfterSimulation100()
+        {
+            try
+            {
+                //if(!MyAPIGateway.Multiplayer.IsServer) // only server-side/SP
+                if (!AiSessionCore.IsServer)
+                    return;
 
-				if (grid.Physics == null || !rc.IsWorking || !Constants.NpcFactions.Contains(rc.GetOwnerFactionTag()))
-				{
-					if (Constants.CleanupDebug)
-						//Log.Info(grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") is not valid; " + (grid.Physics == null ? "Phys=null" : "Phys OK") + "; " + (rc.IsWorking ? "RC OK" : "RC Not working!") + "; " + (!Constants.NpcFactions.Contains(rc.GetOwnerFactionTag()) ? "Owner faction tag is not in NPC list (" + rc.GetOwnerFactionTag() + ")" : "Owner Faction OK"));
+                IMyRemoteControl rc = (IMyRemoteControl)Entity;
+                IMyCubeGrid grid = rc.CubeGrid;
 
-					return;
-				}
+                if (grid.Physics == null || !rc.IsWorking || !Constants.NpcFactions.Contains(rc.GetOwnerFactionTag()))
+                {
+                    if (Constants.CleanupDebug)
+                        AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") is not valid; " + (grid.Physics == null ? "Phys=null" : "Phys OK") + "; " + (rc.IsWorking ? "RC OK" : "RC Not working!") + "; " + (!Constants.NpcFactions.Contains(rc.GetOwnerFactionTag()) ? "Owner faction tag is not in NPC list (" + rc.GetOwnerFactionTag() + ")" : "Owner Faction OK"));
 
-				if (!rc.CustomData.Contains(Constants.CleanupRcTag))
-				{
-					if (Constants.CleanupDebug)
-						//Log.Info(grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain the " + Constants.CleanupRcTag + "tag!");
+                    return;
+                }
 
-					return;
-				}
+                if (!rc.CustomData.Contains(Constants.CleanupRcTag))
+                {
+                    if (Constants.CleanupDebug)
+                        AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain the " + Constants.CleanupRcTag + "tag!");
 
-				if (Constants.CleanupRcExtraTags.Length > 0)
-				{
-					bool hasExtraTag = Constants.CleanupRcExtraTags.Any(tag => rc.CustomData.Contains(tag));
+                    return;
+                }
 
-					if (!hasExtraTag)
-					{
-						if (Constants.CleanupDebug)
-							//Log.Info(grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain one of the extra tags!");
+                if (Constants.CleanupRcExtraTags.Length > 0)
+                {
+                    bool hasExtraTag = Constants.CleanupRcExtraTags.Any(tag => rc.CustomData.Contains(tag));
 
-						return;
-					}
-				}
+                    if (!hasExtraTag)
+                    {
+                        if (Constants.CleanupDebug)
+                            AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain one of the extra tags!");
 
-				//if (Constants.CleanupDebug)
-					//Log.Info("Checking RC '" + rc.CustomName + "' from grid '" + grid.DisplayName + "' (" + grid.EntityId + ") for any nearby players...");
+                        return;
+                    }
+                }
 
-				int rangeSq = CleanEem.RangeSq;
-				Vector3D gridCenter = grid.WorldAABB.Center;
+                if (Constants.CleanupDebug)
+                    AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", "Checking RC '" + rc.CustomName + "' from grid '" + grid.DisplayName + "' (" + grid.EntityId + ") for any nearby players...");
 
-				//if (rangeSq <= 0)
-				//{
-					//if (Constants.CleanupDebug)
-						//Log.Info("- WARNING: Range not assigned yet, ignoring grid for now.");
+                int rangeSq = CleanEem.RangeSq;
+                Vector3D gridCenter = grid.WorldAABB.Center;
 
-				//	return;
-				//}
+                if (rangeSq <= 0)
+                {
+                    if (Constants.CleanupDebug)
+                        AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", "- WARNING: Range not assigned yet, ignoring grid for now.");
 
-				//check if any player is within range of the ship
-				//foreach (IMyPlayer player in CleanEem.Players)
-				//{
-				//	if (Vector3D.DistanceSquared(player.GetPosition(), gridCenter) <= rangeSq)
-				//	{
-				//		if (Constants.CleanupDebug)
-				//			Log.Info(" - player '" + player.DisplayName + "' is within " + Math.Round(Math.Sqrt(rangeSq), 1) + "m of it, not removing.");
+                    return;
+                }
 
-				//		return;
-				//	}
-				//}
+                //check if any player is within range of the ship
+                foreach (IMyPlayer player in CleanEem.Players)
+                {
+                    if (Vector3D.DistanceSquared(player.GetPosition(), gridCenter) <= rangeSq)
+                    {
+                        if (Constants.CleanupDebug)
+                            AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", " - player '" + player.DisplayName + "' is within " + Math.Round(Math.Sqrt(rangeSq), 1) + "m of it, not removing.");
 
-				//if (Constants.CleanupDebug)
-					//Log.Info(" - no player is within " + Math.Round(Math.Sqrt(rangeSq), 1) + "m of it, removing...");
+                        return;
+                    }
+                }
 
-				//Log.Info("NPC ship '" + grid.DisplayName + "' (" + grid.EntityId + ") removed.");
+                if (Constants.CleanupDebug)
+                    AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", " - no player is within " + Math.Round(Math.Sqrt(rangeSq), 1) + "m of it, removing...");
 
-				CleanEem.GetAttachedGrids(grid); // this gets all connected grids and places them in Exploration.grids (it clears it first)
+                AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", "NPC ship '" + grid.DisplayName + "' (" + grid.EntityId + ") removed.");
 
-				foreach(IMyCubeGrid g in CleanEem.Grids)
-				{
-					g.Close(); // this only works server-side
-					//Log.Info("  - subgrid '" + g.DisplayName + "' (" + g.EntityId + ") removed.");
-				}
+                CleanEem.GetAttachedGrids(grid); // this gets all connected grids and places them in Exploration.grids (it clears it first)
 
-				grid.Close(); // this only works server-side
-			}
-			catch(Exception e)
-			{
-				//Log.Error(e);
-			}
-		}
-	}
+                foreach (IMyCubeGrid g in CleanEem.Grids)
+                {
+                    g.Close(); // this only works server-side
+                    AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", "  - subgrid '" + g.DisplayName + "' (" + g.EntityId + ") removed.");
+                }
+
+                grid.Close(); // this only works server-side
+            }
+            catch (Exception e)
+            {
+                AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", $"Exception: {e}");
+            }
+        }
+    }
 }

@@ -33,13 +33,12 @@ namespace EemRdx.Factions.Messages
 
         private static readonly List<string> PeaceRejectedMessages = new List<string>()
         {
-
             "YOU WHELPS!  Pirates can't be bargained with!  Thanks for letting us know where you're at though...",
             "You're either mad, or a fool.  Who exactly do you think you're speaking to?",
-            "Yarrrr....  Haha, no really...  Yarrrrr a fool if you think we'd ever talk terms with a group like yours.",
-            "If I give you a nice big straw will you go suck the fun out of someone else’s day.  WE'RE P-I-R-A-T-E-S",
+            "Yarrrr!  Haha, no really...  Yarrrr a fool if you think we'd ever talk terms with a group like yours.",
+            "If I give you a nice big straw... will you go suck the fun out of someone else’s day?  WE ARE P-I-R-A-T-E-S",
             "This number is out of service.",
-            "How about this instead... You lay down arms, and we'll come get them."
+            "How about this instead... Lay down your arms, and we'll come get them."
         };
 
         public static readonly Func<string> WarDeclared = () => WarDeclaredMessages.ElementAt(Factions.FactionsRandom.Next(WarDeclaredMessages.Count));

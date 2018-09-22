@@ -44,7 +44,10 @@ namespace EemRdx.Networking
 				case (Constants.AcceptPeaceMessagePrefix):
 					MyAPIGateway.Session.Factions.AcceptPeace(_leftFaction, _rightFaction);
 					break;
-				case (Constants.InitFactionsMessagePrefix):
+			    case (Constants.RejectPeaceMessagePrefix):
+			        MyAPIGateway.Session.Factions.CancelPeaceRequest(_leftFaction, _rightFaction);
+			        break;
+                case (Constants.InitFactionsMessagePrefix):
 					//Factions.SetupFactionDictionaries();
 					Factions.Factions.SetupPlayerRelations();
 					Factions.Factions.SetupNpcRelations();

@@ -125,6 +125,23 @@ namespace EemRdx.Factions
             AiSessionCore.DebugLog?.WriteToLog("AcceptPeaceFrom", $"leftFaction: {leftFaction.Tag} rightFaction: {rightFaction.Tag}");
         }
 
+        public static void CancelPeaceRequest(this IMyFaction leftFaction, IMyFaction rightFaction)
+        {
+            if (leftFaction.IsPeacePendingTo(rightFaction))
+            {
+                MyAPIGateway.Session.Factions.CancelPeaceRequest(leftFaction.FactionId, rightFaction.FactionId);
+                ClientCancelPeaceRequest(leftFaction.FactionId, rightFaction.FactionId);
+            }
+
+            if (rightFaction.IsPeacePendingTo(leftFaction))
+            {
+                MyAPIGateway.Session.Factions.CancelPeaceRequest(rightFaction.FactionId, leftFaction.FactionId);
+                ClientCancelPeaceRequest(rightFaction.FactionId, leftFaction.FactionId);
+            }
+            if (!ValidateNonPirateFactions(leftFaction, rightFaction) || !leftFaction.IsPeacePendingTo(rightFaction)) return;
+            AiSessionCore.DebugLog?.WriteToLog("CancelPeaceRequest", $"leftFaction: {leftFaction.Tag} rightFaction: {rightFaction.Tag}");
+        }
+
         /// <summary>
         /// Accepts a peace proposal from a faction
         /// </summary>
@@ -150,8 +167,8 @@ namespace EemRdx.Factions
             { // If this is the same faction, or if the session Faction is a player faction, skip this round (players can handle their own relations)
                 if (faction.Value == newPirate || !faction.Value.IsEveryoneNpc()) continue;                  
                 faction.Value.DeclareWar(newPirate);
+                faction.Value.CancelPeaceRequest(newPirate);
             }
-            //TODO: Cancel pending peace requests when this happens
         }
 
         public static void NewFriendly(this IMyFaction newFriendly)
@@ -273,66 +290,72 @@ namespace EemRdx.Factions
 
         private static void RequestDialog(IMyFaction npcFaction, IMyFaction playerFaction, DialogType type)
         {
+            if (!AiSessionCore.IsServer) return;
             AiSessionCore.DebugLog?.WriteToLog("RequestDialog", $"npcFaction: {npcFaction?.Tag}  playerFaction: {playerFaction?.Tag} DialogType: {type}");
             Func<string> message = DefaultDialogs.CatchAll;
-            Func<string> tmpMessage;
             string tag = DefaultDialogs.DefaultTag;
-            switch (type)
+            if (npcFaction != null)
             {
-                case DialogType.CollectiveDisappointment:
-                    message = DefaultDialogs.CollectiveDisappointment;
-                    tag = DefaultDialogs.DefaultTag;
-                    break;
-                case DialogType.CollectiveReprieve:
-                    message = DefaultDialogs.CollectiveReprieve;
-                    tag = DefaultDialogs.CollectiveTag;
-                    break;
-                case DialogType.PeaceAccepted:
-                    if (FactionPeaceAcceptedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                    {
-                        message = tmpMessage;
-                        tag = npcFaction.Tag;
-                    }
-                    break;
-                case DialogType.PeaceConsidered:
-                    if (FactionPeaceConsideredDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                    {
-                        message = tmpMessage;
-                        tag = npcFaction.Tag;
-                    }
-                    break;
-                case DialogType.PeaceProposed:
-                    if (FactionPeaceProposedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                    {
-                        message = tmpMessage;
-                        tag = npcFaction.Tag;
-                    }
-                    break;
-                case DialogType.PeaceRejected:
-                    if (FactionPeaceRejectedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                    {
-                        message = tmpMessage;
-                        tag = npcFaction.Tag;
-                    }
-                    break;
-                case DialogType.WarDeclared:
-                    if (FactionWarDeclaredDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                    {
-                        message = tmpMessage;
-                        tag = npcFaction.Tag;
-                    }
-                    break;
-                case DialogType.WarReceived:
-                    if (FactionWarReceivedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                    {
-                        message = tmpMessage;
-                        tag = npcFaction.Tag;
-                    }
-                    break;
-                default:
-                    break;
+                Func<string> tmpMessage;
+                switch (type)
+                {
+                    case DialogType.CollectiveDisappointment:
+                        message = DefaultDialogs.CollectiveDisappointment;
+                        tag = DefaultDialogs.DefaultTag;
+                        break;
+                    case DialogType.CollectiveReprieve:
+                        message = DefaultDialogs.CollectiveReprieve;
+                        tag = DefaultDialogs.CollectiveTag;
+                        break;
+                    case DialogType.PeaceAccepted:
+                        if (FactionPeaceAcceptedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                        {
+                            message = tmpMessage;
+                            tag = npcFaction.Tag;
+                        }
+                        break;
+                    case DialogType.PeaceConsidered:
+                        if (FactionPeaceConsideredDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                        {
+                            message = tmpMessage;
+                            tag = npcFaction.Tag;
+                        }
+                        break;
+                    case DialogType.PeaceProposed:
+                        if (FactionPeaceProposedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                        {
+                            message = tmpMessage;
+                            tag = npcFaction.Tag;
+                        }
+                        break;
+                    case DialogType.PeaceRejected:
+                        if (FactionPeaceRejectedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                        {
+                            message = tmpMessage;
+                            tag = npcFaction.Tag;
+                        }
+                        break;
+                    case DialogType.WarDeclared:
+                        if (FactionWarDeclaredDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                        {
+                            message = tmpMessage;
+                            tag = npcFaction.Tag;
+                        }
+                        break;
+                    case DialogType.WarReceived:
+                        if (FactionWarReceivedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                        {
+                            message = tmpMessage;
+                            tag = npcFaction.Tag;
+                        }
+                        break;
+                    // ReSharper disable once RedundantEmptySwitchSection
+                    default:
+                        break;
+                }
             }
-            SendFactionMessageToAllFactionMembers(message.Invoke(), tag, playerFaction.Members);
+            if (playerFaction != null)
+                SendFactionMessageToAllFactionMembers(message.Invoke(), tag, playerFaction.Members);
         }
 
         private static void CleanupFactions(long faction)
@@ -378,14 +401,14 @@ namespace EemRdx.Factions
                     if (PirateFactionDictionary.ContainsKey(toFaction))                                 // Is this player a pirate?
                     {
                         RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.PeaceRejected);
-                        MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFaction, toFaction);
+                        fromFaction.GetFactionById().CancelPeaceRequest(toFaction.GetFactionById());
                         break;
                     }
 
                     if (fromFaction.GetFactionById().IsNeutral(toFaction.GetFactionById().FounderId)    // Are these factions already neutral, or is the requesting faction an NPC faction and the player is currently errant
                         || (fromFaction.GetFactionById().IsEveryoneNpc() && toFaction.IsFactionErrant(fromFaction)))
                     {
-                        MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFaction, toFaction);
+                        fromFaction.GetFactionById().CancelPeaceRequest(toFaction.GetFactionById());
                         break;
                     }
 
@@ -423,12 +446,14 @@ namespace EemRdx.Factions
                         RequestDialog(fromFaction.GetFactionById(), toFaction.GetFactionById(), DialogType.WarDeclared);
                         HandleNewErrantPlayerFaction(fromFaction, toFaction);
                         AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"NPC War On Player");
+                        break;
                     }
                     if (!fromFaction.GetFactionById().IsEveryoneNpc() && toFaction.GetFactionById().IsEveryoneNpc())
                     {                                                                                   // Make sure this is an player declaring war on a NPC
                         RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.WarReceived);
                         HandleNewErrantPlayerFaction(fromFaction, toFaction);
                         AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Player War On NPC");
+                        break;
                     }
                     break;
                 case MyFactionStateChange.FactionMemberSendJoin:
@@ -479,9 +504,6 @@ namespace EemRdx.Factions
                 AddToPlayerFactionDictionary(factionId, factionId.GetFactionById());
                 editedFaction.NewFriendly();
                 RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveReprieve);
-                //TODO: need to determine peace conditions (cooldown?) newFaction.NewFriendly(); is a placeholder
-                //TODO: Idea - add player to PenitentFactions list and toss them into the rift for the 25% per pass for peace
-                //TODO: However, need to account for player going rogue again (pirate); need to account for this anyhow with the penitent faction stuff still
                 return;
             }
             if (!PlayerFactionExclusionList.Any(x => editedFaction.Description.StartsWith(x) && PlayerFactionDictionary.ContainsKey(factionId))) return;
@@ -489,7 +511,7 @@ namespace EemRdx.Factions
             AddToPirateFactionDictionary(factionId, editedFaction);
             editedFaction.NewPirate();
             RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveDisappointment);
-
+            //TODO: Figure out how to stop faction chat spam when a new pirate faction is declare d- message should likely only be from The Unknown and The Collective
             AiSessionCore.DebugLog?.WriteToLog("FactionEdited", $"editedFaction Leave: {editedFaction.Tag}");
         }
 
@@ -711,6 +733,7 @@ namespace EemRdx.Factions
                     if (FactionsAtWar[counter].AiFaction.IsEveryoneNpc() && FactionsAtWar[counter].PlayerFaction.IsEveryoneNpc())
                         AcceptPeaceFrom(FactionsAtWar[counter].PlayerFaction, FactionsAtWar[counter].AiFaction);
                     FactionsAtWar.RemoveAtFast(counter);
+                    //TODO: Hook faction war cooldown into chance system for peace - no longer immediate peace requests issues
                 }
         }
 
@@ -837,6 +860,18 @@ namespace EemRdx.Factions
         {
             if (!AiSessionCore.IsServer) return;
             Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclareWarMessagePrefix, factionOne, factionTwo));
+        }
+
+        /// <summary>
+        /// Passes a war declaration request to the client from the server
+        /// </summary>
+        /// Bug: This is required to address a current SE issue with the server ignoring all faction status change requests
+        /// <param name="factionOne">Self documented name</param>
+        /// <param name="factionTwo">Self documented name</param>
+        private static void ClientCancelPeaceRequest(long factionOne, long factionTwo)
+        {
+            if (!AiSessionCore.IsServer) return;
+            Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.RejectPeaceMessagePrefix, factionOne, factionTwo));
         }
     }
 }
