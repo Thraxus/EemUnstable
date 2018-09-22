@@ -8,42 +8,42 @@ namespace EemRdx.Factions.Messages
 	{
 		public const string Tag = "AMPH";
 
-		public static readonly Func<string> PeaceAccepted = () => PeaceAcceptedMessages.ElementAt(Factions.FactionsRandom.Next(PeaceAcceptedMessages.Count));
+		public static readonly Func<string> PeaceAccepted = () => DefaultDialogs.PeaceAcceptedMessages.ElementAt(Factions.FactionsRandom.Next(DefaultDialogs.PeaceAcceptedMessages.Count));
 
 		private static readonly List<string> PeaceAcceptedMessages = new List<string>()
 		{
 			$"{Tag} Peace Accepted Placeholder"
 		};
 
-		public static readonly Func<string> PeaceConsidered = () => PeaceConsideredMessages.ElementAt(Factions.FactionsRandom.Next(PeaceConsideredMessages.Count));
+		public static readonly Func<string> PeaceConsidered = () => DefaultDialogs.PeaceConsideredMessages.ElementAt(Factions.FactionsRandom.Next(DefaultDialogs.PeaceConsideredMessages.Count));
 
 		private static readonly List<string> PeaceConsideredMessages = new List<string>()
 		{
 			$"{Tag} Peace Considered Placeholder"
 		};
 
-		public static readonly Func<string> PeaceProposed = () => PeaceProposedMessages.ElementAt(Factions.FactionsRandom.Next(PeaceProposedMessages.Count));
+		public static readonly Func<string> PeaceProposed = () => DefaultDialogs.PeaceProposedMessages.ElementAt(Factions.FactionsRandom.Next(DefaultDialogs.PeaceProposedMessages.Count));
 
 		private static readonly List<string> PeaceProposedMessages = new List<string>()
 		{
 			$"{Tag} Peace Proposed Placeholder"
 		};
 
-		public static readonly Func<string> PeaceRejected = () => PeaceRejectedMessages.ElementAt(Factions.FactionsRandom.Next(PeaceRejectedMessages.Count));
+		public static readonly Func<string> PeaceRejected = () => DefaultDialogs.PeaceRejectedMessages.ElementAt(Factions.FactionsRandom.Next(DefaultDialogs.PeaceRejectedMessages.Count));
 
 		private static readonly List<string> PeaceRejectedMessages = new List<string>()
 		{
 			$"{Tag} Peace Rejected Placeholder"
 		};
 
-		public static readonly Func<string> WarDeclared = () => WarDeclaredMessages.ElementAt(Factions.FactionsRandom.Next(WarDeclaredMessages.Count));
+		public static readonly Func<string> WarDeclared = () => DefaultDialogs.WarDeclaredMessages.ElementAt(Factions.FactionsRandom.Next(DefaultDialogs.WarDeclaredMessages.Count));
 
 		private static readonly List<string> WarDeclaredMessages = new List<string>()
 		{
 			$"{Tag} War Declared Placeholder"
 		};
 
-		public static readonly Func<string> WarReceived = () => WarReceiveddMessages.ElementAt(Factions.FactionsRandom.Next(WarReceiveddMessages.Count));
+		public static readonly Func<string> WarReceived = () => DefaultDialogs.WarReceiveddMessages.ElementAt(Factions.FactionsRandom.Next(DefaultDialogs.WarReceiveddMessages.Count));
 
 		private static readonly List<string> WarReceiveddMessages = new List<string>()
 		{

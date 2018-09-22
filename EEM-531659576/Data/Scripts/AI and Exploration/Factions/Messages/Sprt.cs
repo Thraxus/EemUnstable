@@ -52,7 +52,7 @@ namespace EemRdx.Factions.Messages
 
         private static readonly List<string> WarReceivedMessages = new List<string>()
         {
-            $"{Tag} War Received Placeholder"
+            $"Oh darn, another war.  MORE LOOT!"
         };
     }
 }
