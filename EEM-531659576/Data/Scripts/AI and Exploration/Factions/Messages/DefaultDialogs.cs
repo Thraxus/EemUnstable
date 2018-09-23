@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace EemRdx.Factions.Messages
+
+// Thanks @Kreeg from ARMCO for some submissions to the below!
 {
 	internal static class DefaultDialogs
 	{
@@ -49,7 +51,11 @@ namespace EemRdx.Factions.Messages
 	        "I don’t know if you truly appreciate the opportunity we’re giving you here.",
 	        "You’re on thin ice.",
 	        "We’ve got our eyes on you.",
-	        "Don’t make us regret this decision."
+	        "For the record, I despise the entire notion, but it was agreed, and so it shall be.",
+            "Don’t make us regret this decision.",
+	        "I have no use for fools to breath, so do not waste this, your only, chance to live.",
+            "Blessed is the day, You are redeemed of sin.",
+            "Welcome to the Family."
         };
 
 
@@ -80,9 +86,11 @@ namespace EemRdx.Factions.Messages
 	        "SEPD, what’s your emergency?",
 	        "How’d you get this number?",
 	        "Um. No.",
-	        "Nice try!",
+	        "By the Queen, you are an ugly mess, No, no, no, just no.",
+            "Nice try!",
 	        "We know where you live.  ",
-	        "You can’t be serious…",
+	        "I don't believe we can ever come to terms.",
+            "You can’t be serious…",
 	        "I don’t think the Intergalactic Authority would appreciate us saying yes..."
         };
 
@@ -96,9 +104,13 @@ namespace EemRdx.Factions.Messages
 	        "You’ve gone too far this time!",
 	        "Why would you push us to this point?",
 	        "Later, chump!",
-	        "BOOM!",
+	        "Bye Bye Pretty one, I'll use your skull on the wall.",
+            "BOOM!",
 	        "What’s that ship worth again?",
-	        "Now you’re in trouble."
+	        "Can't roll the dice perfect every time, some times you lose. Like now.",
+            "Now you’re in trouble.",
+	        "Well, that's a ticket. And that's a ticket. And that's another ticket. Okay, You die.",
+            "You've been granted that wish of visiting heaven. You're welcome."
         };
 
 
@@ -117,3 +129,13 @@ namespace EemRdx.Factions.Messages
         };
     }
 }
+
+
+
+
+
+
+
+
+
+
