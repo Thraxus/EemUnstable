@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using EemRdx.Extensions;
 using EemRdx.Helpers;
@@ -96,6 +97,7 @@ namespace EemRdx.Factions
             if ((leftFaction == null || rightFaction == null) || !leftFaction.IsPeacefulTo(rightFaction)) return;
             MyAPIGateway.Session.Factions.DeclareWar(leftFaction.FactionId, rightFaction.FactionId);
             ClientWarDeclaration(leftFaction.FactionId, rightFaction.FactionId);
+            leftFaction.CancelPeaceRequest(rightFaction);
             AiSessionCore.DebugLog?.WriteToLog("DeclareWar", $"leftFaction: {leftFaction.Tag} rightFaction: {rightFaction.Tag}");
         }
 
@@ -127,18 +129,11 @@ namespace EemRdx.Factions
 
         public static void CancelPeaceRequest(this IMyFaction leftFaction, IMyFaction rightFaction)
         {
-            if (leftFaction.IsPeacePendingTo(rightFaction))
-            {
-                MyAPIGateway.Session.Factions.CancelPeaceRequest(leftFaction.FactionId, rightFaction.FactionId);
-                ClientCancelPeaceRequest(leftFaction.FactionId, rightFaction.FactionId);
-            }
-
-            if (rightFaction.IsPeacePendingTo(leftFaction))
-            {
-                MyAPIGateway.Session.Factions.CancelPeaceRequest(rightFaction.FactionId, leftFaction.FactionId);
-                ClientCancelPeaceRequest(rightFaction.FactionId, leftFaction.FactionId);
-            }
-            if (!ValidateNonPirateFactions(leftFaction, rightFaction) || !leftFaction.IsPeacePendingTo(rightFaction)) return;
+            if (ValidateFactions(leftFaction, rightFaction)) return;
+            MyAPIGateway.Session.Factions.CancelPeaceRequest(leftFaction.FactionId, rightFaction.FactionId);
+            ClientCancelPeaceRequest(leftFaction.FactionId, rightFaction.FactionId);
+            MyAPIGateway.Session.Factions.CancelPeaceRequest(rightFaction.FactionId, leftFaction.FactionId);
+            ClientCancelPeaceRequest(rightFaction.FactionId, leftFaction.FactionId);
             AiSessionCore.DebugLog?.WriteToLog("CancelPeaceRequest", $"leftFaction: {leftFaction.Tag} rightFaction: {rightFaction.Tag}");
         }
 
@@ -165,9 +160,10 @@ namespace EemRdx.Factions
             ScrubRelationLists(newPirate.FactionId);
             foreach (KeyValuePair<long, IMyFaction> faction in MyAPIGateway.Session.Factions.Factions)
             { // If this is the same faction, or if the session Faction is a player faction, skip this round (players can handle their own relations)
-                if (faction.Value == newPirate || !faction.Value.IsEveryoneNpc()) continue;                  
-                faction.Value.DeclareWar(newPirate);
+                if (faction.Value == newPirate || !faction.Value.IsEveryoneNpc()) continue;
                 faction.Value.CancelPeaceRequest(newPirate);
+                if (faction.Value.IsHostle(newPirate)) continue;
+                faction.Value.DeclareWar(newPirate);
             }
         }
 
@@ -176,8 +172,18 @@ namespace EemRdx.Factions
             foreach (KeyValuePair<long, IMyFaction> faction in MyAPIGateway.Session.Factions.Factions)
             { // If this is the same faction, or if the session Faction is a player faction, skip this round (players can handle their own relations)
                 if (faction.Value == newFriendly || !faction.Value.IsEveryoneNpc() || faction.Key.IsPirate()) continue;                  
-                HandleRemorsefulErrantPlayerFaction(newFriendly.FactionId, faction.Value.FactionId);
+                HandlePenitentPlayerFaction(newFriendly.FactionId, faction.Value.FactionId);
             }
+        }
+
+        private static bool IsPlayer(this long faction)
+        {
+            return !MyAPIGateway.Session.Factions.TryGetFactionById(faction).IsEveryoneNpc();
+        }
+
+        private static bool IsNpc(this long faction)
+        {
+            return MyAPIGateway.Session.Factions.TryGetFactionById(faction).IsEveryoneNpc();
         }
 
         private static bool IsPirate(this long faction)
@@ -199,6 +205,11 @@ namespace EemRdx.Factions
         {
             if (leftFaction == null || rightFaction == null) return false;
             return !PirateFactionDictionary.ContainsKey(leftFaction.FactionId) && !PirateFactionDictionary.ContainsKey(rightFaction.FactionId);
+        }
+
+        private static bool ValidateFactions(IMyFaction leftFaction, IMyFaction rightFaction)
+        {
+            return (leftFaction == null || rightFaction == null);
         }
 
         private static bool IsFactionErrant(this long playerFactionId, long npcFactionId)
@@ -294,68 +305,68 @@ namespace EemRdx.Factions
             AiSessionCore.DebugLog?.WriteToLog("RequestDialog", $"npcFaction: {npcFaction?.Tag}  playerFaction: {playerFaction?.Tag} DialogType: {type}");
             Func<string> message = DefaultDialogs.CatchAll;
             string tag = DefaultDialogs.DefaultTag;
-            if (npcFaction != null)
+            Func<string> tmpMessage;
+            switch (type)
             {
-                Func<string> tmpMessage;
-                switch (type)
-                {
-                    case DialogType.CollectiveDisappointment:
-                        message = DefaultDialogs.CollectiveDisappointment;
-                        tag = DefaultDialogs.DefaultTag;
-                        break;
-                    case DialogType.CollectiveReprieve:
-                        message = DefaultDialogs.CollectiveReprieve;
-                        tag = DefaultDialogs.CollectiveTag;
-                        break;
-                    case DialogType.PeaceAccepted:
-                        if (FactionPeaceAcceptedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                        {
-                            message = tmpMessage;
-                            tag = npcFaction.Tag;
-                        }
-                        break;
-                    case DialogType.PeaceConsidered:
-                        if (FactionPeaceConsideredDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                        {
-                            message = tmpMessage;
-                            tag = npcFaction.Tag;
-                        }
-                        break;
-                    case DialogType.PeaceProposed:
-                        if (FactionPeaceProposedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                        {
-                            message = tmpMessage;
-                            tag = npcFaction.Tag;
-                        }
-                        break;
-                    case DialogType.PeaceRejected:
-                        if (FactionPeaceRejectedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                        {
-                            message = tmpMessage;
-                            tag = npcFaction.Tag;
-                        }
-                        break;
-                    case DialogType.WarDeclared:
-                        if (FactionWarDeclaredDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                        {
-                            message = tmpMessage;
-                            tag = npcFaction.Tag;
-                        }
-                        break;
-                    case DialogType.WarReceived:
-                        if (FactionWarReceivedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
-                        {
-                            message = tmpMessage;
-                            tag = npcFaction.Tag;
-                        }
-                        break;
-                    // ReSharper disable once RedundantEmptySwitchSection
-                    default:
-                        break;
-                }
+                case DialogType.CollectiveDisappointment:
+                    message = DefaultDialogs.CollectiveDisappointment;
+                    tag = DefaultDialogs.DefaultTag;
+                    break;
+                case DialogType.CollectiveReprieve:
+                    message = DefaultDialogs.CollectiveReprieve;
+                    tag = DefaultDialogs.CollectiveTag;
+                    break;
+                case DialogType.PeaceAccepted:
+                    if (npcFaction != null && FactionPeaceAcceptedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                    {
+                        message = tmpMessage;
+                        tag = npcFaction.Tag;
+                    }
+                    break;
+                case DialogType.PeaceConsidered:
+                    if (npcFaction != null && FactionPeaceConsideredDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                    {
+                        message = tmpMessage;
+                        tag = npcFaction.Tag;
+                    }
+                    break;
+                case DialogType.PeaceProposed:
+                    if (npcFaction != null && FactionPeaceProposedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                    {
+                        message = tmpMessage;
+                        tag = npcFaction.Tag;
+                    }
+                    break;
+                case DialogType.PeaceRejected:
+                    if (npcFaction != null && FactionPeaceRejectedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                    {
+                        message = tmpMessage;
+                        tag = npcFaction.Tag;
+                    }
+                    break;
+                case DialogType.WarDeclared:
+                    if (npcFaction != null && FactionWarDeclaredDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                    {
+                        message = tmpMessage;
+                        tag = npcFaction.Tag;
+                    }
+                    break;
+                case DialogType.WarReceived:
+                    if (npcFaction != null && FactionWarReceivedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                    {
+                        message = tmpMessage;
+                        tag = npcFaction.Tag;
+                    }
+                    break;
+                // ReSharper disable once RedundantEmptySwitchSection
+                default:
+                    break;
             }
+
             if (playerFaction != null)
                 SendFactionMessageToAllFactionMembers(message.Invoke(), tag, playerFaction.Members);
+
+            AiSessionCore.DebugLog?.WriteToLog("RequestDialog", $"Message: <Encoded>  From: {tag}  To: {playerFaction?.Tag}  DialogType: {type}  ");
         }
 
         private static void CleanupFactions(long faction)
@@ -393,11 +404,22 @@ namespace EemRdx.Factions
 
         private static void FactionStateChanged(MyFactionStateChange action, long fromFaction, long toFaction, long playerId, long senderId)
         {
-            AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Action: {action} fromFaction: {fromFaction} toFaction: {toFaction} playerId: {playerId} senderId: {senderId} isServer: {AiSessionCore.IsServer}");
+            AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Action: {action} fromFaction: {fromFaction} fromFactionTag: {fromFaction.GetFactionById()?.Tag}");
+            AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Action: {action} toFaction: {toFaction} toFactionTag: {toFaction.GetFactionById()?.Tag}");
             switch (action)
             {
                 case MyFactionStateChange.SendPeaceRequest:
-
+                    if (PirateFactionDictionary.ContainsKey(fromFaction) && LawfulFactionDictionary.ContainsKey(toFaction))     // Is a player pirate proposing peace to a lawful npc?
+                    {
+                        RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.PeaceRejected);
+                        toFaction.GetFactionById().CancelPeaceRequest(fromFaction.GetFactionById());
+                        break;
+                    }
+                    if (LawfulFactionDictionary.ContainsKey(fromFaction) && PirateFactionDictionary.ContainsKey(toFaction))       // Is a NPC proposing peace to a player pirate?
+                    {
+                        fromFaction.GetFactionById().CancelPeaceRequest(toFaction.GetFactionById());
+                        break;
+                    }
                     if (PirateFactionDictionary.ContainsKey(toFaction))                                 // Is this player a pirate?
                     {
                         RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.PeaceRejected);
@@ -416,12 +438,13 @@ namespace EemRdx.Factions
                         fromFaction.IsFactionErrant(toFaction))
                     {
                         RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.PeaceConsidered);
-                        HandleRemorsefulErrantPlayerFaction(fromFaction, toFaction);
+                        HandlePenitentPlayerFaction(fromFaction, toFaction);
                         break;
                     }
                     if (!fromFaction.GetFactionById().IsEveryoneNpc() &&                                // Is this a player faction, and is this player penitent
                         fromFaction.IsFactionPenitent(toFaction))
                     { // We don't want to do anything here, just let it ride and escape the switch
+                        RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.PeaceConsidered);
                         break;
                     }
                     if (fromFaction.GetFactionById().IsEveryoneNpc() || toFaction.GetFactionById().IsEveryoneNpc())
@@ -434,25 +457,27 @@ namespace EemRdx.Factions
                     BadRelation noLongerRemorseful = new BadRelation(fromFaction, toFaction);           // fromFaction will always be a player, so this will always be in the player, npc order (I wrote the code, believe me)
                     if (PenitentFactions.IndexOf(noLongerRemorseful) != -1)                             // They were remorseful, now they aren't. Asshats!  So much extra code...
                     {
-                        RequestDialog(fromFaction.GetFactionById(), toFaction.GetFactionById(), DialogType.PeaceRejected);
-                        HandleNoLongerRemorsefulErrantPlayerFaction(fromFaction, toFaction);
+                        RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.PeaceRejected);
+                        HandleNoLongerPenitentPlayerFaction(fromFaction, toFaction);
                     }
                     break;
                 case MyFactionStateChange.AcceptPeace:
                     break;
                 case MyFactionStateChange.DeclareWar:
                     if (fromFaction.GetFactionById().IsEveryoneNpc() && !toFaction.GetFactionById().IsEveryoneNpc())
-                    {                                                                                   // Make sure this is an NPC declaring war on a player
-                        RequestDialog(fromFaction.GetFactionById(), toFaction.GetFactionById(), DialogType.WarDeclared);
+                    {   // Make sure this is an NPC declaring war on a player
                         HandleNewErrantPlayerFaction(fromFaction, toFaction);
                         AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"NPC War On Player");
+                        if (fromFaction.IsPirate()) break;
+                        RequestDialog(fromFaction.GetFactionById(), toFaction.GetFactionById(), DialogType.WarDeclared);
                         break;
                     }
                     if (!fromFaction.GetFactionById().IsEveryoneNpc() && toFaction.GetFactionById().IsEveryoneNpc())
-                    {                                                                                   // Make sure this is an player declaring war on a NPC
-                        RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.WarReceived);
+                    {   // Make sure this is an player declaring war on a NPC
                         HandleNewErrantPlayerFaction(fromFaction, toFaction);
                         AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Player War On NPC");
+                        if (toFaction.IsPirate()) break;
+                        RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.WarReceived);
                         break;
                     }
                     break;
@@ -488,6 +513,7 @@ namespace EemRdx.Factions
             {
                 AddToPirateFactionDictionary(factionId, newFaction);
                 newFaction.NewPirate();
+                RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveDisappointment);
                 return;
             }
             AddToPlayerFactionDictionary(factionId, newFaction);
@@ -503,7 +529,7 @@ namespace EemRdx.Factions
                 RemoveFromPirateFactionDictionary(factionId);
                 AddToPlayerFactionDictionary(factionId, factionId.GetFactionById());
                 editedFaction.NewFriendly();
-                RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveReprieve);
+                //RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveReprieve);  TODO: Disabled since each faction handles this individually - need to figure a way to fis this (same note as below)
                 return;
             }
             if (!PlayerFactionExclusionList.Any(x => editedFaction.Description.StartsWith(x) && PlayerFactionDictionary.ContainsKey(factionId))) return;
@@ -539,27 +565,41 @@ namespace EemRdx.Factions
 
         private static void HandleNewErrantPlayerFaction(long playerFactionId, long npcFactionId)
         {
+            if (playerFactionId.IsNpc()) return;
             BadRelation newEvil = new BadRelation(playerFactionId, npcFactionId);
             if (BadRelations.IndexOf(newEvil) != -1)
                 return;
             BadRelations.Add(newEvil);
         }
 
-        private static void HandleRemorsefulErrantPlayerFaction(long playerFactionId, long npcFactionId)
+        private static bool CheckFactionWar(long playerFaction, long npcFaction)
         {
+            if (FactionsAtWar.Count == 0) return false;
+            foreach (FactionsAtWar factionAtWar in FactionsAtWar)
+            {
+                if (factionAtWar.PlayerFaction.FactionId == playerFaction &&
+                    factionAtWar.AiFaction.FactionId == npcFaction)
+                    return true;
+            }
+            return false;
+        }
+
+        private static void HandlePenitentPlayerFaction(long playerFactionId, long npcFactionId)
+        {
+            if (playerFactionId.IsNpc()) return;
             BadRelation penitentFaction = new BadRelation(playerFactionId, npcFactionId);
             BadRelations.Remove(penitentFaction);
-            AiSessionCore.DebugLog?.WriteToLog("HandleRemorsefulErrantPlayerFaction", $"BadRelations.Count: {BadRelations.Count} PenitentFactions.Count: {PenitentFactions.Count}", true);
+            AiSessionCore.DebugLog?.WriteToLog("HandlePenitentPlayerFaction", $"BadRelations.Count: {BadRelations.Count} PenitentFactions.Count: {PenitentFactions.Count}", true);
+            if (CheckFactionWar(playerFactionId, npcFactionId)) return;
             PenitentFactions.Add(penitentFaction);
             if (!playerFactionId.GetFactionById().IsPeacePendingTo(npcFactionId.GetFactionById()))
                 playerFactionId.GetFactionById().ProposePeaceTo(npcFactionId.GetFactionById());
         }
 
-        private static void HandleNoLongerRemorsefulErrantPlayerFaction(long playerFactionId, long npcFactionId)
+        private static void HandleNoLongerPenitentPlayerFaction(long playerFactionId, long npcFactionId)
         {
             BadRelation noLongerPenitentFaction = new BadRelation(playerFactionId, npcFactionId);
-            lock (PenitentFactions)
-                PenitentFactions.Remove(noLongerPenitentFaction);
+            PenitentFactions.Remove(noLongerPenitentFaction);
             BadRelations.Add(noLongerPenitentFaction);
         }
 
@@ -584,9 +624,7 @@ namespace EemRdx.Factions
                 Messaging.SendMessageToPlayer($"{message}", messageSender, factionMember.Key, color);
             }
         }
-
-        //public static List<KeyValuePair<long, long>> BadRelations;
-
+        
         public static Dictionary<long, IMyFaction> PlayerFactionDictionary { get; private set; }
 
         public static Dictionary<long, IMyFaction> PirateFactionDictionary { get; private set; }
@@ -597,7 +635,7 @@ namespace EemRdx.Factions
 
         public static void Initialize()
         {
-            using (new Profiler("NewFactionInit"))
+            using (new Profiler("FactionInit"))
             {
                 if (SetupComplete) return;
                 Register();
@@ -622,26 +660,32 @@ namespace EemRdx.Factions
         {
             foreach (KeyValuePair<long, IMyFaction> factions in MyAPIGateway.Session.Factions.Factions)
             {
-                if (LawfulFactionsTags.Contains(factions.Value.Tag))
+                if (EnforcementFactionsTags.Contains(factions.Value.Tag))
                 {
+                    AiSessionCore.DebugLog.WriteToLog("SetupFactionDictionaries", $"EnforcementFaction.Add: {factions.Key} {factions.Value.Tag}");
+                    AddToEnforcementFactionDictionary(factions.Key, factions.Value);
                     AddToLawfulFactionDictionary(factions.Key, factions.Value);
                     continue;
                 }
-                if (EnforcementFactionsTags.Contains(factions.Value.Tag))
+                if (LawfulFactionsTags.Contains(factions.Value.Tag))
                 {
-                    AddToEnforcementFactionDictionary(factions.Key, factions.Value);
+                    AiSessionCore.DebugLog.WriteToLog("SetupFactionDictionaries", $"AddToLawfulFactionDictionary.Add: {factions.Key} {factions.Value.Tag}");
+                    AddToLawfulFactionDictionary(factions.Key, factions.Value);
                     continue;
                 }
                 if (factions.Value.IsEveryoneNpc())
                 {
+                    AiSessionCore.DebugLog.WriteToLog("SetupFactionDictionaries", $"AddToPirateFactionDictionary: {factions.Key} {factions.Value.Tag}");
                     AddToPirateFactionDictionary(factions.Key, factions.Value);
                     continue;
                 }
                 if (PlayerFactionExclusionList.Any(x => factions.Value.Description.StartsWith(x)))
                 {
+                    AiSessionCore.DebugLog.WriteToLog("SetupFactionDictionaries", $"PlayerFactionExclusionList.Add: {factions.Key} {factions.Value.Tag}");
                     AddToPirateFactionDictionary(factions.Key, factions.Value);
                     continue;
                 }
+                AiSessionCore.DebugLog.WriteToLog("SetupFactionDictionaries", $"PlayerFaction.Add: {factions.Key} {factions.Value.Tag}");
                 AddToPlayerFactionDictionary(factions.Key, factions.Value);
             }
         }
@@ -726,13 +770,17 @@ namespace EemRdx.Factions
         /// </summary>
         public static void AssessFactionWar()
         {
+            //TODO: Track players as well as factions to make sure the war follows the player and gives a reprieve to the faction if they leave.
             for (int counter = FactionsAtWar.Count - 1; counter >= 0; counter--)
                 if ((FactionsAtWar[counter].CooldownTime -= Constants.WarAssessmentCounterLimit) <= 0)
                 {
-                    ProposePeaceTo(FactionsAtWar[counter].AiFaction, FactionsAtWar[counter].PlayerFaction);
-                    if (FactionsAtWar[counter].AiFaction.IsEveryoneNpc() && FactionsAtWar[counter].PlayerFaction.IsEveryoneNpc())
-                        AcceptPeaceFrom(FactionsAtWar[counter].PlayerFaction, FactionsAtWar[counter].AiFaction);
+                    long playerFaction = FactionsAtWar[counter].PlayerFaction.FactionId;
+                    long aiFaction = FactionsAtWar[counter].AiFaction.FactionId;
                     FactionsAtWar.RemoveAtFast(counter);
+                    //ProposePeaceTo(FactionsAtWar[counter].AiFaction, FactionsAtWar[counter].PlayerFaction);
+                    if (playerFaction.IsNpc() && aiFaction.IsNpc())
+                        playerFaction.GetFactionById().AutoPeace(aiFaction.GetFactionById());
+                    else HandlePenitentPlayerFaction(playerFaction, aiFaction);
                     //TODO: Hook faction war cooldown into chance system for peace - no longer immediate peace requests issues
                 }
         }

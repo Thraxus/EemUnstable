@@ -22,7 +22,7 @@ namespace EemRdx.Helpers
 		
 		#region General
 
-		public static bool DebugMode { get; } = false;
+		public static bool DebugMode { get; } = true;
 
 		public static bool EnableProfilingLog { get; } = true;
 
@@ -57,7 +57,7 @@ namespace EemRdx.Helpers
 		/// Faction War cooldown period
 		///		15 minute default cooldown, 2 minute in Debug Mode
 		/// </summary>
-		public static int FactionCooldown => DebugMode ? (TicksPerMinute * 15) : (TicksPerMinute * 2);
+		public static int FactionCooldown => DebugMode ? (TicksPerMinute * 2) : (TicksPerMinute * 15);
 
 		public const int WarAssessmentCounterLimit = 60;
 

@@ -13,7 +13,6 @@ namespace EemRdx.Scripts.Utilities
 	///			{
 	///				// code to profile
 	///			}
-	/// TODO: Update log to EEM specific so it can be isolated from the generic SE Game Log (MyLog.Default.Info)
 	/// </summary>
 	public struct Profiler : IDisposable
 	{
