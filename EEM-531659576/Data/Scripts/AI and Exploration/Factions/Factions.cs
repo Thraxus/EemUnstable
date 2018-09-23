@@ -529,7 +529,7 @@ namespace EemRdx.Factions
                 RemoveFromPirateFactionDictionary(factionId);
                 AddToPlayerFactionDictionary(factionId, factionId.GetFactionById());
                 editedFaction.NewFriendly();
-                //RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveReprieve);  TODO: Disabled since each faction handles this individually - need to figure a way to fis this (same note as below)
+                //RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveReprieve);  TODO: Disabled since each faction handles this individually - need to figure a way to fix this (same note as below)
                 return;
             }
             if (!PlayerFactionExclusionList.Any(x => editedFaction.Description.StartsWith(x) && PlayerFactionDictionary.ContainsKey(factionId))) return;
@@ -537,7 +537,7 @@ namespace EemRdx.Factions
             AddToPirateFactionDictionary(factionId, editedFaction);
             editedFaction.NewPirate();
             RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveDisappointment);
-            //TODO: Figure out how to stop faction chat spam when a new pirate faction is declare d- message should likely only be from The Unknown and The Collective
+            //TODO: Figure out how to stop faction chat spam when a new pirate faction is declare - message should likely only be from The Unknown and The Collective
             AiSessionCore.DebugLog?.WriteToLog("FactionEdited", $"editedFaction Leave: {editedFaction.Tag}");
         }
 
