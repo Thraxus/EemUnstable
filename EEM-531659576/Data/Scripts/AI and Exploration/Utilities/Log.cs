@@ -57,12 +57,16 @@ namespace EemRdx.Utilities
 			Messaging.ShowLocalNotification($"{caller}{Indent}{message}", duration, color);
 		}
 
-		private void BuildLogLine(string caller, string message)
-		{
-			WriteLine($"{TimeStamp}{Indent}{caller}{Indent}{message}");
-		}
-		
-		private void WriteLine(string line)
+	    private readonly object _lockObject = new object();
+
+	    private void BuildLogLine(string caller, string message)
+	    {
+	        lock (_lockObject)
+	        {
+	            WriteLine($"{TimeStamp}{Indent}{caller}{Indent}{message}");
+	        }
+	    }
+        private void WriteLine(string line)
 		{
 			_messageQueue.Enqueue(line);
 		 	TextWriter.WriteLine(line);

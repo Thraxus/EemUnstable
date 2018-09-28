@@ -30,18 +30,29 @@ namespace EemRdx.Factions.Messages
 
         private static readonly List<string> CollectiveDisappointmentMessages = new List<string>()
 		{
-			$"Yo ho ho, it's a pirate life fer ye!"
+			"Yo ho ho, it's a pirate life fer ye!"
 		};
 
 	    public static readonly Func<string> CollectiveReprieve = () => CollectiveReprieveMessages.ElementAt(Factions.FactionsRandom.Next(CollectiveReprieveMessages.Count));
 
 	    private static readonly List<string> CollectiveReprieveMessages = new List<string>()
 	    {
-	        $"We've discussed your request, and will take it into individual consideration."
+	        "We've discussed your request, and will take it into individual consideration.",
+            "Hrm... Maybe.",
+            "Cindy!  Who writes these messages?  Wait, is this thing on?  Uh... Hi.  We're discussing your proposal now."
 	    };
 
+	    public static readonly Func<string> CollectiveWelcome = () => CollectiveWelcomeMessages.ElementAt(Factions.FactionsRandom.Next(CollectiveWelcomeMessages.Count));
 
-	    public static readonly List<string> PeaceAcceptedMessages = new List<string>()
+	    private static readonly List<string> CollectiveWelcomeMessages = new List<string>()
+	    {
+	        "The Galactic Federation of United Factions is happy to welcome you into the fold, young traveler.",
+            "Welcome to the party, pal!",
+            "You're in luck!  We're having a sale on new factions this month.  First one is free!  Welcome!",
+            "Four score and several eon's ago... Oh, hello."
+	    };
+
+        public static readonly List<string> PeaceAcceptedMessages = new List<string>()
 	    {
 	        "We decided to give you another shot.    ",
 	        "I hope this time isn’t like the last.",

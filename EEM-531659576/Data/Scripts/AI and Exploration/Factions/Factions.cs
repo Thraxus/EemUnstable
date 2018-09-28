@@ -296,7 +296,7 @@ namespace EemRdx.Factions
 
         private enum DialogType
         {
-            CollectiveDisappointment, CollectiveReprieve, PeaceAccepted, PeaceConsidered, PeaceProposed, PeaceRejected, WarDeclared, WarReceived
+            CollectiveDisappointment, CollectiveReprieve, CollectiveWelcome, PeaceAccepted, PeaceConsidered, PeaceProposed, PeaceRejected, WarDeclared, WarReceived
         }
 
         private static void RequestDialog(IMyFaction npcFaction, IMyFaction playerFaction, DialogType type)
@@ -314,6 +314,10 @@ namespace EemRdx.Factions
                     break;
                 case DialogType.CollectiveReprieve:
                     message = DefaultDialogs.CollectiveReprieve;
+                    tag = DefaultDialogs.CollectiveTag;
+                    break;
+                case DialogType.CollectiveWelcome:
+                    message = DefaultDialogs.CollectiveWelcome;
                     tag = DefaultDialogs.CollectiveTag;
                     break;
                 case DialogType.PeaceAccepted:
@@ -516,6 +520,7 @@ namespace EemRdx.Factions
                 RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveDisappointment);
                 return;
             }
+            RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveWelcome);
             AddToPlayerFactionDictionary(factionId, newFaction);
             AiSessionCore.DebugLog?.WriteToLog("FactionCreated", $"newFaction: {newFaction.Tag}");
         }
@@ -662,30 +667,30 @@ namespace EemRdx.Factions
             {
                 if (EnforcementFactionsTags.Contains(factions.Value.Tag))
                 {
-                    AiSessionCore.DebugLog.WriteToLog("SetupFactionDictionaries", $"EnforcementFaction.Add: {factions.Key} {factions.Value.Tag}");
+                    AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"EnforcementFaction.Add: {factions.Key} {factions.Value.Tag}");
                     AddToEnforcementFactionDictionary(factions.Key, factions.Value);
                     AddToLawfulFactionDictionary(factions.Key, factions.Value);
                     continue;
                 }
                 if (LawfulFactionsTags.Contains(factions.Value.Tag))
                 {
-                    AiSessionCore.DebugLog.WriteToLog("SetupFactionDictionaries", $"AddToLawfulFactionDictionary.Add: {factions.Key} {factions.Value.Tag}");
+                    AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"AddToLawfulFactionDictionary.Add: {factions.Key} {factions.Value.Tag}");
                     AddToLawfulFactionDictionary(factions.Key, factions.Value);
                     continue;
                 }
                 if (factions.Value.IsEveryoneNpc())
                 {
-                    AiSessionCore.DebugLog.WriteToLog("SetupFactionDictionaries", $"AddToPirateFactionDictionary: {factions.Key} {factions.Value.Tag}");
+                    AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"AddToPirateFactionDictionary: {factions.Key} {factions.Value.Tag}");
                     AddToPirateFactionDictionary(factions.Key, factions.Value);
                     continue;
                 }
                 if (PlayerFactionExclusionList.Any(x => factions.Value.Description.StartsWith(x)))
                 {
-                    AiSessionCore.DebugLog.WriteToLog("SetupFactionDictionaries", $"PlayerFactionExclusionList.Add: {factions.Key} {factions.Value.Tag}");
+                    AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"PlayerFactionExclusionList.Add: {factions.Key} {factions.Value.Tag}");
                     AddToPirateFactionDictionary(factions.Key, factions.Value);
                     continue;
                 }
-                AiSessionCore.DebugLog.WriteToLog("SetupFactionDictionaries", $"PlayerFaction.Add: {factions.Key} {factions.Value.Tag}");
+                AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"PlayerFaction.Add: {factions.Key} {factions.Value.Tag}");
                 AddToPlayerFactionDictionary(factions.Key, factions.Value);
             }
         }

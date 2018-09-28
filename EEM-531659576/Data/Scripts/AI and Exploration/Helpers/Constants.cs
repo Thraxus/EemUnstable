@@ -22,7 +22,7 @@ namespace EemRdx.Helpers
 		
 		#region General
 
-		public static bool DebugMode { get; } = true;
+		public static bool DebugMode { get; } = false;
 
 		public static bool EnableProfilingLog { get; } = true;
 
