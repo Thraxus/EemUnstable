@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using EemRdx.Helpers;
-using EemRdx.Models;
 using EemRdx.Networking;
+using EemRdx.Utilities;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
@@ -49,25 +49,45 @@ namespace EemRdx
 			return HasDamageHandler(grid.GetTopMostParent().EntityId);
 		}
 
-		private bool _inited;
+		public static bool LogSetupComplete;
+		public static Log ProfilingLog;
+		public static Log DebugLog;
+		public static Log GeneralLog;
+
+		private bool _initialized;
 
 		public override void UpdateBeforeSimulation()
 		{
-			if (!_inited) Initialize();
+			if (!_initialized) Initialize();
 			if (!IsServer) return;
-			if (MyAPIGateway.Multiplayer.Players.Count > 0 && !Factions.PlayerFactionInitComplete) { Factions.PlayerInitFactions(); }
+			if (MyAPIGateway.Multiplayer.Players.Count > 0 && !Factions.Factions.PlayerFactionInitComplete) { Factions.Factions.PlayerInitFactions(); }
 			TickTimer();
 		}
 
 		private void Initialize()
 		{
-			if (Constants.DebugMode) Messaging.ShowLocalNotification($"Initialize - {IsServer}", 20000);
-			if (!Factions.SetupComplete) Factions.ManageFactions();
+			if (Constants.DebugMode) DebugLog.WriteToLog("Initialize",$"Debug Active - IsServer: {IsServer}", true, 20000);
+			if (!Factions.Factions.SetupComplete) Factions.Factions.Initialize();
 			Messaging.Register();
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(0, DamageRefHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(0, GenericDamageHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterDestroyHandler(0, GenericDamageHandler);
-			_inited = true;
+			_initialized = true;
+		}
+
+		private static void InitLogs()
+		{
+			if(Constants.DebugMode) DebugLog = new Log(Constants.DebugLogName);
+			if(Constants.EnableProfilingLog) ProfilingLog = new Log(Constants.ProfilingLogName);
+			if(Constants.EnableGeneralLog) GeneralLog = new Log(Constants.GeneralLogName);
+			LogSetupComplete = true;
+		}
+
+		private static void CloseLogs()
+		{
+			if (Constants.DebugMode) DebugLog.Close();
+			if (Constants.EnableProfilingLog) ProfilingLog.Close();
+			if (Constants.EnableGeneralLog) GeneralLog.Close();
 		}
 
 		/// <summary>
@@ -76,12 +96,12 @@ namespace EemRdx
 		/// <param name="sessionComponent"></param>
 		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
 		{
-			
+
 		}
-		
+
 		public override void BeforeStart()
 		{
-
+			InitLogs();
 		}
 
 		/// <summary>
@@ -89,7 +109,9 @@ namespace EemRdx
 		/// </summary>
 		protected override void UnloadData()
 		{
+			Factions.Factions.Unload();
 			Messaging.Unregister();
+			CloseLogs();
 		}
 
 		/// <summary>
@@ -103,8 +125,9 @@ namespace EemRdx
 		private void TickTimer()
 		{
 			_tickTimer++;
-			if (_tickTimer % Constants.WasAssessmentCounterLimit == 0) Factions.AssessFactionWar();
-			if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.ManageFactions();
+			if (_tickTimer % Constants.WarAssessmentCounterLimit == 0) Factions.Factions.AssessFactionWar();
+			//if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.FactionAssessment();
+			if (_tickTimer % (Constants.TicksPerSecond * 30) == 0) Factions.Factions.FactionAssessment();
 		}
 
 		public void DamageRefHandler(object damagedObject, ref MyDamageInformation damage)

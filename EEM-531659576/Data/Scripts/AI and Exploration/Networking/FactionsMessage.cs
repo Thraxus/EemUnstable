@@ -1,8 +1,6 @@
 ﻿using EemRdx.Helpers;
-using EemRdx.Models;
 using ProtoBuf;
 using Sandbox.ModAPI;
-using VRage.Game.ModAPI;
 
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable ExplicitCallerInfoArgument
@@ -46,17 +44,24 @@ namespace EemRdx.Networking
 				case (Constants.AcceptPeaceMessagePrefix):
 					MyAPIGateway.Session.Factions.AcceptPeace(_leftFaction, _rightFaction);
 					break;
-				case (Constants.InitFactionsMessagePrefix):
-					foreach (IMyFaction leftFaction in Factions.LawfulFactions)
-					{
-						foreach (IMyFaction rightFaction in Factions.LawfulFactions)
-							if (leftFaction != rightFaction)
-								if (!leftFaction.IsPeacefulTo(rightFaction))
-								{
-									Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, leftFaction.FactionId, rightFaction.FactionId));
-									Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, rightFaction.FactionId, leftFaction.FactionId));
-								}
-					}
+			    case (Constants.RejectPeaceMessagePrefix):
+			        MyAPIGateway.Session.Factions.CancelPeaceRequest(_leftFaction, _rightFaction);
+			        break;
+                case (Constants.InitFactionsMessagePrefix):
+					//Factions.SetupFactionDictionaries();
+					Factions.Factions.SetupPlayerRelations();
+					Factions.Factions.SetupNpcRelations();
+					Factions.Factions.SetupPirateRelations();
+					//foreach (KeyValuePair<long, IMyFaction> leftFaction in Factions.LawfulFactionDictionary)
+					//{
+					//	foreach (KeyValuePair<long, IMyFaction> rightFaction in Factions.LawfulFactionDictionary)
+					//		if (leftFaction.Key != rightFaction.Key)
+					//			if (!leftFaction.Value.IsPeacefulTo(rightFaction.Value))
+					//			{
+					//				Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, leftFaction.Key, rightFaction.Key));
+					//				Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, rightFaction.Key, leftFaction.Key));
+					//			}
+					//}
 					break;
 				default:
 					return;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using EemRdx.Helpers;
 using VRage.Game.ModAPI;
 
-namespace EemRdx.Models
+namespace EemRdx.Factions
 {
 	public class FactionsAtWar : IEquatable<FactionsAtWar>
 	{

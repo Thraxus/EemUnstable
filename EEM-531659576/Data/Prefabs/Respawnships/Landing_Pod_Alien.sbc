@@ -15,9 +15,9 @@
           <PlanetSpawnHeightRatio>0.005</PlanetSpawnHeightRatio>
           <PositionAndOrientation>
             <Position x="131072" y="131072" z="5731072" />
-			<Forward x="0" y="0" z="-1" />
-			<Up x="0" y="1" z="0" />
-         </PositionAndOrientation>
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </PositionAndOrientation>
           <GridSizeEnum>Large</GridSizeEnum>
           <CubeBlocks>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_MergeBlock">
@@ -776,10 +776,11 @@ x2 Solar Panels              x30 Small Steel Tubes
           <DisplayName>Landing Pod</DisplayName>
           <OxygenAmount>
             <float>0</float>
+            <float>1796.875</float>
+            <float>0</float>
           </OxygenAmount>
           <DestructibleBlocks>true</DestructibleBlocks>
           <IsRespawnGrid>false</IsRespawnGrid>
-          <LocalCoordSys>0</LocalCoordSys>
         </CubeGrid>
       </CubeGrids>
     </Prefab>

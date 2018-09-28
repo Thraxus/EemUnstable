@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using EemRdx.Extensions;
 using EemRdx.Helpers;
-using EemRdx.Models;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Ingame;
@@ -260,7 +259,7 @@ namespace EemRdx
 			//if (MyAPIGateway.Session.IsServer) return;
 			if (_ownerFaction == null)
 				_ownerFaction = Grid.GetOwnerFaction();
-			Factions.DeclareFactionWar(_ownerFaction, playerFaction);
+			Factions.Factions.DeclareFactionWar(_ownerFaction, playerFaction);
 		}
 
 		//protected virtual void RegisterHostileAction(IMyPlayer player, TimeSpan truceDelay)

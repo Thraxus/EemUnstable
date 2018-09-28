@@ -19,10 +19,20 @@ namespace EemRdx.Helpers
 			"EXMC",
 			"IMDC"
 		};
-
+		
 		#region General
 
 		public static bool DebugMode { get; } = false;
+
+		public static bool EnableProfilingLog { get; } = true;
+
+		public static bool EnableGeneralLog { get; } = true;
+		
+		public static string DebugLogName { get; } = "EEM_Debug"; 
+
+		public static string ProfilingLogName { get; } = "EEM_Profiling";
+
+		public static string GeneralLogName { get; } = "EEM_General";
 
 		/// <summary>
 		/// This permits certain operations to throw custom exceptions in order to
@@ -31,9 +41,13 @@ namespace EemRdx.Helpers
 		/// </summary>
 		public static bool AllowThrowingErrors { get; } = true;
 
-		private const int TicksPerSecond = 60;
+		public const int TicksPerSecond = 60;
 
-		private const int TicksPerMinute = TicksPerSecond * 60;
+		public const int TicksPerMinute = TicksPerSecond * 60;
+
+		public const int DefaultLocalMessageDisplayTime = 5000;
+
+		public const int DefaultServerMessageDisplayTime = 10000;
 
 		#endregion
 
@@ -43,9 +57,9 @@ namespace EemRdx.Helpers
 		/// Faction War cooldown period
 		///		15 minute default cooldown, 2 minute in Debug Mode
 		/// </summary>
-		public static int FactionCooldown => DebugMode ? (TicksPerMinute * 15) : (TicksPerMinute * 2);
+		public static int FactionCooldown => DebugMode ? (TicksPerMinute * 2) : (TicksPerMinute * 15);
 
-		public const int WasAssessmentCounterLimit = 60;
+		public const int WarAssessmentCounterLimit = 60;
 
 		public const int FactionAssessmentCounterLimit = TicksPerMinute * 2;
 
@@ -63,7 +77,9 @@ namespace EemRdx.Helpers
 
 		public const string AcceptPeaceMessagePrefix = "AcceptPeace";
 
-		public const string InitFactionsMessagePrefix = "InitFactions";
+	    public const string RejectPeaceMessagePrefix = "RejectPeace";
+
+        public const string InitFactionsMessagePrefix = "InitFactions";
 
 		#endregion
 

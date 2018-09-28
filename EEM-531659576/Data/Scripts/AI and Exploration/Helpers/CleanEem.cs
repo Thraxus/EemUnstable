@@ -6,159 +6,158 @@ using VRage.Game.ModAPI;
 
 namespace EemRdx.Helpers
 {
-	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
-	public class CleanEem : MySessionComponentBase
-	{
-		public override void LoadData()
-		{
-			Log.SetUp("EEM", 531659576); // mod name and workshop ID
-		}
+    [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class CleanEem : MySessionComponentBase
+    {
+        public override void LoadData()
+        {
 
-		private bool _init;
-		private int _skip = SkipUpdates;
-		private const int SkipUpdates = 100;
+        }
 
-		public static int RangeSq = -1;
-		public static readonly List<IMyPlayer> Players = new List<IMyPlayer>();
-		public static readonly HashSet<IMyCubeGrid> Grids = new HashSet<IMyCubeGrid>();
-		public static readonly List<IMySlimBlock> Blocks = new List<IMySlimBlock>(); // never filled
+        private bool _init;
+        private int _skip = SkipUpdates;
+        private const int SkipUpdates = 100;
 
-		public void Init()
-		{
-			_init = true;
-			Log.Init();
-			MyAPIGateway.Session.SessionSettings.MaxDrones = Constants.ForceMaxDrones;
-		}
+        public static int RangeSq = -1;
+        public static readonly List<IMyPlayer> Players = new List<IMyPlayer>();
+        public static readonly HashSet<IMyCubeGrid> Grids = new HashSet<IMyCubeGrid>();
+        public static readonly List<IMySlimBlock> Blocks = new List<IMySlimBlock>(); // never filled
 
-		protected override void UnloadData()
-		{
-			_init = false;
-			Log.Close();
+        public void Init()
+        {
+            _init = true;
+            MyAPIGateway.Session.SessionSettings.MaxDrones = Constants.ForceMaxDrones;
+        }
 
-			Players.Clear();
-			Grids.Clear();
-			Blocks.Clear();
-		}
+        protected override void UnloadData()
+        {
+            _init = false;
 
-		public override void UpdateBeforeSimulation()
-		{
-			if(!MyAPIGateway.Multiplayer.IsServer) return; // only server-side/SP
+            Players.Clear();
+            Grids.Clear();
+            Blocks.Clear();
+        }
 
-			if (!_init)
-			{
-				if(MyAPIGateway.Session == null)
-					return;
+        public override void UpdateBeforeSimulation()
+        {
+            if (!MyAPIGateway.Multiplayer.IsServer) return; // only server-side/SP
 
-				Init();
-			}
+            if (!_init)
+            {
+                if (MyAPIGateway.Session == null)
+                    return;
 
-			if (++_skip < SkipUpdates) return;
-			try
-			{
-				_skip = 0;
+                Init();
+            }
 
-				// the range used to check player distance from ships before removing them
-				RangeSq = Math.Max(MyAPIGateway.Session.SessionSettings.ViewDistance, Constants.CleanupMinRange);
-				RangeSq *= RangeSq;
+            if (++_skip < SkipUpdates) return;
+            try
+            {
+                _skip = 0;
 
-				Players.Clear();
-				MyAPIGateway.Players.GetPlayers(Players);
+                // the range used to check player distance from ships before removing them
+                RangeSq = Math.Max(MyAPIGateway.Session.SessionSettings.ViewDistance, Constants.CleanupMinRange);
+                RangeSq *= RangeSq;
 
-				//if(Constants.CLEANUP_DEBUG)
-				//	Log.Info("player list updated; view range updated: " + Math.Round(Math.Sqrt(RangeSq), 1));
-			}
-			catch(Exception e)
-			{
-				Log.Error(e);
-			}
-		}
+                Players.Clear();
+                MyAPIGateway.Players.GetPlayers(Players);
 
-		public static void GetAttachedGrids(IMyCubeGrid grid)
-		{
-			Grids.Clear();
-			RecursiveGetAttachedGrids(grid);
-		}
+                //if(Constants.CLEANUP_DEBUG)
+                //	Log.Info("player list updated; view range updated: " + Math.Round(Math.Sqrt(RangeSq), 1));
+            }
+            catch (Exception e)
+            {
+                AiSessionCore.GeneralLog.WriteToLog("CleanEem", $"Exception: {e}");
+            }
+        }
 
-		private static void RecursiveGetAttachedGrids(IMyCubeGrid grid)
-		{
-			grid.GetBlocks(Blocks, GetAttachedGridsLoopBlocks);
-		}
+        public static void GetAttachedGrids(IMyCubeGrid grid)
+        {
+            Grids.Clear();
+            RecursiveGetAttachedGrids(grid);
+        }
 
-		private static bool GetAttachedGridsLoopBlocks(IMySlimBlock slim) // should always return false!
-		{
-			IMyCubeBlock block = slim.FatBlock;
+        private static void RecursiveGetAttachedGrids(IMyCubeGrid grid)
+        {
+            grid.GetBlocks(Blocks, GetAttachedGridsLoopBlocks);
+        }
 
-			if(block == null)
-				return false;
+        private static bool GetAttachedGridsLoopBlocks(IMySlimBlock slim) // should always return false!
+        {
+            IMyCubeBlock block = slim.FatBlock;
 
-			//if(Constants.CLEANUP_CONNECTOR_CONNECTED)
-			//{
-			//	IMyShipConnector connector = block as IMyShipConnector;
+            if (block == null)
+                return false;
 
-			//	if(connector != null)
-			//	{
-			//		IMyCubeGrid otherGrid = connector.OtherConnector?.CubeGrid;
+            //if(Constants.CLEANUP_CONNECTOR_CONNECTED)
+            //{
+            //	IMyShipConnector connector = block as IMyShipConnector;
 
-			//		if(otherGrid != null && !grids.Contains(otherGrid))
-			//		{
-			//			grids.Add(otherGrid);
-			//			RecursiveGetAttachedGrids(otherGrid);
-			//		}
+            //	if(connector != null)
+            //	{
+            //		IMyCubeGrid otherGrid = connector.OtherConnector?.CubeGrid;
 
-			//		return false;
-			//	}
-			//}
+            //		if(otherGrid != null && !grids.Contains(otherGrid))
+            //		{
+            //			grids.Add(otherGrid);
+            //			RecursiveGetAttachedGrids(otherGrid);
+            //		}
 
-			IMyMotorStator rotorBase = block as IMyMotorStator;
+            //		return false;
+            //	}
+            //}
 
-			if(rotorBase != null)
-			{
-				IMyCubeGrid otherGrid = rotorBase.TopGrid;
+            IMyMotorStator rotorBase = block as IMyMotorStator;
 
-				if (otherGrid == null || Grids.Contains(otherGrid)) return false;
-				Grids.Add(otherGrid);
-				RecursiveGetAttachedGrids(otherGrid);
+            if (rotorBase != null)
+            {
+                IMyCubeGrid otherGrid = rotorBase.TopGrid;
 
-				return false;
-			}
+                if (otherGrid == null || Grids.Contains(otherGrid)) return false;
+                Grids.Add(otherGrid);
+                RecursiveGetAttachedGrids(otherGrid);
 
-			IMyMotorRotor rotorTop = block as IMyMotorRotor;
+                return false;
+            }
 
-			if(rotorTop != null)
-			{
-				IMyCubeGrid otherGrid = rotorTop.Base?.CubeGrid;
+            IMyMotorRotor rotorTop = block as IMyMotorRotor;
 
-				if (otherGrid == null || Grids.Contains(otherGrid)) return false;
-				Grids.Add(otherGrid);
-				RecursiveGetAttachedGrids(otherGrid);
+            if (rotorTop != null)
+            {
+                IMyCubeGrid otherGrid = rotorTop.Base?.CubeGrid;
 
-				return false;
-			}
+                if (otherGrid == null || Grids.Contains(otherGrid)) return false;
+                Grids.Add(otherGrid);
+                RecursiveGetAttachedGrids(otherGrid);
 
-			IMyPistonBase pistonBase = block as IMyPistonBase;
+                return false;
+            }
 
-			if(pistonBase != null)
-			{
-				IMyCubeGrid otherGrid = pistonBase.TopGrid;
+            IMyPistonBase pistonBase = block as IMyPistonBase;
 
-				if (otherGrid == null || Grids.Contains(otherGrid)) return false;
-				Grids.Add(otherGrid);
-				RecursiveGetAttachedGrids(otherGrid);
+            if (pistonBase != null)
+            {
+                IMyCubeGrid otherGrid = pistonBase.TopGrid;
 
-				return false;
-			}
+                if (otherGrid == null || Grids.Contains(otherGrid)) return false;
+                Grids.Add(otherGrid);
+                RecursiveGetAttachedGrids(otherGrid);
 
-			IMyPistonTop pistonTop = block as IMyPistonTop;
+                return false;
+            }
 
-			if (pistonTop == null) return false;
-			{
-				IMyCubeGrid otherGrid = pistonTop.Piston?.CubeGrid;
-				if (otherGrid == null || Grids.Contains(otherGrid)) return false;
-				Grids.Add(otherGrid);
-				RecursiveGetAttachedGrids(otherGrid);
-				return false;
-			}
+            IMyPistonTop pistonTop = block as IMyPistonTop;
 
-		}
-	}
+            if (pistonTop == null) return false;
+            {
+                IMyCubeGrid otherGrid = pistonTop.Piston?.CubeGrid;
+                if (otherGrid == null || Grids.Contains(otherGrid)) return false;
+                Grids.Add(otherGrid);
+                RecursiveGetAttachedGrids(otherGrid);
+                return false;
+            }
+
+        }
+    }
 }

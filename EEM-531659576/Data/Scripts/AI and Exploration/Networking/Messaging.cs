@@ -91,7 +91,7 @@ namespace EemRdx.Networking
 		/// <param name="message">The message to send</param>
 		/// <param name="duration">Optional. How long to display the message for</param>
 		/// <param name="color">Optional.  Color of the sender's name in chat - remember to check it against MyFontEnum else, errors</param>
-		public static void ShowLocalNotification(string message, int duration = 5000, string color = MyFontEnum.Green)
+		public static void ShowLocalNotification(string message, int duration = Constants.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
 		{
 			MyVisualScriptLogicProvider.ShowNotification(message, duration, color);
 		}
@@ -102,7 +102,7 @@ namespace EemRdx.Networking
 		/// <param name="message">Message to send</param>
 		/// <param name="duration">Optional. How long to display the message for</param>
 		/// <param name="color">Optional. Color to send the message in</param>
-		public static void SendMessageToServer(string message, int duration = 20000, string color = MyFontEnum.Red)
+		public static void SendMessageToServer(string message, int duration = Constants.DefaultServerMessageDisplayTime, string color = MyFontEnum.Red)
 		{
 			MyVisualScriptLogicProvider.ShowNotificationToAll(message, duration, color);
 		}
@@ -116,6 +116,7 @@ namespace EemRdx.Networking
 		/// <param name="color">Optional.  Color of the sender's name in chat</param>
 		public static void SendMessageToPlayer(string message, string sender, long recipient, string color = MyFontEnum.Blue)
 		{
+			//if(MyAPIGateway.Multiplayer.Players.GetPlayerById(recipient).Character.IsPlayer)
 			MyVisualScriptLogicProvider.SendChatMessage(message, sender, recipient, color);
 		}
 	}

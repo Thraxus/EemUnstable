@@ -1,5 +1,6 @@
-﻿using EemRdx.Helpers;
-using EemRdx.Models;
+﻿using System;
+using System.Collections.Generic;
+using EemRdx.Helpers;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
 
@@ -7,88 +8,92 @@ namespace EemRdx.Networking
 {
 	public static class ChatMessages
 	{
-		internal const string EemChatCommandPrefix = "/eemdev";
-		private const string HelpPrefix = "help";
-		private const string InitFactionPrefix = "initfactions";
-		private const string GetCivlStandingsPrefix = "getcivlstandings";
-		private const string SetPeacePrefix = "setpeace";
+        internal const string EemChatCommandPrefix = "/eemdev";
+        private const string HelpPrefix = "help";
+        private const string GetCivlStandingsPrefix = "getcivlstandings";
+        private const string ShowDebugLogPrefix = "showdebuglog";
+        private const string ShowProfilingLogPrefix = "showprofilinglog";
+        private const string ShowGeneralLogPrefix = "showgenerallog";
+        private const string SpawnTestPrefabPrefix = "spawntestprefab";
+        private const string DespawnTestPrefabPrefix = "despawntestprefab";
+        private const string ProfilePrefabsPrefix = "profileprefabs";
 
-		public static void HandleChatMessage(string message)
-		{
-			IMyPlayer localPlayer = MyAPIGateway.Session.Player;
-			if (localPlayer.PromoteLevel < MyPromoteLevel.Admin)
-			{
-				Messaging.ShowLocalNotification($"You must be an Administrator to invoke EEM Chat Commands.  Current Rank: {localPlayer.PromoteLevel.ToString()}");
-				return;
-			}
+        private static readonly Dictionary<string, Action<string>> ChatAction = new Dictionary<string, Action<string>>
+        {
+            {HelpPrefix, PrintHelpCommands}, {GetCivlStandingsPrefix, GetCivlStandings},
+            {ShowDebugLogPrefix, ShowDebugLog}, {ShowGeneralLogPrefix, ShowGeneralLog},
+            {ShowProfilingLogPrefix, ShowProfilingLog}
+        };
 
-			string[] chatCommand = message.Split(' ');
+        public static void HandleChatMessage(string message)
+        {
 
-			if (chatCommand.Length < 2)
-			{
-				PrintHelpCommands();
-				return;
-			}
-				
-			switch (chatCommand[1])
-			{
-				case HelpPrefix:
-					PrintHelpCommands();
-					break;
-				case SetPeacePrefix:
-					if (chatCommand.Length < 4)
-					{
-						Messaging.ShowLocalNotification($"{SetPeacePrefix}: Invalid number of factions (2 required)");
-						break;
-					}
-					IMyFaction leftPeaceFaction = MyAPIGateway.Session.Factions.TryGetFactionByTag(chatCommand[2]);
-					IMyFaction rightPeaceFaction = MyAPIGateway.Session.Factions.TryGetFactionByTag(chatCommand[3]);
-					if (leftPeaceFaction == null)
-					{
-						Messaging.ShowLocalNotification($"{SetPeacePrefix}: Faction tag {chatCommand[2]} is invalid.");
-						break;
-					}
-					if (rightPeaceFaction == null)
-					{
-						Messaging.ShowLocalNotification($"{SetPeacePrefix}: Faction tag {chatCommand[3]} is invalid.");
-						break;
-					}
-					Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, leftPeaceFaction.FactionId, rightPeaceFaction.FactionId));
-					Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, rightPeaceFaction.FactionId, leftPeaceFaction.FactionId));
-					break;
-				case InitFactionPrefix:
-					Messaging.ShowLocalNotification($"InitFactionPrefix: AiSessionCore.IsServer: {AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer}");
-					foreach (IMyFaction leftFaction in Factions.LawfulFactions)
-					{
-						foreach (IMyFaction rightFaction in Factions.LawfulFactions)
-							if (leftFaction != rightFaction)
-								if (!leftFaction.IsPeacefulTo(rightFaction))
-								{
-									Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, leftFaction.FactionId, rightFaction.FactionId));
-									Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, rightFaction.FactionId, leftFaction.FactionId));
-								}
-					}
-					break;
-				case GetCivlStandingsPrefix:
-					Messaging.ShowLocalNotification($"GetCivlStandings: AiSessionCore.IsServer: {AiSessionCore.IsServer} MyAPIGateway.Multiplayer.IsServer: {MyAPIGateway.Multiplayer.IsServer} Factions.PlayerFactionInitComplete: {Factions.PlayerFactionInitComplete}"); IMyFaction civl = MyAPIGateway.Session.Factions.TryGetFactionByTag("CIVL");
-					foreach (IMyFaction rightFaction in Factions.LawfulFactions)
-						Messaging.ShowLocalNotification($"The relationship between {civl.Tag} and {rightFaction.Tag} is {MyAPIGateway.Session.Factions.GetRelationBetweenFactions(civl.FactionId, rightFaction.FactionId)}");
-					break;
-				default:
-					PrintHelpCommands();
-					return;
-			}
-		}
+            IMyPlayer localPlayer = MyAPIGateway.Session.Player;
 
-		/// <summary>
-		/// Prints a list of available commands
-		/// </summary>  
-		private static void PrintHelpCommands()
-		{
-			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {HelpPrefix}' will show this message");
-			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {InitFactionPrefix}' will initialize factions to their default settings with one another");
-			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {GetCivlStandingsPrefix}' will show the standings between CIVL and all other lawful factions");
-			Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {SetPeacePrefix} <tag1> <tag2>' will declare peace between the two factions");
-		}
-	}
+            if (localPlayer.PromoteLevel < MyPromoteLevel.Admin)
+            {
+                Messaging.ShowLocalNotification($"You must be an Administrator to invoke EEM Chat Commands.  Current Rank: {localPlayer.PromoteLevel.ToString()}");
+                return;
+            }
+
+            string[] chatCommand = message.Split(' ');
+
+            if (chatCommand.Length < 2)
+            {
+                PrintHelpCommands("");
+                return;
+            }
+
+            Action<string> action;
+            string actionText = null;
+
+            if (chatCommand.Length > 2)
+                actionText = chatCommand[2];
+
+            if (ChatAction.TryGetValue(chatCommand[1], out action))
+                action?.Invoke(actionText);
+            else PrintHelpCommands("");
+        }
+
+        /// <summary>
+        /// Prints a list of available commands
+        /// </summary>  
+        private static void PrintHelpCommands(string s)
+        {
+            Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {HelpPrefix}' will show this message");
+            Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {GetCivlStandingsPrefix}' will show the standings between CIVL and all other lawful factions");
+            Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {ShowDebugLogPrefix}' will show the last 20 lines of the Debug Log");
+            Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {ShowProfilingLogPrefix}' will show the last 20 lines of the Profiling Log");
+            Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {ShowGeneralLogPrefix}' will show the last 20 lines of the General Log");
+            Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {SpawnTestPrefabPrefix}' will spawn a test prefab 1k away from the player (not yet implemented)");
+            Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {DespawnTestPrefabPrefix}' will despawn the test prefab (not yet implemented)");
+            Messaging.ShowLocalNotification($"'{EemChatCommandPrefix} {ProfilePrefabsPrefix}' will profile all loaded prefabs - WARNING! This is not quick (not yet implemented)");
+        }
+
+        private static void GetCivlStandings(string s)
+        {
+
+        }
+
+        private static void ShowDebugLog(string s)
+        {
+            if (Constants.DebugMode)
+                AiSessionCore.DebugLog.GetTailMessages();
+            else Messaging.ShowLocalNotification("Debug mode is not enabled");
+        }
+
+        private static void ShowGeneralLog(string s)
+        {
+            if (Constants.EnableGeneralLog)
+                AiSessionCore.GeneralLog.GetTailMessages();
+            else Messaging.ShowLocalNotification("General logging is not enabled");
+        }
+
+        private static void ShowProfilingLog(string s)
+        {
+            if (Constants.EnableProfilingLog)
+                AiSessionCore.ProfilingLog.GetTailMessages();
+            else Messaging.ShowLocalNotification("Profiling is not enabled");
+        }
+    }
 }
