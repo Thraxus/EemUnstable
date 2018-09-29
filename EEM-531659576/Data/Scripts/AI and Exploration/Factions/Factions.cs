@@ -661,38 +661,58 @@ namespace EemRdx.Factions
             }
         }
 
+        public static bool CheckExclusionList(string checkThis)
+        {
+            if (!string.IsNullOrEmpty(checkThis))
+            {
+                if (PlayerFactionExclusionList.Any(checkThis.StartsWith)) return true;
+            }
+            return false;
+        }
+
         public static void SetupFactionDictionaries()
         {
             foreach (KeyValuePair<long, IMyFaction> factions in MyAPIGateway.Session.Factions.Factions)
             {
-                if (EnforcementFactionsTags.Contains(factions.Value.Tag))
+                AiSessionCore.GeneralLog?.WriteToLog("SetupFactionDictionaries", $"Faction loop: \t\tfaction.Key: {factions.Key}\t\tfaction.Value: {factions.Value}\t\tfaction.Tag: {factions.Value?.Tag}");
+                try
                 {
-                    AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"EnforcementFaction.Add: {factions.Key} {factions.Value.Tag}");
-                    AddToEnforcementFactionDictionary(factions.Key, factions.Value);
-                    AddToLawfulFactionDictionary(factions.Key, factions.Value);
-                    continue;
+                    if (EnforcementFactionsTags.Contains(factions.Value.Tag))
+                    {
+                        AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"EnforcementFaction.Add: {factions.Key} {factions.Value.Tag}");
+                        AddToEnforcementFactionDictionary(factions.Key, factions.Value);
+                        AddToLawfulFactionDictionary(factions.Key, factions.Value);
+                        continue;
+                    }
+                    if (LawfulFactionsTags.Contains(factions.Value.Tag))
+                    {
+                        AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"AddToLawfulFactionDictionary.Add: {factions.Key} {factions.Value.Tag}");
+                        AddToLawfulFactionDictionary(factions.Key, factions.Value);
+                        continue;
+                    }
+                    if (factions.Value.IsEveryoneNpc())
+                    {
+                        AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"AddToPirateFactionDictionary: {factions.Key} {factions.Value.Tag}");
+                        AddToPirateFactionDictionary(factions.Key, factions.Value);
+                        continue;
+                    }
+                    //if (PlayerFactionExclusionList.Any(x => factions.Value.Description.StartsWith(x)))
+                    if (CheckExclusionList(factions.Value.Description))
+                    {
+                        AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"PlayerFactionExclusionList.Add: {factions.Key} {factions.Value.Tag}");
+                        AddToPirateFactionDictionary(factions.Key, factions.Value);
+                        continue;
+                    }
+                    AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"PlayerFaction.Add: {factions.Key} {factions.Value.Tag}");
+                    AddToPlayerFactionDictionary(factions.Key, factions.Value);
                 }
-                if (LawfulFactionsTags.Contains(factions.Value.Tag))
+                catch (Exception e)
                 {
-                    AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"AddToLawfulFactionDictionary.Add: {factions.Key} {factions.Value.Tag}");
-                    AddToLawfulFactionDictionary(factions.Key, factions.Value);
-                    continue;
+                    AiSessionCore.GeneralLog?.WriteToLog("SetupFactionDictionaries", $"Exception caught - e: {e}\t\tfaction.Key: {factions.Key}\t\tfaction.Value: {factions.Value}\t\tfaction.Tag: {factions.Value?.Tag}");
                 }
-                if (factions.Value.IsEveryoneNpc())
-                {
-                    AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"AddToPirateFactionDictionary: {factions.Key} {factions.Value.Tag}");
-                    AddToPirateFactionDictionary(factions.Key, factions.Value);
-                    continue;
-                }
-                if (PlayerFactionExclusionList.Any(x => factions.Value.Description.StartsWith(x)))
-                {
-                    AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"PlayerFactionExclusionList.Add: {factions.Key} {factions.Value.Tag}");
-                    AddToPirateFactionDictionary(factions.Key, factions.Value);
-                    continue;
-                }
-                AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"PlayerFaction.Add: {factions.Key} {factions.Value.Tag}");
-                AddToPlayerFactionDictionary(factions.Key, factions.Value);
+
             }
+
         }
 
         public static void SetupPlayerRelations()
