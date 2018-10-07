@@ -753,25 +753,25 @@ namespace EemRdx.Factions
         private static void AddToLawfulFactionDictionary(long factionId, IMyFaction faction, bool newFaction)
         {
             LawfulFactionDictionary.Add(factionId, faction);
-            LogFactionChange("Lawful", faction, newFaction);
+            LogFactionChangeEvent("Lawful", faction, newFaction);
         }
 
         private static void AddToEnforcementFactionDictionary(long factionId, IMyFaction faction, bool newFaction)
         {
             EnforcementFactionDictionary.Add(factionId, faction);
-            LogFactionChange("Enforcement", faction, newFaction);
+            LogFactionChangeEvent("Enforcement", faction, newFaction);
         }
 
         private static void AddToPirateFactionDictionary(long factionId, IMyFaction faction, bool newFaction)
         {
             PirateFactionDictionary.Add(factionId, faction);
-            LogFactionChange("Pirate", faction, newFaction);
+            LogFactionChangeEvent("Pirate", faction, newFaction);
         }
 
         private static void AddToPlayerFactionDictionary(long factionId, IMyFaction faction, bool newFaction)
         {
             PlayerFactionDictionary.Add(factionId, faction);
-            LogFactionChange("Player", faction, newFaction);
+            LogFactionChangeEvent("Player", faction, newFaction);
         }
 
         private static void RemoveFromLawfulFactionDictionary(long factionId)
@@ -794,7 +794,7 @@ namespace EemRdx.Factions
             PlayerFactionDictionary.Remove(factionId);
         }
 
-        private static void LogFactionChange(string type, IMyFaction faction, bool newFaction)
+        private static void LogFactionChangeEvent(string type, IMyFaction faction, bool newFaction)
         {
             if (AiSessionCore.EnableEventLogging)
             {
