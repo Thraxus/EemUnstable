@@ -4,6 +4,7 @@ using EemRdx.Helpers;
 using EemRdx.Networking;
 using EemRdx.Utilities;
 using Sandbox.ModAPI;
+using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
@@ -53,6 +54,9 @@ namespace EemRdx
 		public static Log ProfilingLog;
 		public static Log DebugLog;
 		public static Log GeneralLog;
+
+        public static bool EnableEventLogging = false;
+        public static MyConcurrentDeque<AiSessionEvent> Events = new MyConcurrentDeque<AiSessionEvent>();
 
 		private bool _initialized;
 
@@ -162,5 +166,12 @@ namespace EemRdx
 		{
 			if (Constants.DebugMode) DebugHelper.Print($"{source}", $"{message}", antiSpam);
 		}
-	}
+    }
+
+    public class AiSessionEvent
+    {
+        public string Type;
+        public string Text;
+        public DateTime Occurred;
+    }
 }

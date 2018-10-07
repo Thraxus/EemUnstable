@@ -515,13 +515,13 @@ namespace EemRdx.Factions
             if (!ValidateFactionEvents(factionId, out newFaction)) return;
             if (newFaction.IsEveryoneNpc() || PlayerFactionExclusionList.Any(x => newFaction.Description.StartsWith(x)))
             {
-                AddToPirateFactionDictionary(factionId, newFaction);
+                AddToPirateFactionDictionary(factionId, newFaction, true);
                 newFaction.NewPirate();
                 RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveDisappointment);
                 return;
             }
             RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveWelcome);
-            AddToPlayerFactionDictionary(factionId, newFaction);
+            AddToPlayerFactionDictionary(factionId, newFaction, true);
             AiSessionCore.DebugLog?.WriteToLog("FactionCreated", $"newFaction: {newFaction.Tag}");
         }
 
@@ -532,14 +532,14 @@ namespace EemRdx.Factions
             if (!PlayerFactionExclusionList.Any(x => editedFaction.Description.StartsWith(x)) && PirateFactionDictionary.ContainsKey(factionId))
             {
                 RemoveFromPirateFactionDictionary(factionId);
-                AddToPlayerFactionDictionary(factionId, factionId.GetFactionById());
+                AddToPlayerFactionDictionary(factionId, factionId.GetFactionById(), false);
                 editedFaction.NewFriendly();
                 //RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveReprieve);  TODO: Disabled since each faction handles this individually - need to figure a way to fix this (same note as below)
                 return;
             }
             if (!PlayerFactionExclusionList.Any(x => editedFaction.Description.StartsWith(x) && PlayerFactionDictionary.ContainsKey(factionId))) return;
             RemoveFromPlayerFactionDictionary(editedFaction.FactionId);
-            AddToPirateFactionDictionary(factionId, editedFaction);
+            AddToPirateFactionDictionary(factionId, editedFaction, false);
             editedFaction.NewPirate();
             RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveDisappointment);
             //TODO: Figure out how to stop faction chat spam when a new pirate faction is declare - message should likely only be from The Unknown and The Collective
@@ -680,31 +680,31 @@ namespace EemRdx.Factions
                     if (EnforcementFactionsTags.Contains(factions.Value.Tag))
                     {
                         AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"EnforcementFaction.Add: {factions.Key} {factions.Value.Tag}");
-                        AddToEnforcementFactionDictionary(factions.Key, factions.Value);
-                        AddToLawfulFactionDictionary(factions.Key, factions.Value);
+                        AddToEnforcementFactionDictionary(factions.Key, factions.Value, true);
+                        AddToLawfulFactionDictionary(factions.Key, factions.Value, true);
                         continue;
                     }
                     if (LawfulFactionsTags.Contains(factions.Value.Tag))
                     {
                         AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"AddToLawfulFactionDictionary.Add: {factions.Key} {factions.Value.Tag}");
-                        AddToLawfulFactionDictionary(factions.Key, factions.Value);
+                        AddToLawfulFactionDictionary(factions.Key, factions.Value, true);
                         continue;
                     }
                     if (factions.Value.IsEveryoneNpc())
                     {
                         AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"AddToPirateFactionDictionary: {factions.Key} {factions.Value.Tag}");
-                        AddToPirateFactionDictionary(factions.Key, factions.Value);
+                        AddToPirateFactionDictionary(factions.Key, factions.Value, true);
                         continue;
                     }
                     //if (PlayerFactionExclusionList.Any(x => factions.Value.Description.StartsWith(x)))
                     if (CheckExclusionList(factions.Value.Description))
                     {
                         AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"PlayerFactionExclusionList.Add: {factions.Key} {factions.Value.Tag}");
-                        AddToPirateFactionDictionary(factions.Key, factions.Value);
+                        AddToPirateFactionDictionary(factions.Key, factions.Value, true);
                         continue;
                     }
                     AiSessionCore.DebugLog?.WriteToLog("SetupFactionDictionaries", $"PlayerFaction.Add: {factions.Key} {factions.Value.Tag}");
-                    AddToPlayerFactionDictionary(factions.Key, factions.Value);
+                    AddToPlayerFactionDictionary(factions.Key, factions.Value, true);
                 }
                 catch (Exception e)
                 {
@@ -750,24 +750,28 @@ namespace EemRdx.Factions
             }
         }
         //TODO: Need to decide whether to combine all wars with SEPD and IMDC, or allow them to manage releases on their own
-        private static void AddToLawfulFactionDictionary(long factionId, IMyFaction faction)
+        private static void AddToLawfulFactionDictionary(long factionId, IMyFaction faction, bool newFaction)
         {
             LawfulFactionDictionary.Add(factionId, faction);
+            LogFactionChange("Lawful", faction, newFaction);
         }
 
-        private static void AddToEnforcementFactionDictionary(long factionId, IMyFaction faction)
+        private static void AddToEnforcementFactionDictionary(long factionId, IMyFaction faction, bool newFaction)
         {
             EnforcementFactionDictionary.Add(factionId, faction);
+            LogFactionChange("Enforcement", faction, newFaction);
         }
 
-        private static void AddToPirateFactionDictionary(long factionId, IMyFaction faction)
+        private static void AddToPirateFactionDictionary(long factionId, IMyFaction faction, bool newFaction)
         {
             PirateFactionDictionary.Add(factionId, faction);
+            LogFactionChange("Pirate", faction, newFaction);
         }
 
-        private static void AddToPlayerFactionDictionary(long factionId, IMyFaction faction)
+        private static void AddToPlayerFactionDictionary(long factionId, IMyFaction faction, bool newFaction)
         {
             PlayerFactionDictionary.Add(factionId, faction);
+            LogFactionChange("Player", faction, newFaction);
         }
 
         private static void RemoveFromLawfulFactionDictionary(long factionId)
@@ -788,6 +792,34 @@ namespace EemRdx.Factions
         private static void RemoveFromPlayerFactionDictionary(long factionId)
         {
             PlayerFactionDictionary.Remove(factionId);
+        }
+
+        private static void LogFactionChange(string type, IMyFaction faction, bool newFaction)
+        {
+            if (AiSessionCore.EnableEventLogging)
+            {
+                MyAPIGateway.Parallel.StartBackground(() =>
+                {
+                    if (newFaction)
+                    {
+                        AiSessionCore.Events.EnqueueFront(new AiSessionEvent
+                        {
+                            Type = "FactionCreated",
+                            Text = $"New {type} faction {faction.Name} ({faction.Tag}) created",
+                            Occurred = DateTime.Now,
+                        });
+                    }
+                    else
+                    {
+                        AiSessionCore.Events.EnqueueFront(new AiSessionEvent
+                        {
+                            Type = "FactionChanged",
+                            Text = $"Changed faction {faction.Name} ({faction.Tag}) to {type}",
+                            Occurred = DateTime.Now,
+                        });
+                    }
+                });
+            }
         }
 
         /// <summary>
