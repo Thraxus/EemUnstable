@@ -8,7 +8,14 @@ namespace EemRdx.Factions.Messages
 	{
 		public const string Tag = "HS";
 
-	    public static readonly Func<string> PeaceAccepted = () => DefaultDialogs.PeaceAcceptedMessages.ElementAt(Factions.FactionsRandom.Next(DefaultDialogs.PeaceAcceptedMessages.Count));
+	    public static readonly Func<string> FirstPeaceAccepted = () => FirstPeaceAcceptedMessages.ElementAt(Factions.FactionsRandom.Next(FirstPeaceAcceptedMessages.Count));
+
+	    private static readonly List<string> FirstPeaceAcceptedMessages = new List<string>()
+	    {
+	        $"{Tag} specializes in high tech security systems.  Just don't get on our bad side."
+	    };
+
+        public static readonly Func<string> PeaceAccepted = () => DefaultDialogs.PeaceAcceptedMessages.ElementAt(Factions.FactionsRandom.Next(DefaultDialogs.PeaceAcceptedMessages.Count));
 
 	    private static readonly List<string> PeaceAcceptedMessages = new List<string>()
 	    {
