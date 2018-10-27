@@ -8,7 +8,15 @@ namespace EemRdx.Factions.Messages
 	{
 		public const string Tag = "UCMF";
 
-	    public static readonly Func<string> PeaceAccepted = () => DefaultDialogs.PeaceAcceptedMessages.ElementAt(Factions.FactionsRandom.Next(DefaultDialogs.PeaceAcceptedMessages.Count));
+	    public static readonly Func<string> FirstPeaceAccepted = () => FirstPeaceAcceptedMessages.ElementAt(Factions.FactionsRandom.Next(FirstPeaceAcceptedMessages.Count));
+
+	    private static readonly List<string> FirstPeaceAcceptedMessages = new List<string>()
+	    {
+	        $"{Tag} protects civil interests, especially trade.  Do not cross us."
+	    };
+
+
+        public static readonly Func<string> PeaceAccepted = () => DefaultDialogs.PeaceAcceptedMessages.ElementAt(Factions.FactionsRandom.Next(DefaultDialogs.PeaceAcceptedMessages.Count));
 
 	    private static readonly List<string> PeaceAcceptedMessages = new List<string>()
 	    {

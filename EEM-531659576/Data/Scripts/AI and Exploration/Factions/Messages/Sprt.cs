@@ -8,6 +8,14 @@ namespace EemRdx.Factions.Messages
     {
         public const string Tag = "SPRT";
 
+        public static readonly Func<string> FirstPeaceAccepted = () => FirstPeaceAcceptedMessages.ElementAt(Factions.FactionsRandom.Next(FirstPeaceAcceptedMessages.Count));
+
+        private static readonly List<string> FirstPeaceAcceptedMessages = new List<string>()
+        {
+            $"{Tag} is a pirate group.  So... no?"
+        };
+
+
         public static readonly Func<string> PeaceAccepted = () => PeaceAcceptedMessages.ElementAt(Factions.FactionsRandom.Next(PeaceAcceptedMessages.Count));
 
         private static readonly List<string> PeaceAcceptedMessages = new List<string>()

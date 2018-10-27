@@ -1,15 +1,36 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2D908A8E-C018-417A-A988-078E475F4243}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EemRdx</RootNamespace>
+    <AssemblyName>EemRdx</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
     <LangVersion>6</LangVersion>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>x64</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-
   <ItemGroup>
     <Reference Include="Sandbox.Common">
       <HintPath>E:\SteamLibrary\steamapps\common\SpaceEngineers\Bin64\Sandbox.Common.dll</HintPath>
@@ -29,6 +50,14 @@
     <Reference Include="SpaceEngineers.ObjectBuilders.XmlSerializers">
       <HintPath>E:\SteamLibrary\steamapps\common\SpaceEngineers\Bin64\SpaceEngineers.ObjectBuilders.XmlSerializers.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
     <Reference Include="VRage">
       <HintPath>E:\SteamLibrary\steamapps\common\SpaceEngineers\Bin64\VRage.dll</HintPath>
     </Reference>
@@ -81,5 +110,527 @@
       <HintPath>E:\SteamLibrary\steamapps\common\SpaceEngineers\Bin64\VRage.XmlSerializers.dll</HintPath>
     </Reference>
   </ItemGroup>
-
+  <ItemGroup>
+    <Content Include="EEM-531659576\AI and Security Guide.txt" />
+    <Content Include="EEM-531659576\Data\Prefabs\_Prefab changes.txt" />
+    <Content Include="EEM-531659576\Materials\Materials.xml" />
+    <Content Include="EEM-531659576\Textures\GUI\Icons\AICockpit.dds" />
+    <Content Include="EEM-531659576\Textures\GUI\Icons\AIFighterCockpit.dds" />
+    <Content Include="EEM-531659576\Textures\GUI\Icons\AIOpenCockpit.dds" />
+    <Content Include="EEM-531659576\Textures\GUI\Icons\AISeat.dds" />
+    <Content Include="EEM-531659576\Textures\GUI\Icons\Credits.dds" />
+    <Content Include="EEM-531659576\Textures\GUI\Icons\Fake.dds" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\FighterRaptor.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\LanderAlien.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\LanderEarth.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\LanderJackal.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\LanderMars.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\MinerM3.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\PigeonExplorer.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\PigeonMahriane.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\PigeonMerc.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\PigeonMilitary.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\PigeonPrivateer.png" />
+    <Content Include="EEM-531659576\Textures\GUI\Respawnships\TraderIbis.png" />
+    <Content Include="EEM-531659576\Textures\Models\BlockAntenna_add.dds" />
+    <Content Include="EEM-531659576\Textures\Models\BlockAntenna_cm.dds" />
+    <Content Include="EEM-531659576\Textures\Models\BlockAntenna_de.dds" />
+    <Content Include="EEM-531659576\Textures\Models\BlockAntenna_ng.dds" />
+    <Content Include="EEM-531659576\Textures\Models\BlockAntenna_ns.dds" />
+    <Content Include="EEM-531659576\Textures\Models\Cubes\EEM_add.dds" />
+    <Content Include="EEM-531659576\Textures\Models\Cubes\EEM_cm.dds" />
+    <Content Include="EEM-531659576\Textures\Models\Cubes\EEM_ng.dds" />
+    <Content Include="EEM-531659576\Textures\Models\PassengerSeat_add.dds" />
+    <Content Include="EEM-531659576\Textures\Models\PassengerSeat_cm.dds" />
+    <Content Include="EEM-531659576\Textures\Models\PassengerSeat_me.dds" />
+    <Content Include="EEM-531659576\Textures\Models\PassengerSeat_ng.dds" />
+    <Content Include="EEM-531659576\Textures\Models\PassengerSeat_ns.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Callista_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Cygnet_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Durandal_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Engineers_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Gettysburg_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Got_milk_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\HLF_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Kolt_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\KUS_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Quartz_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Rosette_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\10.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\10W.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\11.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\12W.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\2_1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\2_2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\3.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\4.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\5W.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\5_1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\5_2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\7.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\7W.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\8.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\9W.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\Code1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\Code2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\CodeW.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Scientific\Wide1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Sektan_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\SkyreshPhoenix_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Sol_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Spacewalk_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Tahoma_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Tristavian_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U1\Biomech_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U1\Eikester_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U1\Kusari_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U1\Rezland_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U1\Vougetcola_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U1\WorkuBich_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U2\Cyrann_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U2\Hyperion_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U2\PerpetualL_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U3.5\Tartaross_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U3.5\Viktan_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U3\AndranS_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U3\HappySushi_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U3\SEMODDER_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U3\UncleSte2_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U3\USEA_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U4\GTN_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U4\Haven_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U4\MarsIndstry_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U4\Null_1x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U5\Exodus_2x1.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U5\IMDC_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\U5\XPG_1x2.dds" />
+    <Content Include="EEM-531659576\Textures\Video\Xer_1x2.dds" />
+    <Content Include="EEM-531659576\Thumb.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="EEM-531659576\Audio\MUS\EEM_LoungeMusic.xwm" />
+    <None Include="EEM-531659576\Audio\MUS\EEM_TradeStationMusic_Jeezlh.xwm" />
+    <None Include="EEM-531659576\Audio\MUS\EEM_TradeStationMusic_Lifebook.xwm" />
+    <None Include="EEM-531659576\Audio\MUS\EEM_TradeStationMusic_Sol.xwm" />
+    <None Include="EEM-531659576\Audio\MUS\EEM_TradeStationMusic_TheMissing.xwm" />
+    <None Include="EEM-531659576\Data\Audio.sbc" />
+    <None Include="EEM-531659576\Data\Components_EEM.sbc" />
+    <None Include="EEM-531659576\Data\ContainerTypes_EEM.sbc" />
+    <None Include="EEM-531659576\Data\CubeBlocks.sbc" />
+    <None Include="EEM-531659576\Data\CubeBlocks_EEM.sbc" />
+    <None Include="EEM-531659576\Data\DroneBehaviors_EEM.sbc" />
+    <None Include="EEM-531659576\Data\EEM_LCD_Textures.sbc" />
+    <None Include="EEM-531659576\Data\Factions.sbc" />
+    <None Include="EEM-531659576\Data\GlobalEvents.sbc" />
+    <None Include="EEM-531659576\Data\Particles.sbc" />
+    <None Include="EEM-531659576\Data\PirateAntennas.sbc" />
+    <None Include="EEM-531659576\Data\PirateAntennas_EEM.sbc" />
+    <None Include="EEM-531659576\Data\PirateAntennas_EEM_Beacons.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\Commercial_Salvager_Cirva.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\G08TX-043A_Arclight.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\Mining_Station_Cirva.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\Neutral_Bartering_Post.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\Neutral_Solar_Power_Plant_S.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\Object_Defense_Platform_Echo.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\Refinery_Station_Barite.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\Refueling_Station_XL_Beta.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\Salvaging_Outpost.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\SQUASH_Mine.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\SQUASH_Mine_Big.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\The_Artifact_Research_Station.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\Unknown_Recon_Drone.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Active Encounters\Viper_Headhunter.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Carcharodon_Destroyer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Diatom_Waystation.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Hippocampus_Transport.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Hydrozoa_Waystation.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Polyp_Small_Outpost.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Reef_Barrier_Station.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Reef_Barrier_Station.sbcB1" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Rotifer_Waystation.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Seadevil_Minelayer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Sunfish_Fast_Attack_Craft.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Thresher_Interceptor.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Argentavis_mk.1.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Armed_Transport_Charon.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\ASM-2.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Atmospheric Pirates\Cottonmouth_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Atmospheric Pirates\Cursor_Fighter_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Atmospheric Pirates\Firefly_Drone_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Atmospheric Pirates\Phorusrhacos_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Atmospheric Pirates\Piranha_Atmo_Fighter.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Atmospheric Pirates\R-1B_Hover_Bike_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Atmospheric Pirates\Robber_Fly_LPR-I_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Atmospheric Pirates\Scouting_Pod_Atmo.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Atmospheric Pirates\Shockwave_Heavy_Fighter_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Beacons\EEM_Beacon_EncounterDebris.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Beacons\EEM_Beacon_EncounterLarge.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Beacons\EEM_Beacon_EncounterMedium.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Beacons\EEM_Beacon_EncounterSmall.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Beacons\EEM_Beacon_TradeRouteStart.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Beacons\EEM_Beacon_TradeRoute_Waypoint.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Beacons\EEM_Navigational_Beacon.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\ADST_Anitollia.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Adventures_Spirit.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\ATLANT_High_Security_Transport.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Atlas_Heavy_Freighter.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\B-25_Fringe_Raider_Salvage_Team.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Bee_Survivalist.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Bellerophon.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Blitz_Freighter.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\BSS_Colibri.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Cardinals_Escort.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Commercial_Salvager_NPC.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Condor_Exploration_Ship.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Crossbow_Military_Transport.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Delta_V.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Drake_Hauler.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Eisvogel.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\GH-0%28ST%29_Stellar_Transport.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Grasshopper.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Hornet_Mini.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Hornet_Shuttle.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Hornet_Warrior.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Hornet_XL.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Ibis_NPC.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Intrepidus_Angelus.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\ISS_Fornax.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Jumper.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\L.R.M.H_Phoenix_Dawn.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Little_Bird_Courier.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Merc_Hover_Bike_retired.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\OACV_Cicada.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Passenger_Shuttle_Borealis_D2.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\PI-NI.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Private_Shuttle.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\R-71_Buzzard.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Sahara_Small_Cargo_Ship.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Salyut_Freighter.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Small_Freighter_Husky_L.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Small_Freighter_Husky_M.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Small_Freighter_Husky_S.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Small_Freighter_Husky_XL.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Smugglers_Legacy.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\SP-LEV348.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\SP-MEV133.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\SP-MEV487.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Space_Bus.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Space_Ray.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Tempest_Exploration_Ship.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\The_Salvador.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Thugboat_Survivalist.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Tugboat_Salvage_Team.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Tug_Targ.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Unknown_Ship_Courier.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\V-2_Gunboat_Salvage_Team.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Vandraren.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Wayfarer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Cargoships %28CIVL%29\Wedge_Civilian_Transport.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Commercial_Salvager.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Computer_Part_Factory_%28No_Mods%29.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Cicada_Experemental_Debris.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Dead_Station_1.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Dead_Station_2_signal.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Dead_Station_3.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Dead_Station_4_signal.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Dead_Station_5_signal.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Dead_Station_6_signal.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Defence_Systems_Forge_Debris.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Fighter_Remains_1.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Fighter_Remains_2.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Fighter_Remains_3.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\High-Tech_Factory_Infected_self-destruct.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Junk_Field.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Military_Station_Debris_trap.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Missile_Factory_Debris_mines.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Seeder_Wreckage.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Space_Port_Debris_mines.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Weapon_Component_Factory_Debris_trap.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Wreckage_1.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\Wreckage_2.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Debris\XMC_521_Trade_Center_Destroyed.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\DSF3_Duchessa.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\EarthEasyStation.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\EasyStartPirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\EasyStartSpacePirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Hyperion Systems %28HS%29\HS_Barracuda_Bomber.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Hyperion Systems %28HS%29\HS_Cargo_Drone.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Hyperion Systems %28HS%29\HS_Dragonfly_Fighter.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Hyperion Systems %28HS%29\HS_Locust_Bomber.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Hyperion Systems %28HS%29\HS_Revenant.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Hyperion Systems %28HS%29\HS_Viper_Destroyer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Hyperion Systems %28HS%29\HS_Wasp_Interceptor.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Hyperion Systems %28HS%29\HS_Wasp_Interceptor_Mk.II.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\IMDC %28IMDC%29\IMDC_Atlas_Frigate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\IMDC %28IMDC%29\IMDC_Cerberus_Destroyer_Mk.3.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\IMDC %28IMDC%29\IMDC_Condor_Dropship.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\IMDC %28IMDC%29\IMDC_Defense_Platform_NPC.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\IMDC %28IMDC%29\IMDC_Hornet_Fighter.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\IMDC %28IMDC%29\IMDC_Kestrel.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\IMDC %28IMDC%29\IMDC_Vulture_Fighter_Bomber.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\IMDC %28IMDC%29\PE_IMDC_1781_Service_Platform.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Informant_mk.1.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\KUS Shipyards %28KUSS%29\KUS_Einartoft_Industrial_Station.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\KUS Shipyards %28KUSS%29\KUS_Spartos_Heavy_Bomber.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\KUS Shipyards %28KUSS%29\KUS_Spartos_Light_Bomber_Escort.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\KUS Shipyards %28KUSS%29\KUS_Spartos_Light_Bomber_Security.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\KUS Shipyards %28KUSS%29\KUS_Tranquility_Industrial_Ship.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\KUS Shipyards %28KUSS%29\KUS_Waystation.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Longsword_Mk._9S.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\MAH_Broadsword_Escort.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\MAH_Broadsword_Security.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\MAH_Excalibur_Security.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\MAH_Magellan_Large_Transport.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\MAH_Omega_A_Security.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\MAH_SF-3C_Wyvern.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\PE_MAH-T14b_Pigeon_Mahriane_NPC.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\PE_MAH-T14_Pigeon_Merc_NPC.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\PE_MAH-T14_Pigeon_Privateer_NPC.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\PE_Mahriane_34_Trading_Outpost.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\PE_Mahriane_56_Trading_Outpost.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\PE_Mahriane_8724_Service_Platform.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\PE_MAH_Barial_Medium_Transport.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Mahriane %28MA-I%29\PE_MAH_T-16_Albatross_NPC.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\MGE %28MMEC%29\MGE_Armadillo.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\MGE %28MMEC%29\MGE_Cobra_Fighter.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\MGE %28MMEC%29\MGE_Firehawk.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\MGE %28MMEC%29\MGE_Harpy.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\MGE %28MMEC%29\MGE_Haunter.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\MGE %28MMEC%29\MGE_NUK-F_Hornet.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\MGE %28MMEC%29\MGE_Plight_Of_Pegasus.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\AS-9M_Moondust_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Asp_Privateer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Aurora_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Centaur_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Cicada_Experemental_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Donau_Torpedo_Corvette_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Eagle_Privateer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\EEM_Long_Range_Torpedo.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\EEM_Short_Range_Torpedo.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\F-47_Flicker_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Hearts_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Lachesis_Heavy_Cruiser.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\LRHF-2_Andrealphus_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Midnight_Gunship_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Military_Dagger.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Military_Kodiak_Destroyer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Paladin_Strike_Fighter_Privateer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Pelican_LGS_Privateer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Rescue_2_Refit_Military_Drone.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Sable_Privateer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\SFB-1_Privateer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Shanxi_Torpedo_Cruiser_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Space_Bike_ADC-300S_Privateer.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\SuperWolf_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\Wolf_VIII_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Military Forces %28UCMF%29\XF-9_Viper_Military.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\AI_Guard_Advanced_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\AI_Guard_Advanced_Pirate_Ready.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\AI_Old_Drone.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\AI_Old_Drone_Mk.II.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\AI_Old_Drone_Ready.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\AI_Panzerklein_Mech.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\ArrowHead_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\B-30_Privateer_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\B8_Barracuda_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Barb_Mk.2.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Crow_Fighter_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Cyanide_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\FE-201_Enforcer_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Grinder_Drone_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Grinder_Drone_Pirate_Ready.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Incisor_mk.3.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Kite_EW_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Merc_Hover_Bike.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Mosquito_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Panzerklein_Piloted_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Pelican_LGS_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Pirate_Gunship.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Raptor_Drone_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Razor_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Redcore_Frigate_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\SFB-1_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Skull_Drone_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Storm_Eagle_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Trainspark_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Trainspark_Pirate_Ready.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Turcopoli_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\Turmfalke_EF-01_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\V-2_Gunboat_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\V-9_Scout_Pirate.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirates %28SPRT%29\XMC_4402_Captured.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirate_Base_Large_mk.2.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Pirate_Base_Medium_mk.1.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Planetary\Citadel_Fortress.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Planetary\Communication_Station.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Planetary\Gastown.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Planetary\Moon_Armed_Pod.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Planetary\Relay_Station.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\AI_Fighter_Drone_Mk.IV.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\AI_Fighter_Drone_Mk.IV_Ready.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\AI_Guard_Advanced_Police.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Defender_Drone.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Eagle_Atmo_Police.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Eagle_Police.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Eagle_Police_Station_Patrol.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\G-201_Devastator_Police_Chief.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Heavy_Police_Hover_Bike_Piloted.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Police_Asp.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Police_Butterfly.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Police_Colibri_VTOL.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Police_Firespark.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Police_Firespark_Mk.II.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Police_Hover_Bike.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Police_Outpost.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Police_Panzerklein.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Police %28SEPD%29\Satyr_Police.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Raiding_Outpost_mk.1.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Raiding_Station_-_Scourge.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\AI_Guard_Advanced_Mk.I.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Asp_Cop_Car.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Asp_Fighter.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Drop_Ship.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Eagle.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\EEV_01_Planetary_Lander.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Feathered_Elevator.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\G-101_Torden.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Grinder_Drone.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Lemon_Augmented.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Little_Bird.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Loot_Large_Container.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Loot_Medium_Container.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Miner_Drone.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Oxygen_Tank.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Panzerklein_Exosuit.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Repair_Drone.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Shuttle_C3B2_Seraphim_Sentinel.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Space_Express.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Space_Motorcycle_ADC-300S.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Vixen_D2.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\VOID.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Wayfarer_Prototype.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\WKS_Fessenden_1.3B.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Random_encounters\Worker_Mk.II.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Renaissance.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Ibis_Respawnship.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Jackal_Lander_Earth.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Landing_Pod_Alien.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Landing_Pod_Earth.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Landing_Pod_Mars.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Landing_Pod_Mk.II_Alien.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Landing_Pod_Mk.II_Earth.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Landing_Pod_Mk.II_Mars.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\M3_Miner_Respawnship.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Pigeon_Trader_Respawnship_%28Green-Lime%29.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Pigeon_Trader_Respawnship_%28Grey-Cyan%29.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Pigeon_Trader_Respawnship_%28Navy-Cyan%29.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Pigeon_Trader_Respawnship_%28Orange-White%29.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Pigeon_Trader_Respawnship_%28Red-White%29.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Respawnships\Raptor_Fighter_Respawnship.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Small_Ship_5727.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Test_Container.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\The_Pilgrims_Curiosity.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Traders %28ISTG%29\Dromedary_Trader.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Traders %28ISTG%29\Helios_Wheel_Trader.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Traders %28ISTG%29\Phaeton_Trading_Outpost.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Trainspark.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\Ubumboo_%28for_Exploration%29.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\PE_XMC_4402_Trading_Outpost.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\PE_XMC_5019_Core_Station.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\PE_XMC_521_Trade_Center.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\PE_XMC_603_Factory.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\PE_XMC_718_Trading_Outpost.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\PE_XMC_99_Refinery.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\XMC_Endor_Mining_Vessel.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\XMC_Kimaris_Escort.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\XMC_Kimaris_Security.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\XMC_Tempest_Fighter_Escort.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\XMC_Tempest_Fighter_Security.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\XMC_Type_2_Cargo.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\XMC_Valkyrie_II_Escort.sbc" />
+    <None Include="EEM-531659576\Data\Prefabs\XMC %28EXMC%29\XMC_Valkyrie_II_Security.sbc" />
+    <None Include="EEM-531659576\Data\RespawnShips.sbc" />
+    <None Include="EEM-531659576\Data\SoundBlock.sbc" />
+    <None Include="EEM-531659576\Data\SpawnGroups.sbc" />
+    <None Include="EEM-531659576\Data\SpawnGroups_EEM_Cargoships.sbc" />
+    <None Include="EEM-531659576\Data\SpawnGroups_EEM_Encounters.sbc" />
+    <None Include="EEM-531659576\Data\SpawnGroups_EEM_Factions.sbc" />
+    <None Include="EEM-531659576\Data\SpawnGroups_EEM_MilitaryAndPolice.sbc" />
+    <None Include="EEM-531659576\Data\SpawnGroups_EEM_Pirates.sbc" />
+    <None Include="EEM-531659576\Data\SpawnGroups_EEM_Traders.sbc" />
+    <None Include="EEM-531659576\Data\VoxelMapStorages.sbc" />
+    <None Include="EEM-531659576\Models\Cubes\CockpitFighterPiloted.mwm" />
+    <None Include="EEM-531659576\Models\Cubes\LBCockpitPiloted.mwm" />
+    <None Include="EEM-531659576\Models\Cubes\LBSeatPiloted.mwm" />
+    <None Include="EEM-531659576\Models\Cubes\OpenCockpitPilot.mwm" />
+    <None Include="EEM-531659576\Models\Cubes\SBCockpitPiloted.mwm" />
+    <None Include="EEM-531659576\Models\Cubes\SBSeatPiloted.mwm" />
+    <None Include="EEM-531659576\Models\EEMCredit.mwm" />
+    <None Include="EEM-531659576\Models\HiddenAntennaL.mwm" />
+    <None Include="EEM-531659576\Models\HiddenAntennaS.mwm" />
+    <None Include="EEM-531659576\modinfo.sbmi" />
+    <None Include="EEM-531659576\VoxelMaps\ArtifactStationVoxel.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\asteroidfield.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\BariteInfectionVoxel_1.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\BariteInfectionVoxel_2.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\BariteInfectionVoxel_3.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\BariteInfectionVoxel_4.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\BariteInfectionVoxel_5.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\cluster7.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\High-TechFactoryInfectionVoxel.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\KUSEinartoftAnchorVoxel.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\Massrocks.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\RefuelingStationAsteroid.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\wi_eleo.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\wi_mesa1.vx2" />
+    <None Include="EEM-531659576\VoxelMaps\wi_reno.vx2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\AiSessionCore.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotAi.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotFabric.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotTypeBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotTypeFighter.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotTypeFreighter.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotTypeStation.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\EntityByDistanceSorter.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\GeneralExtensions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\GridExtenstions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\NumberExtensions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\TerminalExtensions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\VectorExtensions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Factions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\FactionsAtWar.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Amph.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Civl.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\DefaultDialogs.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Exmc.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Hs.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Imdc.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Istg.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Kuss.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Mai.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Mmec.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Sepd.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Sprt.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Ucmf.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\CleanEem.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\CleanEemRc.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\Constants.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\DamageHelper.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\DebugHelper.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\GenericHelpers.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\InventoryHelpers.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\OwnershipTools.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Networking\ChatMessages.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Networking\FactionsMessage.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Networking\MessageBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Networking\Messaging.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Utilities\Log.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Utilities\Profiler.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Utilities\Queue.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -67,7 +67,7 @@ namespace EemRdx.Helpers
 
 		#region Networking
 		
-		public static ushort EemNetworkId => 16759;
+		public static ushort EemNetworkId { get; } = 16759;
 
 		public const string ServerCommsPrefix = "EEMServerMessage";
 

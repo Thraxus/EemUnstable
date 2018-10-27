@@ -144,7 +144,7 @@ namespace EemRdx.Factions
         /// <param name="rightFaction">The faction who has proposed peace</param>
         public static void AutoPeace(this IMyFaction leftFaction, IMyFaction rightFaction)
         {
-            if (!ValidateNonPirateFactions(leftFaction, rightFaction) || leftFaction.IsPeacefulTo(rightFaction)) return;
+            if (leftFaction.IsPirateFaction() || rightFaction.IsPirateFaction() || leftFaction.IsPeacefulTo(rightFaction)) return;
             if (!leftFaction.IsPeacePendingTo(rightFaction)) leftFaction.ProposePeaceTo(rightFaction);
             rightFaction.AcceptPeaceFrom(leftFaction);
             AiSessionCore.DebugLog?.WriteToLog("AutoPeace", $"leftFaction: {leftFaction.Tag} rightFaction: {rightFaction.Tag}");
@@ -207,6 +207,11 @@ namespace EemRdx.Factions
             return !PirateFactionDictionary.ContainsKey(leftFaction.FactionId) && !PirateFactionDictionary.ContainsKey(rightFaction.FactionId);
         }
 
+        private static bool IsPirateFaction(this IMyFaction faction)
+        {
+            return faction != null && PirateFactionDictionary.ContainsKey(faction.FactionId);
+        }
+
         private static bool ValidateFactions(IMyFaction leftFaction, IMyFaction rightFaction)
         {
             return (leftFaction == null || rightFaction == null);
@@ -238,6 +243,8 @@ namespace EemRdx.Factions
             MyAPIGateway.Session.Factions.FactionEdited -= FactionEdited;
         }
 
+        private static Dictionary<string, Func<string>> FactionFirstPeaceAcceptedDialog { get; set; }
+
         private static Dictionary<string, Func<string>> FactionPeaceAcceptedDialog { get; set; }
 
         private static Dictionary<string, Func<string>> FactionPeaceConsideredDialog { get; set; }
@@ -252,6 +259,13 @@ namespace EemRdx.Factions
 
         private static void InitMessageDictionaries()
         {
+            FactionFirstPeaceAcceptedDialog = new Dictionary<string, Func<string>>
+            {
+                {Amph.Tag, Amph.FirstPeaceAccepted}, {Civl.Tag, Civl.FirstPeaceAccepted}, {Exmc.Tag, Exmc.FirstPeaceAccepted},
+                {Hs.Tag, Hs.FirstPeaceAccepted}, {Imdc.Tag, Imdc.FirstPeaceAccepted}, {Istg.Tag, Istg.FirstPeaceAccepted},
+                {Kuss.Tag, Kuss.FirstPeaceAccepted}, {Mai.Tag, Mai.FirstPeaceAccepted}, {Mmec.Tag, Mmec.FirstPeaceAccepted},
+                {Sepd.Tag, Sepd.FirstPeaceAccepted}, {Sprt.Tag, Sprt.FirstPeaceAccepted}, {Ucmf.Tag, Ucmf.FirstPeaceAccepted}
+            };
             FactionPeaceAcceptedDialog = new Dictionary<string, Func<string>>
             {
                 {Amph.Tag, Amph.PeaceAccepted}, {Civl.Tag, Civl.PeaceAccepted}, {Exmc.Tag, Exmc.PeaceAccepted},
@@ -296,7 +310,7 @@ namespace EemRdx.Factions
 
         private enum DialogType
         {
-            CollectiveDisappointment, CollectiveReprieve, CollectiveWelcome, PeaceAccepted, PeaceConsidered, PeaceProposed, PeaceRejected, WarDeclared, WarReceived
+            CollectiveDisappointment, CollectiveReprieve, CollectiveWelcome, FirstPeaceAccepted, PeaceAccepted, PeaceConsidered, PeaceProposed, PeaceRejected, WarDeclared, WarReceived
         }
 
         private static void RequestDialog(IMyFaction npcFaction, IMyFaction playerFaction, DialogType type)
@@ -319,6 +333,13 @@ namespace EemRdx.Factions
                 case DialogType.CollectiveWelcome:
                     message = DefaultDialogs.CollectiveWelcome;
                     tag = DefaultDialogs.CollectiveTag;
+                    break;
+                case DialogType.FirstPeaceAccepted:
+                    if (npcFaction != null && FactionFirstPeaceAcceptedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
+                    {
+                        message = tmpMessage;
+                        tag = npcFaction.Tag;
+                    }
                     break;
                 case DialogType.PeaceAccepted:
                     if (npcFaction != null && FactionPeaceAcceptedDialog.TryGetValue(npcFaction.Tag, out tmpMessage))
@@ -468,6 +489,12 @@ namespace EemRdx.Factions
                 case MyFactionStateChange.AcceptPeace:
                     break;
                 case MyFactionStateChange.DeclareWar:
+                    if (!CheckFactionWar(toFaction, fromFaction) && fromFaction.IsNpc() && fromFaction.IsLawful() && !toFaction.IsPirate())
+                    {
+                        fromFaction.GetFactionById().AutoPeace(toFaction.GetFactionById());
+                        RequestDialog(fromFaction.GetFactionById(), toFaction.GetFactionById(), DialogType.FirstPeaceAccepted);
+                        break;
+                    }
                     if (fromFaction.GetFactionById().IsEveryoneNpc() && !toFaction.GetFactionById().IsEveryoneNpc())
                     {   // Make sure this is an NPC declaring war on a player
                         HandleNewErrantPlayerFaction(fromFaction, toFaction);
@@ -520,7 +547,7 @@ namespace EemRdx.Factions
                 RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveDisappointment);
                 return;
             }
-            RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveWelcome);
+            //RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveWelcome);
             AddToPlayerFactionDictionary(factionId, newFaction);
             AiSessionCore.DebugLog?.WriteToLog("FactionCreated", $"newFaction: {newFaction.Tag}");
         }
