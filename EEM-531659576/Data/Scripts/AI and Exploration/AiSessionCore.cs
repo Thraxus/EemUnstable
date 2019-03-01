@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using EemRdx.Helpers;
 using EemRdx.Networking;
 using EemRdx.Utilities;
+using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.ModAPI;
 using VRage.Utils;
 
 namespace EemRdx
@@ -72,6 +74,8 @@ namespace EemRdx
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(0, DamageRefHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(0, GenericDamageHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterDestroyHandler(0, GenericDamageHandler);
+			MyAPIGateway.Entities.OnEntityAdd += delegate(IMyEntity entity) { GeneralLog.WriteToLog("Core", $"Entity Added: {entity.EntityId}: {entity.DisplayName}"); };
+			MyAPIGateway.Entities.OnEntityRemove += delegate(IMyEntity entity) { GeneralLog.WriteToLog("Core", $"Entity Removed: {entity.EntityId}: {entity.DisplayName}"); };
 			_initialized = true;
 		}
 
@@ -81,6 +85,11 @@ namespace EemRdx
 			if(Constants.EnableProfilingLog) ProfilingLog = new Log(Constants.ProfilingLogName);
 			if(Constants.EnableGeneralLog) GeneralLog = new Log(Constants.GeneralLogName);
 			LogSetupComplete = true;
+			GeneralLog.WriteToLog("Core", $"Cargo: {MyAPIGateway.Session.SessionSettings.CargoShipsEnabled}");
+			GeneralLog.WriteToLog("Core", $"Encounters: {MyAPIGateway.Session.SessionSettings.EnableEncounters}");
+			GeneralLog.WriteToLog("Core", $"Drones: {MyAPIGateway.Session.SessionSettings.EnableDrones}");
+			GeneralLog.WriteToLog("Core", $"Scripts: {MyAPIGateway.Session.SessionSettings.EnableIngameScripts}");
+			GeneralLog.WriteToLog("Core", $"Sync: {MyAPIGateway.Session.SessionSettings.SyncDistance}");
 		}
 
 		private static void CloseLogs()
