@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using EemRdx.Helpers;
 using EemRdx.Networking;
 using EemRdx.Utilities;
+using Sandbox.Definitions;
 using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using VRage.Game;
@@ -90,6 +91,13 @@ namespace EemRdx
 			GeneralLog.WriteToLog("Core", $"Drones: {MyAPIGateway.Session.SessionSettings.EnableDrones}");
 			GeneralLog.WriteToLog("Core", $"Scripts: {MyAPIGateway.Session.SessionSettings.EnableIngameScripts}");
 			GeneralLog.WriteToLog("Core", $"Sync: {MyAPIGateway.Session.SessionSettings.SyncDistance}");
+
+			//foreach (MySpawnGroupDefinition spawnGroupDefinition in MyDefinitionManager.Static.GetSpawnGroupDefinitions())
+			//{
+			//	if (!spawnGroupDefinition.Public || !spawnGroupDefinition.Context.IsBaseGame) continue;
+			//	GeneralLog.WriteToLog("Core", $@"IsBaseGame:	{spawnGroupDefinition.Context.IsBaseGame}	SubtypeName:	{spawnGroupDefinition.Id.SubtypeName}	Frequency:	{spawnGroupDefinition.Frequency}	IsPirate:	{spawnGroupDefinition.IsPirate}	IsEncounter:	{spawnGroupDefinition.IsEncounter}	IsCargoShip:	{spawnGroupDefinition.IsCargoShip}");
+			//}
+
 		}
 
 		private static void CloseLogs()
