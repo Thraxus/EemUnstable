@@ -144,6 +144,11 @@ namespace EemRdx
 
 		private Ingame.MyDetectedEntityInfo GetTopPriorityTarget(List<Ingame.MyDetectedEntityInfo> targets)
 		{
+			AiSessionCore.DebugLog?.WriteToLog("GetTopPriorityTarget", $"ListSize:\t{targets.Count}");
+			foreach (Ingame.MyDetectedEntityInfo possibleTarget in targets)
+			{
+				AiSessionCore.DebugLog?.WriteToLog("GetTopPriorityTarget", $"PossibleTarget:\t{possibleTarget.EntityId}\t{possibleTarget.Name}");
+			}
 			if (targets == null || targets.Count == 0) return new Ingame.MyDetectedEntityInfo();
 			if (targets.Count == 1) return targets.First();
 
@@ -159,6 +164,8 @@ namespace EemRdx
 
 		private float DangerIndex(Ingame.MyDetectedEntityInfo enemy)
 		{
+			AiSessionCore.DebugLog?.WriteToLog("DangerIndex", $"EnemyHuman:\t{enemy.Type == Ingame.MyDetectedEntityType.CharacterHuman}");
+			AiSessionCore.DebugLog?.WriteToLog("DangerIndex", $"EnemyGrid:\t{enemy.IsGrid()}\t{enemy.GetGrid()?.CustomName}");
 			if (enemy.Type == Ingame.MyDetectedEntityType.CharacterHuman)
 				return Distance(enemy) < 100 ? 100 : 10;
 			if (!enemy.IsGrid()) return 0;

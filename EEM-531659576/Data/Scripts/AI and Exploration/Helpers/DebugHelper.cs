@@ -36,6 +36,7 @@ namespace EemRdx.Helpers
 			}
 			finally
 			{
+				AiSessionCore.DebugLog?.WriteToLog($"GridError:\t{displayName}", $"Fatal error in '{source}': {scrap.Message}. {(scrap.InnerException != null ? scrap.InnerException.Message : "No additional info was given by the game :(")}");
 				Print(displayName, $"Fatal error in '{source}': {scrap.Message}. {(scrap.InnerException != null ? scrap.InnerException.Message : "No additional info was given by the game :(")}");
 			}
 		}

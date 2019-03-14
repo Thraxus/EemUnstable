@@ -165,7 +165,6 @@ namespace EemRdx.Helpers
 			{
 				IMyEntity attackerEntity = MyAPIGateway.Entities.GetEntityById(damage.AttackerId);
 				if (damage.IsDeformation || damage.AttackerId == 0 || attackerEntity == null) return false;
-				AiSessionCore.DebugWrite("Damage.IsDoneByPlayer", $"Received damage: '{damage.Type}' from '{attackerEntity.GetType()}'", false);
 				
 				if (attackerEntity is IMyMeteor) return false;
 				if (attackerEntity is IMyWarhead) return IsDamagedByPlayerWarhead(attackerEntity as IMyWarhead, out damager);
@@ -176,6 +175,7 @@ namespace EemRdx.Helpers
 
 				if (attackerEntity == null)
 				{
+					AiSessionCore.DebugLog?.WriteToLog("IsDoneByPlayer", $"attackerEntity was NULL");
 					AiSessionCore.DebugWrite("Damage.IsDoneByPlayer", "Cannot acquire the attacker's topmost entity", antiSpam: false);
 					return false;
 				}
@@ -183,6 +183,7 @@ namespace EemRdx.Helpers
 				if (!(attackerEntity is IMyCubeGrid)) return false;
 				IMyCubeGrid grid = attackerEntity as IMyCubeGrid;
 				if (grid.IsPirate()) return false;
+				//grid.GetOwnerFaction()
 				return grid.IsOwnedByNobody() ? IsDamagedByPlayerInNeutralGrid(grid, out damager) : IsDamagedByPlayerGrid(grid, out damager);
 
 			}

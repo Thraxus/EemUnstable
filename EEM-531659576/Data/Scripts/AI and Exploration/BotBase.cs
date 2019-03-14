@@ -4,6 +4,7 @@ using System.Linq;
 using EemRdx.Extensions;
 using EemRdx.Helpers;
 using Sandbox.Game.Entities;
+using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Ingame;
 using VRage.Game.Entity;
@@ -13,6 +14,7 @@ using VRageMath;
 using IMyGridTerminalSystem = Sandbox.ModAPI.IMyGridTerminalSystem;
 using IMyRadioAntenna = Sandbox.ModAPI.IMyRadioAntenna;
 using IMyRemoteControl = Sandbox.ModAPI.IMyRemoteControl;
+using IMyShipController = Sandbox.ModAPI.IMyShipController;
 using IMyTerminalBlock = Sandbox.ModAPI.IMyTerminalBlock;
 using IMyThrust = Sandbox.ModAPI.IMyThrust;
 
@@ -223,18 +225,72 @@ namespace EemRdx
 			damager = null;
 			try
 			{
+				AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"damage.AttackerId:\t{damage.AttackerId}");
+
 				// Inconsequential damage sources, ignore them
 				if (damage.IsDeformation || damage.IsMeteor() || damage.IsThruster())
 					return;
-				if (damage.IsDoneByPlayer(out damager) && damager != null)
+				
+				//if (damage.IsDoneByPlayer(out damager) && damager != null)
+				//	if (damager.GetFaction() == null) return;
+
+				if (damage.IsDoneByPlayer(out damager))
+				{
 					if (damager.GetFaction() == null) return;
-				DeclareWar(damager.GetFaction());
+					DeclareWar(damager.GetFaction());
+					return;
+				}
+				
+				// Issue here is damager == null at this point.  Damager is IMyPlayer
+				// Since damager == null, DeclareWar fails.  
+				// Need to check for damager == null here, if so, get pilot and declare war on them if they are in a faction
+
+				List<IMyPlayer> possibleAttackingPlayers = new List<IMyPlayer>();
+				MyAPIGateway.Players.GetPlayers(possibleAttackingPlayers, 
+					player => 
+						player.Controller.ControlledEntity.Entity != null &&
+						!player.IsBot &&
+						player.Character != null &&
+						player.Controller.ControlledEntity.Entity is IMyShipController);
+				foreach (IMyPlayer possibleAttackingPlayer in possibleAttackingPlayers)
+				{
+					if (((IMyShipController) possibleAttackingPlayer.Controller.ControlledEntity.Entity).SlimBlock.CubeGrid != 
+					    MyAPIGateway.Entities.GetEntityById(damage.AttackerId)) continue;
+					damager = possibleAttackingPlayer;
+					IMyFaction attackingFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(possibleAttackingPlayer.IdentityId);
+					if (attackingFaction == null)
+						continue;
+					DeclareWar(attackingFaction);
+				}
+
+				//HashSet<IMyEntity> possibleAttackingPlayers2 = new HashSet<IMyEntity>();
+				//MyAPIGateway.Entities.GetEntities(possibleAttackingPlayers2, entity => entity is IMyShipController);
+				//AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"EntListSize:\t{possibleAttackingPlayers2.Count}");
+
+				//foreach (IMyPlayer possibleAttackingPlayer in possibleAttackingPlayers)
+				//	AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"player:\t{possibleAttackingPlayer?.IdentityId}\t{possibleAttackingPlayer?.DisplayName}");
+
+				//foreach (IMyEntity possibleAttackingPlayer in possibleAttackingPlayers2)
+				//	AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"Entity:\t{possibleAttackingPlayer?.EntityId}\t{possibleAttackingPlayer?.DisplayName}");
+
+				//AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"damage:\t{damage}");
+				//AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"damage.Amount:\t{damage.Amount}");
+				//AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"damage.AttackerId:\t{damage.AttackerId}");
+				//AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"damage.Type:\t{damage.Type}");
+				//AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"damager.IsNull:\t{damager == null}");
+				//AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"damager.GetFaction()\t{damager?.GetFaction()}");
+				//AiSessionCore.DebugLog?.WriteToLog("ReactOnDamage", $"damager.GetFactionIsNull()\t{damager?.GetFaction() == null}");
+
 			}
 			catch (Exception scrap)
 			{
 				Grid.LogError("ReactOnDamage", scrap);
 			}
 		}
+
+		// Get pilot of a ship
+		// var playerEnt = MyAPIGateway.Session.ControlledObject?.Entity as MyEntity;
+		// if (playerEnt?.Parent != null) playerEnt = playerEnt.Parent;
 
 		protected void BlockPlacedHandler(IMySlimBlock block)
 		{
@@ -257,9 +313,17 @@ namespace EemRdx
 		private void DeclareWar(IMyFaction playerFaction)
 		{
 			//if (MyAPIGateway.Session.IsServer) return;
-			if (_ownerFaction == null)
-				_ownerFaction = Grid.GetOwnerFaction();
-			Factions.Factions.DeclareFactionWar(_ownerFaction, playerFaction);
+			try
+			{
+				if (playerFaction == null) return;
+				if (_ownerFaction == null)
+					_ownerFaction = Grid.GetOwnerFaction();
+				Factions.Factions.DeclareFactionWar(_ownerFaction, playerFaction);
+			}
+			catch (Exception e)
+			{
+				AiSessionCore.DebugLog?.WriteToLog("DeclareWar", $"Exception!\t{e}");
+			}
 		}
 
 		//protected virtual void RegisterHostileAction(IMyPlayer player, TimeSpan truceDelay)
@@ -372,7 +436,9 @@ namespace EemRdx
 
 		protected List<MyDetectedEntityInfo> LookForEnemies(float radius, bool considerNeutralsAsHostiles = false, Func<MyDetectedEntityInfo, bool> filter = null)
 		{
-			return !considerNeutralsAsHostiles ? LookAround(radius, x => x.IsHostile() && (filter == null || filter(x))) : LookAround(radius, x => x.IsNonFriendly() && (filter == null || filter(x)));
+			return !considerNeutralsAsHostiles ? 
+				LookAround(radius, x => x.IsHostile() && (filter == null || filter(x))) : 
+				LookAround(radius, x => x.IsNonFriendly() && (filter == null || filter(x)));
 		}
 
 		/// <summary>

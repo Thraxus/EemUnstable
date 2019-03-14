@@ -65,6 +65,12 @@ namespace EemRdx.Extensions
 
 		public static IMyFaction GetFaction(this IMyPlayer player)
 		{
+			AiSessionCore.DebugLog?.WriteToLog("GetFaction", $"playerIsNull:\t{player == null}");
+			AiSessionCore.DebugLog?.WriteToLog("GetFaction", $"player:\t{player}");
+
+			//MyAPIGateway.Session.Factions
+
+
 			return MyAPIGateway.Session.Factions.TryGetPlayerFaction(player.IdentityId);
 		}
 
