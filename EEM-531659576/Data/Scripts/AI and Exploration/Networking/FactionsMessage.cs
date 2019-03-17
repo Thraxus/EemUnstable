@@ -28,7 +28,28 @@ namespace EemRdx.Networking
 		
 		public override void HandleServer()
 		{
-			// unused for FactionsChangeMessage
+			switch (_messagePrefix)
+			{
+				case (Constants.DeclareWarMessagePrefix):
+					MyAPIGateway.Session.Factions.DeclareWar(_leftFaction, _rightFaction);
+					break;
+				case (Constants.DeclarePeaceMessagePrefix):
+					MyAPIGateway.Session.Factions.SendPeaceRequest(_leftFaction, _rightFaction);
+					break;
+				case (Constants.AcceptPeaceMessagePrefix):
+					MyAPIGateway.Session.Factions.AcceptPeace(_leftFaction, _rightFaction);
+					break;
+				case (Constants.RejectPeaceMessagePrefix):
+					MyAPIGateway.Session.Factions.CancelPeaceRequest(_leftFaction, _rightFaction);
+					break;
+				case (Constants.InitFactionsMessagePrefix):
+					Factions.Factions.SetupPlayerRelations();
+					Factions.Factions.SetupNpcRelations();
+					Factions.Factions.SetupPirateRelations();
+					break;
+				default:
+					return;
+			}
 		}
 
 		public override void HandleClient()

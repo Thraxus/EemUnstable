@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EemRdx.Factions;
 using EemRdx.Helpers;
 using EemRdx.Networking;
 using EemRdx.Utilities;
@@ -58,19 +59,39 @@ namespace EemRdx
 		public static Log GeneralLog;
 
 		private bool _initialized;
+		private bool _debugInitialized;
 
 		public override void UpdateBeforeSimulation()
 		{
+			if (Constants.DebugMode && !_debugInitialized) DebugInit();
 			if (!_initialized) Initialize();
 			if (!IsServer) return;
 			if (MyAPIGateway.Multiplayer.Players.Count > 0 && !Factions.Factions.PlayerFactionInitComplete) { Factions.Factions.PlayerInitFactions(); }
 			TickTimer();
 		}
 
+		private void DebugInit()
+		{
+			DebugLog = new Log(Constants.DebugLogName);
+			MyAPIGateway.Session.Factions.FactionStateChanged += DebugFactions;
+			_debugInitialized = true;
+		}
+
+		private static void DebugFactions(MyFactionStateChange action, long fromFaction, long toFaction, long playerId, long senderId)
+		{
+			DebugLog?.WriteToLog("FactionStateChanged-AiSession", $"OnServer:\t{IsServer}\tAction:\t{action} fromFaction:\t{fromFaction}\tfromFactionTag:\t{fromFaction.GetFactionById()?.Tag}");
+			DebugLog?.WriteToLog("FactionStateChanged-AiSession", $"OnServer:\t{IsServer}\tAction:\t{action}\ttoFaction:\t{toFaction}\ttoFactionTag:\t{toFaction.GetFactionById()?.Tag}");
+		}
+
+		private void DebugClose()
+		{
+			MyAPIGateway.Session.Factions.FactionStateChanged -= DebugFactions;
+		}
+
 		private void Initialize()
 		{
 			if (Constants.DebugMode) DebugLog.WriteToLog("Initialize",$"Debug Active - IsServer: {IsServer}", true, 20000);
-			if (!Factions.Factions.SetupComplete) Factions.Factions.Initialize();
+			Factions.Factions.Initialize();
 			Messaging.Register();
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(0, DamageRefHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(0, GenericDamageHandler);
@@ -82,7 +103,6 @@ namespace EemRdx
 
 		private static void InitLogs()
 		{
-			if(Constants.DebugMode) DebugLog = new Log(Constants.DebugLogName);
 			if(Constants.EnableProfilingLog) ProfilingLog = new Log(Constants.ProfilingLogName);
 			if(Constants.EnableGeneralLog) GeneralLog = new Log(Constants.GeneralLogName);
 			LogSetupComplete = true;
@@ -102,9 +122,9 @@ namespace EemRdx
 
 		private static void CloseLogs()
 		{
-			if (Constants.DebugMode) DebugLog.Close();
-			if (Constants.EnableProfilingLog) ProfilingLog.Close();
-			if (Constants.EnableGeneralLog) GeneralLog.Close();
+			if (Constants.DebugMode) DebugLog?.Close();
+			if (Constants.EnableProfilingLog) ProfilingLog?.Close();
+			if (Constants.EnableGeneralLog) GeneralLog?.Close();
 		}
 
 		/// <summary>
@@ -128,6 +148,7 @@ namespace EemRdx
 		{
 			Factions.Factions.Unload();
 			Messaging.Unregister();
+			DebugClose();
 			CloseLogs();
 		}
 

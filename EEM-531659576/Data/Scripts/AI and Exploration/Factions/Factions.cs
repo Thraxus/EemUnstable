@@ -11,17 +11,21 @@ using VRage.Collections;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using EemRdx.Factions.Messages;
+using Sandbox.Game.World;
 using VRage.Game.ModAPI.Interfaces;
 
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace EemRdx.Factions
 {
-    public static class Factions
+	[System.Runtime.InteropServices.Guid("794C7001-36F8-464E-9C57-FC7F984936DE")]
+	public static class Factions
     {
         public static bool SetupComplete;
 
-        public static Random FactionsRandom { get; set; }
+        private static bool IsServer => MyAPIGateway.Multiplayer.IsServer;
+
+		public static Random FactionsRandom { get; set; }
 
         internal static List<FactionsAtWar> FactionsAtWar { get; set; }
 
@@ -123,6 +127,7 @@ namespace EemRdx.Factions
         {
             if (!ValidateNonPirateFactions(leftFaction, rightFaction) || !leftFaction.IsPeacePendingTo(rightFaction)) return;
             MyAPIGateway.Session.Factions.AcceptPeace(leftFaction.FactionId, rightFaction.FactionId);
+			leftFaction.CancelPeaceRequest(rightFaction);
             //ClientPeaceAcceptance(leftFaction.FactionId, rightFaction.FactionId);
             AiSessionCore.DebugLog?.WriteToLog("AcceptPeaceFrom", $"leftFaction: {leftFaction.Tag} rightFaction: {rightFaction.Tag}");
         }
@@ -147,10 +152,10 @@ namespace EemRdx.Factions
             if (leftFaction.IsPirateFaction() || rightFaction.IsPirateFaction() || leftFaction.IsPeacefulTo(rightFaction)) return;
             if (!leftFaction.IsPeacePendingTo(rightFaction)) leftFaction.ProposePeaceTo(rightFaction);
             rightFaction.AcceptPeaceFrom(leftFaction);
-            AiSessionCore.DebugLog?.WriteToLog("AutoPeace", $"leftFaction: {leftFaction.Tag} rightFaction: {rightFaction.Tag}");
+			AiSessionCore.DebugLog?.WriteToLog("AutoPeace", $"leftFaction: {leftFaction.Tag} rightFaction: {rightFaction.Tag}");
         }
 
-        private static IMyFaction GetFactionById(this long factionId)
+        internal static IMyFaction GetFactionById(this long factionId)
         {
             return MyAPIGateway.Session.Factions.TryGetFactionById(factionId);
         }
@@ -231,16 +236,16 @@ namespace EemRdx.Factions
 
         public static void Register()
         {
-            MyAPIGateway.Session.Factions.FactionCreated += FactionCreated;
-            MyAPIGateway.Session.Factions.FactionStateChanged += FactionStateChanged;
-            MyAPIGateway.Session.Factions.FactionEdited += FactionEdited;
+	        MyAPIGateway.Session.Factions.FactionCreated += FactionCreated;
+            if (!IsServer) MyAPIGateway.Session.Factions.FactionStateChanged += FactionStateChanged;
+			MyAPIGateway.Session.Factions.FactionEdited += FactionEdited;
         }
 
         public static void Unload()
         {
-            MyAPIGateway.Session.Factions.FactionCreated -= FactionCreated;
-            MyAPIGateway.Session.Factions.FactionStateChanged -= FactionStateChanged;
-            MyAPIGateway.Session.Factions.FactionEdited -= FactionEdited;
+	        MyAPIGateway.Session.Factions.FactionCreated -= FactionCreated;
+	        if (!IsServer) MyAPIGateway.Session.Factions.FactionStateChanged -= FactionStateChanged;
+			MyAPIGateway.Session.Factions.FactionEdited -= FactionEdited;
         }
 
         private static Dictionary<string, Func<string>> FactionFirstPeaceAcceptedDialog { get; set; }
@@ -391,7 +396,7 @@ namespace EemRdx.Factions
             if (playerFaction != null)
                 SendFactionMessageToAllFactionMembers(message.Invoke(), tag, playerFaction.Members);
 
-            AiSessionCore.DebugLog?.WriteToLog("RequestDialog", $"Message: <Encoded>  From: {tag}  To: {playerFaction?.Tag}  DialogType: {type}  ");
+            AiSessionCore.DebugLog?.WriteToLog("RequestDialog", $"Message:\t{message}\tFrom:\t{tag}\tTo:\t{playerFaction?.Tag}\tDialogType:\t{type}");
         }
 
         private static void CleanupFactions(long faction)
@@ -426,11 +431,10 @@ namespace EemRdx.Factions
             }
         }
 
-
-        private static void FactionStateChanged(MyFactionStateChange action, long fromFaction, long toFaction, long playerId, long senderId)
+		private static void FactionStateChanged(MyFactionStateChange action, long fromFaction, long toFaction, long playerId, long senderId)
         {
-            AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Action: {action} fromFaction: {fromFaction} fromFactionTag: {fromFaction.GetFactionById()?.Tag}");
-            AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Action: {action} toFaction: {toFaction} toFactionTag: {toFaction.GetFactionById()?.Tag}");
+            AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"OnServer:\t{AiSessionCore.IsServer}\tAction:\t{action} fromFaction:\t{fromFaction}\tfromFactionTag:\t{fromFaction.GetFactionById()?.Tag}");
+            AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"OnServer:\t{AiSessionCore.IsServer}\tAction:\t{action}\ttoFaction:\t{toFaction}\ttoFactionTag:\t{toFaction.GetFactionById()?.Tag}");
             switch (action)
             {
                 case MyFactionStateChange.SendPeaceRequest:
@@ -440,11 +444,13 @@ namespace EemRdx.Factions
                         toFaction.GetFactionById().CancelPeaceRequest(fromFaction.GetFactionById());
                         break;
                     }
+
                     if (LawfulFactionDictionary.ContainsKey(fromFaction) && PirateFactionDictionary.ContainsKey(toFaction))       // Is a NPC proposing peace to a player pirate?
                     {
                         fromFaction.GetFactionById().CancelPeaceRequest(toFaction.GetFactionById());
                         break;
                     }
+
                     if (PirateFactionDictionary.ContainsKey(toFaction))                                 // Is this player a pirate?
                     {
                         RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.PeaceRejected);
@@ -466,12 +472,14 @@ namespace EemRdx.Factions
                         HandlePenitentPlayerFaction(fromFaction, toFaction);
                         break;
                     }
+
                     if (!fromFaction.GetFactionById().IsEveryoneNpc() &&                                // Is this a player faction, and is this player penitent
                         fromFaction.IsFactionPenitent(toFaction))
                     { // We don't want to do anything here, just let it ride and escape the switch
                         RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.PeaceConsidered);
                         break;
                     }
+
                     if (fromFaction.GetFactionById().IsEveryoneNpc() || toFaction.GetFactionById().IsEveryoneNpc())
                         toFaction.GetFactionById().AcceptPeaceFrom(fromFaction.GetFactionById());       // Condition not accounted for, either the to or from is an NPC, just accept the request
                     break;
@@ -487,15 +495,14 @@ namespace EemRdx.Factions
                     }
                     break;
                 case MyFactionStateChange.AcceptPeace:
-                    break;
+	                //if (!CheckFactionWar(toFaction, fromFaction) && fromFaction.IsNpc() && fromFaction.IsLawful() && !toFaction.IsPirate())
+	                //{
+		               // fromFaction.GetFactionById().AutoPeace(toFaction.GetFactionById());
+		               // RequestDialog(fromFaction.GetFactionById(), toFaction.GetFactionById(), DialogType.FirstPeaceAccepted);
+	                //}
+					break;
                 case MyFactionStateChange.DeclareWar:
-                    if (!CheckFactionWar(toFaction, fromFaction) && fromFaction.IsNpc() && fromFaction.IsLawful() && !toFaction.IsPirate())
-                    {
-                        fromFaction.GetFactionById().AutoPeace(toFaction.GetFactionById());
-                        RequestDialog(fromFaction.GetFactionById(), toFaction.GetFactionById(), DialogType.FirstPeaceAccepted);
-                        break;
-                    }
-                    if (fromFaction.GetFactionById().IsEveryoneNpc() && !toFaction.GetFactionById().IsEveryoneNpc())
+					if (fromFaction.GetFactionById().IsEveryoneNpc() && !toFaction.GetFactionById().IsEveryoneNpc())
                     {   // Make sure this is an NPC declaring war on a player
                         HandleNewErrantPlayerFaction(fromFaction, toFaction);
                         AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"NPC War On Player");
@@ -509,7 +516,6 @@ namespace EemRdx.Factions
                         AiSessionCore.DebugLog?.WriteToLog("FactionStateChanged", $"Player War On NPC");
                         if (toFaction.IsPirate()) break;
                         RequestDialog(toFaction.GetFactionById(), fromFaction.GetFactionById(), DialogType.WarReceived);
-                        break;
                     }
                     break;
                 case MyFactionStateChange.FactionMemberSendJoin:
@@ -529,7 +535,7 @@ namespace EemRdx.Factions
                 case MyFactionStateChange.FactionMemberNotPossibleJoin:
                     break;
                 default:
-                    AiSessionCore.GeneralLog?.WriteToLog(nameof(action), action.ToString());
+					AiSessionCore.GeneralLog.WriteToLog("FactionStateChanged", $"Case not found:\t{nameof(action)}\t{action.ToString()}"); 
                     break;
             }
         }
@@ -549,7 +555,15 @@ namespace EemRdx.Factions
             }
             //RequestDialog(null, factionId.GetFactionById(), DialogType.CollectiveWelcome);
             AddToPlayerFactionDictionary(factionId, newFaction);
-            AiSessionCore.DebugLog?.WriteToLog("FactionCreated", $"newFaction: {newFaction.Tag}");
+			// This adds a loophole allowing a player who just committed an act of war to disband his faction and create a new one to avoid the war
+			// Need to check / log aggressors and make sure the war follows them in Factions 2.0
+            foreach (KeyValuePair<long, IMyFaction> lawfulFaction in LawfulFactionDictionary)
+            {
+	            AiSessionCore.DebugLog?.WriteToLog("SetupPlayerRelations", $"playerFaction.Value.AutoPeace -\tplayerFaction:\t{newFaction.Tag}\tlawfulFaction:\t{lawfulFaction.Value.Tag}");
+	            RequestDialog(lawfulFaction.Value, newFaction, DialogType.FirstPeaceAccepted);
+				newFaction.AutoPeace(lawfulFaction.Value);
+            }
+			AiSessionCore.DebugLog?.WriteToLog("FactionCreated", $"newFaction: {newFaction.Tag}");
         }
 
         private static void FactionEdited(long factionId)
@@ -667,8 +681,6 @@ namespace EemRdx.Factions
 
         public static void Initialize()
         {
-            using (new Profiler("FactionInit"))
-            {
                 if (SetupComplete) return;
                 Register();
                 InitMessageDictionaries();
@@ -685,7 +697,6 @@ namespace EemRdx.Factions
                 SetupNpcRelations();
                 SetupPirateRelations();
                 SetupComplete = true;
-            }
         }
 
         public static bool CheckExclusionList(string checkThis)
@@ -988,5 +999,54 @@ namespace EemRdx.Factions
             if (!AiSessionCore.IsServer) return;
             Messaging.SendMessageToClients(new FactionsChangeMessage(Constants.RejectPeaceMessagePrefix, factionOne, factionTwo));
         }
-    }
+
+		// Server messages
+		/// <summary>
+		/// Passes a peace declaration request to the Server from the server
+		/// </summary>
+		/// Bug: This is required to address KSH allowing both server and client to dictate faction relations.
+		/// <param name="factionOne">Self documented name</param>
+		/// <param name="factionTwo">Self documented name</param>
+		private static void ServerPeaceDeclaration(long factionOne, long factionTwo)
+		{
+			if (!AiSessionCore.IsServer) return;
+			Messaging.SendMessageToServer(new FactionsChangeMessage(Constants.DeclarePeaceMessagePrefix, factionOne, factionTwo));
+		}
+
+		/// <summary>
+		/// Passes a peace accept request to the Server from the server
+		/// </summary>
+		/// Bug: This is required to address KSH allowing both server and client to dictate faction relations.
+		/// <param name="factionOne">Self documented name</param>
+		/// <param name="factionTwo">Self documented name</param>
+		private static void ServerPeaceAcceptance(long factionOne, long factionTwo)
+		{
+			if (!AiSessionCore.IsServer) return;
+			Messaging.SendMessageToServer(new FactionsChangeMessage(Constants.AcceptPeaceMessagePrefix, factionOne, factionTwo));
+		}
+
+		/// <summary>
+		/// Passes a war declaration request to the Server from the server
+		/// </summary>
+		/// Bug: This is required to address KSH allowing both server and client to dictate faction relations.
+		/// <param name="factionOne">Self documented name</param>
+		/// <param name="factionTwo">Self documented name</param>
+		private static void ServerWarDeclaration(long factionOne, long factionTwo)
+		{
+			if (!AiSessionCore.IsServer) return;
+			Messaging.SendMessageToServer(new FactionsChangeMessage(Constants.DeclareWarMessagePrefix, factionOne, factionTwo));
+		}
+
+		/// <summary>
+		/// Passes a war declaration request to the Server from the server
+		/// </summary>
+		/// Bug: This is required to address KSH allowing both server and client to dictate faction relations.
+		/// <param name="factionOne">Self documented name</param>
+		/// <param name="factionTwo">Self documented name</param>
+		private static void ServerCancelPeaceRequest(long factionOne, long factionTwo)
+		{
+			if (!AiSessionCore.IsServer) return;
+			Messaging.SendMessageToServer(new FactionsChangeMessage(Constants.RejectPeaceMessagePrefix, factionOne, factionTwo));
+		}
+	}
 }
