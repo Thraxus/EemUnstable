@@ -7,8 +7,8 @@
     <ProjectGuid>{2D908A8E-C018-417A-A988-078E475F4243}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EemRdx</RootNamespace>
-    <AssemblyName>EemRdx</AssemblyName>
+    <RootNamespace>Eem</RootNamespace>
+    <AssemblyName>Eem</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -601,50 +601,56 @@
     <None Include="EEM-531659576\VoxelMaps\wi_reno.vx2" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\AiSessionCore.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotAi.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotBase.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotFabric.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotTypeBase.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotTypeFighter.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotTypeFreighter.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\BotTypeStation.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\EntityByDistanceSorter.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\GeneralExtensions.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\GridExtenstions.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\NumberExtensions.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\TerminalExtensions.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Extensions\VectorExtensions.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Factions.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\FactionsAtWar.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Amph.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Civl.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\DefaultDialogs.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Exmc.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Hs.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Imdc.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Istg.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Kuss.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Mai.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Mmec.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Sepd.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Sprt.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Factions\Messages\Ucmf.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\CleanEem.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\CleanEemRc.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\Constants.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\DamageHelper.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\DebugHelper.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\GenericHelpers.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\InventoryHelpers.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Helpers\OwnershipTools.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Networking\ChatMessages.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Networking\FactionsMessage.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Networking\MessageBase.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Networking\Messaging.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Utilities\Log.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Utilities\Profiler.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\AI and Exploration\Utilities\Queue.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\AiSessionCore.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\BotAi.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\BotBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\BotFabric.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\BotTypeBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\BotTypeFighter.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\BotTypeFreighter.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\BotTypeStation.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Extensions\EntityByDistanceSorter.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Extensions\GeneralExtensions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Extensions\GridExtenstions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Extensions\NumberExtensions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Extensions\TerminalExtensions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Extensions\VectorExtensions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\FactionCore.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Factions.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Models\TimedRelationship.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Amph.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Civl.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\DefaultDialogs.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Exmc.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Hs.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Imdc.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Istg.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Kuss.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Mai.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Mmec.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Sepd.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Sprt.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Messages\Ucmf.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\Dialogue.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Models\RelationshipManager.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Settings\Constants.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\StaticMethods.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Helpers\CleanEem.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Helpers\CleanEemRc.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Helpers\Constants.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Helpers\DamageHelper.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Helpers\DebugHelper.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Helpers\GenericHelpers.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Helpers\InventoryHelpers.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Helpers\OwnershipTools.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Networking\ChatMessages.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Networking\FactionsMessage.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Networking\MessageBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Networking\Messaging.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Utilities\Log.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Utilities\Profiler.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Utilities\Queue.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
