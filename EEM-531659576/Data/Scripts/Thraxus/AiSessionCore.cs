@@ -60,11 +60,12 @@ namespace Eem.Thraxus
 
 		public override void UpdateBeforeSimulation()
 		{
+			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
 			if (Constants.DebugMode && !_debugInitialized) DebugInit();
 			if (!_initialized) Initialize();
 			if (!Constants.IsServer) return;
 			//if (MyAPIGateway.Multiplayer.Players.Count > 0 && !Factions.Factions.PlayerFactionInitComplete) { Factions.Factions.PlayerInitFactions(); }
-			TickTimer();
+			//TickTimer();
 		}
 
 		private void DebugInit()
@@ -152,18 +153,18 @@ namespace Eem.Thraxus
 		/// <summary>
 		/// Increments every server tick
 		/// </summary>
-		private ulong _tickTimer;
+		//private ulong _tickTimer;
 
 		/// <summary>
 		/// Processes certain things at set intervals
 		/// </summary>
-		private void TickTimer()
-		{
+		//private void TickTimer()
+		//{
 			//_tickTimer++;
 			//if (_tickTimer % Constants.WarAssessmentCounterLimit == 0) Factions.Factions.AssessFactionWar();
 			//if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.FactionAssessment();
 			//if (_tickTimer % (Constants.TicksPerSecond * 30) == 0) Factions.Factions.FactionAssessment();
-		}
+		//}
 
 		public void DamageRefHandler(object damagedObject, ref MyDamageInformation damage)
 		{

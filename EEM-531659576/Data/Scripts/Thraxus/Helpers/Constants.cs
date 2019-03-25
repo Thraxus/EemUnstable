@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Helpers

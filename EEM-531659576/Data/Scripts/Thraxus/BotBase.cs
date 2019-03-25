@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Eem.Thraxus.Extensions;
-using Eem.Thraxus.Factions.Networking;
 using Eem.Thraxus.Helpers;
-using Eem.Thraxus.Networking;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Ingame;

@@ -39,5 +39,6 @@ namespace Eem.Thraxus.Factions.Settings
 		public const string DebugLogName = "Factions_Debug";
 		public const string GeneralLogName = "Factions_General";
 		public const string ProfilingLogName = "Factions_Profiling";
+		public const ushort FactionsNetworkingId = 35467;
 	}
 }
