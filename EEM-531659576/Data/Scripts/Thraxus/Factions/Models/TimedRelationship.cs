@@ -22,7 +22,7 @@ namespace Eem.Thraxus.Factions.Models
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return $"NpcFaction:\t{NpcFaction.FactionId}\t{NpcFaction.Tag}\tNpcFaction:\t{PlayerFaction.FactionId}\t{PlayerFaction.Tag}";
+			return $"NpcFaction:\t{NpcFaction.FactionId}\t{NpcFaction.Tag}\tNpcFaction:\t{PlayerFaction.FactionId}\t{PlayerFaction.Tag}\tCooldownTime:\t{CooldownTime}";
 		}
 
 		public override bool Equals(object obj)

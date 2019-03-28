@@ -11,7 +11,7 @@ namespace Eem.Thraxus.Helpers
 
 		internal static Random Random { get; } = new Random();
 
-		public static bool DebugMode { get; } = true;
+		public static bool DebugMode { get; } = false;
 
 		public static bool EnableProfilingLog { get; } = true;
 

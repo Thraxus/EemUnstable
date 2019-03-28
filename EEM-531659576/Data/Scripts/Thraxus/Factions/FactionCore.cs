@@ -17,7 +17,7 @@ namespace Eem.Thraxus.Factions
 
 		private static Log _debugLog;
 
-		private RelationshipManager RelationshipManager { get; set; }
+		public RelationshipManager RelationshipManager { get; private set; }
 
 		public static FactionCore FactionCoreStaticInstance;
 
@@ -39,8 +39,8 @@ namespace Eem.Thraxus.Factions
 		public override void BeforeStart()
 		{
 			base.BeforeStart();
-			if (!Constants.IsServer || _registerEarly) return;
-			RegisterEarly();
+			if (!Constants.IsServer) return;
+			if (!_registerEarly) RegisterEarly();
 		}
 
 		/// <summary>
@@ -59,7 +59,7 @@ namespace Eem.Thraxus.Factions
 		/// </summary>
 		private void RegisterEarly()
 		{
-			if (!Constants.IsServer || _registerEarly) return;
+			if (_registerEarly) return;
 			if (Constants.DebugMode) _debugLog = new Log(Settings.Constants.DebugLogName);
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.BeforeSimulation));
 			WriteToLog("FactionCore", $"RegisterEarly Complete... {UpdateOrder}");
@@ -83,21 +83,13 @@ namespace Eem.Thraxus.Factions
 		protected override void UnloadData()
 		{
 			base.UnloadData();
-			Close();
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		private void Close()
-		{
 			if (!Constants.IsServer) return;
 			RelationshipManager?.Unload();
 			WriteToLog("FactionCore", $"I'm out!... {UpdateOrder}");
 			_debugLog?.Close();
 			FactionCoreStaticInstance = null;
 		}
-
+		
 
 		// Core Logic Methods
 
@@ -125,9 +117,6 @@ namespace Eem.Thraxus.Factions
 		/// </summary>
 		/// <param name="caller"></param>
 		/// <param name="message"></param>
-		/// <param name="general"></param>
-		/// <param name="debug"></param>
-		/// <param name="profiler"></param>
 		public static void WriteToLog(string caller, string message)
 		{
 			_debugLog?.WriteToLog(caller, message);
