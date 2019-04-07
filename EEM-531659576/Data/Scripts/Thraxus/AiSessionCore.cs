@@ -84,7 +84,7 @@ namespace Eem.Thraxus
 		{
 			MyAPIGateway.Parallel.Start(delegate
 			{
-				_spawnGroupLog = new Log("SpawnGroupLog");
+				_spawnGroupLog = new Log("SpawnGroup");
 				foreach (MySpawnGroupDefinition spawnGroupDefinition in MyDefinitionManager.Static.GetSpawnGroupDefinitions())
 				{
 					if (!spawnGroupDefinition.Public) continue;
@@ -107,7 +107,7 @@ namespace Eem.Thraxus
 				{
 					"EEMPilotedFighterCockpit", "EEMPilotedFlightSeat", "EEMPilotedLargeBlockCockpitSeat", "EEMPilotedSmallBlockCockpit", "EEMPilotedPassengerSeat", "LargeBlockRemoteControl", "SmallBlockRemoteControl"
 				};
-				_shipLog = new Log("ShipLog");
+				_shipLog = new Log("Ship");
 				foreach (KeyValuePair<string, MyPrefabDefinition> prefabDefinition in MyDefinitionManager.Static.GetPrefabDefinitions())
 				{
 					if (!prefabDefinition.Value.Public) continue;

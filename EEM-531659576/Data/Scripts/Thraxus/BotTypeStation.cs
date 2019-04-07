@@ -32,7 +32,7 @@ namespace Eem.Thraxus
 		{
 			if (!base.Init(rc)) return false;
 			Update = MyEntityUpdateEnum.EACH_100TH_FRAME;
-		   // Alert += OnAlert;
+		    //Alert += OnAlert;
 			OnDamaged += DamageHandler;
 			OnBlockPlaced += BlockPlacedHandler;
 
@@ -65,6 +65,8 @@ namespace Eem.Thraxus
 				Grid.DebugWrite("OnAlert", "Alert activated.");
 				if (!WasDamaged) Default_SwitchTurretsAndRunTimers(securityState: true);
 				_alertTriggerTime = DateTime.Now;
+				_calmdownTimer.Stop();
+				_calmdownTimer.Interval = 100000;
 				_calmdownTimer.Start();
 			}
 			catch (Exception scrap)
@@ -75,7 +77,7 @@ namespace Eem.Thraxus
 
 		public override void Main()
 		{
-			//if (WasDamaged && DateTime.Now - AlertTriggerTime > CalmdownTime) CalmDown();
+			//if (WasDamaged && DateTime.Now - _alertTriggerTime > CalmdownTime) CalmDown();
 		}
 
 		private void CalmDown()

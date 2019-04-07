@@ -69,8 +69,8 @@ namespace Eem.Thraxus.Utilities
         private void WriteLine(string line)
 		{
 			_messageQueue.Enqueue(line);
-		 	TextWriter.WriteLine(line);
-			TextWriter.Flush();
+		 	TextWriter?.WriteLine(line);
+			TextWriter?.Flush();
 		}
 	}
 }

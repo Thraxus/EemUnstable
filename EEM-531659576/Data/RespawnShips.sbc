@@ -2,145 +2,32 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <RespawnShips>
 
-<!-- Path of Survival - planets -->
-
     <Ship>
       <Id>
         <TypeId>RespawnShipDefinition</TypeId>
-        <SubtypeId>PlanetaryLander</SubtypeId>
+        <SubtypeId>Range_Runner_Respawncar</SubtypeId>
       </Id>
-      <DisplayName>[S]Earth Pod</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\LanderEarth.png</Icon>
-      <CooldownSeconds>900</CooldownSeconds>
-      <Prefab>Landing_Pod_Mk.II_Earth</Prefab>
-
-	    <MinimalAirDensity>0.8</MinimalAirDensity>
-	    <PlanetDeployAltitude>2000</PlanetDeployAltitude>
-	    <UseForPlanetsWithAtmosphere>true</UseForPlanetsWithAtmosphere>
-	    <InitialLinearVelocity x="0" y="-95" z="0" />
-	    <InitialAngularVelocity x="0" y="0.5" z="0" />
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpawn</HelpTextLocalizationId>
-
-    </Ship>
-    <Ship>
-      <Id>
-        <TypeId>RespawnShipDefinition</TypeId>
-        <SubtypeId>MarsLander</SubtypeId>
-      </Id>
-      <DisplayName>[S]Mars Pod</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\LanderMars.png</Icon>
-      <CooldownSeconds>900</CooldownSeconds>
-      <Prefab>Landing_Pod_Mk.II_Mars</Prefab>
-
-	    <MinimalAirDensity>0.8</MinimalAirDensity>
-	    <PlanetDeployAltitude>2000</PlanetDeployAltitude>
-	    <UseForPlanetsWithAtmosphere>true</UseForPlanetsWithAtmosphere>
-	    <InitialLinearVelocity x="0" y="-95" z="0" />
-	    <InitialAngularVelocity x="0" y="0.5" z="0" />
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpawn</HelpTextLocalizationId>
-    </Ship>
-    <Ship>
-      <Id>
-        <TypeId>RespawnShipDefinition</TypeId>
-        <SubtypeId>AlienLander</SubtypeId>
-      </Id> 
-      <DisplayName>[S]Alien Pod</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\LanderAlien.png</Icon>
-      <CooldownSeconds>900</CooldownSeconds>
-      <Prefab>Landing_Pod_Mk.II_Alien</Prefab>
-
-	    <MinimalAirDensity>0.8</MinimalAirDensity>
-	    <PlanetDeployAltitude>2000</PlanetDeployAltitude>
-	    <UseForPlanetsWithAtmosphere>true</UseForPlanetsWithAtmosphere>
-	    <InitialLinearVelocity x="0" y="-95" z="0" />
-	    <InitialAngularVelocity x="0" y="0.5" z="0" />
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpawn</HelpTextLocalizationId>
-    </Ship>
-    <Ship>
-      <Id>
-        <TypeId>RespawnShipDefinition</TypeId>
-        <SubtypeId>JackalVehicleLander</SubtypeId>
-      </Id>
-      <DisplayName>[S]Jackal Lander</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\LanderJackal.png</Icon>
-      <CooldownSeconds>1900</CooldownSeconds>
-      <Prefab>Jackal_Lander_Earth</Prefab>
-
-	    <MinimalAirDensity>0.8</MinimalAirDensity>
-	    <PlanetDeployAltitude>2000</PlanetDeployAltitude>
-	    <UseForPlanetsWithAtmosphere>true</UseForPlanetsWithAtmosphere>
-	    <InitialLinearVelocity x="0" y="-95" z="0" />
-	    <InitialAngularVelocity x="0" y="0.5" z="0" />
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpawn</HelpTextLocalizationId>
+      <DisplayName>Range Runner</DisplayName>
+      <Icon>Textures\GUI\Respawnships\RangeRunner.png</Icon>
+      <CooldownSeconds>0</CooldownSeconds>
+      <Prefab>Range_Runner_Respawncar</Prefab>
+      <MinimalAirDensity>0.8</MinimalAirDensity>
+      <PlanetDeployAltitude>2000</PlanetDeployAltitude>
+      <UseForPlanetsWithAtmosphere>true</UseForPlanetsWithAtmosphere>
+      <HelpTextLocalizationId>Basic rover to explore planets.</HelpTextLocalizationId>
     </Ship>
 
-
-    <!-- Path of Trading -->
-
     <Ship>
       <Id>
         <TypeId>RespawnShipDefinition</TypeId>
-        <SubtypeId>RespawnShip</SubtypeId>
+        <SubtypeId>Little_Bird_Respawnship</SubtypeId>
       </Id>
-      <DisplayName>[T]Pigeon (Red-White)</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\PigeonMahriane.png</Icon>
-      <CooldownSeconds>120</CooldownSeconds>
-      <Prefab>Pigeon_Trader_Respawnship_(Red-White)</Prefab>
-
-	    <UseForSpace>true</UseForSpace>
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpaceSpawn</HelpTextLocalizationId>
-    </Ship>
-    <Ship>
-      <Id>
-        <TypeId>RespawnShipDefinition</TypeId>
-        <SubtypeId>Assembler</SubtypeId>
-      </Id>
-      <DisplayName>[T]Pigeon (Green-Lime)</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\PigeonMerc.png</Icon>
-      <CooldownSeconds>120</CooldownSeconds>
-      <Prefab>Pigeon_Trader_Respawnship_(Green-Lime)</Prefab>
-
-	    <UseForSpace>true</UseForSpace>
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpaceSpawn</HelpTextLocalizationId>
-    </Ship>
-    <Ship>
-      <Id>
-        <TypeId>RespawnShipDefinition</TypeId>
-        <SubtypeId>Drill</SubtypeId>
-      </Id>
-      <DisplayName>[T]Pigeon (Grey-Cyan)</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\PigeonPrivateer.png</Icon>
-      <CooldownSeconds>120</CooldownSeconds>
-      <Prefab>Pigeon_Trader_Respawnship_(Grey-Cyan)</Prefab>
-
-	    <UseForSpace>true</UseForSpace>
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpaceSpawn</HelpTextLocalizationId>
-    </Ship>
-    <Ship>
-      <Id>
-        <TypeId>RespawnShipDefinition</TypeId>
-        <SubtypeId>EscapePod</SubtypeId>
-      </Id>
-      <DisplayName>[T]Pigeon (Orange-White)</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\PigeonExplorer.png</Icon>
-      <CooldownSeconds>120</CooldownSeconds>
-      <Prefab>Pigeon_Trader_Respawnship_(Orange-White)</Prefab>
-
-	    <UseForSpace>true</UseForSpace>
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpaceSpawn</HelpTextLocalizationId>
-    </Ship>
-    <Ship>
-      <Id>
-        <TypeId>RespawnShipDefinition</TypeId>
-        <SubtypeId>RefineryAssembler</SubtypeId>
-      </Id>
-      <DisplayName>[T]Pigeon (Navy-Cyan)</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\PigeonMilitary.png</Icon>
-      <CooldownSeconds>120</CooldownSeconds>
-      <Prefab>Pigeon_Trader_Respawnship_(Navy-Cyan)</Prefab>
-
-	    <UseForSpace>true</UseForSpace>
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpaceSpawn</HelpTextLocalizationId>
+      <DisplayName>Little Bird</DisplayName>
+      <Icon>Textures\GUI\Respawnships\LittleBird.png</Icon>
+      <CooldownSeconds>0</CooldownSeconds>
+      <Prefab>Little_Bird_Respawnship</Prefab>
+      <UseForSpace>true</UseForSpace>
+      <HelpTextLocalizationId>Fast, agile and small space ship.</HelpTextLocalizationId>
     </Ship>
 
     <Ship>
@@ -148,45 +35,71 @@
         <TypeId>RespawnShipDefinition</TypeId>
         <SubtypeId>Ibis_Respawnship</SubtypeId>
       </Id>
-      <DisplayName>[T]Ibis</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\TraderIbis.png</Icon>
-      <CooldownSeconds>240</CooldownSeconds>
+      <DisplayName>Ibis</DisplayName>
+      <Icon>Textures\GUI\Respawnships\TraderIbis.png</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
       <Prefab>Ibis_Respawnship</Prefab>
-
-	    <UseForSpace>true</UseForSpace>
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpaceSpawn</HelpTextLocalizationId>
+      <UseForSpace>true</UseForSpace>
+      <HelpTextLocalizationId>Compact space ship for trading.</HelpTextLocalizationId>
     </Ship>
-
-<!-- Path of Mining -->
 
     <Ship>
       <Id>
         <TypeId>RespawnShipDefinition</TypeId>
         <SubtypeId>M3_Miner_Respawnship</SubtypeId>
       </Id>
-      <DisplayName>[M]M3 Miner</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\MinerM3.png</Icon>
-      <CooldownSeconds>120</CooldownSeconds>
+      <DisplayName>M3 Miner</DisplayName>
+      <Icon>Textures\GUI\Respawnships\MinerM3.png</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
       <Prefab>M3_Miner_Respawnship</Prefab>
-
-	    <UseForSpace>true</UseForSpace>
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpaceSpawn</HelpTextLocalizationId>
+      <UseForSpace>true</UseForSpace>
+      <HelpTextLocalizationId>Basic mining space ship.</HelpTextLocalizationId>
     </Ship>
+    
+    <!-- Vanilla Ships - Disabled -->
 
-<!-- Path of War -->
-
-    <Ship>
+    <Ship Enabled="false">
       <Id>
         <TypeId>RespawnShipDefinition</TypeId>
-        <SubtypeId>Raptor_Fighter_Respawnship</SubtypeId>
+        <SubtypeId>RespawnPlanetPod</SubtypeId>
       </Id>
-      <DisplayName>[W]Raptor Fighter</DisplayName>
-      <Icon>Textures\GUI\Icons\RespawnShips\FighterRaptor.png</Icon>
-      <CooldownSeconds>120</CooldownSeconds>
-      <Prefab>Raptor_Fighter_Respawnship</Prefab>
+      <DisplayName>DisplayName_PlanetaryLander</DisplayName>
+      <Icon>Textures\GUI\Icons\RespawnShips\RespawnPlanetPod.png</Icon>
+      <CooldownSeconds>0</CooldownSeconds>
+      <Prefab>RespawnPlanetPod</Prefab>
+      <MinimalAirDensity>0.8</MinimalAirDensity>
+      <PlanetDeployAltitude>2000</PlanetDeployAltitude>
+      <UseForPlanetsWithAtmosphere>true</UseForPlanetsWithAtmosphere>
+      <InitialLinearVelocity x="0" y="-95" z="0" />
+      <InitialAngularVelocity x="0" y="0.5" z="0" />
+      <HelpTextLocalizationId>RespawnScreeenHelpTextSpawn</HelpTextLocalizationId>
+    </Ship>
 
-	    <UseForSpace>true</UseForSpace>
-	    <HelpTextLocalizationId>RespawnScreeenHelpTextSpaceSpawn</HelpTextLocalizationId>
+    <Ship Enabled="false">
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>RespawnMoonPod</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_PlanetaryLander</DisplayName>
+      <Icon>Textures\GUI\Icons\RespawnShips\RespawnMoonPod.png</Icon>
+      <CooldownSeconds>0</CooldownSeconds>
+      <Prefab>RespawnMoonPod</Prefab>
+      <PlanetDeployAltitude>8</PlanetDeployAltitude>
+      <UseForPlanetsWithoutAtmosphere>true</UseForPlanetsWithoutAtmosphere>
+      <HelpTextLocalizationId>RespawnScreeenHelpTextSpawn</HelpTextLocalizationId>
+    </Ship>
+
+    <Ship Enabled="false">
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>RespawnSpacePod</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_RespawnPodSpace</DisplayName>
+      <Icon>Textures\GUI\Icons\RespawnShips\RespawnSpacePod.png</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
+      <Prefab>RespawnSpacePod</Prefab>
+      <UseForSpace>true</UseForSpace>
+      <HelpTextLocalizationId>RespawnScreeenHelpTextSpaceSpawn</HelpTextLocalizationId>
     </Ship>
 
   </RespawnShips>                
