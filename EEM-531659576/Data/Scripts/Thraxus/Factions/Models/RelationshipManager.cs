@@ -140,7 +140,7 @@ namespace Eem.Thraxus.Factions.Models
 				return;
 			}
 			if (!newFaction) return;
-			_newFactionList.Add(factionId, 0);	// I'm new man, just throw me a bone.
+			_newFactionList.Add(factionId, 0);  // I'm new man, just throw me a bone.
 		}
 
 
@@ -187,9 +187,9 @@ namespace Eem.Thraxus.Factions.Models
 			}
 
 			if (fromFactionId.GetFactionById().IsEveryoneNpc() && toFactionId.GetFactionById().IsEveryoneNpc())
-			{	// Aww, look, the NPCs want to be friends!
+			{   // Aww, look, the NPCs want to be friends!
 				if (_pirateFactionDictionary.ContainsKey(fromFactionId) || _pirateFactionDictionary.ContainsKey(toFactionId))
-				{	// No pirate friends!  NONE!  MY GOLD!!! 
+				{   // No pirate friends!  NONE!  MY GOLD!!! 
 					ClearPeace(fromFactionId, toFactionId);
 					return;
 				}
@@ -197,7 +197,7 @@ namespace Eem.Thraxus.Factions.Models
 				return;
 			}
 
-				if (fromFactionId.GetFactionById().IsEveryoneNpc() && !toFactionId.GetFactionById().IsEveryoneNpc())
+			if (fromFactionId.GetFactionById().IsEveryoneNpc() && !toFactionId.GetFactionById().IsEveryoneNpc())
 			{   // The NPC wants to be friends with the player.  How cute.  
 				MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId);
 				return;
@@ -395,13 +395,13 @@ namespace Eem.Thraxus.Factions.Models
 		}
 
 		private static void ClearPeace(long fromFactionId, long toFactionId)
-		{	// Stops the flag from hanging out in the faction menu
+		{   // Stops the flag from hanging out in the faction menu
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.CancelPeaceRequest(toFactionId, fromFactionId));
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFactionId, toFactionId));
 		}
 
 		private static void War(long npcFaction, long playerFaction)
-		{	// Vanilla war declaration, ensures invoking on main thread
+		{   // Vanilla war declaration, ensures invoking on main thread
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.DeclareWar(npcFaction, playerFaction));
 		}
 
@@ -420,9 +420,9 @@ namespace Eem.Thraxus.Factions.Models
 
 		private void DeclareFullNpcWar(long factionId)
 		{
-			foreach (KeyValuePair<long, IMyFaction> lawfulFaction in _lawfulFactionDictionary)
+			for (int i = _lawfulFactionDictionary.Count - 1; i >= 0; i--)
 			{
-				War(lawfulFaction.Key, factionId);
+				War(_lawfulFactionDictionary[i].FactionId, factionId);
 			}
 		}
 
@@ -430,56 +430,76 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			MyAPIGateway.Parallel.Start(delegate
 			{
-				foreach (KeyValuePair<long, IMyFaction> enforcementFaction in _enforcementFactionDictionary)
+				try
 				{
-					TimedRelationship newTimedRelationship = new TimedRelationship(enforcementFaction.Value, factionId.GetFactionById(), Helpers.Constants.FactionNegativeRelationshipCooldown);
-					for (int i = TimedNegativeRelationships.Count - 1; i >= 0; i--)
+					for (int i = _enforcementFactionDictionary.Count - 1; i >= 0; i--)
 					{
-						if (!TimedNegativeRelationships[i].Equals(newTimedRelationship)) continue;
-						TimedNegativeRelationships[i] = newTimedRelationship;
-						break;
+						TimedRelationship newTimedRelationship = new TimedRelationship(_enforcementFactionDictionary[i], factionId.GetFactionById(), Helpers.Constants.FactionNegativeRelationshipCooldown);
+						for (int j = TimedNegativeRelationships.Count - 1; j >= 0; j--)
+						{
+							if (!TimedNegativeRelationships[j].Equals(newTimedRelationship)) continue;
+							TimedNegativeRelationships[j] = newTimedRelationship;
+							break;
+						}
+						War(_enforcementFactionDictionary[i].FactionId, factionId);
 					}
-
-					War(enforcementFaction.Key, factionId);
+				}
+				catch (Exception e)
+				{
+					FactionCore.WriteToLog("DeclareEnforcementlWar", $"Exception!\t{e}", true);
 				}
 			});
 		}
 
 		private void DeclareFullNpcPeace(long factionId)
 		{
-			foreach (KeyValuePair<long, IMyFaction> lawfulFaction in _lawfulFactionDictionary)
+			for (int i = _lawfulFactionDictionary.Count - 1; i >= 0; i--)
 			{
-				AutoPeace(lawfulFaction.Key, factionId);
+				AutoPeace(_lawfulFactionDictionary[i].FactionId, factionId);
 			}
 		}
 
 		public void ExternalWarDeclaration(long npcFactionId, long playerFactionId)
 		{   // Used by BotBase to declare war until I have the time to redo bots/ai
-			TimedRelationship newTimedRelationship = new TimedRelationship(npcFactionId.GetFactionById(), playerFactionId.GetFactionById(), Helpers.Constants.FactionNegativeRelationshipCooldown);
-			for (int i = TimedNegativeRelationships.Count - 1; i >= 0; i--)
+			try
 			{
-				if (!TimedNegativeRelationships[i].Equals(newTimedRelationship)) continue;
-				TimedNegativeRelationships[i] = newTimedRelationship;
-				DeclareEnforcementlWar(playerFactionId);
-				return;
+				TimedRelationship newTimedRelationship = new TimedRelationship(npcFactionId.GetFactionById(), playerFactionId.GetFactionById(), Helpers.Constants.FactionNegativeRelationshipCooldown);
+				for (int i = TimedNegativeRelationships.Count - 1; i >= 0; i--)
+				{
+					if (!TimedNegativeRelationships[i].Equals(newTimedRelationship)) continue;
+					TimedNegativeRelationships[i] = newTimedRelationship;
+					DeclareEnforcementlWar(playerFactionId);
+					return;
+				}
+				War(npcFactionId, playerFactionId);
 			}
-			War(npcFactionId, playerFactionId);
+			catch (Exception e)
+			{
+				FactionCore.WriteToLog("ExternalWarDeclaration", $"Exception!\t{e}", true);
+			}
 		}
 
 		private void VetNewWar(long npcFactionId, long playerFactionId)
 		{
-			FactionCore.WriteToLog("VetNewWar", $"npcFactionId:\t{npcFactionId}\tplayerFactionId:\t{playerFactionId}");
-			if (_newFactionList.ContainsKey(playerFactionId))
+			try
 			{
-				FactionCore.WriteToLog("VetNewWar", $"KeyContained");
-				if (_lawfulFactionDictionary.ContainsKey(npcFactionId)) _newFactionList[playerFactionId]++;
-				FactionCore.WriteToLog("VetNewWar", $"_newFactionList.Count:\t{_newFactionList.Count}\t_newFactionList[playerFactionId]:\t{_newFactionList[playerFactionId]}\tplayerFactionId:\t{playerFactionId}\t_lawfulFactionDictionary.Count:\t{_lawfulFactionDictionary.Count}");
-				if (_newFactionList[playerFactionId] != _lawfulFactionDictionary.Count) return;
-				DeclareFullNpcPeace(playerFactionId);
-				_newFactionList.Remove(playerFactionId);
-				return;
+				FactionCore.WriteToLog("VetNewWar", $"npcFactionId:\t{npcFactionId}\tplayerFactionId:\t{playerFactionId}");
+				if (_newFactionList.ContainsKey(playerFactionId))
+				{
+					FactionCore.WriteToLog("VetNewWar", $"KeyContained");
+					if (_lawfulFactionDictionary.ContainsKey(npcFactionId)) _newFactionList[playerFactionId]++;
+					FactionCore.WriteToLog("VetNewWar", $"_newFactionList.Count:\t{_newFactionList.Count}\t_newFactionList[playerFactionId]:\t{_newFactionList[playerFactionId]}\tplayerFactionId:\t{playerFactionId}\t_lawfulFactionDictionary.Count:\t{_lawfulFactionDictionary.Count}");
+					if (_newFactionList[playerFactionId] != _lawfulFactionDictionary.Count) return;
+					DeclareFullNpcPeace(playerFactionId);
+					_newFactionList.Remove(playerFactionId);
+					return;
+				}
+				NewTimedNegativeRelationship(npcFactionId, playerFactionId);
 			}
-			NewTimedNegativeRelationship(npcFactionId, playerFactionId);
+			catch (Exception e)
+			{
+				FactionCore.WriteToLog("VetNewWar", $"Exception!\t{e}", true);
+			}
 		}
 
 		private void NewTimedNegativeRelationship(long npcFactionId, long playerFactionId)
@@ -491,26 +511,40 @@ namespace Eem.Thraxus.Factions.Models
 
 		private void NewMendingRelationship(long npcFactionId, long playerFactionId)
 		{
-			MendingRelation newMendingRelation = new MendingRelation(npcFactionId, playerFactionId);
-			for (int i = MendingRelationships.Count - 1; i >= 0; i--)
+			try
 			{
-				if (MendingRelationships[i].Equals(newMendingRelation))
-					return;
+				MendingRelation newMendingRelation = new MendingRelation(npcFactionId, playerFactionId);
+				for (int i = MendingRelationships.Count - 1; i >= 0; i--)
+				{
+					if (MendingRelationships[i].Equals(newMendingRelation))
+						return;
+				}
+				AddToMendingRelationships(newMendingRelation);
+				FactionTimer(MyUpdateOrder.BeforeSimulation);
 			}
-			AddToMendingRelationships(newMendingRelation);
-			FactionTimer(MyUpdateOrder.BeforeSimulation);
+			catch (Exception e)
+			{
+				FactionCore.WriteToLog("NewMendingRelationship", $"Exception!\t{e}", true);
+			}
 		}
 
 		private void RemoveMendingRelationship(long npcFactionId, long playerFactionId)
 		{
-			MendingRelation newMendingRelation = new MendingRelation(npcFactionId, playerFactionId);
-			for (int i = MendingRelationships.Count - 1; i >= 0; i--)
+			try
 			{
-				if (MendingRelationships[i].Equals(newMendingRelation))
-					MendingRelationships.RemoveAtFast(i);
-				ClearPeace(playerFactionId, npcFactionId);
+				MendingRelation newMendingRelation = new MendingRelation(npcFactionId, playerFactionId);
+				for (int i = MendingRelationships.Count - 1; i >= 0; i--)
+				{
+					if (MendingRelationships[i].Equals(newMendingRelation))
+						MendingRelationships.RemoveAtFast(i);
+					ClearPeace(playerFactionId, npcFactionId);
+				}
+				CheckCounts();
 			}
-			CheckCounts();
+			catch (Exception e)
+			{
+				FactionCore.WriteToLog("RemoveMendingRelationship", $"Exception!\t{e}", true);
+			}
 		}
 
 		private void AddToTimedNegativeRelationships(TimedRelationship newTimedRelationship)
@@ -527,50 +561,71 @@ namespace Eem.Thraxus.Factions.Models
 
 		private void HandleFormerPlayerPirate(long playerFactionId)
 		{
-			foreach (KeyValuePair<long, IMyFaction> npcFaction in _lawfulFactionDictionary)
+			for (int i = _lawfulFactionDictionary.Count - 1; i >= 0; i--)
 			{
-				NewTimedNegativeRelationship(npcFaction.Key, playerFactionId);
+				NewTimedNegativeRelationship(_lawfulFactionDictionary[i].FactionId, playerFactionId);
 			}
 		}
 
 		private void AssessNegativeRelationships()
 		{
-			FactionCore.WriteToLog("AssessNegativeRelationships", $"TimedNegativeRelationships.Count:\t{TimedNegativeRelationships.Count}");
-			DumpTimedNegativeFactionRelationships();
-			for (int i = TimedNegativeRelationships.Count - 1; i >= 0; i--)
+			try
 			{
-				if ((TimedNegativeRelationships[i].CooldownTime -= Helpers.Constants.FactionNegativeRelationshipAssessment) > 0) continue;
-				NewMendingRelationship(TimedNegativeRelationships[i].NpcFaction.FactionId, TimedNegativeRelationships[i].PlayerFaction.FactionId);
-				TimedNegativeRelationships.RemoveAtFast(i);
+				FactionCore.WriteToLog("AssessNegativeRelationships", $"TimedNegativeRelationships.Count:\t{TimedNegativeRelationships.Count}");
+				DumpTimedNegativeFactionRelationships();
+				for (int i = TimedNegativeRelationships.Count - 1; i >= 0; i--)
+				{
+					if ((TimedNegativeRelationships[i].CooldownTime -= Helpers.Constants.FactionNegativeRelationshipAssessment) > 0) continue;
+					NewMendingRelationship(TimedNegativeRelationships[i].NpcFaction.FactionId, TimedNegativeRelationships[i].PlayerFaction.FactionId);
+					TimedNegativeRelationships.RemoveAtFast(i);
+				}
+			}
+			catch (Exception e)
+			{
+				FactionCore.WriteToLog("AssessNegativeRelationships", $"Exception!\t{e}", true);
 			}
 		}
 
 		private void AssessMendingRelationships()
 		{
-			FactionCore.WriteToLog("AssessMendingRelationships", $"MendingRelationships.Count:\t{TimedNegativeRelationships.Count}");
-			DumpMendingRelationshipsRelationships();
-			for (int i = MendingRelationships.Count - 1; i >= 0; i--)
+			try
 			{
-				if (Helpers.Constants.Random.Next(0, 100) < 75) continue;
-				MendingRelation relationToRemove = MendingRelationships[i];
-				MendingRelationships.RemoveAtFast(i);
-				AutoPeace(relationToRemove.NpcFaction, relationToRemove.PlayerFaction);
+				FactionCore.WriteToLog("AssessMendingRelationships", $"MendingRelationships.Count:\t{TimedNegativeRelationships.Count}");
+				DumpMendingRelationshipsRelationships();
+				for (int i = MendingRelationships.Count - 1; i >= 0; i--)
+				{
+					if (Helpers.Constants.Random.Next(0, 100) < 75) continue;
+					MendingRelation relationToRemove = MendingRelationships[i];
+					MendingRelationships.RemoveAtFast(i);
+					AutoPeace(relationToRemove.NpcFaction, relationToRemove.PlayerFaction);
+				}
+			}
+			catch (Exception e)
+			{
+				FactionCore.WriteToLog("AssessMendingRelationships", $"Exception!\t{e}", true);
 			}
 		}
 
 		private void ClearRemovedFactionFromRelationships(long factionId)
 		{
-			for (int i = MendingRelationships.Count - 1; i >= 0; i--)
+			try
 			{
-				if (MendingRelationships[i].NpcFaction == factionId || MendingRelationships[i].PlayerFaction == factionId)
-					MendingRelationships.RemoveAtFast(i);
+				for (int i = MendingRelationships.Count - 1; i >= 0; i--)
+				{
+					if (MendingRelationships[i].NpcFaction == factionId || MendingRelationships[i].PlayerFaction == factionId)
+						MendingRelationships.RemoveAtFast(i);
+				}
+				for (int i = TimedNegativeRelationships.Count - 1; i >= 0; i--)
+				{
+					if (TimedNegativeRelationships[i].NpcFaction.FactionId == factionId || TimedNegativeRelationships[i].PlayerFaction.FactionId == factionId)
+						TimedNegativeRelationships.RemoveAtFast(i);
+				}
+				CheckCounts();
 			}
-			for (int i = TimedNegativeRelationships.Count - 1; i >= 0; i--)
+			catch (Exception e)
 			{
-				if (TimedNegativeRelationships[i].NpcFaction.FactionId == factionId || TimedNegativeRelationships[i].PlayerFaction.FactionId == factionId)
-					TimedNegativeRelationships.RemoveAtFast(i);
+				FactionCore.WriteToLog("ClearRemovedFactionFromRelationships", $"Exception!\t{e}", true);
 			}
-			CheckCounts();
 		}
 
 		// External calls to manage internal relationships
@@ -600,44 +655,68 @@ namespace Eem.Thraxus.Factions.Models
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => FactionCore.WriteToLog("FactionTimer", $"SetUpdateOrder:\t{updateOrder}\tActual:\t{FactionCore.FactionCoreStaticInstance.UpdateOrder}"));
 		}
 
-		
+
 		//Debug Outputs
 
 		private void DumpEverythingToTheLog()
 		{
-			const string callerName = "FactionsDump";
-			foreach (TimedRelationship negativeRelationship in TimedNegativeRelationships)
-				FactionCore.WriteToLog(callerName, $"negativeRelationship:\t{negativeRelationship}");
-			foreach (MendingRelation mendingRelationship in MendingRelationships)
-				FactionCore.WriteToLog(callerName, $"mendingRelationship:\t{mendingRelationship}");
-			foreach (KeyValuePair<long, IMyFaction> faction in _enforcementFactionDictionary)
-				FactionCore.WriteToLog(callerName, $"enforcementDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-			foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
-				FactionCore.WriteToLog(callerName, $"lawfulDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-			foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
-				FactionCore.WriteToLog(callerName, $"pirateDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-			foreach (KeyValuePair<long, IMyFaction> faction in _npcFactionDictionary)
-				FactionCore.WriteToLog(callerName, $"npcDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-			foreach (KeyValuePair<long, IMyFaction> faction in _playerFactionDictionary)
-				FactionCore.WriteToLog(callerName, $"playerDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-			foreach (KeyValuePair<long, IMyFaction> faction in _playerPirateFactionDictionary)
-				FactionCore.WriteToLog(callerName, $"playerPirateDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-			foreach (KeyValuePair<long, int> faction in _newFactionList)
-				FactionCore.WriteToLog(callerName, $"newFactionDictionary:\t{faction}\t{faction.Key.GetFactionById()?.Tag}");
+			if (!Helpers.Constants.DebugMode) return;
+			try
+			{
+				const string callerName = "FactionsDump";
+				foreach (TimedRelationship negativeRelationship in TimedNegativeRelationships)
+					FactionCore.WriteToLog(callerName, $"negativeRelationship:\t{negativeRelationship}");
+				foreach (MendingRelation mendingRelationship in MendingRelationships)
+					FactionCore.WriteToLog(callerName, $"mendingRelationship:\t{mendingRelationship}");
+				foreach (KeyValuePair<long, IMyFaction> faction in _enforcementFactionDictionary)
+					FactionCore.WriteToLog(callerName, $"enforcementDictionary:\t{faction.Key}\t{faction.Value.Tag}");
+				foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
+					FactionCore.WriteToLog(callerName, $"lawfulDictionary:\t{faction.Key}\t{faction.Value.Tag}");
+				foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
+					FactionCore.WriteToLog(callerName, $"pirateDictionary:\t{faction.Key}\t{faction.Value.Tag}");
+				foreach (KeyValuePair<long, IMyFaction> faction in _npcFactionDictionary)
+					FactionCore.WriteToLog(callerName, $"npcDictionary:\t{faction.Key}\t{faction.Value.Tag}");
+				foreach (KeyValuePair<long, IMyFaction> faction in _playerFactionDictionary)
+					FactionCore.WriteToLog(callerName, $"playerDictionary:\t{faction.Key}\t{faction.Value.Tag}");
+				foreach (KeyValuePair<long, IMyFaction> faction in _playerPirateFactionDictionary)
+					FactionCore.WriteToLog(callerName, $"playerPirateDictionary:\t{faction.Key}\t{faction.Value.Tag}");
+				foreach (KeyValuePair<long, int> faction in _newFactionList)
+					FactionCore.WriteToLog(callerName, $"newFactionDictionary:\t{faction}\t{faction.Key.GetFactionById()?.Tag}");
+			}
+			catch (Exception e)
+			{
+				FactionCore.WriteToLog("DumpEverythingToTheLog", $"Exception!\t{e}");
+			}
 		}
 
 		private void DumpTimedNegativeFactionRelationships()
 		{
-			const string callerName = "DumpTimedNegativeFactionRelationships";
-			foreach (TimedRelationship negativeRelationship in TimedNegativeRelationships)
-				FactionCore.WriteToLog(callerName, $"negativeRelationship:\t{negativeRelationship}");
+			if (!Helpers.Constants.DebugMode) return;
+			try
+			{
+				const string callerName = "DumpTimedNegativeFactionRelationships";
+				foreach (TimedRelationship negativeRelationship in TimedNegativeRelationships)
+					FactionCore.WriteToLog(callerName, $"negativeRelationship:\t{negativeRelationship}");
+			}
+			catch (Exception e)
+			{
+				FactionCore.WriteToLog("DumpTimedNegativeFactionRelationships", $"Exception!\t{e}");
+			}
 		}
 
 		private void DumpMendingRelationshipsRelationships()
 		{
-			const string callerName = "DumpMendingRelationshipsRelationships";
-			foreach (MendingRelation mendingRelationship in MendingRelationships)
-				FactionCore.WriteToLog(callerName, $"mendingRelationship:\t{mendingRelationship}");
+			if (!Helpers.Constants.DebugMode) return;
+			try
+			{
+				const string callerName = "DumpMendingRelationshipsRelationships";
+				foreach (MendingRelation mendingRelationship in MendingRelationships)
+					FactionCore.WriteToLog(callerName, $"mendingRelationship:\t{mendingRelationship}");
+			}
+			catch (Exception e)
+			{
+				FactionCore.WriteToLog("DumpMendingRelationshipsRelationships", $"Exception!\t{e}");
+			}
 		}
 
 		// Structs and other enums as necessary

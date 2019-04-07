@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Eem.Thraxus.Helpers;
 using Eem.Thraxus.Networking;
 using Eem.Thraxus.Utilities;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.ModAPI;
 using VRage.Utils;
 
@@ -54,6 +58,9 @@ namespace Eem.Thraxus
 		public static Log ProfilingLog;
 		public static Log DebugLog;
 		public static Log GeneralLog;
+		private Log _shipLog;
+		private Log _spawnGroupLog;
+
 
 		private bool _initialized;
 		private bool _debugInitialized;
@@ -61,48 +68,188 @@ namespace Eem.Thraxus
 		public override void UpdateBeforeSimulation()
 		{
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
+			if (!Constants.IsServer) return;
 			if (Constants.DebugMode && !_debugInitialized) DebugInit();
 			if (!_initialized) Initialize();
-			if (!Constants.IsServer) return;
+
+
+			if (!Constants.DebugMode) return;
+			PrintAllSpawnGroupInfo();
+			PrintAllShipInfo();
 			//if (MyAPIGateway.Multiplayer.Players.Count > 0 && !Factions.Factions.PlayerFactionInitComplete) { Factions.Factions.PlayerInitFactions(); }
 			//TickTimer();
+		}
+
+		private void PrintAllSpawnGroupInfo()
+		{
+			MyAPIGateway.Parallel.Start(delegate
+			{
+				_spawnGroupLog = new Log("SpawnGroupLog");
+				foreach (MySpawnGroupDefinition spawnGroupDefinition in MyDefinitionManager.Static.GetSpawnGroupDefinitions())
+				{
+					if (!spawnGroupDefinition.Public) continue;
+					string spawnGroupInfo = $"{spawnGroupDefinition.IsCargoShip}\t{spawnGroupDefinition.IsEncounter}\t{spawnGroupDefinition.IsPirate}\t{spawnGroupDefinition.Prefabs.Count}\t{spawnGroupDefinition.Frequency}\t{spawnGroupDefinition.SpawnRadius}\t{spawnGroupDefinition.Context.IsBaseGame}\t{spawnGroupDefinition.Context.ModId}";
+					foreach (MySpawnGroupDefinition.SpawnGroupPrefab prefab in spawnGroupDefinition.Prefabs)
+					{
+						_spawnGroupLog.WriteToLog($"SpawnGroupLog", $"{spawnGroupDefinition.Id.SubtypeName}\t{spawnGroupInfo}\t{prefab.SubtypeId}\t{prefab.BeaconText}\t{prefab.Behaviour}\t{prefab.BehaviourActivationDistance}");
+					}
+				}
+
+				_spawnGroupLog.WriteToLog("SpawnGroupLog", "Complete");
+			});
+		}
+
+		private void PrintAllShipInfo()
+		{
+			MyAPIGateway.Parallel.Start(delegate
+			{
+				List<string> eemRcSubtypes = new List<string>()
+				{
+					"EEMPilotedFighterCockpit", "EEMPilotedFlightSeat", "EEMPilotedLargeBlockCockpitSeat", "EEMPilotedSmallBlockCockpit", "EEMPilotedPassengerSeat", "LargeBlockRemoteControl", "SmallBlockRemoteControl"
+				};
+				_shipLog = new Log("ShipLog");
+				foreach (KeyValuePair<string, MyPrefabDefinition> prefabDefinition in MyDefinitionManager.Static.GetPrefabDefinitions())
+				{
+					if (!prefabDefinition.Value.Public) continue;
+					string shipSetup = $"shipSetup:";
+					List<EemPrefabConfig> eemPrefabConfigs = new List<EemPrefabConfig>();
+					foreach (MyObjectBuilder_CubeGrid cubeGrid in prefabDefinition.Value.CubeGrids)
+					{
+						if (cubeGrid?.CubeBlocks == null) continue;
+						foreach (MyObjectBuilder_CubeBlock cubeBlock in cubeGrid.CubeBlocks)
+						{
+							if (cubeBlock == null) continue;
+							if (cubeBlock.TypeId != typeof(MyObjectBuilder_RemoteControl)) continue;
+							if (cubeBlock.SubtypeName == null) continue;
+							if (!eemRcSubtypes.Contains(cubeBlock.SubtypeName)) continue;
+							if (cubeBlock.ComponentContainer?.Components == null) continue;
+							foreach (MyObjectBuilder_ComponentContainer.ComponentData componentContainer in cubeBlock.ComponentContainer.Components)
+							{
+								if (componentContainer?.TypeId == null) continue;
+								if (componentContainer.Component == null) continue;
+								if (componentContainer.Component.TypeId != typeof(MyObjectBuilder_ModStorageComponent)) continue;
+								if (((MyObjectBuilder_ModStorageComponent)componentContainer.Component).Storage.Dictionary == null) continue;
+								foreach (KeyValuePair<Guid, string> componentKeyValuePair in ((MyObjectBuilder_ModStorageComponent)componentContainer.Component).Storage.Dictionary)
+								{
+									if (string.IsNullOrEmpty(componentKeyValuePair.Value)) continue;
+									eemPrefabConfigs.Add(new EemPrefabConfig(componentKeyValuePair.Value));
+								}
+							}
+						}
+					}
+					if (eemPrefabConfigs.Count > 0)
+					{
+						foreach (EemPrefabConfig eemPrefabConfig in eemPrefabConfigs)
+						{
+							_shipLog.WriteToLog($"ShipLog", $"{prefabDefinition.Key}\t{prefabDefinition.Value.Context.IsBaseGame}\t{prefabDefinition.Value.Context.ModId}\t{prefabDefinition.Value.CubeGrids[0].IsStatic}\t{prefabDefinition.Value.CubeGrids[0].IsRespawnGrid}\t{prefabDefinition.Value.CubeGrids[0].IsUnsupportedStation}\t{prefabDefinition.Value.CubeGrids[0].IsPowered}\t{prefabDefinition.Value.CubeGrids[0].GridSizeEnum}\t{eemPrefabConfig}");
+						}
+					}
+					else _shipLog.WriteToLog($"ShipLog", $"{prefabDefinition.Key}\t{prefabDefinition.Value.Context.IsBaseGame}\t{prefabDefinition.Value.Context.ModId}\t{prefabDefinition.Value.CubeGrids[0].IsStatic}\t{prefabDefinition.Value.CubeGrids[0].IsRespawnGrid}\t{prefabDefinition.Value.CubeGrids[0].IsUnsupportedStation}\t{prefabDefinition.Value.CubeGrids[0].IsPowered}\t{prefabDefinition.Value.CubeGrids[0].GridSizeEnum}");
+				}
+				_shipLog.WriteToLog("ShipLog", "Complete");
+			});
+		}
+
+		private struct EemPrefabConfig
+		{
+			private string PrefabType;
+			private string Preset;
+			private string CallForHelpProbability;
+			private string SeekDistance;
+			private string Faction;
+			private string FleeOnlyWhenDamaged;
+			private string FleeTriggerDistance;
+			private string FleeSpeedCap;
+			private string AmbushMode;
+			private string DelayedAi;
+			private string ActivationDistance;
+			private string PlayerPriority;
+
+			private void ParseConfigEntry(string config)
+			{
+				foreach (string cfg in config.Trim().Replace("\r\n", "\n").Split('\n'))
+				{
+					if (cfg == null) continue;
+					string[] x = cfg.Trim().Replace("\r\n", "\n").Split(':');
+					if (x.Length < 2) continue;
+					switch (x[0].ToLower())
+					{
+						case "type":
+							PrefabType = x[1];
+							break;
+						case "preset":
+							Preset = x[1];
+							break;
+						case "callforhelprobability":
+							CallForHelpProbability = x[1];
+							break;
+						case "seekdistance":
+							SeekDistance = x[1];
+							break;
+						case "faction":
+							Faction = x[1];
+							break;
+						case "fleeonlywhendamaged":
+							FleeOnlyWhenDamaged = x[1];
+							break;
+						case "fleetriggerdistance":
+							FleeTriggerDistance = x[1];
+							break;
+						case "fleespeedcap":
+							FleeSpeedCap = x[1];
+							break;
+						case "ambushmode":
+							AmbushMode = x[1];
+							break;
+						case "delayedai":
+							DelayedAi = x[1];
+							break;
+						case "activationdistance":
+							ActivationDistance = x[1];
+							break;
+						case "playerpriority":
+							PlayerPriority = x[1];
+							break;
+						default: break;
+					}
+				}
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Faction}\t{PrefabType}\t{Preset}\t{CallForHelpProbability}\t{DelayedAi}\t{SeekDistance}\t{AmbushMode}\t{ActivationDistance}\t{FleeOnlyWhenDamaged}\t{FleeTriggerDistance}\t{FleeSpeedCap}\t{PlayerPriority}";
+			}
+
+			public EemPrefabConfig(string config) : this()
+			{
+				ParseConfigEntry(config);
+			}
 		}
 
 		private void DebugInit()
 		{
 			DebugLog = new Log(Constants.DebugLogName);
-			MyAPIGateway.Session.Factions.FactionStateChanged += DebugFactions;
 			_debugInitialized = true;
-		}
-
-		private static void DebugFactions(MyFactionStateChange action, long fromFaction, long toFaction, long playerId, long senderId)
-		{
-			//DebugLog?.WriteToLog("FactionStateChanged-AiSession", $"OnServer:\t{IsServer}\tAction:\t{action} fromFaction:\t{fromFaction}\tfromFactionTag:\t{fromFaction.GetFactionById()?.Tag}");
-			//DebugLog?.WriteToLog("FactionStateChanged-AiSession", $"OnServer:\t{IsServer}\tAction:\t{action}\ttoFaction:\t{toFaction}\ttoFactionTag:\t{toFaction.GetFactionById()?.Tag}");
-		}
-
-		private void DebugClose()
-		{
-			MyAPIGateway.Session.Factions.FactionStateChanged -= DebugFactions;
 		}
 
 		private void Initialize()
 		{
-			if (Constants.DebugMode) DebugLog.WriteToLog("Initialize",$"Debug Active - IsServer: {Constants.IsServer}", true, 20000);
+			if (Constants.DebugMode) DebugLog.WriteToLog("Initialize", $"Debug Active - IsServer: {Constants.IsServer}", true, 20000);
 			//if (Constants.IsServer) Factions.Factions.Initialize();
 			Messaging.Register();
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(0, DamageRefHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(0, GenericDamageHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterDestroyHandler(0, GenericDamageHandler);
-			MyAPIGateway.Entities.OnEntityAdd += delegate(IMyEntity entity) { GeneralLog.WriteToLog("Core", $"Entity Added: {entity.EntityId}: {entity.DisplayName}"); };
-			MyAPIGateway.Entities.OnEntityRemove += delegate(IMyEntity entity) { GeneralLog.WriteToLog("Core", $"Entity Removed: {entity.EntityId}: {entity.DisplayName}"); };
+			MyAPIGateway.Entities.OnEntityAdd += delegate (IMyEntity entity) { GeneralLog.WriteToLog("Core", $"Entity Added: {entity.EntityId}: {entity.DisplayName}"); };
+			MyAPIGateway.Entities.OnEntityRemove += delegate (IMyEntity entity) { GeneralLog.WriteToLog("Core", $"Entity Removed: {entity.EntityId}: {entity.DisplayName}"); };
 			_initialized = true;
 		}
 
 		private static void InitLogs()
 		{
-			if(Constants.EnableProfilingLog) ProfilingLog = new Log(Constants.ProfilingLogName);
-			if(Constants.EnableGeneralLog) GeneralLog = new Log(Constants.GeneralLogName);
+			if (Constants.EnableProfilingLog) ProfilingLog = new Log(Constants.ProfilingLogName);
+			if (Constants.EnableGeneralLog) GeneralLog = new Log(Constants.GeneralLogName);
 			LogSetupComplete = true;
 			GeneralLog.WriteToLog("Core", $"Cargo: {MyAPIGateway.Session.SessionSettings.CargoShipsEnabled}");
 			GeneralLog.WriteToLog("Core", $"Encounters: {MyAPIGateway.Session.SessionSettings.EnableEncounters}");
@@ -146,7 +293,6 @@ namespace Eem.Thraxus
 		{
 			//Factions.Factions.Unload();
 			Messaging.Unregister();
-			DebugClose();
 			CloseLogs();
 		}
 
@@ -160,10 +306,10 @@ namespace Eem.Thraxus
 		/// </summary>
 		//private void TickTimer()
 		//{
-			//_tickTimer++;
-			//if (_tickTimer % Constants.WarAssessmentCounterLimit == 0) Factions.Factions.AssessFactionWar();
-			//if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.FactionAssessment();
-			//if (_tickTimer % (Constants.TicksPerSecond * 30) == 0) Factions.Factions.FactionAssessment();
+		//_tickTimer++;
+		//if (_tickTimer % Constants.WarAssessmentCounterLimit == 0) Factions.Factions.AssessFactionWar();
+		//if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.FactionAssessment();
+		//if (_tickTimer % (Constants.TicksPerSecond * 30) == 0) Factions.Factions.FactionAssessment();
 		//}
 
 		public void DamageRefHandler(object damagedObject, ref MyDamageInformation damage)

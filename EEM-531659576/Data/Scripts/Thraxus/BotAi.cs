@@ -84,7 +84,7 @@ namespace Eem.Thraxus
 			base.Init(objectBuilder);
 			Rc = Entity as IMyRemoteControl;
 			Grid = Rc?.CubeGrid.GetTopMostParent() as IMyCubeGrid;
-			if (Rc != null)
+			if (Rc != null) 
 				NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
 		}
 		
@@ -92,6 +92,15 @@ namespace Eem.Thraxus
 		{
 			//if (!MyAPIGateway.Multiplayer.IsServer) return;
 			if (!Constants.IsServer) return;
+			if (Constants.DisableAi)
+			{
+				IsOperable = true;
+				_inited = true;
+				DebugWrite("GridComponent.InitAI", "Type:None, shutting down.");
+				Shutdown(notify: false);
+				return;
+			}
+			
 			//SetupRecompileTimer();
 			try
 			{

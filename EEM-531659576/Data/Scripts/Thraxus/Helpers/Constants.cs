@@ -13,6 +13,8 @@ namespace Eem.Thraxus.Helpers
 
 		public static bool DebugMode { get; } = false;
 
+		public static bool DisableAi { get; } = false;
+
 		public static bool EnableProfilingLog { get; } = true;
 
 		public static bool EnableGeneralLog { get; } = true;
@@ -66,9 +68,9 @@ namespace Eem.Thraxus.Helpers
 
 		public const string AcceptPeaceMessagePrefix = "AcceptPeace";
 
-	    public const string RejectPeaceMessagePrefix = "RejectPeace";
+		public const string RejectPeaceMessagePrefix = "RejectPeace";
 
-        public const string InitFactionsMessagePrefix = "InitFactions";
+		public const string InitFactionsMessagePrefix = "InitFactions";
 
 		#endregion
 

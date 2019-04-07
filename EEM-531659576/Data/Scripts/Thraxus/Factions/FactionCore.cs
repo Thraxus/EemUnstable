@@ -16,6 +16,7 @@ namespace Eem.Thraxus.Factions
 		private bool _initialized;
 
 		private static Log _debugLog;
+		private static Log _generalLog;
 
 		public RelationshipManager RelationshipManager { get; private set; }
 
@@ -27,10 +28,7 @@ namespace Eem.Thraxus.Factions
 			base.LoadData();
 			FactionCoreStaticInstance = this;
 		}
-
-		// Properties
 		
-
 		// Init Methods
 
 		/// <summary>
@@ -61,8 +59,9 @@ namespace Eem.Thraxus.Factions
 		{
 			if (_registerEarly) return;
 			if (Constants.DebugMode) _debugLog = new Log(Settings.Constants.DebugLogName);
+			_generalLog = new Log(Settings.Constants.GeneralLogName);
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.BeforeSimulation));
-			WriteToLog("FactionCore", $"RegisterEarly Complete... {UpdateOrder}");
+			WriteToLog("FactionCore", $"RegisterEarly Complete... {UpdateOrder}", true);
 			_registerEarly = true;
 		}
 
@@ -73,7 +72,7 @@ namespace Eem.Thraxus.Factions
 		{
 			RelationshipManager = new RelationshipManager();
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
-			WriteToLog("FactionCore", $"Initialized... {UpdateOrder}");
+			WriteToLog("FactionCore", $"Initialized... {UpdateOrder}", true);
 			_initialized = true;
 		}
 
@@ -85,8 +84,9 @@ namespace Eem.Thraxus.Factions
 			base.UnloadData();
 			if (!Constants.IsServer) return;
 			RelationshipManager?.Unload();
-			WriteToLog("FactionCore", $"I'm out!... {UpdateOrder}");
+			WriteToLog("FactionCore", $"I'm out!... {UpdateOrder}", true);
 			_debugLog?.Close();
+			_generalLog.Close();
 			FactionCoreStaticInstance = null;
 		}
 		
@@ -117,9 +117,11 @@ namespace Eem.Thraxus.Factions
 		/// </summary>
 		/// <param name="caller"></param>
 		/// <param name="message"></param>
-		public static void WriteToLog(string caller, string message)
+		/// <param name="general"></param>
+		public static void WriteToLog(string caller, string message, bool general = false)
 		{
 			_debugLog?.WriteToLog(caller, message);
+			if (general) _generalLog.WriteToLog(caller, message);
 		}
 	}
 }
