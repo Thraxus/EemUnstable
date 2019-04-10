@@ -20,8 +20,6 @@ namespace Eem.Thraxus
 	// ReSharper disable once ClassNeverInstantiated.Global
 	public class AiSessionCore : MySessionComponentBase
 	{
-		// { get; private set; }
-
 		private static readonly Dictionary<long, BotBase.OnDamageTaken> DamageHandlers = new Dictionary<long, BotBase.OnDamageTaken>();
 
 		public static void AddDamageHandler(long gridId, BotBase.OnDamageTaken handler)
@@ -76,8 +74,6 @@ namespace Eem.Thraxus
 			if (!Constants.DebugMode) return;
 			PrintAllSpawnGroupInfo();
 			PrintAllShipInfo();
-			//if (MyAPIGateway.Multiplayer.Players.Count > 0 && !Factions.Factions.PlayerFactionInitComplete) { Factions.Factions.PlayerInitFactions(); }
-			//TickTimer();
 		}
 
 		private void PrintAllSpawnGroupInfo()
@@ -94,7 +90,6 @@ namespace Eem.Thraxus
 						_spawnGroupLog.WriteToLog($"SpawnGroupLog", $"{spawnGroupDefinition.Id.SubtypeName}\t{spawnGroupInfo}\t{prefab.SubtypeId}\t{prefab.BeaconText}\t{prefab.Behaviour}\t{prefab.BehaviourActivationDistance}");
 					}
 				}
-
 				_spawnGroupLog.WriteToLog("SpawnGroupLog", "Complete");
 			});
 		}
@@ -111,7 +106,6 @@ namespace Eem.Thraxus
 				foreach (KeyValuePair<string, MyPrefabDefinition> prefabDefinition in MyDefinitionManager.Static.GetPrefabDefinitions())
 				{
 					if (!prefabDefinition.Value.Public) continue;
-					string shipSetup = $"shipSetup:";
 					List<EemPrefabConfig> eemPrefabConfigs = new List<EemPrefabConfig>();
 					foreach (MyObjectBuilder_CubeGrid cubeGrid in prefabDefinition.Value.CubeGrids)
 					{
@@ -256,13 +250,6 @@ namespace Eem.Thraxus
 			GeneralLog.WriteToLog("Core", $"Drones: {MyAPIGateway.Session.SessionSettings.EnableDrones}");
 			GeneralLog.WriteToLog("Core", $"Scripts: {MyAPIGateway.Session.SessionSettings.EnableIngameScripts}");
 			GeneralLog.WriteToLog("Core", $"Sync: {MyAPIGateway.Session.SessionSettings.SyncDistance}");
-
-			//foreach (MySpawnGroupDefinition spawnGroupDefinition in MyDefinitionManager.Static.GetSpawnGroupDefinitions())
-			//{
-			//	if (!spawnGroupDefinition.Public || !spawnGroupDefinition.Context.IsBaseGame) continue;
-			//	GeneralLog.WriteToLog("Core", $@"IsBaseGame:	{spawnGroupDefinition.Context.IsBaseGame}	SubtypeName:	{spawnGroupDefinition.Id.SubtypeName}	Frequency:	{spawnGroupDefinition.Frequency}	IsPirate:	{spawnGroupDefinition.IsPirate}	IsEncounter:	{spawnGroupDefinition.IsEncounter}	IsCargoShip:	{spawnGroupDefinition.IsCargoShip}");
-			//}
-
 		}
 
 		private static void CloseLogs()
@@ -291,26 +278,9 @@ namespace Eem.Thraxus
 		/// </summary>
 		protected override void UnloadData()
 		{
-			//Factions.Factions.Unload();
 			Messaging.Unregister();
 			CloseLogs();
 		}
-
-		/// <summary>
-		/// Increments every server tick
-		/// </summary>
-		//private ulong _tickTimer;
-
-		/// <summary>
-		/// Processes certain things at set intervals
-		/// </summary>
-		//private void TickTimer()
-		//{
-		//_tickTimer++;
-		//if (_tickTimer % Constants.WarAssessmentCounterLimit == 0) Factions.Factions.AssessFactionWar();
-		//if (_tickTimer % Constants.FactionAssessmentCounterLimit == 0) Factions.FactionAssessment();
-		//if (_tickTimer % (Constants.TicksPerSecond * 30) == 0) Factions.Factions.FactionAssessment();
-		//}
 
 		public void DamageRefHandler(object damagedObject, ref MyDamageInformation damage)
 		{

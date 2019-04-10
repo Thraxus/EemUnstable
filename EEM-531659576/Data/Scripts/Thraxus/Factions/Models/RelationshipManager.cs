@@ -269,8 +269,12 @@ namespace Eem.Thraxus.Factions.Models
 						continue;
 					}
 
-					FactionCore.WriteToLog("SetupFactionDictionaries", $"PlayerFaction.Add:\t{factions.Key}\t{factions.Value.Tag}");
-					AddToPlayerFactionDictionary(factions.Key, factions.Value);
+					
+					if (!factions.Value.IsEveryoneNpc()) // If it's not one of my NPC's, I don't care!
+					{
+						FactionCore.WriteToLog("SetupFactionDictionaries", $"PlayerFaction.Add:\t{factions.Key}\t{factions.Value.Tag}");
+						AddToPlayerFactionDictionary(factions.Key, factions.Value);
+					}
 				}
 				catch (Exception e)
 				{
@@ -704,25 +708,6 @@ namespace Eem.Thraxus.Factions.Models
 				Dictionary<long, int> tempNewFactionDictioanry = _newFactionDictionary;
 				foreach (KeyValuePair<long, int> faction in tempNewFactionDictioanry)
 					FactionCore.WriteToLog(callerName, $"newFactionDictionary:\t{faction}\t{faction.Key.GetFactionById()?.Tag}");
-
-				//foreach (TimedRelationship negativeRelationship in TimedNegativeRelationships)
-				//	FactionCore.WriteToLog(callerName, $"negativeRelationship:\t{negativeRelationship}");
-				//foreach (MendingRelation mendingRelationship in MendingRelationships)
-				//	FactionCore.WriteToLog(callerName, $"mendingRelationship:\t{mendingRelationship}");
-				//foreach (KeyValuePair<long, IMyFaction> faction in _enforcementFactionDictionary)
-				//	FactionCore.WriteToLog(callerName, $"enforcementDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-				//foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
-				//	FactionCore.WriteToLog(callerName, $"lawfulDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-				//foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
-				//	FactionCore.WriteToLog(callerName, $"pirateDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-				//foreach (KeyValuePair<long, IMyFaction> faction in _npcFactionDictionary)
-				//	FactionCore.WriteToLog(callerName, $"npcDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-				//foreach (KeyValuePair<long, IMyFaction> faction in _playerFactionDictionary)
-				//	FactionCore.WriteToLog(callerName, $"playerDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-				//foreach (KeyValuePair<long, IMyFaction> faction in _playerPirateFactionDictionary)
-				//	FactionCore.WriteToLog(callerName, $"playerPirateDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-				//foreach (KeyValuePair<long, int> faction in _newFactionList)
-				//	FactionCore.WriteToLog(callerName, $"newFactionDictionary:\t{faction}\t{faction.Key.GetFactionById()?.Tag}");
 			}
 			catch (Exception e)
 			{
@@ -739,10 +724,6 @@ namespace Eem.Thraxus.Factions.Models
 				List<TimedRelationship> tempTimedRelationship = TimedNegativeRelationships;
 				foreach (TimedRelationship negativeRelationship in tempTimedRelationship)
 					FactionCore.WriteToLog(callerName, $"negativeRelationship:\t{negativeRelationship}");
-
-
-				//foreach (TimedRelationship negativeRelationship in TimedNegativeRelationships)
-				//	FactionCore.WriteToLog(callerName, $"negativeRelationship:\t{negativeRelationship}");
 			}
 			catch (Exception e)
 			{
@@ -759,10 +740,6 @@ namespace Eem.Thraxus.Factions.Models
 				List<MendingRelation> tempMendingRelations = MendingRelationships;
 				foreach (MendingRelation mendingRelationship in tempMendingRelations)
 					FactionCore.WriteToLog(callerName, $"mendingRelationship:\t{mendingRelationship}");
-
-
-				//foreach (MendingRelation mendingRelationship in MendingRelationships)
-				//	FactionCore.WriteToLog(callerName, $"mendingRelationship:\t{mendingRelationship}");
 			}
 			catch (Exception e)
 			{
