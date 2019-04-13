@@ -83,7 +83,7 @@ namespace Eem.Thraxus.Factions
 		{
 			base.UnloadData();
 			if (!Constants.IsServer) return;
-			RelationshipManager?.Unload();
+			RelationshipManager?.Close();
 			WriteToLog("FactionCore", $"I'm out!... {UpdateOrder}", true);
 			_debugLog?.Close();
 			_generalLog.Close();

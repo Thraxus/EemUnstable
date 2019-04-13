@@ -17,6 +17,7 @@ namespace Eem.Thraxus.Factions.Models
 		private readonly Dictionary<long, IMyFaction> _enforcementFactionDictionary;
 		private readonly Dictionary<long, IMyFaction> _lawfulFactionDictionary;
 		private readonly Dictionary<long, IMyFaction> _npcFactionDictionary;
+		private readonly Dictionary<long, IMyFaction> _nonEemNpcFactionDictionary;
 		private readonly Dictionary<long, int> _newFactionDictionary;
 
 		private List<TimedRelationship> TimedNegativeRelationships { get; }
@@ -32,6 +33,7 @@ namespace Eem.Thraxus.Factions.Models
 			_lawfulFactionDictionary = new Dictionary<long, IMyFaction>();
 			_npcFactionDictionary = new Dictionary<long, IMyFaction>();
 			_newFactionDictionary = new Dictionary<long, int>();
+			_nonEemNpcFactionDictionary = new Dictionary<long, IMyFaction>();
 			TimedNegativeRelationships = new List<TimedRelationship>();
 			MendingRelationships = new List<MendingRelation>();
 			MyAPIGateway.Session.Factions.FactionStateChanged += FactionStateChanged;
@@ -41,7 +43,7 @@ namespace Eem.Thraxus.Factions.Models
 			FactionCore.WriteToLog("RelationshipManager", $"Constructed!");
 		}
 
-		public void Unload()
+		public void Close()
 		{
 			FactionCore.WriteToLog("RelationshipManager-Unload", $"Packing up shop...");
 			MyAPIGateway.Session.Factions.FactionStateChanged -= FactionStateChanged;
@@ -54,6 +56,7 @@ namespace Eem.Thraxus.Factions.Models
 			_lawfulFactionDictionary.Clear();
 			_npcFactionDictionary.Clear();
 			_newFactionDictionary.Clear();
+			_nonEemNpcFactionDictionary.Clear();
 			TimedNegativeRelationships.Clear();
 			MendingRelationships.Clear();
 			FactionCore.WriteToLog("RelationshipManager-Unload", $"Shop all packed up; I'm out!");
@@ -269,12 +272,13 @@ namespace Eem.Thraxus.Factions.Models
 						continue;
 					}
 
-					
 					if (!factions.Value.IsEveryoneNpc()) // If it's not one of my NPC's, I don't care!
 					{
 						FactionCore.WriteToLog("SetupFactionDictionaries", $"PlayerFaction.Add:\t{factions.Key}\t{factions.Value.Tag}");
 						AddToPlayerFactionDictionary(factions.Key, factions.Value);
 					}
+
+					_nonEemNpcFactionDictionary.Add(factions.Key, factions.Value); // Ok, I may care one day.
 				}
 				catch (Exception e)
 				{
@@ -696,9 +700,12 @@ namespace Eem.Thraxus.Factions.Models
 				tempFactionDictionary = _pirateFactionDictionary;
 				foreach (KeyValuePair<long, IMyFaction> faction in tempFactionDictionary)
 					FactionCore.WriteToLog(callerName, $"pirateDictionary:\t{faction.Key}\t{faction.Value.Tag}");
-				tempFactionDictionary = _npcFactionDictionary;
+				tempFactionDictionary = _npcFactionDictionary; //_nonEemNpcFactionDictionary
 				foreach (KeyValuePair<long, IMyFaction> faction in tempFactionDictionary)
 					FactionCore.WriteToLog(callerName, $"npcDictionary:\t{faction.Key}\t{faction.Value.Tag}");
+				tempFactionDictionary = _nonEemNpcFactionDictionary;
+				foreach (KeyValuePair<long, IMyFaction> faction in tempFactionDictionary)
+					FactionCore.WriteToLog(callerName, $"_nonEemNpcFactionDictionary:\t{faction.Key}\t{faction.Value.Tag}");
 				tempFactionDictionary = _playerFactionDictionary;
 				foreach (KeyValuePair<long, IMyFaction> faction in tempFactionDictionary)
 					FactionCore.WriteToLog(callerName, $"playerDictionary:\t{faction.Key}\t{faction.Value.Tag}");

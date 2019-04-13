@@ -29,7 +29,7 @@ namespace Eem.Thraxus.SpawnManager
 		private static Log _debugLog;
 		private static Log _generalLog;
 
-		private EntityTracker entityTracker;
+		private EntityTracker _entityTracker;
 		
 		/// <inheritdoc />
 		public override void LoadData()
@@ -57,7 +57,7 @@ namespace Eem.Thraxus.SpawnManager
 			base.UpdateBeforeSimulation();
 			if (!Constants.IsServer) return;
 			if (!_initialized) Initialize();
-			entityTracker = new EntityTracker();
+			_entityTracker = new EntityTracker();
 			TickTimer();
 		}
 
@@ -90,10 +90,10 @@ namespace Eem.Thraxus.SpawnManager
 		{
 			base.UnloadData();
 			if (!Constants.IsServer) return;
-			entityTracker.Unload();
+			_entityTracker.Close();
 			WriteToLog("SpawnManagerCore", $"I'm out!... {UpdateOrder}", true);
 			_debugLog?.Close();
-			_generalLog.Close();
+			_generalLog?.Close();
 		}
 
 
@@ -122,8 +122,8 @@ namespace Eem.Thraxus.SpawnManager
 		/// <param name="general"></param>
 		public static void WriteToLog(string caller, string message, bool general = false)
 		{
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => _debugLog?.WriteToLog(caller, message));
-			if (general) MyAPIGateway.Utilities.InvokeOnGameThread(() => _generalLog?.WriteToLog(caller, message));
+			_debugLog?.WriteToLog(caller, message);
+			if (general) _generalLog?.WriteToLog(caller, message);
 		}
 	}
 }
