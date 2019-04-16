@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eem.Thraxus.Factions.Messages;
+using Eem.Thraxus.Factions.Utilities.Messages;
 using VRage.Game.ModAPI;
 
-namespace Eem.Thraxus.Factions.Utilities
+namespace Eem.Thraxus.Factions.Models
 {
 	internal class Dialogue
 	{

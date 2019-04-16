@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Eem.Thraxus.Extensions;
+using Eem.Thraxus.Factions.Messages;
 using Eem.Thraxus.Factions.Settings;
 using Eem.Thraxus.Factions.Utilities;
+using Eem.Thraxus.Factions.Utilities.Messages;
+using Eem.Thraxus.Networking;
 using Sandbox.ModAPI;
+using VRage.Collections;
+using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
 
@@ -25,9 +31,12 @@ namespace Eem.Thraxus.Factions.Models
 
 		private bool _setupCompelete;
 
+		private Dialogue _dialogue;
+
 		public RelationshipManager()
 		{
 			FactionCore.WriteToLog("RelationshipManager", $"Constructing!", true);
+			_dialogue = new Dialogue();
 			_playerFactionDictionary = new Dictionary<long, IMyFaction>();
 			_pirateFactionDictionary = new Dictionary<long, IMyFaction>();
 			_playerPirateFactionDictionary = new Dictionary<long, IMyFaction>();
@@ -63,6 +72,7 @@ namespace Eem.Thraxus.Factions.Models
 			_nonEemNpcFactionDictionary.Clear();
 			TimedNegativeRelationships.Clear();
 			MendingRelationships.Clear();
+			_dialogue.Unload();
 			FactionCore.WriteToLog("RelationshipManager-Unload", $"Shop all packed up; I'm out!", true);
 		}
 
@@ -203,21 +213,95 @@ namespace Eem.Thraxus.Factions.Models
 					ClearPeace(fromFactionId, toFactionId);
 					return;
 				}
-				MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId);
+				AcceptPeace(toFactionId, fromFactionId);
 				return;
 			}
 
 			if (fromFactionId.GetFactionById().IsEveryoneNpc() && !toFactionId.GetFactionById().IsEveryoneNpc())
 			{   // The NPC wants to be friends with the player.  How cute.  
-				MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId);
+				AcceptPeace(toFactionId, fromFactionId, true);
 				return;
 			}
 
 			// Condition not accounted for, just accept the request for now (get logs!)
-			FactionCore.WriteToLog("PeaceRequestSent", $"Unknown peace condition detected, please review...\tfromFaction:\t{fromFactionId.GetFactionById().Tag}\ttoFaction:\t{toFactionId.GetFactionById().Tag}");
-			DumpEverythingToTheLog();
+			FactionCore.WriteToLog("PeaceRequestSent", $"Unknown peace condition detected, please review...\tfromFaction:\t{fromFactionId.GetFactionById().Tag}\ttoFaction:\t{toFactionId.GetFactionById().Tag}", true);
+			DumpEverythingToTheLog(true);
 			MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId);
 
+		}
+
+		private void AcceptPeace(long fromFactionId, long toFactionId, bool message = false)
+		{
+			if (message)
+			{
+
+				if (fromFactionId.GetFactionById().IsEveryoneNpc())
+				{
+					if(!_newFactionDictionary.ContainsKey(toFactionId))
+						RequestDialog(fromFactionId.GetFactionById(), toFactionId.GetFactionById(), Dialogue.DialogType.PeaceAccepted);
+				}
+				else if (toFactionId.GetFactionById().IsEveryoneNpc())
+				{
+					if (!_newFactionDictionary.ContainsKey(toFactionId))
+						RequestDialog(toFactionId.GetFactionById(), fromFactionId.GetFactionById(), Dialogue.DialogType.PeaceAccepted);
+				}
+			}
+			MyAPIGateway.Session.Factions.AcceptPeace(fromFactionId, toFactionId);
+		}
+
+		private void RequestDialog(IMyFaction npcFaction, IMyFaction playerFaction, Dialogue.DialogType type)
+		{
+			try
+			{
+				Func<string> message = _dialogue.RequestDialog(npcFaction, type);
+				string npcFactionTag = npcFaction.Tag;
+				if (playerFaction == null || _newFactionDictionary.ContainsKey(playerFaction.FactionId)) return;
+				SendFactionMessageToAllFactionMembers(message.Invoke(), npcFactionTag, playerFaction.Members);
+			}
+			catch (Exception e)
+			{
+				ExceptionWriter("RequestDialog", $"npcFaction:\t{npcFaction.FactionId}\tplayerFaction:\t{playerFaction.FactionId}\tException!\t{e}");
+			}
+		}
+
+		private void RequestNewFactionDialog(long playerFactionId)
+		{	//TODO Fix whatever the null ref is here (Key Not Found)
+			const string npcFactionTag = "The Lawful";
+			try
+			{
+				Func<string> message = _dialogue.RequestDialog(_lawfulFactionDictionary[0], Dialogue.DialogType.CollectiveWelcome);
+				if (playerFactionId.GetFactionById() == null || !_newFactionDictionary.ContainsKey(playerFactionId)) return;
+				SendFactionMessageToAllFactionMembers(message.Invoke(), npcFactionTag, playerFactionId.GetFactionById().Members);
+				_newFactionDictionary.Remove(playerFactionId);
+			}
+			catch (Exception e)
+			{
+				ExceptionWriter("RequestNewFactionDialog", $"playerFaction:\t{playerFactionId}\tException!\t{e}");
+			}
+		}
+
+		private void SendFactionMessageToAllFactionMembers(string message, string messageSender, DictionaryReader<long, MyFactionMember> target, string color = MyFontEnum.Red)
+		{
+			try
+			{
+				foreach (KeyValuePair<long, MyFactionMember> factionMember in target)
+				{
+					if (IsPlayerOnline(factionMember.Key))
+						MyAPIGateway.Utilities.InvokeOnGameThread(() =>
+							Messaging.SendMessageToPlayer($"{message}", messageSender, factionMember.Key, color));
+				}
+			}
+			catch (Exception e)
+			{
+				ExceptionWriter("SendFactionMessageToAllFactionMembers", $"Exception!\t{e}");
+			}
+		}
+
+		private static bool IsPlayerOnline(long player)
+		{
+			List<IMyPlayer> players = new List<IMyPlayer>();
+			MyAPIGateway.Multiplayer.Players.GetPlayers(players);
+			return players.Any(x => x.IdentityId == player);
 		}
 
 		private void PeaceAccepted(long fromFactionId, long toFactionId)
@@ -290,7 +374,7 @@ namespace Eem.Thraxus.Factions.Models
 				}
 				catch (Exception e)
 				{
-					FactionCore.WriteToLog("SetupFactionDictionaries", $"Exception caught - e: {e}\tfaction.Key:\t{faction.Key}\tfaction.Value: {faction.Value}\tfaction.Tag:\t{faction.Value?.Tag}");
+					ExceptionWriter("SetupFactionDictionaries", $"Exception caught - e: {e}\tfaction.Key:\t{faction.Key}\tfaction.Value: {faction.Value}\tfaction.Tag:\t{faction.Value?.Tag}");
 				}
 
 			}
@@ -310,7 +394,7 @@ namespace Eem.Thraxus.Factions.Models
 				AddFactionMember(npcFaction.Value);
 		}
 
-		private void AddFactionMember(IMyFaction npcFaction)
+		private static void AddFactionMember(IMyFaction npcFaction)
 		{
 			if (npcFaction.Members.Count < 2)
 				MyAPIGateway.Session.Factions.AddNewNPCToFaction(npcFaction.FactionId);
@@ -484,8 +568,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("DeclareEnforcementWar", $"Exception!\t{e}", true);
-				DumpEverythingToTheLog();
+				ExceptionWriter("DeclareEnforcementWar", $"Exception!\t{e}");
 			}
 		}
 
@@ -494,14 +577,12 @@ namespace Eem.Thraxus.Factions.Models
 			try
 			{
 				foreach (KeyValuePair<long, IMyFaction> lawfulFaction in _lawfulFactionDictionary)
-				{
 					AutoPeace(lawfulFaction.Key, factionId);
-				}
+				RequestNewFactionDialog(factionId);
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("DeclareFullNpcPeace", $"Exception!\t{e}", true);
-				DumpEverythingToTheLog();
+				ExceptionWriter("DeclareFullNpcPeace", $"Exception!\t{e}");
 			}
 		}
 
@@ -523,8 +604,7 @@ namespace Eem.Thraxus.Factions.Models
 				}
 				catch (Exception e)
 				{
-					FactionCore.WriteToLog("ExternalWarDeclaration", $"Exception!\t{e}", true);
-					DumpEverythingToTheLog();
+					ExceptionWriter("ExternalWarDeclaration", $"Exception!\t{e}");
 				}
 			});
 		}
@@ -538,15 +618,13 @@ namespace Eem.Thraxus.Factions.Models
 					if (_lawfulFactionDictionary.ContainsKey(npcFactionId)) _newFactionDictionary[playerFactionId]++;
 					if (_newFactionDictionary[playerFactionId] != _lawfulFactionDictionary.Count) return;
 					DeclareFullNpcPeace(playerFactionId);
-					_newFactionDictionary.Remove(playerFactionId);
 					return;
 				}
 				NewTimedNegativeRelationship(npcFactionId, playerFactionId);
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("VetNewWar", $"Exception!\t{e}", true);
-				DumpEverythingToTheLog();
+				ExceptionWriter("VetNewWar", $"Exception!\t{e}");
 			}
 		}
 
@@ -572,8 +650,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("NewMendingRelationship", $"Exception!\t{e}", true);
-				DumpEverythingToTheLog();
+				ExceptionWriter("NewMendingRelationship", $"Exception!\t{e}");
 			}
 		}
 
@@ -592,8 +669,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("RemoveMendingRelationship", $"Exception!\t{e}", true);
-				DumpEverythingToTheLog();
+				ExceptionWriter("RemoveMendingRelationship", $"Exception!\t{e}");
 			}
 		}
 
@@ -612,9 +688,7 @@ namespace Eem.Thraxus.Factions.Models
 		private void HandleFormerPlayerPirate(long playerFactionId)
 		{
 			for (int i = _lawfulFactionDictionary.Count - 1; i >= 0; i--)
-			{
 				NewTimedNegativeRelationship(_lawfulFactionDictionary[i].FactionId, playerFactionId);
-			}
 		}
 
 		private void AssessNegativeRelationships()
@@ -632,8 +706,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("AssessNegativeRelationships", $"Exception!\t{e}", true);
-				DumpEverythingToTheLog();
+				ExceptionWriter("AssessNegativeRelationships", $"Exception!\t{e}");
 			}
 		}
 
@@ -653,8 +726,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("AssessMendingRelationships", $"Exception!\t{e}", true);
-				DumpEverythingToTheLog();
+				ExceptionWriter("AssessMendingRelationships", $"Exception!\t{e}");
 			}
 		}
 
@@ -676,8 +748,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("ClearRemovedFactionFromRelationships", $"Exception!\t{e}", true);
-				DumpEverythingToTheLog();
+				ExceptionWriter("ClearRemovedFactionFromRelationships", $"Exception!\t{e}");
 			}
 		}
 		
@@ -749,7 +820,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("DumpEverythingToTheLog", $"Exception!\t{e}", true);
+				ExceptionWriter("DumpEverythingToTheLog", $"Exception!\t{e}");
 			}
 		}
 
@@ -765,7 +836,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("DumpTimedNegativeFactionRelationships", $"Exception!\t{e}", true);
+				ExceptionWriter("DumpTimedNegativeFactionRelationships", $"Exception!\t{e}");
 			}
 		}
 
@@ -781,8 +852,15 @@ namespace Eem.Thraxus.Factions.Models
 			}
 			catch (Exception e)
 			{
-				FactionCore.WriteToLog("DumpMendingRelationshipsRelationships", $"Exception!\t{e}", true);
+				ExceptionWriter("DumpMendingRelationshipsRelationships", $"Exception!\t{e}");
 			}
+		}
+
+		private void ExceptionWriter(string caller, string message)
+		{
+			FactionCore.WriteToLog(caller, message, true);
+			if(!"DumpEverythingToTheLog, DumpTimedNegativeFactionRelationships, DumpMendingRelationshipsRelationships".Contains(caller))
+				DumpEverythingToTheLog(true);
 		}
 
 		// Structs and other enums as necessary
