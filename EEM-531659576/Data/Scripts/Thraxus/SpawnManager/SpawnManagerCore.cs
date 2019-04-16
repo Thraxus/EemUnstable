@@ -1,10 +1,4 @@
 ﻿using Sandbox.ModAPI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eem.Thraxus.Factions.Models;
 using Eem.Thraxus.Helpers;
 using Eem.Thraxus.SpawnManager.Models;
 using Eem.Thraxus.Utilities;
