@@ -4549,12 +4549,15 @@
                         <dictionary>
                           <item>
                             <Key xmlns:q1="http://microsoft.com/wsdl/types/" xsi:type="q1:guid">74de02b3-27f9-4960-b1c4-27351f2b06d1</Key>
-                            <Value xsi:type="xsd:string">[EEM_AI]        
-Type:Fighter        
-Preset:EEMDefaultAtmo
-CallHelpProbability:60        
-SeekDistance:10000       
-PlayerPriority:1</Value>
+                            <Value xsi:type="xsd:string">
+                              [EEM_AI]
+                              Type:Fighter
+                              Preset:EEMDefaultAtmo
+                              CallHelpProbability:60
+                              SeekDistance:10000
+                              PlayerPriority:1
+                              Faction:SEPD
+                            </Value>
                           </item>
                         </dictionary>
                       </Storage>

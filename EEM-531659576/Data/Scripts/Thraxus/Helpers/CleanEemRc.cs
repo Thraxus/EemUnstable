@@ -20,7 +20,8 @@ namespace Eem.Thraxus.Helpers
 
         public override void UpdateAfterSimulation100()
         {
-            try
+	        if (!Constants.DisableCleanup) return;
+				try
             {
                 //if(!MyAPIGateway.Multiplayer.IsServer) // only server-side/SP
                 if (!Constants.IsServer)
@@ -93,7 +94,7 @@ namespace Eem.Thraxus.Helpers
 
                 foreach (IMyCubeGrid g in CleanEem.Grids)
                 {
-                    g.Close(); // this only works server-side
+	                g.Close(); // this only works server-side
                     AiSessionCore.GeneralLog.WriteToLog("CleanEemRc", "  - subgrid '" + g.DisplayName + "' (" + g.EntityId + ") removed.");
                 }
 

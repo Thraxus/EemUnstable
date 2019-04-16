@@ -14,7 +14,7 @@ namespace Eem.Thraxus.SpawnManager
 {
 	[MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
 	// ReSharper disable once ClassNeverInstantiated.Global
-	public class SpawnManagerCore : MySessionComponentBase	
+	public class SpawnManagerCore : MySessionComponentBase
 	{
 		// Constants
 
@@ -30,11 +30,11 @@ namespace Eem.Thraxus.SpawnManager
 		private static Log _generalLog;
 
 		private EntityTracker _entityTracker;
-		
+
 		/// <inheritdoc />
 		public override void LoadData()
 		{
-			base.LoadData();		
+			base.LoadData();
 		}
 
 		// Init Methods
@@ -109,7 +109,7 @@ namespace Eem.Thraxus.SpawnManager
 		/// </summary>
 		private void TickTimer()
 		{
-			
+
 		}
 
 		// Non-Core logic below this point

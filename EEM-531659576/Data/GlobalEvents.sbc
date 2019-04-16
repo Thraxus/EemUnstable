@@ -16,7 +16,7 @@
 		-->
 
 	  <!-- DEBUG -->
-	  <!--
+	  
 		<GlobalEvent>
 			<Id>
 				<TypeId>EventDefinition</TypeId>
@@ -26,10 +26,10 @@
 			<MaxActivationTimeMs>100000</MaxActivationTimeMs>
 			<FirstActivationTimeMs>50000</FirstActivationTimeMs>
 		</GlobalEvent>
-	  -->
+	  
 
 	  <!-- PRODUCTION -->
-		<GlobalEvent>
+		<!--<GlobalEvent>
       <Id>
         <TypeId>EventDefinition</TypeId>
         <SubtypeId>SpawnCargoShip</SubtypeId>
@@ -37,7 +37,7 @@
       <MinActivationTimeMs>300000</MinActivationTimeMs>
       <MaxActivationTimeMs>450000</MaxActivationTimeMs>
       <FirstActivationTimeMs>90000</FirstActivationTimeMs>
-    </GlobalEvent>
+    </GlobalEvent>-->
 
   </GlobalEvents>
 </Definitions>

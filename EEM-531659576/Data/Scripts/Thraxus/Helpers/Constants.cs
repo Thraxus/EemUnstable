@@ -18,6 +18,8 @@ namespace Eem.Thraxus.Helpers
 		public static bool EnableProfilingLog { get; } = true;
 
 		public static bool EnableGeneralLog { get; } = true;
+
+		public static bool DisableCleanup { get; } = true;
 		
 		public static string DebugLogName { get; } = "EEM_Debug"; 
 

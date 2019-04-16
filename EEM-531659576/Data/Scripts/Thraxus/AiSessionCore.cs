@@ -6,13 +6,16 @@ using Eem.Thraxus.Networking;
 using Eem.Thraxus.Utilities;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.ModAPI;
 using VRage.Utils;
+using VRageMath;
 
 namespace Eem.Thraxus
 {
@@ -235,8 +238,14 @@ namespace Eem.Thraxus
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(0, DamageRefHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(0, GenericDamageHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterDestroyHandler(0, GenericDamageHandler);
-			MyAPIGateway.Entities.OnEntityAdd += delegate (IMyEntity entity) { GeneralLog.WriteToLog("Core", $"Entity Added: {entity.EntityId}: {entity.DisplayName}"); };
-			MyAPIGateway.Entities.OnEntityRemove += delegate (IMyEntity entity) { GeneralLog.WriteToLog("Core", $"Entity Removed: {entity.EntityId}: {entity.DisplayName}"); };
+			MyAPIGateway.Entities.OnEntityAdd += delegate (IMyEntity entity)
+			{
+				GeneralLog.WriteToLog("Core", $"Entity Added\t{entity.EntityId}\t{entity.DisplayName}");
+			};
+			MyAPIGateway.Entities.OnEntityRemove += delegate(IMyEntity entity)
+			{
+				GeneralLog.WriteToLog("Core", $"Entity Removed\t{entity.EntityId}\t{entity.DisplayName}");
+			};
 			_initialized = true;
 		}
 
@@ -250,6 +259,8 @@ namespace Eem.Thraxus
 			GeneralLog.WriteToLog("Core", $"Drones: {MyAPIGateway.Session.SessionSettings.EnableDrones}");
 			GeneralLog.WriteToLog("Core", $"Scripts: {MyAPIGateway.Session.SessionSettings.EnableIngameScripts}");
 			GeneralLog.WriteToLog("Core", $"Sync: {MyAPIGateway.Session.SessionSettings.SyncDistance}");
+			GeneralLog.WriteToLog("Core", $"PiratePCU: {MyAPIGateway.Session.SessionSettings.PiratePCU}");
+			GeneralLog.WriteToLog("Core", $"TotalPCU: {MyAPIGateway.Session.SessionSettings.TotalPCU}");
 		}
 
 		private static void CloseLogs()
