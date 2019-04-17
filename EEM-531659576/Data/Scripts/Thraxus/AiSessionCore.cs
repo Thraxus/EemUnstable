@@ -285,6 +285,7 @@ namespace Eem.Thraxus
 		/// </summary>
 		protected override void UnloadData()
 		{
+			base.UnloadData();
 			Messaging.Unregister();
 			CloseLogs();
 		}

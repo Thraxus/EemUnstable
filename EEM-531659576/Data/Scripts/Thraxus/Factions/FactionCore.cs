@@ -84,10 +84,11 @@ namespace Eem.Thraxus.Factions
 			base.UnloadData();
 			if (!Constants.IsServer) return;
 			RelationshipManager?.Close();
+			FactionCoreStaticInstance = null;
 			WriteToLog("FactionCore", $"I'm out!... {UpdateOrder}", true);
 			_debugLog?.Close();
 			_generalLog.Close();
-			FactionCoreStaticInstance = null;
+			
 		}
 		
 

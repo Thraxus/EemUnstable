@@ -49,7 +49,10 @@ namespace Eem.Thraxus.Utilities
 
 		public void GetTailMessages()
 		{
-			MyAPIGateway.Utilities.ShowMissionScreen(LogName, "", "", string.Join($"{Environment.NewLine}{Environment.NewLine}", _messageQueue.GetQueue()));
+			lock (_lockObject)
+			{
+				MyAPIGateway.Utilities.ShowMissionScreen(LogName, "", "", string.Join($"{Environment.NewLine}{Environment.NewLine}", _messageQueue.GetQueue()));
+			}
 		}
 
 		private static void BuildHudNotification(string caller, string message, int duration, string color)
@@ -66,6 +69,7 @@ namespace Eem.Thraxus.Utilities
 	            WriteLine($"{TimeStamp}{Indent}{caller}{Indent}{message}");
 	        }
 	    }
+
         private void WriteLine(string line)
 		{
 			_messageQueue.Enqueue(line);
