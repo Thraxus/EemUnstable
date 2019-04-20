@@ -84,10 +84,11 @@ namespace Eem.Thraxus.Factions
 			base.UnloadData();
 			if (!Constants.IsServer) return;
 			RelationshipManager?.Close();
+			FactionCoreStaticInstance = null;
 			WriteToLog("FactionCore", $"I'm out!... {UpdateOrder}", true);
 			_debugLog?.Close();
 			_generalLog.Close();
-			FactionCoreStaticInstance = null;
+			
 		}
 		
 
@@ -120,8 +121,8 @@ namespace Eem.Thraxus.Factions
 		/// <param name="general"></param>
 		public static void WriteToLog(string caller, string message, bool general = false)
 		{
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => _debugLog?.WriteToLog(caller, message));
-			if (general) MyAPIGateway.Utilities.InvokeOnGameThread(() => _generalLog?.WriteToLog(caller, message));
+			_debugLog?.WriteToLog(caller, message);
+			if (general) _generalLog?.WriteToLog(caller, message);
 		}
 	}
 }

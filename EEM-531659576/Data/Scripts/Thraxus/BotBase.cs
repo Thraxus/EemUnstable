@@ -318,7 +318,7 @@ namespace Eem.Thraxus
 				if (_ownerFaction == null)
 					_ownerFaction = Grid.GetOwnerFaction();
 				//MyAPIGateway.Session.Factions.DeclareWar(_ownerFaction.FactionId, playerFaction.FactionId);
-				Factions.FactionCore.FactionCoreStaticInstance.RelationshipManager.ExternalWarDeclaration(_ownerFaction.FactionId, playerFaction.FactionId);
+				Factions.FactionCore.FactionCoreStaticInstance.RelationshipManager.WarDeclaration(_ownerFaction.FactionId, playerFaction.FactionId);
 				//Factions.Factions.DeclareFactionWar(_ownerFaction, playerFaction);
 			}
 			catch (Exception e)
