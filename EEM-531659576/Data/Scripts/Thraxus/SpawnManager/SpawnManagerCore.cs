@@ -84,7 +84,7 @@ namespace Eem.Thraxus.SpawnManager
 		{
 			base.UnloadData();
 			if (!Constants.IsServer) return;
-			_entityTracker.Close();
+			_entityTracker?.Close();
 			WriteToLog("SpawnManagerCore", $"I'm out!... {UpdateOrder}", true);
 			_debugLog?.Close();
 			_generalLog?.Close();
