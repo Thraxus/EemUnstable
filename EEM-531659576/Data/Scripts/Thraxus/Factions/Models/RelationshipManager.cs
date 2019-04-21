@@ -506,14 +506,22 @@ namespace Eem.Thraxus.Factions.Models
 
 		private void ScrubDictionaries(long factionId)
 		{
-			if (_lawfulFactionDictionary.ContainsKey(factionId)) _lawfulFactionDictionary.Remove(factionId);
-			if (_enforcementFactionDictionary.ContainsKey(factionId)) _enforcementFactionDictionary.Remove(factionId);
-			if (_pirateFactionDictionary.ContainsKey(factionId)) _pirateFactionDictionary.Remove(factionId);
-			if (_playerFactionDictionary.ContainsKey(factionId)) _playerFactionDictionary.Remove(factionId);
-			if (_playerPirateFactionDictionary.ContainsKey(factionId)) _playerPirateFactionDictionary.Remove(factionId);
-			if (_npcFactionDictionary.ContainsKey(factionId)) _npcFactionDictionary.Remove(factionId);
-			if (_newFactionDictionary.ContainsKey(factionId)) _newFactionDictionary.Remove(factionId);
-			ClearRemovedFactionFromRelationships(factionId);
+			try
+			{
+				_playerFactionDictionary.Remove(factionId);
+				_playerPirateFactionDictionary.Remove(factionId);
+				_pirateFactionDictionary.Remove(factionId);
+				_enforcementFactionDictionary.Remove(factionId);
+				_lawfulFactionDictionary.Remove(factionId);
+				_npcFactionDictionary.Remove(factionId);
+				_nonEemNpcFactionDictionary.Remove(factionId);
+				_newFactionDictionary.Remove(factionId);
+				ClearRemovedFactionFromRelationships(factionId);
+			}
+			catch (Exception e)
+			{
+				ExceptionWriter("ScrubDictionaries", $"Exception!\t{e}");
+			}
 		}
 
 
@@ -531,15 +539,21 @@ namespace Eem.Thraxus.Factions.Models
 
 		private static void AutoPeace(long fromFactionId, long toFactionId)
 		{
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.SendPeaceRequest(fromFactionId, toFactionId));
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId));
-			ClearPeace(fromFactionId, toFactionId);
+			MyAPIGateway.Utilities.InvokeOnGameThread(() =>
+			{
+				MyAPIGateway.Session.Factions.SendPeaceRequest(fromFactionId, toFactionId);
+				MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId);
+				ClearPeace(fromFactionId, toFactionId);
+			});
 		}
 
 		private static void ClearPeace(long fromFactionId, long toFactionId)
 		{   // Stops the flag from hanging out in the faction menu
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.CancelPeaceRequest(toFactionId, fromFactionId));
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFactionId, toFactionId));
+			MyAPIGateway.Utilities.InvokeOnGameThread(() =>
+			{
+				MyAPIGateway.Session.Factions.CancelPeaceRequest(toFactionId, fromFactionId);
+				MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFactionId, toFactionId);
+			});
 		}
 
 		private static void DeclareWar(long npcFaction, long playerFaction)
