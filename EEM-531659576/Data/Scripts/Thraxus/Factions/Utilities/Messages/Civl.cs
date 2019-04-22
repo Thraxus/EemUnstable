@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Eem.Thraxus.Factions.Utilities.Messages;
 
 namespace Eem.Thraxus.Factions.Messages
 {

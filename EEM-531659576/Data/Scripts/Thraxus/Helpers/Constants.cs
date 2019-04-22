@@ -19,7 +19,7 @@ namespace Eem.Thraxus.Helpers
 
 		public static bool EnableGeneralLog { get; } = true;
 
-		public static bool DisableCleanup { get; } = true;
+		public static bool DisableCleanup { get; } = false;
 		
 		public static string DebugLogName { get; } = "EEM_Debug"; 
 
@@ -88,7 +88,7 @@ namespace Eem.Thraxus.Helpers
 		public static string[] CleanupRcExtraTags { get; } = { "Type:Fighter", "Type:Freighter" };
 
 		// clamp the world's view range to this minimum value, which is used for removing distant ships
-		public static int CleanupMinRange { get; } = 25000;
+		public static int CleanupMinRange { get; } = 40000;
 
 		// remove connector-connected ships too?
 		public static bool CleanupConnectorConnected { get; } = false;
