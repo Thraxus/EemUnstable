@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Eem.Thraxus.Bots.Models;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Extensions;
 using Eem.Thraxus.Utilities;
@@ -9,6 +12,7 @@ using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using IMyEntity = VRage.ModAPI.IMyEntity;
 
 namespace Eem.Thraxus.Bots
 {
@@ -31,13 +35,14 @@ namespace Eem.Thraxus.Bots
 		private bool _setupApproved;
 		private bool _setupComplete;
 
-		private BotOrphan _myOldParentInfo;
+		private MultiPartBot _multiPartBot;
 
-		private IMyCubeGrid _thisEntity;
+		private static BotCore _instance;
+		private IMyCubeGrid _thisCubeGrid;
+
+		private List<IMyShipController> _myShipControllers;
 
 		private MyEntityUpdateEnum _originalUpdateEnum;
-
-		private List<IMyShipController> myShipControllers;
 
 		/// <inheritdoc />
 		public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -65,10 +70,9 @@ namespace Eem.Thraxus.Bots
 				_setupApproved = false;
 				return;
 			}
-			_thisEntity = (IMyCubeGrid)Entity;
-			myShipControllers = new List<IMyShipController>();
-			MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(_thisEntity).GetBlocksOfType(myShipControllers);
-			if (myShipControllers.Count == 0)
+			_myShipControllers = new List<IMyShipController>();
+			GetControllers();
+			if (_myShipControllers.Count == 0)
 			{
 				_setupApproved = false;
 				return;
@@ -80,29 +84,47 @@ namespace Eem.Thraxus.Bots
 		public override void Close()
 		{
 			if (_setupApproved) Unload();
+			_instance = null;
 			base.Close();
 		}
 		private void SetupDenied()
 		{
 			_setupComplete = true;
+			_myShipControllers.Clear();
 			NeedsUpdate = _originalUpdateEnum;
 		}
 		private void ProceedWithSetup()
-		{
-			((IMyCubeGrid)Entity).OnGridSplit += OnGridSplit;
-			((IMyCubeGrid)Entity).OnBlockAdded += OnBlockAdded;
-			((IMyCubeGrid)Entity).OnBlockRemoved += OnBlockRemoved;
-			((IMyCubeGrid)Entity).OnBlockOwnershipChanged += OnOnBlockOwnershipChanged;
-			SetupBot();
+		{ // Base bot choice here (single or multi)
+			_setupComplete = true;
+			_instance = this;
+			_thisCubeGrid = ((IMyCubeGrid) Entity);
+			_thisCubeGrid.OnBlockRemoved += OnBlockRemoved;
+			_multiPartBot = new MultiPartBot(Entity, _myShipControllers);
+			_multiPartBot.Shutdown += delegate
+			{
+				Close();
+				SetupDenied();
+				_multiPartBot.Unload();
+			};
 		}
 
 		private void Unload()
 		{
 			Marshall.WriteToLog("BotCore", $"Shutting down -\tId:\t{Entity.EntityId}\tName:\t{Entity.DisplayName}", true);
-			_thisEntity.OnGridSplit -= OnGridSplit;
-			_thisEntity.OnBlockAdded -= OnBlockAdded;
-			_thisEntity.OnBlockRemoved -= OnBlockRemoved;
-			_thisEntity.OnBlockOwnershipChanged -= OnOnBlockOwnershipChanged;
+			_myShipControllers.Clear();
+		}
+		private void OnBlockRemoved(IMySlimBlock removedBlock)
+		{
+			if (!(removedBlock.FatBlock is IMyShipController)) return;
+			GetControllers();
+			Marshall.WriteToLog("OnBlockRemoved", $"\tId:\t{Entity.EntityId}\tName:\t{Entity.DisplayName}\tController Count:\t{_myShipControllers.Count}", true);
+			if (_myShipControllers.Count != 0) return;
+			Unload();
+		}
+
+		public static void Shutdown()
+		{
+			
 		}
 
 		/// <inheritdoc />
@@ -111,48 +133,27 @@ namespace Eem.Thraxus.Bots
 			base.UpdateOnceBeforeFrame();
 		}
 
-		private void SetupBot()
-		{
-			_setupComplete = true;
-			Marshall.WriteToLog("SetupBot", $"New Entity -\tId:\t{Entity.EntityId}\tName:\t{Entity.DisplayName}\tController Count:\t{myShipControllers.Count}", true);
-			if (Marshall.BotOrphans.TryGetValue(Entity.EntityId, out _myOldParentInfo))
-				Marshall.WriteToLog("SetupBot", $"I'm a new Entity with Id: {Entity.EntityId} and {myShipControllers.Count} controllers.  My parent was an entity with Id: {_myOldParentInfo.MyParentId}.  My grandparent was an entity with Id: {_myOldParentInfo.MyGrandParentId}", true);
-
-		}
-
 		/// <inheritdoc />
 		public override void OnAddedToScene()
 		{
 			base.OnAddedToScene();
 		}
 
-		private void OnGridSplit(IMyCubeGrid originalGrid, IMyCubeGrid newGrid)
+		private void GetControllers()
 		{
-			Marshall.BotOrphans.Add(newGrid.EntityId, new BotOrphan(originalGrid.EntityId, _myOldParentInfo.MyParentId));
-			Marshall.WriteToLog("OnGridSplit", $"Parent:\t{originalGrid.EntityId}\tChild:\t{newGrid.EntityId}", true);
+			try
+			{
+				MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid((IMyCubeGrid)Entity).GetBlocksOfType(_myShipControllers);
+				for (int i = _myShipControllers.Count - 1; i >= 0; i--)
+				{
+					if (!_myShipControllers[i].CanControlShip)
+						_myShipControllers.RemoveAtFast(i);
+				}
+			}
+			catch (Exception e)
+			{
+				Marshall.ExceptionLog("GetShipControllers",$"Exception!\t{e}");
+			}
 		}
-
-		private void OnBlockAdded(IMySlimBlock addedBlock)
-		{
-
-		}
-
-		private void OnBlockRemoved(IMySlimBlock removedBlock)
-		{
-			if (!(removedBlock.FatBlock is IMyShipController)) return;
-			MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(_thisEntity).GetBlocksOfType(myShipControllers);
-			Marshall.WriteToLog("OnBlockRemoved", $"\tId:\t{Entity.EntityId}\tName:\t{Entity.DisplayName}\tController Count:\t{myShipControllers.Count}", true);
-			if (myShipControllers.Count != 0) return;
-			_setupApproved = false;
-			SetupDenied();
-			Unload();
-		}
-
-		private void OnOnBlockOwnershipChanged(IMyCubeGrid cubeGrid)
-		{
-			
-		}
-
-		
 	}
 }
