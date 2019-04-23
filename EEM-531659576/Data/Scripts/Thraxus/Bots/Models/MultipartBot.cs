@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.Utilities;
+using Eem.Thraxus.Common;
 using Sandbox.ModAPI;
 using IMyCubeGrid = VRage.Game.ModAPI.IMyCubeGrid;
 using IMySlimBlock = VRage.Game.ModAPI.IMySlimBlock;

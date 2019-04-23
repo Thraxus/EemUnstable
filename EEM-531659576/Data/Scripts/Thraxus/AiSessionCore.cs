@@ -64,7 +64,6 @@ namespace Eem.Thraxus
 		{
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
 			if (!Constants.IsServer) return;
-			if (Constants.DebugMode && !_debugInitialized) DebugInit();
 			if (!_initialized) Initialize();
 		}
 
@@ -73,6 +72,7 @@ namespace Eem.Thraxus
 			_debugInitialized = true;
 			DebugLog = new Log(Constants.DebugLogName);
 			InformationExporter.Run();
+			Settings.Run();
 			MyAPIGateway.Entities.OnEntityAdd += delegate (IMyEntity entity)
 			{
 				GeneralLog.WriteToLog("Core", $"Entity Added\t{entity.EntityId}\t{entity.DisplayName}");
@@ -81,16 +81,16 @@ namespace Eem.Thraxus
 			{
 				GeneralLog.WriteToLog("Core", $"Entity Removed\t{entity.EntityId}\t{entity.DisplayName}");
 			};
+			DebugLog.WriteToLog("Initialize", $"Debug Active - IsServer: {Constants.IsServer}", true, 30000);
 		}
 
 		private void Initialize()
 		{
-			if (Constants.DebugMode) DebugLog.WriteToLog("Initialize", $"Debug Active - IsServer: {Constants.IsServer}", true, 20000);
+			_initialized = true;
 			Messaging.Register();
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(0, DamageRefHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(0, GenericDamageHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterDestroyHandler(0, GenericDamageHandler);
-			_initialized = true;
 		}
 
 		private static void InitLogs()
@@ -115,20 +115,21 @@ namespace Eem.Thraxus
 			if (Constants.EnableGeneralLog) GeneralLog?.Close();
 		}
 
-		
+
 
 		///// <summary>
 		///// Initial setup
 		///// </summary>
 		///// <param name="sessionComponent"></param>
-		//public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
-		//{
-		//	base.Init(sessionComponent);
-		//}
+		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
+		{
+			base.Init(sessionComponent);
+		}
 
 		public override void BeforeStart()
 		{
 			InitLogs();
+			if (Constants.DebugMode && !_debugInitialized) DebugInit();
 		}
 
 		/// <summary>
