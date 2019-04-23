@@ -90,7 +90,7 @@ namespace Eem.Thraxus.Bots
 		private void SetupDenied()
 		{
 			_setupComplete = true;
-			_myShipControllers.Clear();
+			_myShipControllers?.Clear();
 			NeedsUpdate = _originalUpdateEnum;
 		}
 		private void ProceedWithSetup()
@@ -120,11 +120,6 @@ namespace Eem.Thraxus.Bots
 			Marshall.WriteToLog("OnBlockRemoved", $"\tId:\t{Entity.EntityId}\tName:\t{Entity.DisplayName}\tController Count:\t{_myShipControllers.Count}", true);
 			if (_myShipControllers.Count != 0) return;
 			Unload();
-		}
-
-		public static void Shutdown()
-		{
-			
 		}
 
 		/// <inheritdoc />
