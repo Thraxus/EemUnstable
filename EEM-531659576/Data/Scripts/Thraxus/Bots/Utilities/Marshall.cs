@@ -74,7 +74,7 @@ namespace Eem.Thraxus.Bots.Utilities
 
 		public static void ExceptionLog(string caller, string message)
 		{
-			WriteToLog(caller, message, true);
+			WriteToLog(caller, $"Exception! {message}", true);
 		}
 	}
 }

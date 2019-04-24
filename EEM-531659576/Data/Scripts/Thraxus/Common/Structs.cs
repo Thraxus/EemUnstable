@@ -1,31 +1,42 @@
-﻿namespace Eem.Thraxus.Common
+﻿using System.Collections.Generic;
+
+namespace Eem.Thraxus.Common
 {
 	public struct BotOrphan
 	{
 		public readonly long MyParentId;
-		public readonly long MyGrandParentId;
+		public readonly List<long> MyAncestors;
+		public readonly EemPrefabConfig MyLegacyConfig;
 
-		public BotOrphan(long myParentId, long myGrandParentId)
+		public BotOrphan(long myParentId, List<long> myAncestors, EemPrefabConfig myLegacyConfig)
 		{
 			MyParentId = myParentId;
-			MyGrandParentId = myGrandParentId;
+			MyAncestors = myAncestors;
+			MyLegacyConfig = myLegacyConfig;
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return $"Parent: {MyParentId} - MyAncestors: {MyAncestors?.ToArray()} - MyConfig: {MyLegacyConfig}";
 		}
 	}
 
 	public struct EemPrefabConfig
 	{
-		private string _prefabType;
-		private string _preset;
-		private string _callForHelpProbability;
-		private string _seekDistance;
-		private string _faction;
-		private string _fleeOnlyWhenDamaged;
-		private string _fleeTriggerDistance;
-		private string _fleeSpeedCap;
-		private string _ambushMode;
-		private string _delayedAi;
-		private string _activationDistance;
-		private string _playerPriority;
+		public string PrefabType;
+		public string Preset;
+		public string CallForHelpProbability;
+		public string SeekDistance;
+		public string Faction;
+		public string FleeOnlyWhenDamaged;
+		public string FleeTriggerDistance;
+		public string FleeSpeedCap;
+		public string AmbushMode;
+		public string DelayedAi;
+		public string ActivationDistance;
+		public string PlayerPriority;
+		public string MultiBot;
 
 		private void ParseConfigEntry(string config)
 		{
@@ -37,40 +48,43 @@
 				switch (x[0].ToLower())
 				{
 					case "type":
-						_prefabType = x[1];
+						PrefabType = x[1];
 						break;
 					case "preset":
-						_preset = x[1];
+						Preset = x[1];
 						break;
 					case "callforhelprobability":
-						_callForHelpProbability = x[1];
+						CallForHelpProbability = x[1];
 						break;
 					case "seekdistance":
-						_seekDistance = x[1];
+						SeekDistance = x[1];
 						break;
 					case "faction":
-						_faction = x[1];
+						Faction = x[1];
 						break;
 					case "fleeonlywhendamaged":
-						_fleeOnlyWhenDamaged = x[1];
+						FleeOnlyWhenDamaged = x[1];
 						break;
 					case "fleetriggerdistance":
-						_fleeTriggerDistance = x[1];
+						FleeTriggerDistance = x[1];
 						break;
 					case "fleespeedcap":
-						_fleeSpeedCap = x[1];
+						FleeSpeedCap = x[1];
 						break;
 					case "ambushmode":
-						_ambushMode = x[1];
+						AmbushMode = x[1];
 						break;
 					case "delayedai":
-						_delayedAi = x[1];
+						DelayedAi = x[1];
 						break;
 					case "activationdistance":
-						_activationDistance = x[1];
+						ActivationDistance = x[1];
 						break;
 					case "playerpriority":
-						_playerPriority = x[1];
+						PlayerPriority = x[1];
+						break;
+					case "multibot":
+						MultiBot = x[1];
 						break;
 					default: break;
 				}
@@ -80,7 +94,7 @@
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return $"{_faction}\t{_prefabType}\t{_preset}\t{_callForHelpProbability}\t{_delayedAi}\t{_seekDistance}\t{_ambushMode}\t{_activationDistance}\t{_fleeOnlyWhenDamaged}\t{_fleeTriggerDistance}\t{_fleeSpeedCap}\t{_playerPriority}";
+			return $"Prefab Config:\t{Faction}\t{PrefabType}\t{Preset}\t{CallForHelpProbability}\t{DelayedAi}\t{SeekDistance}\t{AmbushMode}\t{ActivationDistance}\t{FleeOnlyWhenDamaged}\t{FleeTriggerDistance}\t{FleeSpeedCap}\t{PlayerPriority}\t{MultiBot}";
 		}
 
 		public EemPrefabConfig(string config) : this()

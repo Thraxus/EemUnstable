@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Eem.Thraxus.Bots.Models;
+using Eem.Thraxus.Bots.Models.Components;
+using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
-using Eem.Thraxus.Extensions;
-using Eem.Thraxus.Utilities;
-using Sandbox.Common.ObjectBuilders;
+using Eem.Thraxus.Common;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
-using IMyEntity = VRage.ModAPI.IMyEntity;
 
 namespace Eem.Thraxus.Bots
 {
@@ -32,15 +30,17 @@ namespace Eem.Thraxus.Bots
 		 * TODO Reinforcement Conditions / calls (antenna drones)
 		 */
 
+		private EemPrefabConfig prefabConfig;
+
 		private bool _setupApproved;
 		private bool _setupComplete;
 
-		private MultiPartBot _multiPartBot;
-
 		private static BotCore _instance;
-		private IMyCubeGrid _thisCubeGrid;
+
+		private BotBaseAdvanced _bot;
 
 		private List<IMyShipController> _myShipControllers;
+		private IMyShipController _myShipController;
 
 		private MyEntityUpdateEnum _originalUpdateEnum;
 
@@ -52,88 +52,78 @@ namespace Eem.Thraxus.Bots
 			NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_FRAME;
 			_setupApproved = true;
 		}
-		
+
+		private void Shutdown()
+		{
+			_setupComplete = true;
+			NeedsUpdate = _originalUpdateEnum;
+			_myShipControllers?.Clear();
+			_instance = null;
+			if (_bot != null) _bot.Shutdown -= Shutdown;
+		}
+
 		/// <inheritdoc />
 		public override void UpdateBeforeSimulation()
-		{
+		{	// Basic tick timer on the ship level
 			base.UpdateBeforeSimulation();
-			if (_setupComplete) return;
-			PreApproveSetup();
-			if (_setupApproved) ProceedWithSetup();
-			else SetupDenied();
-		}
-
-		private void PreApproveSetup()
-		{
-			if (Entity.Physics == null)
-			{
-				_setupApproved = false;
-				return;
-			}
-			_myShipControllers = new List<IMyShipController>();
-			GetControllers();
-			if (_myShipControllers.Count == 0)
-			{
-				_setupApproved = false;
-				return;
-			}
-			_setupApproved = true;
-		}
-
-		/// <inheritdoc />
-		public override void Close()
-		{
-			if (_setupApproved) Unload();
-			_instance = null;
-			base.Close();
-		}
-		private void SetupDenied()
-		{
-			_setupComplete = true;
-			_myShipControllers?.Clear();
-			NeedsUpdate = _originalUpdateEnum;
-		}
-		private void ProceedWithSetup()
-		{ // Base bot choice here (single or multi)
-			_setupComplete = true;
-			_instance = this;
-			_thisCubeGrid = ((IMyCubeGrid) Entity);
-			_thisCubeGrid.OnBlockRemoved += OnBlockRemoved;
-			_multiPartBot = new MultiPartBot(Entity, _myShipControllers);
-			_multiPartBot.Shutdown += delegate
-			{
-				Close();
-				SetupDenied();
-				_multiPartBot.Unload();
-			};
-		}
-
-		private void Unload()
-		{
-			Marshall.WriteToLog("BotCore", $"Shutting down -\tId:\t{Entity.EntityId}\tName:\t{Entity.DisplayName}", true);
-			_myShipControllers.Clear();
-		}
-		private void OnBlockRemoved(IMySlimBlock removedBlock)
-		{
-			if (!(removedBlock.FatBlock is IMyShipController)) return;
-			GetControllers();
-			Marshall.WriteToLog("OnBlockRemoved", $"\tId:\t{Entity.EntityId}\tName:\t{Entity.DisplayName}\tController Count:\t{_myShipControllers.Count}", true);
-			if (_myShipControllers.Count != 0) return;
-			Unload();
 		}
 
 		/// <inheritdoc />
 		public override void UpdateOnceBeforeFrame()
 		{
 			base.UpdateOnceBeforeFrame();
+			if (_setupComplete) return;
+			PreApproveSetup();
+			if (_setupApproved) ProceedWithSetup();
+			else Shutdown();
+		}
+
+		private void ProceedWithSetup()
+		{ // Base bot choice here (single or multi)
+			_setupComplete = true;
+			_instance = this;
+			_bot = new BotBaseAdvanced(Entity, _myShipController);
+			_bot.Shutdown += Shutdown;
 		}
 
 		/// <inheritdoc />
 		public override void OnAddedToScene()
 		{
+			// TODO: Potential use for warp in effect?  
 			base.OnAddedToScene();
 		}
 
+		private void PreApproveSetup()
+		{
+			if (Entity.Physics == null) return;
+
+			_myShipControllers = new List<IMyShipController>();
+			GetControllers();
+
+			if (_myShipControllers.Count == 0) return;
+
+			if (Marshall.BotOrphans.ContainsKey(Entity.EntityId))
+			{
+				// TODO: Placeholder for initializing a multipart bot; we already know the setup, and this grid has a functioning control center, so no need to go further
+				//_setupApproved = true;
+				//return;
+			}
+
+			foreach (IMyShipController myShipController in _myShipControllers)
+				if (myShipController.CustomData.Contains(Constants.EemAiPrefix)) _myShipController = myShipController;
+
+			if (_myShipController == null) return;
+
+			_setupApproved = true;
+		}
+
+		/// <inheritdoc />
+		public override void Close()
+		{
+			Shutdown();
+			base.Close();
+		}
+		
 		private void GetControllers()
 		{
 			try
@@ -141,7 +131,7 @@ namespace Eem.Thraxus.Bots
 				MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid((IMyCubeGrid)Entity).GetBlocksOfType(_myShipControllers);
 				for (int i = _myShipControllers.Count - 1; i >= 0; i--)
 				{
-					if (!_myShipControllers[i].CanControlShip)
+					if (!_myShipControllers[i].CanControlShip || !_myShipControllers[i].IsFunctional)
 						_myShipControllers.RemoveAtFast(i);
 				}
 			}
