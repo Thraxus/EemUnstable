@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.Models;
-using Eem.Thraxus.Bots.Models.Components;
 using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
@@ -30,7 +29,7 @@ namespace Eem.Thraxus.Bots
 		 * TODO Reinforcement Conditions / calls (antenna drones)
 		 */
 
-		private EemPrefabConfig prefabConfig;
+		//private EemPrefabConfig prefabConfig;
 
 		private bool _setupApproved;
 		private bool _setupComplete;
@@ -48,18 +47,35 @@ namespace Eem.Thraxus.Bots
 		public override void Init(MyObjectBuilder_EntityBase objectBuilder)
 		{
 			base.Init(objectBuilder);
+			if (!Helpers.Constants.IsServer) return;
 			_originalUpdateEnum = NeedsUpdate;
-			NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_FRAME;
-			_setupApproved = true;
+			NeedsUpdate |= Constants.CoreUpdateSchedule;
 		}
 
 		private void Shutdown()
 		{
+			Marshall.WriteToLog("Shutdown", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", true);
 			_setupComplete = true;
 			NeedsUpdate = _originalUpdateEnum;
 			_myShipControllers?.Clear();
 			_instance = null;
-			if (_bot != null) _bot.Shutdown -= Shutdown;
+			if (_bot != null)
+			{
+				_bot.BotShutdown -= Shutdown;
+				_bot.BotSleep -= Sleep;
+				_bot.BotWakeup -= WakeUp;
+			}
+			_bot?.Unload();
+		}
+
+		private void Sleep()
+		{
+			NeedsUpdate = _originalUpdateEnum;
+		}
+
+		private void WakeUp()
+		{
+			NeedsUpdate |= Constants.CoreUpdateSchedule;
 		}
 
 		/// <inheritdoc />
@@ -72,6 +88,7 @@ namespace Eem.Thraxus.Bots
 		public override void UpdateOnceBeforeFrame()
 		{
 			base.UpdateOnceBeforeFrame();
+			if (!Helpers.Constants.IsServer) return;
 			if (_setupComplete) return;
 			PreApproveSetup();
 			if (_setupApproved) ProceedWithSetup();
@@ -80,10 +97,13 @@ namespace Eem.Thraxus.Bots
 
 		private void ProceedWithSetup()
 		{ // Base bot choice here (single or multi)
+			Marshall.WriteToLog("ProceedWithSetup", $"Setup approved for {Entity.DisplayName} with ID {Entity.EntityId}", true);
 			_setupComplete = true;
 			_instance = this;
 			_bot = new BotBaseAdvanced(Entity, _myShipController);
-			_bot.Shutdown += Shutdown;
+			_bot.BotShutdown += Shutdown;
+			_bot.BotSleep += Sleep;
+			_bot.BotWakeup += WakeUp;
 		}
 
 		/// <inheritdoc />
@@ -120,6 +140,7 @@ namespace Eem.Thraxus.Bots
 		/// <inheritdoc />
 		public override void Close()
 		{
+			if (!Helpers.Constants.IsServer) return;
 			Shutdown();
 			base.Close();
 		}

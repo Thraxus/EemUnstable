@@ -43,6 +43,7 @@ namespace Eem.Thraxus.Bots.Utilities
 			_botGeneralLog = new Log(GeneralLogName);
 			if (Helpers.Constants.DebugMode) _botDebugLog = new Log(DebugLogName);
 			BotOrphans = new Dictionary<long, BotOrphan>();
+			DamageHandler.Run();
 		}
 
 		/// <inheritdoc />
@@ -56,6 +57,7 @@ namespace Eem.Thraxus.Bots.Utilities
 
 		private void Unload()
 		{
+			DamageHandler.Unload();
 			BotOrphans?.Clear();
 			_botDebugLog?.Close();
 			_botGeneralLog?.Close();

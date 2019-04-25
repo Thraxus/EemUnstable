@@ -92,7 +92,7 @@ namespace Eem.Thraxus
 		{
 			//if (!MyAPIGateway.Multiplayer.IsServer) return;
 			if (!Constants.IsServer) return;
-			if (Constants.DisableAi)
+			if (Constants.DisableCheetahAi)
 			{
 				IsOperable = true;
 				_inited = true;

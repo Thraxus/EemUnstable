@@ -1,10 +1,11 @@
-﻿using Eem.Thraxus.Bots.Utilities;
+﻿using Eem.Thraxus.Bots.Models;
+using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Sandbox.ModAPI;
 using IMyCubeGrid = VRage.Game.ModAPI.IMyCubeGrid;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 
-namespace Eem.Thraxus.Bots.Models.Components
+namespace Eem.Thraxus.Bots.Modules
 {
 	internal class MultiPartBot : BotBaseAdvanced
 	{
@@ -17,7 +18,7 @@ namespace Eem.Thraxus.Bots.Models.Components
 		}
 
 		/// <inheritdoc />
-		internal override void SetupBot()
+		internal void SetupBot()
 		{
 			base.SetupBot();
 			Marshall.WriteToLog("SetupBot", $"New Entity -\tId:\t{ThisEntity.EntityId}\tName:\t{ThisEntity.DisplayName}", true);

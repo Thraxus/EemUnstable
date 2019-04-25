@@ -13,7 +13,7 @@ namespace Eem.Thraxus.Helpers
 
 		public static bool DebugMode { get; } = false;
 
-		public static bool DisableAi { get; } = false;
+		public static bool DisableCheetahAi { get; } = true;
 
 		public static bool EnableProfilingLog { get; } = true;
 
