@@ -82,12 +82,12 @@ namespace Eem.Thraxus.SpawnManager
 		/// </summary>
 		protected override void UnloadData()
 		{
-			base.UnloadData();
 			if (!Constants.IsServer) return;
 			_entityTracker?.Close();
 			WriteToLog("SpawnManagerCore", $"I'm out!... {UpdateOrder}", true);
 			_debugLog?.Close();
 			_generalLog?.Close();
+			base.UnloadData();
 		}
 
 

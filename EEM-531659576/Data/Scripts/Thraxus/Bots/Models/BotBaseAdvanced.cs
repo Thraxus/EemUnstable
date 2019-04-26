@@ -40,12 +40,14 @@ namespace Eem.Thraxus.Bots.Models
 			ThisCubeGrid.OnBlockRemoved += OnBlockRemoved;
 			ThisCubeGrid.OnBlockOwnershipChanged += OnOnBlockOwnershipChanged;
 			ThisCubeGrid.OnBlockIntegrityChanged += OnBlockIntegrityChanged;
+			Marshall.RegisterNewEntity(ThisEntity.EntityId);
 			SetupBot();
 		}
 
 		public void Unload()
 		{
 			Marshall.WriteToLog("BotCore", $"Shutting down -\tId:\t{ThisEntity.EntityId}\tName:\t{ThisEntity.DisplayName}", true);
+			Marshall.RemoveDeadEntity(ThisEntity.EntityId);
 			ThisCubeGrid.OnBlockAdded -= OnBlockAdded;
 			ThisCubeGrid.OnBlockRemoved -= OnBlockRemoved;
 			ThisCubeGrid.OnBlockOwnershipChanged -= OnOnBlockOwnershipChanged;

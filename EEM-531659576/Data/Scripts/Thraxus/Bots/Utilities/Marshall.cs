@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Utilities;
+using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Components;
 
@@ -11,6 +14,8 @@ namespace Eem.Thraxus.Bots.Utilities
 	internal class Marshall : MySessionComponentBase
 	{
 		private static Marshall _instance;
+
+		public static ConcurrentDictionary<long, ConcurrentQueue<long>> ActiveShipDictionary;
 
 		private const string GeneralLogName = "BotGeneral";
 		private const string DebugLogName = "BotDebug";
@@ -43,6 +48,7 @@ namespace Eem.Thraxus.Bots.Utilities
 			_botGeneralLog = new Log(GeneralLogName);
 			if (Helpers.Constants.DebugMode) _botDebugLog = new Log(DebugLogName);
 			BotOrphans = new Dictionary<long, BotOrphan>();
+			ActiveShipDictionary = new ConcurrentDictionary<long, ConcurrentQueue<long>>();
 			DamageHandler.Run();
 		}
 
@@ -61,6 +67,30 @@ namespace Eem.Thraxus.Bots.Utilities
 			BotOrphans?.Clear();
 			_botDebugLog?.Close();
 			_botGeneralLog?.Close();
+		}
+
+		public static void RegisterNewEntity(long entityId)
+		{
+			try
+			{
+				ActiveShipDictionary.TryAdd(entityId, new ConcurrentQueue<long>());
+			}
+			catch (Exception e)
+			{
+				ExceptionLog("RegisterNewEntity", e.ToString());
+			}
+		}
+
+		public static void RemoveDeadEntity(long entityId)
+		{
+			try
+			{
+				ActiveShipDictionary.Remove(entityId);
+			}
+			catch (Exception e)
+			{
+				ExceptionLog("RemoveDeadEntity", e.ToString());
+			}
 		}
 
 		private static readonly object WriteLocker = new object();
