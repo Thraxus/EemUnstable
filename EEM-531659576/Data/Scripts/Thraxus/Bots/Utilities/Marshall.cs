@@ -3,9 +3,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Utilities;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Game.Screens.Helpers;
+using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.ModAPI;
+using VRage.ModAPI;
+using VRageMath;
 
 namespace Eem.Thraxus.Bots.Utilities
 {
@@ -15,7 +21,7 @@ namespace Eem.Thraxus.Bots.Utilities
 	{
 		private static Marshall _instance;
 
-		public static ConcurrentDictionary<long, ConcurrentQueue<long>> ActiveShipDictionary;
+		public static ConcurrentDictionary<long, ConcurrentQueue<long>> ActiveShipDirectory;
 
 		private const string GeneralLogName = "BotGeneral";
 		private const string DebugLogName = "BotDebug";
@@ -48,7 +54,7 @@ namespace Eem.Thraxus.Bots.Utilities
 			_botGeneralLog = new Log(GeneralLogName);
 			if (Helpers.Constants.DebugMode) _botDebugLog = new Log(DebugLogName);
 			BotOrphans = new Dictionary<long, BotOrphan>();
-			ActiveShipDictionary = new ConcurrentDictionary<long, ConcurrentQueue<long>>();
+			ActiveShipDirectory = new ConcurrentDictionary<long, ConcurrentQueue<long>>();
 			DamageHandler.Run();
 		}
 
@@ -73,7 +79,7 @@ namespace Eem.Thraxus.Bots.Utilities
 		{
 			try
 			{
-				ActiveShipDictionary.TryAdd(entityId, new ConcurrentQueue<long>());
+				ActiveShipDirectory.TryAdd(entityId, new ConcurrentQueue<long>());
 			}
 			catch (Exception e)
 			{
@@ -85,12 +91,22 @@ namespace Eem.Thraxus.Bots.Utilities
 		{
 			try
 			{
-				ActiveShipDictionary.Remove(entityId);
+				ActiveShipDirectory.Remove(entityId);
 			}
 			catch (Exception e)
 			{
 				ExceptionLog("RemoveDeadEntity", e.ToString());
 			}
+		}
+
+		public static void RegisterNewMissile(MissileInfo missileInfo, Vector3D location)
+		{
+			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"Add: {missileInfo.LauncherId} -- {missileInfo.OwnerId}", "", location, true));
+		}
+
+		public static void RemoveOldMissile(MissileInfo missileInfo, Vector3D location)
+		{
+			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"Remove: {missileInfo.LauncherId} -- {missileInfo.OwnerId}", "", location, true));
 		}
 
 		private static readonly object WriteLocker = new object();

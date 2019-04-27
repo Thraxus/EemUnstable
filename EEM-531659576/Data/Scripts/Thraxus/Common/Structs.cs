@@ -1,7 +1,22 @@
 ﻿using System.Collections.Generic;
+using VRage;
+using VRage.GameServices;
+using VRageMath;
 
 namespace Eem.Thraxus.Common
 {
+	public struct MissileInfo
+	{
+		public readonly long OwnerId;
+		public readonly long LauncherId;
+
+		public MissileInfo(long launcherId, long ownerId)
+		{
+			LauncherId = launcherId;
+			OwnerId = ownerId;
+		}
+	}
+
 	public struct BotOrphan
 	{
 		public readonly long MyParentId;
