@@ -17,11 +17,12 @@ namespace Eem.Thraxus.Bots.Utilities
 {
 	[MySessionComponentDescriptor(MyUpdateOrder.NoUpdate, priority: int.MaxValue)]
 	// ReSharper disable once ClassNeverInstantiated.Global
-	internal class Marshall : MySessionComponentBase
+	internal class BotMarshal : MySessionComponentBase
 	{
-		private static Marshall _instance;
+		private static BotMarshal _instance;
 
-		public static ConcurrentDictionary<long, ConcurrentQueue<long>> ActiveShipDirectory;
+		public static MyConcurrentList<long> ActiveShipRegistry;
+		public static MyConcurrentDictionary<long, MyConcurrentList<ShipControllerHistory>> PlayerShipControllerHistory;
 
 		private const string GeneralLogName = "BotGeneral";
 		private const string DebugLogName = "BotDebug";
@@ -54,8 +55,36 @@ namespace Eem.Thraxus.Bots.Utilities
 			_botGeneralLog = new Log(GeneralLogName);
 			if (Helpers.Constants.DebugMode) _botDebugLog = new Log(DebugLogName);
 			BotOrphans = new Dictionary<long, BotOrphan>();
-			ActiveShipDirectory = new ConcurrentDictionary<long, ConcurrentQueue<long>>();
+			ActiveShipRegistry = new MyConcurrentList<long>();
+			PlayerShipControllerHistory = new MyConcurrentDictionary<long, MyConcurrentList<ShipControllerHistory>>();
 			DamageHandler.Run();
+		}
+
+		/// <inheritdoc />
+		public override void BeforeStart()
+		{
+			base.BeforeStart();
+		}
+
+		private void ControllerInfoOnControlAcquired(IMyEntityController controller)
+		{
+			try
+			{
+				ShipControllerHistory tmp = new ShipControllerHistory(
+					controller.ControlledEntity.ControllerInfo.ControllingIdentityId,
+					controller.ControlledEntity,
+					DateTime.Now);
+
+				if (PlayerShipControllerHistory.ContainsKey(controller.ControlledEntity.ControllerInfo.ControllingIdentityId))
+					PlayerShipControllerHistory[controller.ControlledEntity.ControllerInfo.ControllingIdentityId].Add(tmp);
+				else
+					PlayerShipControllerHistory.Add(controller.ControlledEntity.ControllerInfo.ControllingIdentityId, new MyConcurrentList<ShipControllerHistory> { tmp });
+				WriteToLog("ControlAcquiredDelegate", $"Added: {tmp}");
+			}
+			catch (Exception e)
+			{
+				ExceptionLog("ControlAcquiredDelegate", $"Exception! {e}");
+			}
 		}
 
 		/// <inheritdoc />
@@ -70,6 +99,8 @@ namespace Eem.Thraxus.Bots.Utilities
 		private void Unload()
 		{
 			DamageHandler.Unload();
+			ActiveShipRegistry?.Clear();
+			PlayerShipControllerHistory?.Clear();
 			BotOrphans?.Clear();
 			_botDebugLog?.Close();
 			_botGeneralLog?.Close();
@@ -79,7 +110,7 @@ namespace Eem.Thraxus.Bots.Utilities
 		{
 			try
 			{
-				ActiveShipDirectory.TryAdd(entityId, new ConcurrentQueue<long>());
+				ActiveShipRegistry.Add(entityId);
 			}
 			catch (Exception e)
 			{
@@ -91,22 +122,12 @@ namespace Eem.Thraxus.Bots.Utilities
 		{
 			try
 			{
-				ActiveShipDirectory.Remove(entityId);
+				ActiveShipRegistry.Remove(entityId);
 			}
 			catch (Exception e)
 			{
 				ExceptionLog("RemoveDeadEntity", e.ToString());
 			}
-		}
-
-		public static void RegisterNewMissile(MissileInfo missileInfo, Vector3D location)
-		{
-			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"Add: {missileInfo.LauncherId} -- {missileInfo.OwnerId}", "", location, true));
-		}
-
-		public static void RemoveOldMissile(MissileInfo missileInfo, Vector3D location)
-		{
-			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"Remove: {missileInfo.LauncherId} -- {missileInfo.OwnerId}", "", location, true));
 		}
 
 		private static readonly object WriteLocker = new object();

@@ -1,19 +1,47 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Sandbox.Game.Entities;
 using VRage;
+using VRage.Game.ModAPI;
 using VRage.GameServices;
 using VRageMath;
+using IMyControllableEntity = VRage.Game.ModAPI.Interfaces.IMyControllableEntity;
 
 namespace Eem.Thraxus.Common
 {
-	public struct MissileInfo
+	public struct ShipControllerHistory
+	{
+		public readonly long Controller;
+		public readonly IMyControllableEntity ControlledEntity;
+		public readonly DateTime TimeStamp;
+
+		public ShipControllerHistory(long controller, IMyControllableEntity controlledEntity, DateTime timeStamp)
+		{
+			Controller = controller;
+			ControlledEntity = controlledEntity;
+			TimeStamp = timeStamp;
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return $"Controller: {Controller} - ControllerEntity: {ControlledEntity.Entity.EntityId} - TimeStamp: {TimeStamp}";
+		}
+	}
+
+	public struct MissileHistory
 	{
 		public readonly long OwnerId;
 		public readonly long LauncherId;
+		public readonly Vector3D Location;
+		public readonly DateTime TimeStamp;
 
-		public MissileInfo(long launcherId, long ownerId)
+		public MissileHistory(long launcherId, long ownerId, Vector3D location, DateTime timeStamp)
 		{
 			LauncherId = launcherId;
 			OwnerId = ownerId;
+			Location = location;
+			TimeStamp = timeStamp;
 		}
 	}
 

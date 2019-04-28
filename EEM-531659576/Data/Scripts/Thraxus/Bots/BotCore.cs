@@ -54,7 +54,7 @@ namespace Eem.Thraxus.Bots
 
 		private void Shutdown()
 		{
-			Marshall.WriteToLog("Shutdown", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", true);
+			BotMarshal.WriteToLog("Shutdown", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", true);
 			_setupComplete = true;
 			NeedsUpdate = _originalUpdateEnum;
 			_myShipControllers?.Clear();
@@ -97,7 +97,7 @@ namespace Eem.Thraxus.Bots
 
 		private void ProceedWithSetup()
 		{ // Base bot choice here (single or multi)
-			Marshall.WriteToLog("ProceedWithSetup", $"Setup approved for {Entity.DisplayName} with ID {Entity.EntityId}", true);
+			BotMarshal.WriteToLog("ProceedWithSetup", $"Setup approved for {Entity.DisplayName} with ID {Entity.EntityId}", true);
 			_setupComplete = true;
 			_instance = this;
 			_bot = new BotBaseAdvanced(Entity, _myShipController);
@@ -122,7 +122,7 @@ namespace Eem.Thraxus.Bots
 
 			if (_myShipControllers.Count == 0) return;
 
-			if (Marshall.BotOrphans.ContainsKey(Entity.EntityId))
+			if (BotMarshal.BotOrphans.ContainsKey(Entity.EntityId))
 			{
 				// TODO: Placeholder for initializing a multipart bot; we already know the setup, and this grid has a functioning control center, so no need to go further
 				//_setupApproved = true;
@@ -158,7 +158,7 @@ namespace Eem.Thraxus.Bots
 			}
 			catch (Exception e)
 			{
-				Marshall.ExceptionLog("GetShipControllers",$"Exception!\t{e}");
+				BotMarshal.ExceptionLog("GetShipControllers",$"Exception!\t{e}");
 			}
 		}
 	}
