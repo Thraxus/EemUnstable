@@ -15,6 +15,7 @@ namespace Eem.Thraxus.Bots.Modules
 			base.OnAddedToScene();
 			try
 			{
+				if (!Helpers.Constants.IsServer) return;
 				DamageHandler.RegisterNewMissile(new MissileHistory(((MyObjectBuilder_Missile)Entity.GetObjectBuilder()).LauncherId, ((MyObjectBuilder_Missile)Entity.GetObjectBuilder()).Owner, Entity.GetPosition(),DateTime.Now));
 			}
 			catch (Exception e)
@@ -29,6 +30,7 @@ namespace Eem.Thraxus.Bots.Modules
 			base.OnRemovedFromScene();
 			try
 			{
+				if (!Helpers.Constants.IsServer) return;
 				DamageHandler.RegisterUnownedMissileImpact(new MissileHistory(((MyObjectBuilder_Missile)Entity.GetObjectBuilder()).LauncherId, ((MyObjectBuilder_Missile)Entity.GetObjectBuilder()).Owner, Entity.GetPosition(), DateTime.Now));
 			}
 			catch (Exception e)

@@ -41,7 +41,19 @@ namespace Eem.Thraxus.Bots.Models
 			ThisCubeGrid.OnBlockOwnershipChanged += OnOnBlockOwnershipChanged;
 			ThisCubeGrid.OnBlockIntegrityChanged += OnBlockIntegrityChanged;
 			BotMarshal.RegisterNewEntity(ThisEntity.EntityId);
+			DamageHandler.TriggerAlert += DamageHandlerOnTriggerAlert;
 			SetupBot();
+		}
+
+		private void DamageHandlerOnTriggerAlert(long shipId)
+		{
+			if (ThisEntity.EntityId == shipId)
+				TriggerAlertConditions();
+		}
+
+		private void TriggerAlertConditions()
+		{
+			// TODO Add alert conditions
 		}
 
 		public void Unload()

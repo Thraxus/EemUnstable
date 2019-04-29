@@ -3,6 +3,8 @@ using System.CodeDom;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Eem.Thraxus.Bots.Models;
+using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Extensions;
 using Eem.Thraxus.Utilities;
@@ -26,19 +28,29 @@ namespace Eem.Thraxus.Bots.Utilities
 		private const int Priority = int.MinValue;
 
 		private static List<MissileHistory> _unownedMissiles;
+		private static ConcurrentDictionary<long, ThrusterDamageTracker> _thrusterDamageTrackers;
 
 		private static Log _damageHandlerLog;
 		private static Log _damageHandlerDebugLog;
+
+		public static event TriggerAlertRequest TriggerAlert;
+		public delegate void TriggerAlertRequest(long shipId);
 
 		public static void Run()
 		{
 			_damageHandlerLog = new Log(DamageHandlerLogName);
 			_damageHandlerDebugLog = new Log(DamageHandlerDebugLogName);
 			_unownedMissiles = new List<MissileHistory>();
+			_thrusterDamageTrackers = new ConcurrentDictionary<long, ThrusterDamageTracker>();
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(Priority, MyBeforeDamageHandler);
 
 			//MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(Priority, MyAfterDamageHandler);
 			//MyAPIGateway.Session.DamageSystem.RegisterDestroyHandler(Priority, MyDestroyHandler);
+		}
+
+		private static void ControllerInfoOnControlAcquired(IMyEntityController obj)
+		{
+			WriteToLog("ControllerInfoOnControlAcquired", $"Object Controlled! {obj.ControlledEntity.Entity.EntityId} - {obj.ControlledEntity.Entity.DisplayName}", true);
 		}
 
 		public static void Unload()
@@ -46,6 +58,7 @@ namespace Eem.Thraxus.Bots.Utilities
 			_damageHandlerLog?.Close();
 			_damageHandlerDebugLog?.Close();
 			_unownedMissiles?.Clear();
+			_thrusterDamageTrackers.Clear();
 		}
 
 		private static void MyBeforeDamageHandler(object target, ref MyDamageInformation info)
@@ -94,7 +107,7 @@ namespace Eem.Thraxus.Bots.Utilities
 				if (!MyAPIGateway.Entities.TryGetEntityById(damageInfo.AttackerId, out attackingEntity)) return 0;
 
 				WriteToLog("IdentifyDamageDealer", $"All the info: {damageInfo.Type.String} - {damageInfo.Amount} - {damageInfo.IsDeformation} - {damageInfo.AttackerId} - {attackingEntity.EntityId} - {attackingEntity.GetType()}", true);
-				FindTheAsshole(attackingEntity);
+				FindTheAsshole(damagedEntity, attackingEntity, damageInfo);
 
 
 				//if (damageInfo.Type.GetType() == typeof(IMyEngineerToolBase))
@@ -116,37 +129,57 @@ namespace Eem.Thraxus.Bots.Utilities
 
 		}
 
-		private static void FindTheAsshole(IMyEntity attacker)
+		private static void FindTheAsshole(long damagedEntity, IMyEntity attacker, MyDamageInformation damageInfo)
 		{
 			if (attacker.GetType() == typeof(MyCubeGrid))
 			{
 				WriteToLog("FindTheAsshole", $"Asshole Identified as a CubeGrid!", true);
+				IdentifyOffendingPlayerFromEntity(attacker.EntityId);
 				return;
 			}
+
 			IMyCharacter myCharacter = attacker as IMyCharacter;
 			if (myCharacter != null)
 			{
-				WriteToLog("FindTheAsshole", $"Asshole Identified as a Character!", true);
+				WriteToLog("FindTheAsshole", $"Asshole Identified as a Character! War against: {MyAPIGateway.Entities.GetEntityById(myCharacter.EntityId).DisplayName}", true);
 				return;
 			}
+
 			IMyAutomaticRifleGun myAutomaticRifle = attacker as IMyAutomaticRifleGun;
 			if (myAutomaticRifle != null)
 			{
-				WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Rifle!", true);
+				WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Rifle! War against: {MyAPIGateway.Players.GetPlayerById(myAutomaticRifle.OwnerIdentityId).DisplayName}", true);
 				return;
 			}
+
 			IMyAngleGrinder myAngleGrinder = attacker as IMyAngleGrinder;
 			if (myAngleGrinder != null)
 			{
-				WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Grinder!", true);
+				WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Grinder! War against: {MyAPIGateway.Players.GetPlayerById(myAngleGrinder.OwnerIdentityId).DisplayName}", true);
 				return;
 			}
+
 			IMyHandDrill myHandDrill = attacker as IMyHandDrill;
 			if (myHandDrill != null)
 			{
-				WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Drill!", true);
+				WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Drill! War against: {MyAPIGateway.Players.GetPlayerById(myHandDrill.OwnerIdentityId).DisplayName}", true);
 				return;
 			}
+
+			IMyThrust myThruster = attacker as IMyThrust;
+			if (myThruster != null)
+			{
+
+				long damagedTopMost = MyAPIGateway.Entities.GetEntityById(damagedEntity).GetTopMostParent().EntityId;
+				if (!BotMarshal.ActiveShipRegistry.Contains(damagedTopMost)) return;
+				if (!_thrusterDamageTrackers.TryAdd(damagedTopMost, new ThrusterDamageTracker(attacker.EntityId, damageInfo.Amount)))
+					_thrusterDamageTrackers[damagedTopMost].DamageTaken += damageInfo.Amount;
+				if (!_thrusterDamageTrackers[damagedTopMost].ThresholdReached) return;
+				WriteToLog("FindTheAsshole", $"Asshole Identified as a Thruster!", true);
+				IdentifyOffendingPlayerFromEntity(attacker.EntityId);
+				return;
+			}
+
 			WriteToLog("FindTheAsshole", $"Asshole not identified!!!  It was a: {attacker.GetType()}", true);
 		}
 
@@ -160,8 +193,8 @@ namespace Eem.Thraxus.Bots.Utilities
 					for (int index = BotMarshal.ActiveShipRegistry.Count - 1; index >= 0; index--)
 					{
 						if (!CheckForImpactedEntity(BotMarshal.ActiveShipRegistry[index], _unownedMissiles[i].Location)) continue;
-						WriteToLog("CheckForUnownedMissileDamage", $"Unknown Missile {_unownedMissiles[i].LauncherId} hit {BotMarshal.ActiveShipRegistry[index]}", true);
-						IdentifyOffendingPlayer(_unownedMissiles[i].LauncherId);
+						//WriteToLog("CheckForUnownedMissileDamage", $"Unknown Missile {_unownedMissiles[i].LauncherId} hit {BotMarshal.ActiveShipRegistry[index]}", true);
+						IdentifyOffendingPlayerFromEntity(_unownedMissiles[i].LauncherId);
 						identified = true;
 					}
 
@@ -175,62 +208,52 @@ namespace Eem.Thraxus.Bots.Utilities
 			}
 		}
 
-		private static void IdentifyOffendingPlayer(long offendingGridId)
+		private static void IdentifyOffendingPlayerFromEntity(long offendingEntity)
 		{
 			try
 			{
-				WriteToLog("IdentifyOffendingPlayer", $"offendingGridId: {offendingGridId}", true);
+				//WriteToLog("IdentifyOffendingPlayerFromEntity", $"offendingGridId: {offendingEntity}", true);
 				IMyEntity myEntity;
-				if (!MyAPIGateway.Entities.TryGetEntityById(offendingGridId, out myEntity)) return;
+				if (!MyAPIGateway.Entities.TryGetEntityById(offendingEntity, out myEntity)) return;
 				IMyCubeGrid myCubeGrid = myEntity.GetTopMostParent() as IMyCubeGrid;
 				if (myCubeGrid == null) return;
+				IMyPlayer myPlayer;
 				if (myCubeGrid.BigOwners.Count == 0)
 				{
-					List<MyEntity> detectEntitiesInSphere = (List<MyEntity>)DetectDynamicEntitiesInSphere(myCubeGrid.GetPosition(), 100);
+					long tmpId;
+					if (BotMarshal.PlayerShipControllerHistory.TryGetValue(myCubeGrid.EntityId, out tmpId))
+					{ //{MyAPIGateway.Players.GetPlayerById(BotMarshal.PlayerShipControllerHistory[myCubeGrid.EntityId]).DisplayName}
+					  //myPlayer = MyAPIGateway.Players.GetPlayerById(BotMarshal.PlayerShipControllerHistory[myCubeGrid.EntityId]);
+					  myPlayer = MyAPIGateway.Players.GetPlayerById(tmpId);
+						if (myPlayer != null && !myPlayer.IsBot)
+							WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via PlayerShipControllerHistory: {myPlayer.DisplayName}", true);
+						return;
+					}
+
+					List<MyEntity> detectEntitiesInSphere = (List<MyEntity>)StaticMethods.DetectPlayersInSphere(myCubeGrid.GetPosition(), Constants.UnownedGridDetectionRange);
 					foreach (MyEntity myDetectedEntity in detectEntitiesInSphere)
 					{
-						IMyCharacter player = myDetectedEntity as IMyCharacter;
-						if (player != null && !player.IsBot)
-						WriteToLog("IdentifyOffendingPlayer", $"War Target Identified via Detection: {myDetectedEntity.DisplayName}", true);
+						myPlayer = MyAPIGateway.Players.GetPlayerById(BotMarshal.PlayerShipControllerHistory[myDetectedEntity.EntityId]);
+						if (myPlayer != null && !myPlayer.IsBot)
+							WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via Detection: {myPlayer.DisplayName}", true);
 					}
+					return;
 				}
 
-				foreach (long player in myCubeGrid.BigOwners)
-					WriteToLog("IdentifyOffendingPlayer", $"War Target Identified via BigOwners: {MyAPIGateway.Players.GetPlayerById(player).DisplayName}", true);
-					
+				myPlayer = MyAPIGateway.Players.GetPlayerById(myCubeGrid.BigOwners.FirstOrDefault());
+				if (myPlayer != null && !myPlayer.IsBot)
+				{
+					WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via BigOwners: {myPlayer.DisplayName}", true);
+					return;
+				}
+
+				WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target is an elusive shithead!", true);
 			}
 			catch (Exception e)
 			{
 				ExceptionLog("IdentifyOffendingPlayer", e.ToString());
 			}
 		}
-
-		private static IEnumerable<MyEntity> DetectDynamicEntitiesInSphere(Vector3D detectionCenter, double range)
-		{
-			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"DetectEntitiesInSphere {range}", "", detectionCenter, true));
-			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
-			List<MyEntity> pruneList = new List<MyEntity>();
-			MyGamePruningStructure.GetAllEntitiesInSphere(ref pruneSphere, pruneList, MyEntityQueryType.Dynamic);
-			return pruneList;
-		}
-
-		//List<IMyPlayer> possibleAttackingPlayers = new List<IMyPlayer>();
-		//MyAPIGateway.Players.GetPlayers(possibleAttackingPlayers,
-		//player => 
-		//player.Controller.ControlledEntity.Entity != null &&
-		//!player.IsBot &&
-		//player.Character != null &&
-		//player.Controller.ControlledEntity.Entity is IMyShipController);
-		//foreach (IMyPlayer possibleAttackingPlayer in possibleAttackingPlayers)
-		//{
-		//	if (((IMyShipController) possibleAttackingPlayer.Controller.ControlledEntity.Entity).SlimBlock.CubeGrid != 
-		//	    MyAPIGateway.Entities.GetEntityById(damage.AttackerId)) continue;
-		//	damager = possibleAttackingPlayer;
-		//	IMyFaction attackingFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(possibleAttackingPlayer.IdentityId);
-		//	if (attackingFaction == null)
-		//		continue;
-		//	DeclareWar(attackingFaction);
-		//}
 
 		private static bool CheckForImpactedEntity(long entityId, Vector3D impactLocation)
 		{

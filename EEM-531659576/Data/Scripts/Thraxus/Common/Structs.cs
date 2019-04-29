@@ -12,10 +12,10 @@ namespace Eem.Thraxus.Common
 	public struct ShipControllerHistory
 	{
 		public readonly long Controller;
-		public readonly IMyControllableEntity ControlledEntity;
+		public readonly long ControlledEntity;
 		public readonly DateTime TimeStamp;
 
-		public ShipControllerHistory(long controller, IMyControllableEntity controlledEntity, DateTime timeStamp)
+		public ShipControllerHistory(long controller, long controlledEntity, DateTime timeStamp)
 		{
 			Controller = controller;
 			ControlledEntity = controlledEntity;
@@ -25,7 +25,7 @@ namespace Eem.Thraxus.Common
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return $"Controller: {Controller} - ControllerEntity: {ControlledEntity.Entity.EntityId} - TimeStamp: {TimeStamp}";
+			return $"Controller: {Controller} - ControllerEntity: {ControlledEntity} - TimeStamp: {TimeStamp}";
 		}
 	}
 

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Eem.Thraxus.Common;
+using Eem.Thraxus.Extensions;
 using Eem.Thraxus.Utilities;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Screens.Helpers;
@@ -10,19 +11,20 @@ using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
 using VRage.ModAPI;
 using VRageMath;
 
 namespace Eem.Thraxus.Bots.Utilities
 {
-	[MySessionComponentDescriptor(MyUpdateOrder.NoUpdate, priority: int.MaxValue)]
+	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MaxValue)]
 	// ReSharper disable once ClassNeverInstantiated.Global
 	internal class BotMarshal : MySessionComponentBase
 	{
 		private static BotMarshal _instance;
 
 		public static MyConcurrentList<long> ActiveShipRegistry;
-		public static MyConcurrentDictionary<long, MyConcurrentList<ShipControllerHistory>> PlayerShipControllerHistory;
+		public static ConcurrentDictionary<long, long> PlayerShipControllerHistory;
 
 		private const string GeneralLogName = "BotGeneral";
 		private const string DebugLogName = "BotDebug";
@@ -31,6 +33,7 @@ namespace Eem.Thraxus.Bots.Utilities
 		private static Log _botDebugLog;
 
 		private bool _setupComplete;
+		private bool _lateSetupComplete;
 
 		public static Dictionary<long, BotOrphan> BotOrphans;
 
@@ -56,8 +59,9 @@ namespace Eem.Thraxus.Bots.Utilities
 			if (Helpers.Constants.DebugMode) _botDebugLog = new Log(DebugLogName);
 			BotOrphans = new Dictionary<long, BotOrphan>();
 			ActiveShipRegistry = new MyConcurrentList<long>();
-			PlayerShipControllerHistory = new MyConcurrentDictionary<long, MyConcurrentList<ShipControllerHistory>>();
+			PlayerShipControllerHistory = new ConcurrentDictionary<long, long>();
 			DamageHandler.Run();
+
 		}
 
 		/// <inheritdoc />
@@ -66,24 +70,30 @@ namespace Eem.Thraxus.Bots.Utilities
 			base.BeforeStart();
 		}
 
-		private void ControllerInfoOnControlAcquired(IMyEntityController controller)
+		/// <inheritdoc />
+		public override void UpdateBeforeSimulation()
+		{
+			base.UpdateBeforeSimulation();
+			if (!Helpers.Constants.IsServer || _lateSetupComplete) return;
+			_lateSetupComplete = true;
+			MyAPIGateway.Session.Player.Controller.ControlledEntityChanged += ControlAcquired;
+			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
+		}
+
+		private void ControlAcquired(IMyControllableEntity player, IMyControllableEntity controlled)
 		{
 			try
 			{
-				ShipControllerHistory tmp = new ShipControllerHistory(
-					controller.ControlledEntity.ControllerInfo.ControllingIdentityId,
-					controller.ControlledEntity,
-					DateTime.Now);
-
-				if (PlayerShipControllerHistory.ContainsKey(controller.ControlledEntity.ControllerInfo.ControllingIdentityId))
-					PlayerShipControllerHistory[controller.ControlledEntity.ControllerInfo.ControllingIdentityId].Add(tmp);
-				else
-					PlayerShipControllerHistory.Add(controller.ControlledEntity.ControllerInfo.ControllingIdentityId, new MyConcurrentList<ShipControllerHistory> { tmp });
-				WriteToLog("ControlAcquiredDelegate", $"Added: {tmp}");
+				if (player == null || controlled == null) return;
+				IMyPlayer myPlayer = MyAPIGateway.Players.GetPlayerById(controlled.ControllerInfo.ControllingIdentityId);
+				IMyCubeGrid myCubeGrid = controlled.Entity.GetTopMostParent() as IMyCubeGrid;
+				if (myPlayer == null || myCubeGrid == null) return;
+				if (!PlayerShipControllerHistory.TryAdd(myCubeGrid.EntityId, myPlayer.IdentityId))
+					PlayerShipControllerHistory[myCubeGrid.EntityId] = myPlayer.IdentityId;
 			}
 			catch (Exception e)
 			{
-				ExceptionLog("ControlAcquiredDelegate", $"Exception! {e}");
+				ExceptionLog("ControlAcquired", $"Exception! {e}");
 			}
 		}
 
@@ -99,6 +109,7 @@ namespace Eem.Thraxus.Bots.Utilities
 		private void Unload()
 		{
 			DamageHandler.Unload();
+			MyAPIGateway.Session.Player.Controller.ControlledEntityChanged -= ControlAcquired;
 			ActiveShipRegistry?.Clear();
 			PlayerShipControllerHistory?.Clear();
 			BotOrphans?.Clear();
