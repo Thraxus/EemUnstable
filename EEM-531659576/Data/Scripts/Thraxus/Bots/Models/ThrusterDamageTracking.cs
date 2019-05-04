@@ -3,20 +3,20 @@
 	public class ThrusterDamageTracker
 	{
 		public double DamageTaken;
-		public long OffendingEntity;
+		private readonly long _offendingEntity;
 
 		public bool ThresholdReached => DamageTaken > 500;
 
 		public ThrusterDamageTracker(long offendingEntity, double damageTaken)
 		{
-			OffendingEntity = offendingEntity;
+			_offendingEntity = offendingEntity;
 			DamageTaken = damageTaken;
 		}
 
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return $"Offending Entity: {OffendingEntity} has done {DamageTaken} damage.";
+			return $"Offending Entity: {_offendingEntity} has done {DamageTaken} damage.";
 		}
 	}
 }

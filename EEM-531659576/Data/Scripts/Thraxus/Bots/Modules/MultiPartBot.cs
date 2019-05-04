@@ -18,13 +18,12 @@ namespace Eem.Thraxus.Bots.Modules
 			ThisCubeGrid.OnGridSplit += OnGridSplit;
 		}
 
-		/// <inheritdoc />
 		internal new void SetupBot()
 		{
 			base.SetupBot();
-			BaseSessionComp.WriteToLog("SetupBot", $"New Entity -\tId:\t{ThisEntity.EntityId}\tName:\t{ThisEntity.DisplayName}", true);
+			OnWriteToLog("SetupBot", $"New Entity -\tId:\t{ThisEntity.EntityId}\tName:\t{ThisEntity.DisplayName}", LogType.General);
 			if (BotMarshal.BotOrphans.TryGetValue(ThisEntity.EntityId, out _myOldParentInfo))
-				BaseSessionComp.WriteToLog("SetupBot", $"I'm a new Entity with Id: {ThisEntity.EntityId}.  My parent was an entity with Id: {_myOldParentInfo.MyParentId}.  My grandparent was an entity with Id: {_myOldParentInfo.MyAncestors}", true);
+				OnWriteToLog("SetupBot", $"I'm a new Entity with Id: {ThisEntity.EntityId}.  My parent was an entity with Id: {_myOldParentInfo.MyParentId}.  My grandparent was an entity with Id: {_myOldParentInfo.MyAncestors}", LogType.General);
 		}
 
 		public new void Unload()

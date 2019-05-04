@@ -15,7 +15,7 @@ using VRage.ObjectBuilders;
 namespace Eem.Thraxus.Bots
 {
 	[MyEntityComponentDescriptor(typeof(MyObjectBuilder_CubeGrid), false)]
-	internal class BotCore : MyGameLogicComponent
+	internal class BotCore : BaseServerGameLogicComp
 	{
 		/*
 		 * TODO Damage Handler
@@ -28,15 +28,18 @@ namespace Eem.Thraxus.Bots
 		 * TODO Fight or Flight Conditions
 		 * TODO Kamikaze Conditions
 		 * TODO Reinforcement Conditions / calls (antenna drones)
+		 *
+		 * TODO Convert existing code to new code base modules, including logs
+		 * TODO Upcoming: Factions, AiSessionCore, DamageHandler
+		 * TODO Finished: EntityManager, BotCore, BotBaseAdvanced, BotMarshall
+		 * TODO Ignored: MissileMaster
 		 */
 
 		//private EemPrefabConfig prefabConfig;
 
 		private bool _setupApproved;
 		private bool _setupComplete;
-
-		private static BotCore _instance;
-
+		
 		private BotBaseAdvanced _bot;
 
 		private List<IMyShipController> _myShipControllers;
@@ -56,17 +59,28 @@ namespace Eem.Thraxus.Bots
 			//else Shutdown();
 		}
 
+		public override void UpdateOnceBeforeFrame()
+		{
+			base.UpdateOnceBeforeFrame();
+			if (!Helpers.Constants.IsServer) return;
+			if (_setupComplete) return;
+			PreApproveSetup();
+			if (_setupApproved) ProceedWithSetup();
+			else Shutdown();
+		}
+
 		private void Shutdown()
 		{
+			WriteToLog("Shutdown", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", LogType.General);
 			_setupComplete = true;
 			NeedsUpdate = _originalUpdateEnum;
 			_myShipControllers?.Clear();
-			_instance = null;
 			if (_bot != null)
 			{
 				_bot.BotShutdown -= Shutdown;
 				_bot.BotSleep -= Sleep;
 				_bot.BotWakeup -= WakeUp;
+				_bot.WriteToLog -= WriteToLog;
 			}
 			_bot?.Unload();
 		}
@@ -87,32 +101,20 @@ namespace Eem.Thraxus.Bots
 			base.UpdateBeforeSimulation();
 			if (!Helpers.Constants.IsServer) return;
 			if (_setupComplete) return;
-			PreApproveSetup();
 			if (_setupApproved) ProceedWithSetup();
 			else
 			{
-				BaseSessionComp.WriteToLog("UpdateBeforeSimulation", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", true);
+				WriteToLog("UpdateBeforeSimulation", $"Shutdown triggered.", LogType.General);
 				Shutdown();
 			}
 		}
 
-		/// <inheritdoc />
-		public override void UpdateOnceBeforeFrame()
-		{
-			base.UpdateOnceBeforeFrame();
-			//if (!Helpers.Constants.IsServer) return;
-			//if (_setupComplete) return;
-			//PreApproveSetup();
-			//if (_setupApproved) ProceedWithSetup();
-			//else Shutdown();
-		}
-
 		private void ProceedWithSetup()
 		{ // Base bot choice here (single or multi)
-			BaseSessionComp.WriteToLog("ProceedWithSetup", $"Setup approved for {Entity.DisplayName} with ID {Entity.EntityId}", true);
+ 			WriteToLog("ProceedWithSetup", $"Setup approved.", LogType.General);
 			_setupComplete = true;
-			_instance = this;
 			_bot = new BotBaseAdvanced(Entity, _myShipController);
+			_bot.WriteToLog += WriteToLog;
 			_bot.BotShutdown += Shutdown;
 			_bot.BotSleep += Sleep;
 			_bot.BotWakeup += WakeUp;
@@ -129,6 +131,9 @@ namespace Eem.Thraxus.Bots
 		{
 			try
 			{
+				EntityName = Entity.DisplayName;
+				EntityId = Entity.EntityId;
+
 				if (Entity.Physics == null) return;
 
 				_myShipControllers = new List<IMyShipController>();
@@ -152,7 +157,7 @@ namespace Eem.Thraxus.Bots
 			}
 			catch (Exception e)
 			{
-				BaseSessionComp.ExceptionLog("PreApproveSetup", $"Exception! {e}");
+				WriteToLog("PreApproveSetup", $"Exception! {e}", LogType.Exception);
 			}
 		}
 
@@ -160,7 +165,6 @@ namespace Eem.Thraxus.Bots
 		public override void Close()
 		{
 			if (!Helpers.Constants.IsServer) return;
-			BaseSessionComp.WriteToLog("Close", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", true);
 			Shutdown();
 			base.Close();
 		}
@@ -178,7 +182,7 @@ namespace Eem.Thraxus.Bots
 			}
 			catch (Exception e)
 			{
-				BaseSessionComp.ExceptionLog("GetShipControllers",$"Exception!\t{e}");
+				WriteToLog("GetShipControllers",$"Exception!\t{e}", LogType.Exception);
 			}
 		}
 	}

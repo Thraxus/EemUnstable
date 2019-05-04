@@ -1,7 +1,7 @@
 ﻿namespace Eem.Thraxus.Common
 {
-	class Enums
+	public enum LogType
 	{
-
+		General, Debug, Exception
 	}
 }

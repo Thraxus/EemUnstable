@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
+using Eem.Thraxus.Common.Utilities;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game.Components;
@@ -11,20 +11,20 @@ using VRage.Game.ModAPI.Interfaces;
 
 namespace Eem.Thraxus.Bots.Utilities
 {
-	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue)]
+	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue + 1)]
 	// ReSharper disable once ClassNeverInstantiated.Global
-	internal class BotMarshal : BaseSessionComp
+	internal class BotMarshal : BaseServerSessionComp
 	{
-		private const string GeneralLogName = "BotGeneral";
-		private const string DebugLogName = "BotDebug";
-		private const string SessionCompName = "BotMarshall";
+		private const string GeneralLogName = "BotMarshalGeneral";
+		private const string DebugLogName = "BotMarshalDebug";
+		private const string SessionCompName = "BotMarshal";
 
 		public BotMarshal() : base(GeneralLogName, DebugLogName, SessionCompName) {  } // Do nothing else
-
-		public static ConcurrentCachingList<long> ActiveShipRegistry;
-		public static ConcurrentDictionary<long, long> PlayerShipControllerHistory;
-		public static ConcurrentCachingList<long> WarRegistry;
 		
+		public static ConcurrentCachingList<long> ActiveShipRegistry;
+		public static ConcurrentCachingList<long> WarRegistry;
+
+		public static ConcurrentDictionary<long, long> PlayerShipControllerHistory;
 		public static ConcurrentDictionary<long, BotOrphan> BotOrphans;
 		
 		/// <inheritdoc />
@@ -58,7 +58,7 @@ namespace Eem.Thraxus.Bots.Utilities
 			}
 			catch (Exception e)
 			{
-				ExceptionLog("ControlAcquired", $"Exception! {e}");
+				WriteToLog("ControlAcquired", $"Exception! {e}", LogType.Exception);
 			}
 		}
 
@@ -81,7 +81,7 @@ namespace Eem.Thraxus.Bots.Utilities
 			}
 			catch (Exception e)
 			{
-				ExceptionLog("RegisterNewEntity", e.ToString());
+				StaticExceptionLog("RegisterNewEntity", e.ToString());
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace Eem.Thraxus.Bots.Utilities
 			}
 			catch (Exception e)
 			{
-				ExceptionLog("RemoveDeadEntity", e.ToString());
+				StaticExceptionLog("RemoveDeadEntity", e.ToString());
 			}
 		}
 	}

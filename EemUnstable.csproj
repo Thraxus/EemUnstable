@@ -607,8 +607,12 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Settings\Constants.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Utilities\BotMarshal.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Utilities\StaticMethods.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseSessionComp.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseServerGameLogicComp.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseServerSessionComp.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\LogBase.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Enums.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Interfaces\ILogEntry.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\StaticLogger.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Structs.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\BotTypeBase.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\BotTypeFighter.cs" />
@@ -653,8 +657,8 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Networking\FactionsMessage.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Networking\MessageBase.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Networking\Messaging.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\SpawnManager\Models\EntityTracker.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\SpawnManager\SpawnManagerCore.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\EntityManager\Models\EntityTracker.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\EntityManager\EntityManagerCore.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Utilities\Log.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Utilities\Profiler.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Utilities\Queue.cs" />

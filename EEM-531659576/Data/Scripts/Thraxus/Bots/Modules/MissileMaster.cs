@@ -1,6 +1,7 @@
 ﻿using System;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
+using Eem.Thraxus.Common.Utilities;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Game.Components;
 
@@ -20,7 +21,7 @@ namespace Eem.Thraxus.Bots.Modules
 			}
 			catch (Exception e)
 			{
-				BotMarshal.ExceptionLog("MissileMaster", $"OnAddedToScene Exception! {e}");
+				StaticLogger.WriteToLog("MissileMaster", $"OnAddedToScene Exception! {e}", LogType.Exception);
 			}
 		}
 
@@ -35,7 +36,7 @@ namespace Eem.Thraxus.Bots.Modules
 			}
 			catch (Exception e)
 			{
-				BotMarshal.ExceptionLog("MissileMaster", $"OnRemovedFromScene Exception! {e}");
+				StaticLogger.WriteToLog("MissileMaster", $"OnRemovedFromScene Exception! {e}", LogType.Exception);
 			}
 		}
 	}
