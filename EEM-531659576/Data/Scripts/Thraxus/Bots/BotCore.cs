@@ -4,6 +4,7 @@ using Eem.Thraxus.Bots.Models;
 using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
+using Eem.Thraxus.Common.BaseClasses;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
@@ -50,11 +51,14 @@ namespace Eem.Thraxus.Bots
 			if (!Helpers.Constants.IsServer) return;
 			_originalUpdateEnum = NeedsUpdate;
 			NeedsUpdate |= Constants.CoreUpdateSchedule;
+			//PreApproveSetup();
+			//if (_setupApproved) ProceedWithSetup();
+			//else Shutdown();
 		}
 
 		private void Shutdown()
 		{
-			BotMarshal.WriteToLog("Shutdown", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", true);
+			BaseSessionComp.WriteToLog("Shutdown", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", true);
 			_setupComplete = true;
 			NeedsUpdate = _originalUpdateEnum;
 			_myShipControllers?.Clear();
@@ -82,12 +86,6 @@ namespace Eem.Thraxus.Bots
 		public override void UpdateBeforeSimulation()
 		{	// Basic tick timer on the ship level
 			base.UpdateBeforeSimulation();
-		}
-
-		/// <inheritdoc />
-		public override void UpdateOnceBeforeFrame()
-		{
-			base.UpdateOnceBeforeFrame();
 			if (!Helpers.Constants.IsServer) return;
 			if (_setupComplete) return;
 			PreApproveSetup();
@@ -95,9 +93,20 @@ namespace Eem.Thraxus.Bots
 			else Shutdown();
 		}
 
+		/// <inheritdoc />
+		public override void UpdateOnceBeforeFrame()
+		{
+			base.UpdateOnceBeforeFrame();
+			//if (!Helpers.Constants.IsServer) return;
+			//if (_setupComplete) return;
+			//PreApproveSetup();
+			//if (_setupApproved) ProceedWithSetup();
+			//else Shutdown();
+		}
+
 		private void ProceedWithSetup()
 		{ // Base bot choice here (single or multi)
-			BotMarshal.WriteToLog("ProceedWithSetup", $"Setup approved for {Entity.DisplayName} with ID {Entity.EntityId}", true);
+			BaseSessionComp.WriteToLog("ProceedWithSetup", $"Setup approved for {Entity.DisplayName} with ID {Entity.EntityId}", true);
 			_setupComplete = true;
 			_instance = this;
 			_bot = new BotBaseAdvanced(Entity, _myShipController);
@@ -115,26 +124,33 @@ namespace Eem.Thraxus.Bots
 
 		private void PreApproveSetup()
 		{
-			if (Entity.Physics == null) return;
-
-			_myShipControllers = new List<IMyShipController>();
-			GetControllers();
-
-			if (_myShipControllers.Count == 0) return;
-
-			if (BotMarshal.BotOrphans.ContainsKey(Entity.EntityId))
+			try
 			{
-				// TODO: Placeholder for initializing a multipart bot; we already know the setup, and this grid has a functioning control center, so no need to go further
-				//_setupApproved = true;
-				//return;
+				if (Entity.Physics == null) return;
+
+				_myShipControllers = new List<IMyShipController>();
+				GetControllers();
+
+				if (_myShipControllers.Count == 0) return;
+
+				if (BotMarshal.BotOrphans.ContainsKey(Entity.EntityId))
+				{
+					// TODO: Placeholder for initializing a multipart bot; we already know the setup, and this grid has a functioning control center, so no need to go further
+					//_setupApproved = true;
+					//return;
+				}
+
+				foreach (IMyShipController myShipController in _myShipControllers)
+					if (myShipController.CustomData.Contains(Constants.EemAiPrefix)) _myShipController = myShipController;
+
+				if (_myShipController == null) return;
+
+				_setupApproved = true;
 			}
-
-			foreach (IMyShipController myShipController in _myShipControllers)
-				if (myShipController.CustomData.Contains(Constants.EemAiPrefix)) _myShipController = myShipController;
-
-			if (_myShipController == null) return;
-
-			_setupApproved = true;
+			catch (Exception e)
+			{
+				BaseSessionComp.ExceptionLog("PreApproveSetup", $"Exception! {e}");
+			}
 		}
 
 		/// <inheritdoc />
@@ -158,7 +174,7 @@ namespace Eem.Thraxus.Bots
 			}
 			catch (Exception e)
 			{
-				BotMarshal.ExceptionLog("GetShipControllers",$"Exception!\t{e}");
+				BaseSessionComp.ExceptionLog("GetShipControllers",$"Exception!\t{e}");
 			}
 		}
 	}

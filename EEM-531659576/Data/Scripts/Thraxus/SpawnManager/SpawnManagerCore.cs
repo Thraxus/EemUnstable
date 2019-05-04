@@ -108,16 +108,20 @@ namespace Eem.Thraxus.SpawnManager
 
 		// Non-Core logic below this point
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="caller"></param>
-		/// <param name="message"></param>
-		/// <param name="general"></param>
+		private static readonly object WriteLocker = new object();
+
 		public static void WriteToLog(string caller, string message, bool general = false)
 		{
-			_debugLog?.WriteToLog(caller, message);
-			if (general) _generalLog?.WriteToLog(caller, message);
+			lock (WriteLocker)
+			{
+				if (general) _generalLog?.WriteToLog(caller, message);
+				_generalLog?.WriteToLog(caller, message);
+			}
+		}
+
+		public static void ExceptionLog(string caller, string message)
+		{
+			WriteToLog(caller, $"Exception! {message}", true);
 		}
 	}
 }

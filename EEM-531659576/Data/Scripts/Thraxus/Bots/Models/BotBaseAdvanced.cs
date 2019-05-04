@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
+using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Extensions;
 using Sandbox.ModAPI;
 using VRage.Game;
@@ -58,7 +60,7 @@ namespace Eem.Thraxus.Bots.Models
 
 		public void Unload()
 		{
-			BotMarshal.WriteToLog("BotCore", $"Shutting down -\tId:\t{ThisEntity.EntityId}\tName:\t{ThisEntity.DisplayName}", true);
+			BaseSessionComp.WriteToLog("BotCore", $"Shutting down -\tId:\t{ThisEntity.EntityId}\tName:\t{ThisEntity.DisplayName}", true);
 			BotMarshal.RemoveDeadEntity(ThisEntity.EntityId);
 			ThisCubeGrid.OnBlockAdded -= OnBlockAdded;
 			ThisCubeGrid.OnBlockRemoved -= OnBlockRemoved;
@@ -75,15 +77,16 @@ namespace Eem.Thraxus.Bots.Models
 		{
 			try
 			{
-				BotMarshal.WriteToLog("SetFactionOwnership", $"Setting faction ownership of {ThisEntity.DisplayName} to {MyAPIGateway.Session.Factions.TryGetFactionByTag(MyConfig.Faction).Tag}", true);
+				BaseSessionComp.WriteToLog("SetFactionOwnership", $"Setting faction ownership of {ThisEntity.DisplayName} to {MyAPIGateway.Session.Factions.TryGetFactionByTag(MyConfig.Faction).Tag}", true);
 
 				ThisCubeGrid.ChangeGridOwnership(OwnerId, Constants.ShareMode);
+				//foreach (IMyCubeGrid grid in MyAPIGateway.GridGroups.GetGroup(ThisCubeGrid, GridLinkTypeEnum.Mechanical).Where(grid => grid.BigOwners != ThisCubeGrid.BigOwners))
 				foreach (IMyCubeGrid grid in MyAPIGateway.GridGroups.GetGroup(ThisCubeGrid, GridLinkTypeEnum.Mechanical))
 					grid.ChangeGridOwnership(OwnerId, Constants.ShareMode);
 			}
 			catch (Exception e)
 			{
-				BotMarshal.ExceptionLog("SetFactionOwnership", e.ToString());
+				BaseSessionComp.ExceptionLog("SetFactionOwnership", e.ToString());
 			}
 		}
 
@@ -96,24 +99,24 @@ namespace Eem.Thraxus.Bots.Models
 		{   // Trigger alert, war, all the fun stuff against the player / faction that removed the block; also scan for main RC removal and shut down bot if Single Part
 			if (removedBlock.FatBlock == MyShipController)
 			{
-				BotMarshal.WriteToLog("OnBlockRemoved", $"Triggering shutdown for {ThisEntity.DisplayName} with ID {ThisEntity.EntityId}", true);
+				BaseSessionComp.WriteToLog("OnBlockRemoved", $"Triggering shutdown for {ThisEntity.DisplayName} with ID {ThisEntity.EntityId}", true);
 				BotShutdown?.Invoke();
 			}
 		}
 
 		private void OnBlockIntegrityChanged(IMySlimBlock block)
 		{   // Trigger alert, war, all the fun stuff against the entity owner that triggered the integrity change (probably negative only)
-			BotMarshal.WriteToLog("OnBlockIntegrityChanged", $"Block integrity changed for {ThisEntity.DisplayName} with ID {ThisEntity.EntityId} for block {block}", true);
+			BaseSessionComp.WriteToLog("OnBlockIntegrityChanged", $"Block integrity changed for {ThisEntity.DisplayName} with ID {ThisEntity.EntityId} for block {block}", true);
 			if (block.FatBlock == MyShipController && !MyShipController.IsFunctional)
 			{
-				BotMarshal.WriteToLog("OnBlockIntegrityChanged", $"Rc integrity compromised... triggering sleep for {ThisEntity.DisplayName} with ID {ThisEntity.EntityId}", true);
+				BaseSessionComp.WriteToLog("OnBlockIntegrityChanged", $"Rc integrity compromised... triggering sleep for {ThisEntity.DisplayName} with ID {ThisEntity.EntityId}", true);
 				Sleep();
 				BotSleep?.Invoke();
 			}
 
 			if (block.FatBlock == MyShipController && MyShipController.IsFunctional && _sleeping)
 			{
-				BotMarshal.WriteToLog("OnBlockIntegrityChanged", $"Rc integrity restored... triggering wakeup for {ThisEntity.DisplayName} with ID {ThisEntity.EntityId}", true);
+				BaseSessionComp.WriteToLog("OnBlockIntegrityChanged", $"Rc integrity restored... triggering wakeup for {ThisEntity.DisplayName} with ID {ThisEntity.EntityId}", true);
 				Wakeup();
 				BotWakeup?.Invoke();
 			}
@@ -121,7 +124,7 @@ namespace Eem.Thraxus.Bots.Models
 
 		private void Sleep()
 		{	// TODO make sure damage handlers are here since the bot is simulating offline here
-			BotMarshal.WriteToLog("Sleep", $"Sleeping {ThisEntity.DisplayName} with ID {ThisEntity.EntityId}", true);
+			BaseSessionComp.WriteToLog("Sleep", $"Sleeping {ThisEntity.DisplayName} with ID {ThisEntity.EntityId}", true);
 			_sleeping = true;
 			ThisCubeGrid.OnBlockAdded -= OnBlockAdded;
 		}
@@ -129,13 +132,13 @@ namespace Eem.Thraxus.Bots.Models
 		private void Wakeup()
 		{	// TODO make sure damage handlers are here so we can properly wake the bot up
 			_sleeping = false;
-			BotMarshal.WriteToLog("Wakeup", $"Waking up {ThisEntity.DisplayName} with ID {ThisEntity.EntityId}", true);
+			BaseSessionComp.WriteToLog("Wakeup", $"Waking up {ThisEntity.DisplayName} with ID {ThisEntity.EntityId}", true);
 			ThisCubeGrid.OnBlockAdded += OnBlockAdded;
 		}
 
 		private void OnOnBlockOwnershipChanged(IMyCubeGrid cubeGrid)
 		{   // Protection for initial spawn with MES, should be disabled after the first few seconds in game (~300 ticks)
-			BotMarshal.WriteToLog("OnOnBlockOwnershipChanged", $"Ownership changed for {cubeGrid.DisplayName} with ID {cubeGrid.EntityId}", true);
+			BaseSessionComp.WriteToLog("OnOnBlockOwnershipChanged", $"Ownership changed for {cubeGrid.DisplayName} with ID {cubeGrid.EntityId}", true);
 			if (MyShipController.OwnerId != OwnerId) BotShutdown?.Invoke();
 		}
 	}

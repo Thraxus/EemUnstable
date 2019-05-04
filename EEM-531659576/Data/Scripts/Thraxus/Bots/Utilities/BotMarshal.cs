@@ -2,84 +2,48 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Eem.Thraxus.Common;
-using Eem.Thraxus.Extensions;
-using Eem.Thraxus.Utilities;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.Screens.Helpers;
+using Eem.Thraxus.Common.BaseClasses;
 using Sandbox.ModAPI;
 using VRage.Collections;
-using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
-using VRage.ModAPI;
-using VRageMath;
 
 namespace Eem.Thraxus.Bots.Utilities
 {
-	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MaxValue)]
+	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue)]
 	// ReSharper disable once ClassNeverInstantiated.Global
-	internal class BotMarshal : MySessionComponentBase
+	internal class BotMarshal : BaseSessionComp
 	{
-		private static BotMarshal _instance;
-
-		public static MyConcurrentList<long> ActiveShipRegistry;
-		public static ConcurrentDictionary<long, long> PlayerShipControllerHistory;
-
 		private const string GeneralLogName = "BotGeneral";
 		private const string DebugLogName = "BotDebug";
 
-		private static Log _botGeneralLog;
-		private static Log _botDebugLog;
+		public BotMarshal() : base(GeneralLogName, DebugLogName) {  } // Do nothing else
 
-		private bool _setupComplete;
-		private bool _lateSetupComplete;
-
+		public static ConcurrentCachingList<long> ActiveShipRegistry;
+		public static ConcurrentDictionary<long, long> PlayerShipControllerHistory;
+		public static ConcurrentCachingList<long> WarRegistry;
+		
 		public static Dictionary<long, BotOrphan> BotOrphans;
-
+		
 		/// <inheritdoc />
-		public override void LoadData()
+		protected override void EarlySetup()
 		{
-			_instance = this;
-			base.LoadData();
-		}
-
-		/// <inheritdoc />
-		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
-		{
-			base.Init(sessionComponent);
-			if (!Helpers.Constants.IsServer || _setupComplete) return;
-			if (!_setupComplete) Setup();
-		}
-
-		private void Setup()
-		{
-			_setupComplete = true;
-			_botGeneralLog = new Log(GeneralLogName);
-			if (Helpers.Constants.DebugMode) _botDebugLog = new Log(DebugLogName);
+			base.EarlySetup();
 			BotOrphans = new Dictionary<long, BotOrphan>();
-			ActiveShipRegistry = new MyConcurrentList<long>();
+			ActiveShipRegistry = new ConcurrentCachingList<long>();
 			PlayerShipControllerHistory = new ConcurrentDictionary<long, long>();
+			WarRegistry = new ConcurrentCachingList<long>();
 			DamageHandler.Run();
-
 		}
 
 		/// <inheritdoc />
-		public override void BeforeStart()
+		protected override void LateSetup()
 		{
-			base.BeforeStart();
-		}
-
-		/// <inheritdoc />
-		public override void UpdateBeforeSimulation()
-		{
-			base.UpdateBeforeSimulation();
-			if (!Helpers.Constants.IsServer || _lateSetupComplete) return;
-			_lateSetupComplete = true;
+			base.LateSetup();
 			MyAPIGateway.Session.Player.Controller.ControlledEntityChanged += ControlAcquired;
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
 		}
-
+		
 		private void ControlAcquired(IMyControllableEntity player, IMyControllableEntity controlled)
 		{
 			try
@@ -96,25 +60,16 @@ namespace Eem.Thraxus.Bots.Utilities
 				ExceptionLog("ControlAcquired", $"Exception! {e}");
 			}
 		}
-
-		/// <inheritdoc />
-		protected override void UnloadData()
+		
+		public override void Unload()
 		{
-			base.UnloadData();
-			if (!Helpers.Constants.IsServer) return;
-			Unload();
-			_instance = null;
-		}
-
-		private void Unload()
-		{
+			base.Unload();
 			DamageHandler.Unload();
 			MyAPIGateway.Session.Player.Controller.ControlledEntityChanged -= ControlAcquired;
-			ActiveShipRegistry?.Clear();
+			ActiveShipRegistry?.ClearList();
 			PlayerShipControllerHistory?.Clear();
+			WarRegistry?.ClearList();
 			BotOrphans?.Clear();
-			_botDebugLog?.Close();
-			_botGeneralLog?.Close();
 		}
 
 		public static void RegisterNewEntity(long entityId)
@@ -139,22 +94,6 @@ namespace Eem.Thraxus.Bots.Utilities
 			{
 				ExceptionLog("RemoveDeadEntity", e.ToString());
 			}
-		}
-
-		private static readonly object WriteLocker = new object();
-
-		public static void WriteToLog(string caller, string message, bool general = false)
-		{
-			lock (WriteLocker)
-			{
-				if (general) _botGeneralLog?.WriteToLog(caller, message);
-				_botDebugLog?.WriteToLog(caller, message);
-			}
-		}
-
-		public static void ExceptionLog(string caller, string message)
-		{
-			WriteToLog(caller, $"Exception! {message}", true);
 		}
 	}
 }

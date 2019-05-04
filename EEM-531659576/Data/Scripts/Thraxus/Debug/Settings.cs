@@ -17,6 +17,12 @@ namespace Eem.Thraxus.Debug
 		{
 			//TODO add any debug session settings here that matter. Global Events (all the garbage below) aren't available, so don't bother with them.
 
+			if (MyAPIGateway.Session.SessionSettings.PiratePCU <= 50000)
+				MyAPIGateway.Session.SessionSettings.PiratePCU = 100000;
+
+			if (MyAPIGateway.Session.SessionSettings.TotalPCU <= 100000 && MyAPIGateway.Session.SessionSettings.TotalPCU != 0)
+				MyAPIGateway.Session.SessionSettings.TotalPCU = 200000;
+
 			//List<MyObjectBuilder_GlobalEventBase> spawnEvents = new List<MyObjectBuilder_GlobalEventBase>()
 			//{
 			//	new MyObjectBuilder_GlobalEventBase
