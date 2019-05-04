@@ -34,7 +34,7 @@ namespace Eem.Thraxus.Bots.Modules
 		private void OnGridSplit(IMyCubeGrid originalGrid, IMyCubeGrid newGrid)
 		{
 			_myOldParentInfo.MyAncestors.Add(_myOldParentInfo.MyParentId);
-			BotMarshal.BotOrphans.Add(newGrid.EntityId, new BotOrphan(originalGrid.EntityId, _myOldParentInfo.MyAncestors, _myOldParentInfo.MyLegacyConfig));
+			BotMarshal.BotOrphans.TryAdd(newGrid.EntityId, new BotOrphan(originalGrid.EntityId, _myOldParentInfo.MyAncestors, _myOldParentInfo.MyLegacyConfig));
 		}
 	}
 }

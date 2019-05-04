@@ -24,13 +24,13 @@ namespace Eem.Thraxus.Bots.Utilities
 		public static ConcurrentDictionary<long, long> PlayerShipControllerHistory;
 		public static ConcurrentCachingList<long> WarRegistry;
 		
-		public static Dictionary<long, BotOrphan> BotOrphans;
+		public static ConcurrentDictionary<long, BotOrphan> BotOrphans;
 		
 		/// <inheritdoc />
 		protected override void EarlySetup()
 		{
 			base.EarlySetup();
-			BotOrphans = new Dictionary<long, BotOrphan>();
+			BotOrphans = new ConcurrentDictionary<long, BotOrphan>();
 			ActiveShipRegistry = new ConcurrentCachingList<long>();
 			PlayerShipControllerHistory = new ConcurrentDictionary<long, long>();
 			WarRegistry = new ConcurrentCachingList<long>();
