@@ -13,10 +13,10 @@ namespace Eem.Thraxus.Bots.Modules
 		private BotOrphan _myOldParentInfo;
 
 		/// <inheritdoc />
-		public MultiPartBot(IMyEntity passedEntity, IMyShipController controller) : base(passedEntity, controller)
-		{
-			ThisCubeGrid.OnGridSplit += OnGridSplit;
-		}
+		//public MultiPartBot(IMyEntity passedEntity, IMyShipController controller) : base(passedEntity, controller)
+		//{
+		//	ThisCubeGrid.OnGridSplit += OnGridSplit;
+		//}
 
 		internal new void SetupBot()
 		{

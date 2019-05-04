@@ -113,11 +113,13 @@ namespace Eem.Thraxus.Bots
 		{ // Base bot choice here (single or multi)
  			WriteToLog("ProceedWithSetup", $"Setup approved.", LogType.General);
 			_setupComplete = true;
-			_bot = new BotBaseAdvanced(Entity, _myShipController);
+			//_bot = new BotBaseAdvanced(Entity, _myShipController);
+			_bot = new BotBaseAdvanced();
 			_bot.WriteToLog += WriteToLog;
 			_bot.BotShutdown += Shutdown;
 			_bot.BotSleep += Sleep;
 			_bot.BotWakeup += WakeUp;
+			_bot.Run(Entity, _myShipController);
 		}
 
 		/// <inheritdoc />
