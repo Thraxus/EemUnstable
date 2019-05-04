@@ -17,8 +17,9 @@ namespace Eem.Thraxus.Bots.Utilities
 	{
 		private const string GeneralLogName = "BotGeneral";
 		private const string DebugLogName = "BotDebug";
+		private const string SessionCompName = "BotMarshall";
 
-		public BotMarshal() : base(GeneralLogName, DebugLogName) {  } // Do nothing else
+		public BotMarshal() : base(GeneralLogName, DebugLogName, SessionCompName) {  } // Do nothing else
 
 		public static ConcurrentCachingList<long> ActiveShipRegistry;
 		public static ConcurrentDictionary<long, long> PlayerShipControllerHistory;
@@ -60,16 +61,16 @@ namespace Eem.Thraxus.Bots.Utilities
 				ExceptionLog("ControlAcquired", $"Exception! {e}");
 			}
 		}
-		
-		public override void Unload()
+
+		protected override void Unload()
 		{
-			base.Unload();
 			DamageHandler.Unload();
 			MyAPIGateway.Session.Player.Controller.ControlledEntityChanged -= ControlAcquired;
 			ActiveShipRegistry?.ClearList();
 			PlayerShipControllerHistory?.Clear();
 			WarRegistry?.ClearList();
 			BotOrphans?.Clear();
+			base.Unload();
 		}
 
 		public static void RegisterNewEntity(long entityId)

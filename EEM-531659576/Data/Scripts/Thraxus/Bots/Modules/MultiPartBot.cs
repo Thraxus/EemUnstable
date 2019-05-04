@@ -1,6 +1,7 @@
 ﻿using Eem.Thraxus.Bots.Models;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
+using Eem.Thraxus.Common.BaseClasses;
 using Sandbox.ModAPI;
 using IMyCubeGrid = VRage.Game.ModAPI.IMyCubeGrid;
 using IMyEntity = VRage.ModAPI.IMyEntity;
@@ -18,15 +19,15 @@ namespace Eem.Thraxus.Bots.Modules
 		}
 
 		/// <inheritdoc />
-		internal void SetupBot()
+		internal new void SetupBot()
 		{
 			base.SetupBot();
-			BotMarshal.WriteToLog("SetupBot", $"New Entity -\tId:\t{ThisEntity.EntityId}\tName:\t{ThisEntity.DisplayName}", true);
+			BaseSessionComp.WriteToLog("SetupBot", $"New Entity -\tId:\t{ThisEntity.EntityId}\tName:\t{ThisEntity.DisplayName}", true);
 			if (BotMarshal.BotOrphans.TryGetValue(ThisEntity.EntityId, out _myOldParentInfo))
-				BotMarshal.WriteToLog("SetupBot", $"I'm a new Entity with Id: {ThisEntity.EntityId}.  My parent was an entity with Id: {_myOldParentInfo.MyParentId}.  My grandparent was an entity with Id: {_myOldParentInfo.MyAncestors}", true);
+				BaseSessionComp.WriteToLog("SetupBot", $"I'm a new Entity with Id: {ThisEntity.EntityId}.  My parent was an entity with Id: {_myOldParentInfo.MyParentId}.  My grandparent was an entity with Id: {_myOldParentInfo.MyAncestors}", true);
 		}
 
-		public void Unload()
+		public new void Unload()
 		{
 			ThisCubeGrid.OnGridSplit -= OnGridSplit;
 		}

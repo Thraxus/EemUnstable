@@ -58,7 +58,6 @@ namespace Eem.Thraxus.Bots
 
 		private void Shutdown()
 		{
-			BaseSessionComp.WriteToLog("Shutdown", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", true);
 			_setupComplete = true;
 			NeedsUpdate = _originalUpdateEnum;
 			_myShipControllers?.Clear();
@@ -90,7 +89,11 @@ namespace Eem.Thraxus.Bots
 			if (_setupComplete) return;
 			PreApproveSetup();
 			if (_setupApproved) ProceedWithSetup();
-			else Shutdown();
+			else
+			{
+				BaseSessionComp.WriteToLog("UpdateBeforeSimulation", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", true);
+				Shutdown();
+			}
 		}
 
 		/// <inheritdoc />
@@ -157,6 +160,7 @@ namespace Eem.Thraxus.Bots
 		public override void Close()
 		{
 			if (!Helpers.Constants.IsServer) return;
+			BaseSessionComp.WriteToLog("Close", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", true);
 			Shutdown();
 			base.Close();
 		}

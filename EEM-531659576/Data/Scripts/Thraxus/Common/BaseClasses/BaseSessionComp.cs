@@ -9,34 +9,23 @@ namespace Eem.Thraxus.Common.BaseClasses
 	{
 		private readonly string _baseGeneralLogName;
 		private readonly string _baseDebugLogName;
+		private readonly string _baseType;
 
-		protected BaseSessionComp(string generalLogName, string debugLogName)
+		protected BaseSessionComp(string generalLogName, string debugLogName, string baseType)
 		{
 			_instance = this;
 			_baseGeneralLogName = generalLogName;
 			_baseDebugLogName = debugLogName;
+			_baseType = baseType;
 		}
 
 		private static BaseSessionComp _instance;
-		
-		public static Log GeneralLog;
-		public static Log DebugLog;
+
+		private static Log _generalLog;
+		private static Log _debugLog;
 
 		private bool _earlySetupComplete;
 		private bool _lateSetupComplete;
-
-		/// <inheritdoc />
-		public override bool UpdatedBeforeInit()
-		{
-			return base.UpdatedBeforeInit();
-		}
-
-		/// <inheritdoc />
-		public override void BeforeStart()
-		{
-			base.BeforeStart();
-		
-		}
 
 		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
 		{
@@ -49,14 +38,16 @@ namespace Eem.Thraxus.Common.BaseClasses
 		{
 			_earlySetupComplete = true;
 			_instance = this;
-			GeneralLog = new Log(_baseGeneralLogName);
-			DebugLog = new Log(_baseDebugLogName);
+			_generalLog = new Log(_baseGeneralLogName);
+			_debugLog = new Log(_baseDebugLogName);
+			WriteToLog("EarlySetup", $"{_baseType} waking up.", true);
 		}
 
 		protected virtual void LateSetup()
 		{
 			_lateSetupComplete = true;
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
+			WriteToLog("LateSetup", $"{_baseType} fully online.", true);
 		}
 		
 		public override void UpdateBeforeSimulation()
@@ -73,10 +64,11 @@ namespace Eem.Thraxus.Common.BaseClasses
 			Unload();
 		}
 
-		public virtual void Unload()
+		protected virtual void Unload()
 		{
-			DebugLog?.Close();
-			GeneralLog?.Close();
+			WriteToLog("Unload", $"{_baseType} retired.", true);
+			_debugLog?.Close();
+			_generalLog?.Close();
 			_instance = null;
 		}
 		
@@ -86,8 +78,8 @@ namespace Eem.Thraxus.Common.BaseClasses
 		{
 			lock (WriteLocker)
 			{
-				if (general) GeneralLog?.WriteToLog(caller, message);
-				DebugLog?.WriteToLog(caller, message);
+				if (general) _generalLog?.WriteToLog(caller, message);
+				_debugLog?.WriteToLog(caller, message);
 			}
 		}
 
