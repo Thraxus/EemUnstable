@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Eem.Thraxus.Utilities;
-using Sandbox.Definitions;
-using Sandbox.Game.World;
-using Sandbox.ModAPI;
-using VRage.Collections;
-using VRage.Game;
-using VRage.ObjectBuilders;
-using VRage.Utils;
+﻿using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Debug
 {

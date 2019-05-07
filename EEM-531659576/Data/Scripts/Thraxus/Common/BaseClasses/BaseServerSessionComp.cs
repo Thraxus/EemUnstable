@@ -114,7 +114,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 			StaticExceptionLog($"{_baseType}: {caller}", message);
 		}
 
-		public static void StaticExceptionLog(string caller, string message)
+		protected static void StaticExceptionLog(string caller, string message)
 		{
 			StaticLogger.WriteToLog(caller, $"Exception! {message}", LogType.Exception);
 		}

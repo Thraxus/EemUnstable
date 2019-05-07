@@ -8,7 +8,6 @@ using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Game.ObjectBuilders.ComponentSystem;
-using VRageRender.Animations;
 
 namespace Eem.Thraxus.Debug
 {

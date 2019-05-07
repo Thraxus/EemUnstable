@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.Models;
 using Eem.Thraxus.Bots.Settings;
-using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
 using Sandbox.ModAPI;

@@ -97,7 +97,6 @@ namespace Eem.Thraxus.Factions.Models
 
 		internal Func<string> RequestDialog(IMyFaction npcFaction, DialogType type)
 		{
-			AiSessionCore.DebugLog?.WriteToLog("RequestDialog", $"npcFaction:\t{npcFaction?.Tag}\tDialogType:\t{type}");
 			Func<string> message = DefaultDialogs.CatchAll;
 			Func<string> tmpMessage;
 			switch (type)

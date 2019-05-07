@@ -78,22 +78,25 @@ namespace Eem.Thraxus.Networking
         private static void ShowDebugLog(string s)
         {
             if (Constants.DebugMode)
-                AiSessionCore.DebugLog.GetTailMessages();
-            else Messaging.ShowLocalNotification("Debug mode is not enabled");
+            //    EemCore.DebugLog.GetTailMessages();
+            //else
+	            Messaging.ShowLocalNotification("Debug mode is not enabled");
         }
 
         private static void ShowGeneralLog(string s)
         {
             if (Constants.EnableGeneralLog)
-                AiSessionCore.GeneralLog.GetTailMessages();
-            else Messaging.ShowLocalNotification("General logging is not enabled");
+            //    EemCore.GeneralLog.GetTailMessages();
+            //else
+	            Messaging.ShowLocalNotification("General logging is not enabled");
         }
 
         private static void ShowProfilingLog(string s)
         {
             if (Constants.EnableProfilingLog)
-                AiSessionCore.ProfilingLog.GetTailMessages();
-            else Messaging.ShowLocalNotification("Profiling is not enabled");
+            //    EemCore.ProfilingLog.GetTailMessages();
+            //else
+	            Messaging.ShowLocalNotification("Profiling is not enabled");
         }
     }
 }

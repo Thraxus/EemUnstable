@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Eem.Thraxus.Helpers;
 
 namespace Eem.Thraxus.Utilities
 {
@@ -29,8 +28,8 @@ namespace Eem.Thraxus.Utilities
 		{
 			long end = Stopwatch.GetTimestamp();
 			TimeSpan timespan = new TimeSpan(end - _start);
-			if(Constants.EnableProfilingLog && AiSessionCore.LogSetupComplete)
-				AiSessionCore.ProfilingLog.WriteToLog(_name, $"{timespan.TotalMilliseconds:0.##########}ms");
+			//if(Constants.EnableProfilingLog && EemCore.LogSetupComplete)
+			//	EemCore.ProfilingLog.WriteToLog(_name, $"{timespan.TotalMilliseconds:0.##########}ms");
 		}
 	}
 }

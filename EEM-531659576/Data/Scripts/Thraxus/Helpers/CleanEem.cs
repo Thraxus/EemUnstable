@@ -69,7 +69,7 @@ namespace Eem.Thraxus.Helpers
 			}
 			catch (Exception e)
 			{
-				AiSessionCore.GeneralLog.WriteToLog("CleanEem", $"Exception: {e}");
+				//EemCore.GeneralLog.WriteToLog("CleanEem", $"Exception: {e}");
 			}
 		}
 

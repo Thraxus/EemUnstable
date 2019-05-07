@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
 using Sandbox.ModAPI;
-using SpaceEngineers.Game.ModAPI;
 using VRage.Collections;
-using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
