@@ -1,6 +1,7 @@
 ﻿using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
 using Sandbox.ModAPI;
+using VRage.Game;
 using VRage.Game.Components;
 
 namespace Eem.Thraxus
@@ -34,6 +35,8 @@ namespace Eem.Thraxus
 			WriteToLog("Core", $"View: {MyAPIGateway.Session.SessionSettings.ViewDistance}", LogType.General);
 			WriteToLog("Core", $"PiratePCU: {MyAPIGateway.Session.SessionSettings.PiratePCU}", LogType.General);
 			WriteToLog("Core", $"TotalPCU: {MyAPIGateway.Session.SessionSettings.TotalPCU}", LogType.General);
+			foreach (MyObjectBuilder_Checkpoint.ModItem mod in MyAPIGateway.Session.Mods)
+				WriteToLog("Core", $"Mod: {mod}", LogType.General);
 		}
 
 		/// <inheritdoc />
