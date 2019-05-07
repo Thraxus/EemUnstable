@@ -42,7 +42,7 @@ namespace Eem.Thraxus.EntityManager.Models
 			{
 				if (MyAPIGateway.Multiplayer.Players.Count == 0)
 				{
-					OnWriteToLog("PrintShipSpawn", $"Id:\t{myEntity.EntityId}\tDisplayName:\t{myEntity.DisplayName}\tPlayer:\t{0}\tDistanceTo:\t{0}", LogType.General);
+					WriteToLog("PrintShipSpawn", $"Id:\t{myEntity.EntityId}\tDisplayName:\t{myEntity.DisplayName}\tPlayer:\t{0}\tDistanceTo:\t{0}", LogType.General);
 					return;
 				}
 				List<IMyPlayer> playerList = new List<IMyPlayer>();
@@ -50,12 +50,12 @@ namespace Eem.Thraxus.EntityManager.Models
 				MyCubeGrid mygrid = (MyCubeGrid)myEntity;
 				foreach (IMyPlayer myPlayer in playerList)
 				{
-					OnWriteToLog("PrintShipSpawn", $"Id:\t{mygrid.EntityId}\tDisplayName:\t{mygrid.DisplayName}\tPCU:\t{mygrid.BlocksPCU}\tPlayer:\t{myPlayer.DisplayName}\tDistanceTo:\t{Vector3D.Distance(myPlayer.GetPosition(), myEntity.GetPosition())}", LogType.General);
+					WriteToLog("PrintShipSpawn", $"Id:\t{mygrid.EntityId}\tDisplayName:\t{mygrid.DisplayName}\tPCU:\t{mygrid.BlocksPCU}\tPlayer:\t{myPlayer.DisplayName}\tDistanceTo:\t{Vector3D.Distance(myPlayer.GetPosition(), myEntity.GetPosition())}", LogType.General);
 				}
 			}
 			catch (Exception e)
 			{
-				OnWriteToLog("PrintShipSpawn", $"Exception! {e}", LogType.Exception);
+				WriteToLog("PrintShipSpawn", $"Exception! {e}", LogType.Exception);
 			}
 			
 		}
@@ -65,11 +65,11 @@ namespace Eem.Thraxus.EntityManager.Models
 			try
 			{
 				MyCubeGrid mygrid = (MyCubeGrid)myEntity;
-				OnWriteToLog("PrintShipDespawn", $"Id:\t{mygrid.EntityId}\tDisplayName:\t{mygrid.DisplayName}\tPCU:\t{mygrid.BlocksPCU}", LogType.General);
+				WriteToLog("PrintShipDespawn", $"Id:\t{mygrid.EntityId}\tDisplayName:\t{mygrid.DisplayName}\tPCU:\t{mygrid.BlocksPCU}", LogType.General);
 			}
 			catch (Exception e)
 			{
-				OnWriteToLog("PrintShipDespawn", $"Exception! {e}", LogType.Exception);
+				WriteToLog("PrintShipDespawn", $"Exception! {e}", LogType.Exception);
 			}
 		}
 	}

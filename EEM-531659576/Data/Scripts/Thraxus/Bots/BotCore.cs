@@ -39,6 +39,7 @@ namespace Eem.Thraxus.Bots
 
 		//private bool _setupApproved;
 		private bool _setupComplete;
+		private bool _multiPart;
 		
 		private BotBaseAdvanced _bot;
 
@@ -54,6 +55,7 @@ namespace Eem.Thraxus.Bots
 			if (!Helpers.Constants.IsServer) return;
 			_originalUpdateEnum = NeedsUpdate;
 			NeedsUpdate |= Constants.CoreUpdateSchedule;
+			//if (!_setupComplete) Setup();
 			//PreApproveSetup();
 			//if (_setupApproved) ProceedWithSetup();
 			//else Shutdown();
@@ -63,6 +65,7 @@ namespace Eem.Thraxus.Bots
 		{
 			base.UpdateOnceBeforeFrame();
 			if (!Helpers.Constants.IsServer) return;
+			if (!_setupComplete) Setup();
 			//if (_setupComplete) return;
 			//PreApproveSetup();
 			//if (_setupApproved) ProceedWithSetup();
@@ -74,7 +77,7 @@ namespace Eem.Thraxus.Bots
 		{   // Basic tick timer on the ship level
 			base.UpdateBeforeSimulation();
 			if (!Helpers.Constants.IsServer) return;
-			if (!_setupComplete) Setup();
+			//if (!_setupComplete) Setup();
 		}
 
 		private void Setup()
@@ -86,12 +89,12 @@ namespace Eem.Thraxus.Bots
 				return;
 			}
 			WriteToLog("Setup", $"Approved.", LogType.General);
-			_bot = new BotBaseAdvanced();
-			_bot.Run(Entity, _myShipController);
-			_bot.WriteToLog += WriteToLog;
+			_bot = new BotBaseAdvanced(Entity, _myShipController, _multiPart);
+			_bot.WriteToStaticLog += WriteToLog;
 			_bot.BotShutdown += Shutdown;
 			_bot.BotSleep += Sleep;
 			_bot.BotWakeup += WakeUp;
+			_bot.Run();
 		}
 
 		private void Shutdown()
@@ -105,7 +108,7 @@ namespace Eem.Thraxus.Bots
 				_bot.BotShutdown -= Shutdown;
 				_bot.BotSleep -= Sleep;
 				_bot.BotWakeup -= WakeUp;
-				_bot.WriteToLog -= WriteToLog;
+				_bot.WriteToStaticLog -= WriteToLog;
 			}
 			_bot?.Unload();
 		}
@@ -156,6 +159,7 @@ namespace Eem.Thraxus.Bots
 				if (BotMarshal.BotOrphans.ContainsKey(Entity.EntityId))
 				{
 					// TODO: Placeholder for initializing a multipart bot; we already know the setup, and this grid has a functioning control center, so no need to go further
+					_multiPart = true;
 				}
 
 				foreach (IMyShipController myShipController in _myShipControllers)

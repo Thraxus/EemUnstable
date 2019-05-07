@@ -12,7 +12,7 @@ namespace Eem.Thraxus.Bots.Modules
 	{
 		private BotOrphan _myOldParentInfo;
 
-		/// <inheritdoc />
+		///// <inheritdoc />
 		//public MultiPartBot(IMyEntity passedEntity, IMyShipController controller) : base(passedEntity, controller)
 		//{
 		//	ThisCubeGrid.OnGridSplit += OnGridSplit;
@@ -21,9 +21,9 @@ namespace Eem.Thraxus.Bots.Modules
 		internal new void SetupBot()
 		{
 			base.SetupBot();
-			OnWriteToLog("SetupBot", $"New Entity -\tId:\t{ThisEntity.EntityId}\tName:\t{ThisEntity.DisplayName}", LogType.General);
+			WriteToLog("SetupBot", $"New Entity -\tId:\t{ThisEntity.EntityId}\tName:\t{ThisEntity.DisplayName}", LogType.General);
 			if (BotMarshal.BotOrphans.TryGetValue(ThisEntity.EntityId, out _myOldParentInfo))
-				OnWriteToLog("SetupBot", $"I'm a new Entity with Id: {ThisEntity.EntityId}.  My parent was an entity with Id: {_myOldParentInfo.MyParentId}.  My grandparent was an entity with Id: {_myOldParentInfo.MyAncestors}", LogType.General);
+				WriteToLog("SetupBot", $"I'm a new Entity with Id: {ThisEntity.EntityId}.  My parent was an entity with Id: {_myOldParentInfo.MyParentId}.  My grandparent was an entity with Id: {_myOldParentInfo.MyAncestors}", LogType.General);
 		}
 
 		public new void Unload()
@@ -35,6 +35,11 @@ namespace Eem.Thraxus.Bots.Modules
 		{
 			_myOldParentInfo.MyAncestors.Add(_myOldParentInfo.MyParentId);
 			BotMarshal.BotOrphans.TryAdd(newGrid.EntityId, new BotOrphan(originalGrid.EntityId, _myOldParentInfo.MyAncestors, _myOldParentInfo.MyLegacyConfig));
+		}
+
+		/// <inheritdoc />
+		public MultiPartBot(IMyEntity passedEntity, IMyShipController controller, bool isMultipart = false) : base(passedEntity, controller, isMultipart)
+		{
 		}
 	}
 }

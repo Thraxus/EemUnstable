@@ -132,6 +132,8 @@ namespace Eem.Thraxus.Common
 					default: break;
 				}
 			}
+
+			if (string.IsNullOrEmpty(Faction)) Faction = "SPRT";
 		}
 
 		/// <inheritdoc />
