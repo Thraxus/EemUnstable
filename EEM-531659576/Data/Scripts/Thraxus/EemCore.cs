@@ -5,8 +5,9 @@ using VRage.Game.Components;
 
 namespace Eem.Thraxus
 {
-	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
+	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue + 1)]
 	// ReSharper disable once ClassNeverInstantiated.Global
+	// ReSharper disable once UnusedMember.Global
 	public class EemCore : BaseServerSessionComp
 	{
 		private const string GeneralLogName = "EemCoreGeneral";

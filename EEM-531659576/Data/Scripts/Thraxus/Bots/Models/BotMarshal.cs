@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
@@ -27,13 +28,15 @@ namespace Eem.Thraxus.Bots.Models
 		public static ConcurrentDictionary<long, long> PlayerShipControllerHistory;
 		public static ConcurrentDictionary<long, BotOrphan> BotOrphans;
 		public static ConcurrentDictionary<long, long> WarRegistry;
-
-
+		public static ConcurrentDictionary<ulong, bool> ModDictionary;
 
 		/// <inheritdoc />
 		protected override void EarlySetup()
 		{
 			base.EarlySetup();
+			ModDictionary = new ConcurrentDictionary<ulong, bool>();
+			foreach (ulong mod in Constants.ModsToWatch)
+				ModDictionary.TryAdd(mod, ModDetection.DetectMod(mod));
 			BotOrphans = new ConcurrentDictionary<long, BotOrphan>();
 			ActiveShipRegistry = new ConcurrentCachingList<long>();
 			PlayerShipControllerHistory = new ConcurrentDictionary<long, long>();

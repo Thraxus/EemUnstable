@@ -14,12 +14,13 @@ using VRage.ObjectBuilders;
 namespace Eem.Thraxus.Bots
 {
 	[MyEntityComponentDescriptor(typeof(MyObjectBuilder_CubeGrid), false)]
+	// ReSharper disable once ClassNeverInstantiated.Global
+	// ReSharper disable once UnusedMember.Global
 	internal class BotCore : BaseServerGameLogicComp
 	{
 		/*
-		 * TODO Damage Handler
-		 * TODO Bot Setup
-		 * TODO Faction Monitor to ensure MES isn't stealing us again on init
+		 * TODO Damage Handler - done
+		 * TODO Bot Setup - done		 
 		 * TODO Bot Classification (drone, fighter, station, trader, etc)
 		 * TODO Replace bot scripts with ModAPI (traders mostly)
 		 * TODO Target Identifier
@@ -27,16 +28,14 @@ namespace Eem.Thraxus.Bots
 		 * TODO Fight or Flight Conditions
 		 * TODO Kamikaze Conditions
 		 * TODO Reinforcement Conditions / calls (antenna drones)
+		 * TODO Faction Monitor to ensure MES isn't stealing us again on init
 		 *
 		 * TODO Convert existing code to new code base modules, including logs
-		 * TODO Upcoming: Factions, AiSessionCore, DamageHandler
-		 * TODO Finished: EntityManager, BotCore, BotBaseAdvanced, BotMarshall
+		 * TODO Upcoming: Factions, DamageHandler
+		 * TODO Finished: EntityManager, BotCore, BotBaseAdvanced, BotMarshall, EemCore
 		 * TODO Ignored: MissileMaster
 		 */
 
-		//private EemPrefabConfig prefabConfig;
-
-		//private bool _setupApproved;
 		private bool _setupComplete;
 		private bool _multiPart;
 		
@@ -54,10 +53,6 @@ namespace Eem.Thraxus.Bots
 			if (!Helpers.Constants.IsServer) return;
 			_originalUpdateEnum = NeedsUpdate;
 			NeedsUpdate |= Constants.CoreUpdateSchedule;
-			//if (!_setupComplete) Setup();
-			//PreApproveSetup();
-			//if (_setupApproved) ProceedWithSetup();
-			//else Shutdown();
 		}
 
 		public override void UpdateOnceBeforeFrame()
@@ -65,18 +60,6 @@ namespace Eem.Thraxus.Bots
 			base.UpdateOnceBeforeFrame();
 			if (!Helpers.Constants.IsServer) return;
 			if (!_setupComplete) Setup();
-			//if (_setupComplete) return;
-			//PreApproveSetup();
-			//if (_setupApproved) ProceedWithSetup();
-			//else Shutdown();
-		}
-
-		/// <inheritdoc />
-		public override void UpdateBeforeSimulation()
-		{   // Basic tick timer on the ship level
-			base.UpdateBeforeSimulation();
-			if (!Helpers.Constants.IsServer) return;
-			//if (!_setupComplete) Setup();
 		}
 
 		private void Setup()
@@ -121,18 +104,6 @@ namespace Eem.Thraxus.Bots
 		{
 			NeedsUpdate |= Constants.CoreUpdateSchedule;
 		}
-
-		//private void ProceedWithSetup()
-		//{ // Base bot choice here (single or multi)
- 	//		WriteToLog("ProceedWithSetup", $"Setup approved.", LogType.General);
-		//	_setupComplete = true;
-		//	_bot = new BotBaseAdvanced();
-		//	_bot.Run(Entity, _myShipController);
-		//	_bot.WriteToLog += WriteToLog;
-		//	_bot.BotShutdown += Shutdown;
-		//	_bot.BotSleep += Sleep;
-		//	_bot.BotWakeup += WakeUp;
-		//}
 
 		/// <inheritdoc />
 		public override void OnAddedToScene()

@@ -13,27 +13,12 @@ namespace Eem.Thraxus.Helpers
 
 		public static bool DebugMode { get; } = false;
 
-		public static bool DisableCheetahAi { get; } = true;
-
 		public static bool EnableProfilingLog { get; } = true;
 
 		public static bool EnableGeneralLog { get; } = true;
 
 		public static bool DisableCleanup { get; } = false;
 		
-		public static string DebugLogName { get; } = "EEM_Debug"; 
-
-		public static string ProfilingLogName { get; } = "EEM_Profiling";
-
-		public static string GeneralLogName { get; } = "EEM_General";
-
-		/// <summary>
-		/// This permits certain operations to throw custom exceptions in order to
-		/// provide detailed descriptions of what gone wrong, over call stack.<para />
-		/// BEWARE, every exception thrown must be explicitly provided with a catcher, or it will crash the entire game!
-		/// </summary>
-		public static bool AllowThrowingErrors { get; } = true;
-
 		public const int TicksPerSecond = 60;
 
 		public const int TicksPerMinute = TicksPerSecond * 60;
@@ -62,8 +47,6 @@ namespace Eem.Thraxus.Helpers
 
 		public static ushort EemCoreNetworkId { get; } = 16759;
 
-		public const string ServerCommsPrefix = "EEMServerMessage";
-
 		public const string DeclareWarMessagePrefix = "DeclareWar";
 
 		public const string DeclarePeaceMessagePrefix = "DeclarePeace";
@@ -72,14 +55,9 @@ namespace Eem.Thraxus.Helpers
 
 		public const string RejectPeaceMessagePrefix = "RejectPeace";
 
-		public const string InitFactionsMessagePrefix = "InitFactions";
-
 		#endregion
 
 		// CleanUp.cs's constants:
-
-		// verbose debug log output
-		public static bool CleanupDebug { get; } = false;
 
 		// text required in the RC's CustomData to be even considrered for removal
 		public static string CleanupRcTag { get; } = "[EEM_AI]";
@@ -90,33 +68,11 @@ namespace Eem.Thraxus.Helpers
 		// clamp the world's view range to this minimum value, which is used for removing distant ships
 		public static int CleanupMinRange { get; } = 40000;
 
-		// remove connector-connected ships too?
-		public static bool CleanupConnectorConnected { get; } = false;
-
 		// world setting of max drones
 		public static int ForceMaxDrones { get; } = 20;
-
-
+		
 		// BuyShip.cs's constants:
-
-		// time in seconds to wait after spawning before spawning again
-		public static int TradeDelaySeconds { get; } = 15;
-
-		// prefix and suffix words that encapsulate the prefab name
-		public static string TradeEchoPrefix { get; } = "Ship bought:";
-
-		public static string TradeEchoSuffix { get; } = "\n";
-
-		// relative spawn position to the PB, use negative for the opposite direction
-		public static double SpawnRelativeOffsetUp { get; } = 10.0;
-
-		public static double SpawnRelativeOffsetLeft { get; } = 0.0;
-
-		public static double SpawnRelativeOffsetForward { get; } = 0.0;
-
-		// after the ship is spawned, all blocks with inventory in the PB's grid with this word in their name and owned by the trader faction will have their contents purged
-		public static string PostspawnEmptyinventoryTag { get; } = "(purge)";
-
+		
 		// the particle effect name (particles.sbc) to spawn after the ship is spawned
 		public static string SpawnEffectName { get; } = "EEMWarpIn";
 

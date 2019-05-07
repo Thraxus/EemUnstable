@@ -29,6 +29,8 @@ namespace Eem.Thraxus.Bots.Models
 		public event WakeupRequest BotWakeup;
 		public delegate void WakeupRequest();
 
+		private bool BarsActive;
+
 		public BotBaseAdvanced(IMyEntity passedEntity, IMyShipController controller, bool isMultipart = false)
 		{
 			ThisEntity = passedEntity;
@@ -48,6 +50,7 @@ namespace Eem.Thraxus.Bots.Models
 			ThisCubeGrid.OnBlockIntegrityChanged += OnBlockIntegrityChanged;
 			BotMarshal.RegisterNewEntity(ThisEntity.EntityId);
 			DamageHandler.TriggerAlert += DamageHandlerOnTriggerAlert;
+			BotMarshal.ModDictionary.TryGetValue(Constants.BarsModId, out BarsActive);
 			SetupBot();
 		}
 
@@ -96,7 +99,7 @@ namespace Eem.Thraxus.Bots.Models
 		internal void SetupBot()
 		{
 			SetFactionOwnership();
-			WriteToLog("SetupBot", $"BotBaseAdvanced online.", LogType.General);
+			WriteToLog("SetupBot", $"BotBaseAdvanced online.  BaRS Detected: {BarsActive}", LogType.General);
 		}
 
 		private void SetFactionOwnership()
