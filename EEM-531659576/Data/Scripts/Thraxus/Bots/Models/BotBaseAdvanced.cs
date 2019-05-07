@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
 using Sandbox.ModAPI;
+using SpaceEngineers.Game.ModAPI;
+using VRage.Collections;
+using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
@@ -17,6 +21,7 @@ namespace Eem.Thraxus.Bots.Models
 		internal EemPrefabConfig MyConfig;
 		internal long OwnerId;
 		private bool _sleeping;
+		private ConcurrentCachingList<long> _warList;
 
 		public event ShutdownRequest BotShutdown;
 		public delegate void ShutdownRequest();
@@ -50,7 +55,8 @@ namespace Eem.Thraxus.Bots.Models
 			ThisEntity = passedEntity;
 			MyShipController = controller;
 			MyConfig = !isMultipart ? new EemPrefabConfig(controller.CustomData) : BotMarshal.BotOrphans[passedEntity.EntityId].MyLegacyConfig;
-			OwnerId = MyAPIGateway.Session.Factions.TryGetFactionByTag(MyConfig.Faction).FounderId;
+			OwnerId = string.IsNullOrEmpty(MyConfig.Faction) ? MyAPIGateway.Session.Factions.TryGetFactionByTag("SPRT").FounderId : MyAPIGateway.Session.Factions.TryGetFactionByTag(MyConfig.Faction).FounderId;
+			_warList = new ConcurrentCachingList<long>();
 			ThisCubeGrid = ((IMyCubeGrid)passedEntity);
 			ThisCubeGrid.OnBlockAdded += OnBlockAdded;
 			ThisCubeGrid.OnBlockRemoved += OnBlockRemoved;
@@ -61,20 +67,23 @@ namespace Eem.Thraxus.Bots.Models
 			SetupBot();
 		}
 
-		private void DamageHandlerOnTriggerAlert(long shipId)
+		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)
 		{
 			if (ThisEntity.EntityId == shipId)
-				TriggerAlertConditions();
+				TriggerAlertConditions(shipId, playerId);
 		}
 
-		private void TriggerAlertConditions()
+		private void TriggerAlertConditions(long shipId, long playerId)
 		{
+			OnWriteToLog("TriggerAlertConditions", $"Alert conditions triggered against {playerId}", LogType.General);
+			_warList.Add(playerId);
 			// TODO Add alert conditions
 		}
 
 		public void Unload()
 		{
 			OnWriteToLog("BotCore", $"Shutting down.", LogType.General);
+			_warList.ClearList();
 			BotMarshal.RemoveDeadEntity(ThisEntity.EntityId);
 			ThisCubeGrid.OnBlockAdded -= OnBlockAdded;
 			ThisCubeGrid.OnBlockRemoved -= OnBlockRemoved;
@@ -92,7 +101,6 @@ namespace Eem.Thraxus.Bots.Models
 			try
 			{
 				OnWriteToLog("SetFactionOwnership", $"Setting faction ownership to {MyAPIGateway.Session.Factions.TryGetFactionByTag(MyConfig.Faction).Tag}", LogType.General);
-
 				ThisCubeGrid.ChangeGridOwnership(OwnerId, Constants.ShareMode);
 				//foreach (IMyCubeGrid grid in MyAPIGateway.GridGroups.GetGroup(ThisCubeGrid, GridLinkTypeEnum.Mechanical).Where(grid => grid.BigOwners != ThisCubeGrid.BigOwners))
 				foreach (IMyCubeGrid grid in MyAPIGateway.GridGroups.GetGroup(ThisCubeGrid, GridLinkTypeEnum.Mechanical))
@@ -134,6 +142,12 @@ namespace Eem.Thraxus.Bots.Models
 				Wakeup();
 				BotWakeup?.Invoke();
 			}
+
+		}
+		private void OnOnBlockOwnershipChanged(IMyCubeGrid cubeGrid)
+		{   // Protection for initial spawn with MES, should be disabled after the first few seconds in game (~300 ticks)
+			OnWriteToLog("OnBlockOwnershipChanged", $"Ownership changed.", LogType.General);
+			if (MyShipController.OwnerId != OwnerId) BotShutdown?.Invoke();
 		}
 
 		private void Sleep()
@@ -148,12 +162,6 @@ namespace Eem.Thraxus.Bots.Models
 			_sleeping = false;
 			OnWriteToLog("Wakeup", $"Waking up.", LogType.General);
 			ThisCubeGrid.OnBlockAdded += OnBlockAdded;
-		}
-
-		private void OnOnBlockOwnershipChanged(IMyCubeGrid cubeGrid)
-		{   // Protection for initial spawn with MES, should be disabled after the first few seconds in game (~300 ticks)
-			OnWriteToLog("OnOnBlockOwnershipChanged", $"Ownership changed.", LogType.General);
-			if (MyShipController.OwnerId != OwnerId) BotShutdown?.Invoke();
 		}
 	}
 }

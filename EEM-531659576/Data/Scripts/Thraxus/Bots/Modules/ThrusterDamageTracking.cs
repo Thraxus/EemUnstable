@@ -1,4 +1,4 @@
-﻿namespace Eem.Thraxus.Bots.Models
+﻿namespace Eem.Thraxus.Bots.Modules
 {
 	public class ThrusterDamageTracker
 	{

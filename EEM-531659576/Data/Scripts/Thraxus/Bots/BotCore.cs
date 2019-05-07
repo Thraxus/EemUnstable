@@ -37,7 +37,7 @@ namespace Eem.Thraxus.Bots
 
 		//private EemPrefabConfig prefabConfig;
 
-		private bool _setupApproved;
+		//private bool _setupApproved;
 		private bool _setupComplete;
 		
 		private BotBaseAdvanced _bot;
@@ -63,10 +63,35 @@ namespace Eem.Thraxus.Bots
 		{
 			base.UpdateOnceBeforeFrame();
 			if (!Helpers.Constants.IsServer) return;
-			if (_setupComplete) return;
-			PreApproveSetup();
-			if (_setupApproved) ProceedWithSetup();
-			else Shutdown();
+			//if (_setupComplete) return;
+			//PreApproveSetup();
+			//if (_setupApproved) ProceedWithSetup();
+			//else Shutdown();
+		}
+
+		/// <inheritdoc />
+		public override void UpdateBeforeSimulation()
+		{   // Basic tick timer on the ship level
+			base.UpdateBeforeSimulation();
+			if (!Helpers.Constants.IsServer) return;
+			if (!_setupComplete) Setup();
+		}
+
+		private void Setup()
+		{
+			_setupComplete = true;
+			if (!PreApproveSetup())
+			{
+				Shutdown();
+				return;
+			}
+			WriteToLog("Setup", $"Approved.", LogType.General);
+			_bot = new BotBaseAdvanced();
+			_bot.Run(Entity, _myShipController);
+			_bot.WriteToLog += WriteToLog;
+			_bot.BotShutdown += Shutdown;
+			_bot.BotSleep += Sleep;
+			_bot.BotWakeup += WakeUp;
 		}
 
 		private void Shutdown()
@@ -95,32 +120,17 @@ namespace Eem.Thraxus.Bots
 			NeedsUpdate |= Constants.CoreUpdateSchedule;
 		}
 
-		/// <inheritdoc />
-		public override void UpdateBeforeSimulation()
-		{	// Basic tick timer on the ship level
-			base.UpdateBeforeSimulation();
-			if (!Helpers.Constants.IsServer) return;
-			if (_setupComplete) return;
-			if (_setupApproved) ProceedWithSetup();
-			else
-			{
-				WriteToLog("UpdateBeforeSimulation", $"Shutdown triggered.", LogType.General);
-				Shutdown();
-			}
-		}
-
-		private void ProceedWithSetup()
-		{ // Base bot choice here (single or multi)
- 			WriteToLog("ProceedWithSetup", $"Setup approved.", LogType.General);
-			_setupComplete = true;
-			//_bot = new BotBaseAdvanced(Entity, _myShipController);
-			_bot = new BotBaseAdvanced();
-			_bot.WriteToLog += WriteToLog;
-			_bot.BotShutdown += Shutdown;
-			_bot.BotSleep += Sleep;
-			_bot.BotWakeup += WakeUp;
-			_bot.Run(Entity, _myShipController);
-		}
+		//private void ProceedWithSetup()
+		//{ // Base bot choice here (single or multi)
+ 	//		WriteToLog("ProceedWithSetup", $"Setup approved.", LogType.General);
+		//	_setupComplete = true;
+		//	_bot = new BotBaseAdvanced();
+		//	_bot.Run(Entity, _myShipController);
+		//	_bot.WriteToLog += WriteToLog;
+		//	_bot.BotShutdown += Shutdown;
+		//	_bot.BotSleep += Sleep;
+		//	_bot.BotWakeup += WakeUp;
+		//}
 
 		/// <inheritdoc />
 		public override void OnAddedToScene()
@@ -129,38 +139,35 @@ namespace Eem.Thraxus.Bots
 			base.OnAddedToScene();
 		}
 
-		private void PreApproveSetup()
+		private bool PreApproveSetup()
 		{
 			try
 			{
 				EntityName = Entity.DisplayName;
 				EntityId = Entity.EntityId;
 
-				if (Entity.Physics == null) return;
+				if (Entity.Physics == null) return false;
 
 				_myShipControllers = new List<IMyShipController>();
 				GetControllers();
 
-				if (_myShipControllers.Count == 0) return;
+				if (_myShipControllers.Count == 0) return false;
 
 				if (BotMarshal.BotOrphans.ContainsKey(Entity.EntityId))
 				{
 					// TODO: Placeholder for initializing a multipart bot; we already know the setup, and this grid has a functioning control center, so no need to go further
-					//_setupApproved = true;
-					//return;
 				}
 
 				foreach (IMyShipController myShipController in _myShipControllers)
 					if (myShipController.CustomData.Contains(Constants.EemAiPrefix)) _myShipController = myShipController;
 
-				if (_myShipController == null) return;
-
-				_setupApproved = true;
+				return _myShipController != null;
 			}
 			catch (Exception e)
 			{
 				WriteToLog("PreApproveSetup", $"Exception! {e}", LogType.Exception);
 			}
+			return false;
 		}
 
 		/// <inheritdoc />

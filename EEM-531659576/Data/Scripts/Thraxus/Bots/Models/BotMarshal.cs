@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.Utilities;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
 
-namespace Eem.Thraxus.Bots.Utilities
+namespace Eem.Thraxus.Bots.Models
 {
 	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue + 1)]
 	// ReSharper disable once ClassNeverInstantiated.Global
@@ -22,11 +23,13 @@ namespace Eem.Thraxus.Bots.Utilities
 		public BotMarshal() : base(GeneralLogName, DebugLogName, SessionCompName) {  } // Do nothing else
 		
 		public static ConcurrentCachingList<long> ActiveShipRegistry;
-		public static ConcurrentCachingList<long> WarRegistry;
-
+		
 		public static ConcurrentDictionary<long, long> PlayerShipControllerHistory;
 		public static ConcurrentDictionary<long, BotOrphan> BotOrphans;
-		
+		public static ConcurrentDictionary<long, long> WarRegistry;
+
+
+
 		/// <inheritdoc />
 		protected override void EarlySetup()
 		{
@@ -34,8 +37,9 @@ namespace Eem.Thraxus.Bots.Utilities
 			BotOrphans = new ConcurrentDictionary<long, BotOrphan>();
 			ActiveShipRegistry = new ConcurrentCachingList<long>();
 			PlayerShipControllerHistory = new ConcurrentDictionary<long, long>();
-			WarRegistry = new ConcurrentCachingList<long>();
+			WarRegistry = new ConcurrentDictionary<long, long>();
 			DamageHandler.Run();
+			DamageHandler.TriggerAlert += RegisterNewWar;
 		}
 
 		/// <inheritdoc />
@@ -64,11 +68,12 @@ namespace Eem.Thraxus.Bots.Utilities
 
 		protected override void Unload()
 		{
+			DamageHandler.TriggerAlert -= RegisterNewWar;
 			DamageHandler.Unload();
 			MyAPIGateway.Session.Player.Controller.ControlledEntityChanged -= ControlAcquired;
 			ActiveShipRegistry?.ClearList();
 			PlayerShipControllerHistory?.Clear();
-			WarRegistry?.ClearList();
+			WarRegistry?.Clear();
 			BotOrphans?.Clear();
 			base.Unload();
 		}
@@ -94,6 +99,30 @@ namespace Eem.Thraxus.Bots.Utilities
 			catch (Exception e)
 			{
 				StaticExceptionLog("RemoveDeadEntity", e.ToString());
+			}
+		}
+
+		public static void RegisterNewWar(long entityId, long playerId)
+		{ // Use this to trigger Factions; all war filters through here.
+			try
+			{
+				WarRegistry.TryAdd(entityId, playerId);
+			}
+			catch (Exception e)
+			{
+				StaticExceptionLog("RegisterNewWar", e.ToString());
+			}
+		}
+
+		public static void RemoveOldWar(long entityId, long playerId)
+		{
+			try
+			{
+				WarRegistry.Remove(entityId);
+			}
+			catch (Exception e)
+			{
+				StaticExceptionLog("RemoveOldWar", e.ToString());
 			}
 		}
 	}

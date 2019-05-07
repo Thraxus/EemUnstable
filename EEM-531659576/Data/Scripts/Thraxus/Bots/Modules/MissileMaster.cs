@@ -11,19 +11,19 @@ namespace Eem.Thraxus.Bots.Modules
 	internal class MissileMaster : MyGameLogicComponent
 	{
 		/// <inheritdoc />
-		public override void OnAddedToScene()
-		{
-			base.OnAddedToScene();
-			try
-			{
-				if (!Helpers.Constants.IsServer) return;
-				DamageHandler.RegisterNewMissile(new MissileHistory(((MyObjectBuilder_Missile)Entity.GetObjectBuilder()).LauncherId, ((MyObjectBuilder_Missile)Entity.GetObjectBuilder()).Owner, Entity.GetPosition(),DateTime.Now));
-			}
-			catch (Exception e)
-			{
-				StaticLogger.WriteToLog("MissileMaster", $"OnAddedToScene Exception! {e}", LogType.Exception);
-			}
-		}
+		//public override void OnAddedToScene()
+		//{
+		//	base.OnAddedToScene();
+		//	try
+		//	{
+		//		if (!Helpers.Constants.IsServer) return;
+		//		DamageHandler.RegisterNewMissile(new MissileHistory(((MyObjectBuilder_Missile)Entity.GetObjectBuilder()).LauncherId, ((MyObjectBuilder_Missile)Entity.GetObjectBuilder()).Owner, Entity.GetPosition(),DateTime.Now));
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		StaticLogger.WriteToLog("MissileMaster", $"OnAddedToScene Exception! {e}", LogType.Exception);
+		//	}
+		//}
 
 		/// <inheritdoc />
 		public override void OnRemovedFromScene()
