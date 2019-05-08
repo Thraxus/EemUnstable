@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Eem.Thraxus.Bots.Modules;
 using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
@@ -29,6 +30,7 @@ namespace Eem.Thraxus.Bots.Models
 		public static ConcurrentDictionary<long, BotOrphan> BotOrphans;
 		public static ConcurrentDictionary<long, long> WarRegistry;
 		public static ConcurrentDictionary<ulong, bool> ModDictionary;
+		public static ConcurrentDictionary<long, ConcurrentCachingHashSet<TargetEntity>> PriorityTargetDictionary;
 
 		/// <inheritdoc />
 		protected override void EarlySetup()
@@ -41,10 +43,11 @@ namespace Eem.Thraxus.Bots.Models
 			ActiveShipRegistry = new ConcurrentCachingList<long>();
 			PlayerShipControllerHistory = new ConcurrentDictionary<long, long>();
 			WarRegistry = new ConcurrentDictionary<long, long>();
+			PriorityTargetDictionary = new ConcurrentDictionary<long, ConcurrentCachingHashSet<TargetEntity>>();
 			DamageHandler.Run();
 			DamageHandler.TriggerAlert += RegisterNewWar;
 		}
-
+		
 		/// <inheritdoc />
 		protected override void LateSetup()
 		{
@@ -77,6 +80,7 @@ namespace Eem.Thraxus.Bots.Models
 			ActiveShipRegistry?.ClearList();
 			PlayerShipControllerHistory?.Clear();
 			WarRegistry?.Clear();
+			PriorityTargetDictionary.Clear();
 			BotOrphans?.Clear();
 			base.Unload();
 		}
@@ -126,6 +130,33 @@ namespace Eem.Thraxus.Bots.Models
 			catch (Exception e)
 			{
 				StaticExceptionLog("RemoveOldWar", e.ToString());
+			}
+		}
+
+		public static void RegisterNewPriorityTarget(long shipId, TargetEntity target)
+		{ // Use this to trigger Factions; all war filters through here.
+			try
+			{
+				if (!PriorityTargetDictionary.TryAdd(shipId, new ConcurrentCachingHashSet<TargetEntity> {target}))
+					PriorityTargetDictionary[shipId].Add(target);
+			}
+			catch (Exception e)
+			{
+				StaticExceptionLog("RegisterNewPriorityTarget", e.ToString());
+			}
+		}
+
+		public static void RemoveOldPriorityTarget(long shipId, TargetEntity target)
+		{
+			try
+			{
+				PriorityTargetDictionary[shipId].Remove(target);
+				if (PriorityTargetDictionary[shipId].Count == 0)
+					PriorityTargetDictionary.Remove(shipId);
+			}
+			catch (Exception e)
+			{
+				StaticExceptionLog("RemoveOldPriorityTarget", e.ToString());
 			}
 		}
 	}

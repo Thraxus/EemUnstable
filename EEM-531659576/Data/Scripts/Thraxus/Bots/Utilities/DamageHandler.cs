@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Eem.Thraxus.Bots.Models;
 using Eem.Thraxus.Bots.Modules;
+using Eem.Thraxus.Bots.Modules.ModManagers;
 using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Utilities;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Weapons;
 using VRage.Game.Entity;
@@ -26,6 +28,7 @@ namespace Eem.Thraxus.Bots.Utilities
 
 		private static List<MissileHistory> _unownedMissiles;
 		private static ConcurrentDictionary<long, ThrusterDamageTracker> _thrusterDamageTrackers;
+		
 
 		private static Log _damageHandlerLog;
 		private static Log _damageHandlerDebugLog;
@@ -44,7 +47,7 @@ namespace Eem.Thraxus.Bots.Utilities
 			_damageHandlerDebugLog = new Log(DamageHandlerDebugLogName);
 			_unownedMissiles = new List<MissileHistory>();
 			_thrusterDamageTrackers = new ConcurrentDictionary<long, ThrusterDamageTracker>();
-			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(Priority, MyBeforeDamageHandler);
+			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(Priority, BeforeDamageHandler);
 		}
 
 		public static void Unload()
@@ -55,7 +58,27 @@ namespace Eem.Thraxus.Bots.Utilities
 			_thrusterDamageTrackers.Clear();
 		}
 
-		private static void MyBeforeDamageHandler(object target, ref MyDamageInformation info)
+		public static void BarsSuspected(IMyEntity shipEntity)
+		{	// Takes the ship id for the grid suspected of being under attack by BARS and casts spells to see if its true or not
+			WriteToLog("BarsSuspected",$"Triggered by: {shipEntity.DisplayName}", true);
+			List<IMyEntity> detectedBars = BuildAndRepairSystem.DetectAllBars(shipEntity.GetPosition(), Constants.UnownedGridDetectionRange);
+			if (detectedBars.Count == 0) return;
+			foreach (IMyEntity bars in detectedBars)
+			{
+				BotMarshal.RegisterNewPriorityTarget(shipEntity.EntityId, new TargetEntity(bars, BaseTargetPriorities.Bars));
+				RegisterWarEvent(shipEntity.EntityId, bars.EntityId);
+			}
+
+			
+		}
+
+		public static void ErrantBlockPlaced(long shipId, IMySlimBlock addedBlock)
+		{   // Triggers alert to errant block placement on an EEM grid
+			WriteToLog("ErrantBlockPlaced", $"Triggered by: {shipId} with block {addedBlock} belonging to {addedBlock.GetObjectBuilder().BuiltBy}", true);
+			RegisterWarEvent(shipId, addedBlock.GetObjectBuilder().BuiltBy);
+		}
+
+		private static void BeforeDamageHandler(object target, ref MyDamageInformation info)
 		{   // Important one, should show all damage events, even instant destruction
 			// Testing shows meteors don't do damage, just remove blocks and do deformation, so not bothering to track that for now... 
 			// BaRS doesn't show up here at all, will need to make a special case processed on the grid to account for BaRS damage using integrity lowering with no matching damage case

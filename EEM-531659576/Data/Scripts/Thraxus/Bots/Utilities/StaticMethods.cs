@@ -12,7 +12,8 @@ namespace Eem.Thraxus.Bots.Utilities
 	{
 		public static IEnumerable<MyEntity> DetectDynamicEntitiesInSphere(Vector3D detectionCenter, double range)
 		{
-			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"DetectEntitiesInSphere {range}", "", detectionCenter, true));
+			AddGpsLocation($"DetectDynamicEntitiesInSphere {range}", detectionCenter);
+			
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
 			MyGamePruningStructure.GetAllEntitiesInSphere(ref pruneSphere, pruneList, MyEntityQueryType.Dynamic);
@@ -21,7 +22,8 @@ namespace Eem.Thraxus.Bots.Utilities
 
 		public static IEnumerable<MyEntity> DetectStaticEntitiesInSphere(Vector3D detectionCenter, double range)
 		{
-			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"DetectEntitiesInSphere {range}", "", detectionCenter, true));
+			AddGpsLocation($"DetectStaticEntitiesInSphere {range}", detectionCenter);
+			
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
 			MyGamePruningStructure.GetAllEntitiesInSphere(ref pruneSphere, pruneList, MyEntityQueryType.Static);
@@ -30,7 +32,8 @@ namespace Eem.Thraxus.Bots.Utilities
 
 		public static IEnumerable<MyEntity> DetectAllEntitiesInSphere(Vector3D detectionCenter, double range)
 		{
-			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"DetectEntitiesInSphere {range}", "", detectionCenter, true));
+			AddGpsLocation($"DetectAllEntitiesInSphere {range}", detectionCenter);
+			
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
 			MyGamePruningStructure.GetAllEntitiesInSphere(ref pruneSphere, pruneList);
@@ -39,7 +42,8 @@ namespace Eem.Thraxus.Bots.Utilities
 
 		public static IEnumerable<MyEntity> DetectPlayersInSphere(Vector3D detectionCenter, double range)
 		{
-			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"DetectEntitiesInSphere {range}", "", detectionCenter, true));
+			AddGpsLocation($"DetectPlayersInSphere {range}", detectionCenter);
+			
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
 			MyGamePruningStructure.GetAllEntitiesInSphere(ref pruneSphere, pruneList, MyEntityQueryType.Dynamic);
@@ -54,6 +58,11 @@ namespace Eem.Thraxus.Bots.Utilities
 			List<IMyPlayer> myPlayers = new List<IMyPlayer>();
 			MyAPIGateway.Players.GetPlayers(myPlayers, x => x.IdentityId == playerId);
 			return myPlayers.FirstOrDefault();
+		}
+
+		public static void AddGpsLocation(string message, Vector3D location)
+		{
+			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create(message, "", location, true));
 		}
 	}
 }

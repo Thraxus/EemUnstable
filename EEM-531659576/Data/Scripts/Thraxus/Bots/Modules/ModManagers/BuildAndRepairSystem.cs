@@ -1,25 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Eem.Thraxus.Bots.Utilities;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.Entity;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Eem.Thraxus.Bots.Modules.ModManagers
 {
-	class BuildAndRepairSystem
+	public static class BuildAndRepairSystem
 	{
-		public static List<string> NanobotBuildAndRepairDefinitions { get; } = new List<string>()
+		private static IEnumerable<string> NanobotBuildAndRepairDefinitions { get; } = new List<string>()
 		{
 			"SELtdNanobotBuildAndRepairSystem",
 			"SELtdLargeNanobotBuildAndRepairSystem",
 			"SELtdSmallNanobotBuildAndRepairSystem"
 		};
 
-		public static List<long> DetectNanobots(Vector3D detectionCenter, double range)
+		public static List<IMyEntity> DetectAllBars(Vector3D detectionCenter, double range)
 		{
-			List<long> barsList = new List<long>();
-			foreach (MyEntity ent in Utilities.StaticMethods.DetectAllEntitiesInSphere(detectionCenter, range))
+			StaticMethods.AddGpsLocation($"Detecting BaRS {range}", detectionCenter);
+
+			List<IMyEntity> barsList = new List<IMyEntity>();
+			foreach (MyEntity ent in StaticMethods.DetectAllEntitiesInSphere(detectionCenter, range))
 			{
 				MyCubeGrid myGrid = ent as MyCubeGrid;
 				if (myGrid == null) return barsList;
@@ -29,7 +33,7 @@ namespace Eem.Thraxus.Bots.Modules.ModManagers
 					if (!NanobotBuildAndRepairDefinitions.Any(x => block.BlockDefinition.BlockPairName.Contains(x))) continue;
 					(block as IMyShipWelder).Enabled = false; //Disables the BaRS
 					(block as IMyShipWelder).Render.ColorMaskHsv = new Vector3(0, 0, 0.05f); //Colors it red
-					barsList.Add((block as IMyShipWelder).EntityId);
+					barsList.Add(block);
 				}
 			}
 			return barsList;
