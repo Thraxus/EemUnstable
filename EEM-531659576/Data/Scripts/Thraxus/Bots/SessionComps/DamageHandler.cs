@@ -15,6 +15,7 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
 namespace Eem.Thraxus.Bots.SessionComps
@@ -75,8 +76,12 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (detectedBars.Count == 0) return;
 			foreach (IMyEntity bars in detectedBars)
 			{
-				BotMarshal.RegisterNewPriorityTarget(shipEntity.EntityId, new TargetEntity(bars, BaseTargetPriorities.Bars));
-				RegisterWarEvent(shipEntity.EntityId, bars.EntityId);
+				//BotMarshal.RegisterNewPriorityTarget(shipEntity.EntityId, new TargetEntity(bars, BaseTargetPriorities.Bars));
+				StaticMethods.AddGpsLocation("BaRS", bars.GetPosition());
+				//((IMyCubeBlock)bars).SlimBlock.DecreaseMountLevel(((IMyCubeBlock)bars).SlimBlock.Integrity - 10, null);
+				((IMyCubeBlock) bars).SlimBlock.DoDamage(((IMyCubeBlock)bars).SlimBlock.Integrity * 0.9f, MyStringHash.NullOrEmpty, true, new MyHitInfo(), 0L);
+				StaticMethods.CreateFakeSmallExplosion(bars.GetPosition());
+				RegisterWarEvent(shipEntity.EntityId, ((IMyCubeBlock) bars).OwnerId);
 			}
 		}
 

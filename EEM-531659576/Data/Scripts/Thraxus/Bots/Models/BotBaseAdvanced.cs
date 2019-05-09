@@ -45,6 +45,7 @@ namespace Eem.Thraxus.Bots.Models
 		{
 			WriteToLog("Run", $"{_myConfig.ToStringVerbose()}", LogType.General);
 			WriteToLog("BotCore", $"BotBaseAdvanced powering up.", LogType.General);
+			_lastAttacked = DateTime.Now;
 			_ownerId = _myConfig.Faction == "Nobody" ? 0 : MyAPIGateway.Session.Factions.TryGetFactionByTag(_myConfig.Faction).FounderId;
 			_warDictionary = new MyConcurrentDictionary<long, DateTime>();
 			ThisCubeGrid.OnBlockAdded += OnBlockAdded;
@@ -93,9 +94,10 @@ namespace Eem.Thraxus.Bots.Models
 		private void HandleBars()
 		{
 			if (!_barsActive) return;
-			WriteToLog("HandleBars", $"Triggering alert to Damage Handler", LogType.General);
-			if (_lastAttacked > DateTime.Now.Add(TimeSpan.FromSeconds(1)))
-				DamageHandler.BarsSuspected(ThisEntity);
+			WriteToLog("HandleBars", $"Bars Suspected... {_lastAttacked} -- {DateTime.Now}", LogType.General);
+			if (_lastAttacked.AddSeconds(1) > DateTime.Now) return;
+			WriteToLog("HandleBars", $"Time trigger passed, alerting the damage handler...", LogType.General);
+			DamageHandler.BarsSuspected(ThisEntity);
 		}
 		
 		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)

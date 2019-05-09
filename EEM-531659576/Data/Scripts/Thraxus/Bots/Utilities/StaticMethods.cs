@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.Entity;
@@ -63,6 +64,27 @@ namespace Eem.Thraxus.Bots.Utilities
 		public static void AddGpsLocation(string message, Vector3D location)
 		{
 			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create(message, "", location, true));
+		}
+
+		public static void CreateFakeSmallExplosion(Vector3D position)
+		{
+			MyExplosionInfo explosionInfo = new MyExplosionInfo()
+			{
+				PlayerDamage = 0.0f,
+				Damage = 0f,
+				ExplosionType = MyExplosionTypeEnum.WARHEAD_EXPLOSION_02,
+				ExplosionSphere = new BoundingSphereD(position, 0d),
+				LifespanMiliseconds = 0,
+				ParticleScale = 1f,
+				Direction = Vector3.Down,
+				VoxelExplosionCenter = position,
+				ExplosionFlags = MyExplosionFlags.CREATE_PARTICLE_EFFECT,
+				VoxelCutoutScale = 0f,
+				PlaySound = true,
+				ApplyForceAndDamage = false,
+				ObjectsRemoveDelayInMiliseconds = 0
+			};
+			MyExplosions.AddExplosion(ref explosionInfo);
 		}
 	}
 }
