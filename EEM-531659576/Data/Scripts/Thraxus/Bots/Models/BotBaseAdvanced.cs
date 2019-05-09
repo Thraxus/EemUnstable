@@ -42,8 +42,9 @@ namespace Eem.Thraxus.Bots.Models
 
 		internal void Run()
 		{
+			WriteToLog("Ctor", $"{_myConfig.ToString()}", LogType.General);
 			WriteToLog("BotCore", $"BotBaseAdvanced powering up.", LogType.General);
-			_ownerId = MyAPIGateway.Session.Factions.TryGetFactionByTag(_myConfig.Faction).FounderId;
+			_ownerId = _myConfig.Faction == "Nobody" ? 0 : MyAPIGateway.Session.Factions.TryGetFactionByTag(_myConfig.Faction).FounderId;
 			_warDictionary = new MyConcurrentDictionary<long, DateTime>();
 			ThisCubeGrid.OnBlockAdded += OnBlockAdded;
 			ThisCubeGrid.OnBlockRemoved += OnBlockRemoved;
@@ -109,9 +110,9 @@ namespace Eem.Thraxus.Bots.Models
 		{
 			try
 			{
-				WriteToLog("SetFactionOwnership", $"Setting faction ownership to {MyAPIGateway.Session.Factions.TryGetFactionByTag(_myConfig.Faction).Tag}", LogType.General);
+				string factionTag = _ownerId == 0 ? "Nobody" : MyAPIGateway.Session.Factions.TryGetFactionByTag(_myConfig.Faction).Tag;
+				WriteToLog("SetFactionOwnership", $"Setting faction ownership to {factionTag}", LogType.General);
 				ThisCubeGrid.ChangeGridOwnership(_ownerId, Constants.ShareMode);
-				//foreach (IMyCubeGrid grid in MyAPIGateway.GridGroups.GetGroup(ThisCubeGrid, GridLinkTypeEnum.Mechanical).Where(grid => grid.BigOwners != ThisCubeGrid.BigOwners))
 				foreach (IMyCubeGrid grid in MyAPIGateway.GridGroups.GetGroup(ThisCubeGrid, GridLinkTypeEnum.Mechanical))
 					grid.ChangeGridOwnership(_ownerId, Constants.ShareMode);
 			}
