@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using VRageMath;
 
 namespace Eem.Thraxus.Common
@@ -60,23 +61,34 @@ namespace Eem.Thraxus.Common
 		}
 	}
 
-	public struct EemPrefabConfig
+	public class EemPrefabConfig
 	{
-		public string PrefabType;
-		public string Preset;
-		public string CallForHelpProbability;
-		public string SeekDistance;
-		public string Faction;
-		public string FleeOnlyWhenDamaged;
-		public string FleeTriggerDistance;
-		public string FleeSpeedCap;
-		public string AmbushMode;
-		public string DelayedAi;
-		public string ActivationDistance;
-		public string PlayerPriority;
-		public string MultiBot;
+		public readonly string PrefabType;
+		public readonly string Preset;
+		public readonly string CallForHelpProbability;
+		public readonly string SeekDistance;
+		public readonly string Faction;
+		public readonly string FleeOnlyWhenDamaged;
+		public readonly string FleeTriggerDistance;
+		public readonly string FleeSpeedCap;
+		public readonly string AmbushMode;
+		public readonly string DelayedAi;
+		public readonly string ActivationDistance;
+		public readonly string PlayerPriority;
+		public readonly string MultiBot;
 
-		private void ParseConfigEntry(string config)
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return $"Prefab Config:\t{Faction}\t{PrefabType}\t{Preset}\t{CallForHelpProbability}\t{DelayedAi}\t{SeekDistance}\t{AmbushMode}\t{ActivationDistance}\t{FleeOnlyWhenDamaged}\t{FleeTriggerDistance}\t{FleeSpeedCap}\t{PlayerPriority}\t{MultiBot}";
+		}
+
+		public string ToStringVerbose()
+		{
+			return $"Prefab Config - |Faction: {Faction} |Type: {PrefabType} |Preset: {Preset} |CallForHelpProbability: {CallForHelpProbability} |DelayedAi: {DelayedAi} |SeekDistance: {SeekDistance} |AmbushMode: {AmbushMode} |ActivationDistance: {ActivationDistance} |FleeOnlyWhenDamaged: {FleeOnlyWhenDamaged} |FleeTriggerDistance: {FleeTriggerDistance} |FleeSpeedCap: {FleeSpeedCap} |PlayerPriority: {PlayerPriority} |MultiBot: {MultiBot}";
+		}
+
+		public EemPrefabConfig(string config)
 		{
 			foreach (string cfg in config.Trim().Replace("\r\n", "\n").Split('\n'))
 			{
@@ -129,17 +141,6 @@ namespace Eem.Thraxus.Common
 			}
 
 			if (string.IsNullOrEmpty(Faction)) Faction = "SPRT";
-		}
-
-		/// <inheritdoc />
-		public override string ToString()
-		{
-			return $"Prefab Config:\t{Faction}\t{PrefabType}\t{Preset}\t{CallForHelpProbability}\t{DelayedAi}\t{SeekDistance}\t{AmbushMode}\t{ActivationDistance}\t{FleeOnlyWhenDamaged}\t{FleeTriggerDistance}\t{FleeSpeedCap}\t{PlayerPriority}\t{MultiBot}";
-		}
-
-		public EemPrefabConfig(string config) : this()
-		{
-			ParseConfigEntry(config);
 		}
 	}
 }

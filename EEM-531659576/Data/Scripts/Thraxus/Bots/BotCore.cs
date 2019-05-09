@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.Models;
+using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
@@ -31,8 +32,8 @@ namespace Eem.Thraxus.Bots
 		 * TODO Faction Monitor to ensure MES isn't stealing us again on init
 		 *
 		 * TODO Convert existing code to new code base modules, including logs
-		 * TODO Upcoming: Factions, DamageHandler
-		 * TODO Finished: EntityManager, BotCore, BotBaseAdvanced, BotMarshall, EemCore
+		 * TODO Upcoming: Factions
+		 * TODO Finished: EntityManager, BotCore, BotBaseAdvanced, BotMarshall, EemCore, DamageHandler
 		 * TODO Ignored: MissileMaster
 		 */
 

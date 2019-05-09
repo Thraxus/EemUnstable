@@ -1,4 +1,5 @@
 ﻿using System;
+using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
@@ -42,7 +43,7 @@ namespace Eem.Thraxus.Bots.Models
 
 		internal void Run()
 		{
-			WriteToLog("Ctor", $"{_myConfig.ToString()}", LogType.General);
+			WriteToLog("Run", $"{_myConfig.ToStringVerbose()}", LogType.General);
 			WriteToLog("BotCore", $"BotBaseAdvanced powering up.", LogType.General);
 			_ownerId = _myConfig.Faction == "Nobody" ? 0 : MyAPIGateway.Session.Factions.TryGetFactionByTag(_myConfig.Faction).FounderId;
 			_warDictionary = new MyConcurrentDictionary<long, DateTime>();
@@ -54,39 +55,6 @@ namespace Eem.Thraxus.Bots.Models
 			DamageHandler.TriggerAlert += DamageHandlerOnTriggerAlert;
 			BotMarshal.ModDictionary.TryGetValue(Constants.BarsModId, out _barsActive);
 			SetupBot();
-		}
-
-		//public void Run(IMyEntity passedEntity, IMyShipController controller, bool isMultipart = false)
-		//{
-		//	WriteToLog("BotCore", $"Powering up.", LogType.General);
-		//	ThisEntity = passedEntity;
-		//	MyShipController = controller;
-		//	MyConfig = !isMultipart ? new EemPrefabConfig(controller.CustomData) : BotMarshal.BotOrphans[passedEntity.EntityId].MyLegacyConfig;
-		//	OwnerId = string.IsNullOrEmpty(MyConfig.Faction) ? MyAPIGateway.Session.Factions.TryGetFactionByTag("SPRT").FounderId : MyAPIGateway.Session.Factions.TryGetFactionByTag(MyConfig.Faction).FounderId;
-		//	_warList = new ConcurrentCachingList<long>();
-		//	ThisCubeGrid = ((IMyCubeGrid)passedEntity);
-		//	ThisCubeGrid.OnBlockAdded += OnBlockAdded;
-		//	ThisCubeGrid.OnBlockRemoved += OnBlockRemoved;
-		//	ThisCubeGrid.OnBlockOwnershipChanged += OnOnBlockOwnershipChanged;
-		//	ThisCubeGrid.OnBlockIntegrityChanged += OnBlockIntegrityChanged;
-		//	BotMarshal.RegisterNewEntity(ThisEntity.EntityId);
-		//	DamageHandler.TriggerAlert += DamageHandlerOnTriggerAlert;
-		//	SetupBot();
-		//}
-
-		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)
-		{
-			if (ThisEntity.EntityId == shipId)
-				TriggerAlertConditions(playerId);
-		}
-
-		private void TriggerAlertConditions(long playerId)
-		{
-			WriteToLog("TriggerAlertConditions", $"Alert conditions triggered against {playerId}", LogType.General);
-			if (!_warDictionary.TryAdd(playerId, DateTime.Now))
-				_warDictionary[playerId] = DateTime.Now;
-			_lastAttacked = DateTime.Now;
-			// TODO Add alert conditions
 		}
 
 		public void Unload()
@@ -129,6 +97,21 @@ namespace Eem.Thraxus.Bots.Models
 			if (_lastAttacked > DateTime.Now.Add(TimeSpan.FromSeconds(1)))
 				DamageHandler.BarsSuspected(ThisEntity);
 		}
+		
+		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)
+		{
+			if (ThisEntity.EntityId == shipId)
+				TriggerAlertConditions(playerId);
+		}
+
+		private void TriggerAlertConditions(long playerId)
+		{
+			WriteToLog("TriggerAlertConditions", $"Alert conditions triggered against {playerId}", LogType.General);
+			if (!_warDictionary.TryAdd(playerId, DateTime.Now))
+				_warDictionary[playerId] = DateTime.Now;
+			_lastAttacked = DateTime.Now;
+			// TODO Add alert conditions
+		}
 
 		private void OnBlockAdded(IMySlimBlock addedBlock)
 		{   // Trigger alert, war, all the fun stuff against the player / faction that added the block
@@ -163,8 +146,8 @@ namespace Eem.Thraxus.Bots.Models
 				Wakeup();
 				BotWakeup?.Invoke();
 			}
-
 		}
+
 		private void OnOnBlockOwnershipChanged(IMyCubeGrid cubeGrid)
 		{   // Protection for initial spawn with MES, should be disabled after the first few seconds in game (~300 ticks)
 			if (_barsActive)

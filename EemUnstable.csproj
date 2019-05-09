@@ -601,11 +601,11 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\BotCore.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Models\BotBaseAdvanced.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ThrusterDamageTracking.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\MissileMaster.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Utilities\DamageHandler.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\MultiPartBot.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\GameLogic\MissileMaster.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\DamageHandler.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Models\MultiPartBot.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Settings\Constants.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Models\BotMarshal.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\BotMarshal.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Utilities\StaticMethods.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseServerGameLogicComp.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseServerSessionComp.cs" />

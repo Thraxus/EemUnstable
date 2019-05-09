@@ -1,11 +1,12 @@
 ﻿using System;
+using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.Utilities;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Game.Components;
 
-namespace Eem.Thraxus.Bots.Modules
+namespace Eem.Thraxus.Bots.GameLogic
 {
 	[MyEntityComponentDescriptor(typeof(MyObjectBuilder_Missile), false)]
 	internal class MissileMaster : MyGameLogicComponent

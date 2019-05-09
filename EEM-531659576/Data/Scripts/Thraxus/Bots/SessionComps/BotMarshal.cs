@@ -12,7 +12,7 @@ using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
 
-namespace Eem.Thraxus.Bots.Models
+namespace Eem.Thraxus.Bots.SessionComps
 {
 	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue + 1)]
 	// ReSharper disable once ClassNeverInstantiated.Global
@@ -44,7 +44,6 @@ namespace Eem.Thraxus.Bots.Models
 			PlayerShipControllerHistory = new ConcurrentDictionary<long, long>();
 			WarRegistry = new ConcurrentDictionary<long, long>();
 			PriorityTargetDictionary = new ConcurrentDictionary<long, ConcurrentCachingHashSet<TargetEntity>>();
-			DamageHandler.Run();
 			DamageHandler.TriggerAlert += RegisterNewWar;
 		}
 		
@@ -75,7 +74,6 @@ namespace Eem.Thraxus.Bots.Models
 		protected override void Unload()
 		{
 			DamageHandler.TriggerAlert -= RegisterNewWar;
-			DamageHandler.Unload();
 			MyAPIGateway.Session.Player.Controller.ControlledEntityChanged -= ControlAcquired;
 			ActiveShipRegistry?.ClearList();
 			PlayerShipControllerHistory?.Clear();

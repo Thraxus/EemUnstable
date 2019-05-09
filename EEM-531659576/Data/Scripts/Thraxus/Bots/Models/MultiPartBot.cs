@@ -1,10 +1,11 @@
 ﻿using Eem.Thraxus.Bots.Models;
+using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common;
 using Sandbox.ModAPI;
 using IMyCubeGrid = VRage.Game.ModAPI.IMyCubeGrid;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 
-namespace Eem.Thraxus.Bots.Modules
+namespace Eem.Thraxus.Bots.Models
 {
 	internal class MultiPartBot : BotBaseAdvanced
 	{
