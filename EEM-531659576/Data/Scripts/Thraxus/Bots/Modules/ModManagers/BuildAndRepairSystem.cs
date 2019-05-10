@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Eem.Thraxus.Bots.Utilities;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.Entity;
@@ -11,6 +13,8 @@ namespace Eem.Thraxus.Bots.Modules.ModManagers
 {
 	public static class BuildAndRepairSystem
 	{
+		private static readonly Type BarsType = typeof(MyObjectBuilder_ShipWelder);
+
 		private static IEnumerable<string> BuildAndRepairDefinitions { get; } = new List<string>()
 		{
 			"SELtdNanobotBuildAndRepairSystem",
