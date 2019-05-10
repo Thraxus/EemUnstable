@@ -68,6 +68,11 @@ namespace Eem.Thraxus.Bots.SessionComps
 			TriggerAlert?.Invoke(shipid, playerId);
 		}
 
+		private static void RegisterWarEvent(long shipId, long playerId)
+		{
+			if (shipId != 0 && playerId != 0)
+				OnTriggerAlert(shipId, playerId);
+		}
 
 		public static void BarsSuspected(IMyEntity shipEntity)
 		{   // Takes the ship id for the grid suspected of being under attack by BARS and casts spells to see if its true or not
@@ -79,7 +84,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 				//BotMarshal.RegisterNewPriorityTarget(shipEntity.EntityId, new TargetEntity(bars, BaseTargetPriorities.Bars));
 				StaticMethods.AddGpsLocation("BaRS", bars.GetPosition());
 				//((IMyCubeBlock)bars).SlimBlock.DecreaseMountLevel(((IMyCubeBlock)bars).SlimBlock.Integrity - 10, null);
-				((IMyCubeBlock) bars).SlimBlock.DoDamage(((IMyCubeBlock)bars).SlimBlock.Integrity * 0.9f, MyStringHash.NullOrEmpty, true, new MyHitInfo(), 0L);
+				((IMyCubeBlock) bars).SlimBlock.DoDamage(((IMyCubeBlock)bars).SlimBlock.Integrity * 0.9f, EnergyShields.BypassKey, true, new MyHitInfo(), 0L);
 				StaticMethods.CreateFakeSmallExplosion(bars.GetPosition());
 				RegisterWarEvent(shipEntity.EntityId, ((IMyCubeBlock) bars).OwnerId);
 			}
@@ -102,13 +107,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (block == null) return;
 			IdentifyDamageDealer(block.CubeGrid.EntityId, info);
 		}
-
-		private static void RegisterWarEvent(long shipId, long playerId)
-		{
-			if (shipId != 0 && playerId != 0)
-				OnTriggerAlert(shipId, playerId);
-		}
-
+		
 		private static void IdentifyDamageDealer(long damagedEntity, MyDamageInformation damageInfo)
 		{
 			// Deformation damage must be allowed here since it handles grid collision damage

@@ -150,6 +150,12 @@ namespace Eem.Thraxus.Bots.Models
 			}
 		}
 
+		private void RestoreControllerIntegrity()
+		{
+			_myShipController.SlimBlock.IncreaseMountLevel(_myShipController.SlimBlock.MaxIntegrity - _myShipController.SlimBlock.Integrity, _ownerId);
+			_myShipController.SlimBlock.FixBones(0f, 0f);
+		}
+
 		private void OnOnBlockOwnershipChanged(IMyCubeGrid cubeGrid)
 		{   // Protection for initial spawn with MES, should be disabled after the first few seconds in game (~300 ticks)
 			if (_barsActive)

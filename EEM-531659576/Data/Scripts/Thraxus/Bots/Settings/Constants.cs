@@ -15,10 +15,12 @@ namespace Eem.Thraxus.Bots.Settings
 
 		public static readonly List<ulong> ModsToWatch = new List<ulong>()
 		{
-			BarsModId
+			BarsModId, EnergyShieldsModId
 		};
 
 		public const ulong BarsModId = 857053359;
+
+		public const ulong EnergyShieldsModId = 484504816;
 
 		#endregion
 	}

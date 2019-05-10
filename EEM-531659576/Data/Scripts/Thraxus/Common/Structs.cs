@@ -5,6 +5,18 @@ using VRageMath;
 
 namespace Eem.Thraxus.Common
 {
+	public struct ModProtection
+	{
+		public readonly bool Bars;
+		public readonly bool EnergyShields;
+
+		public ModProtection(bool bars, bool energyShields)
+		{
+			Bars = bars;
+			EnergyShields = energyShields;
+		}
+	}
+
 	public struct ShipControllerHistory
 	{
 		public readonly long Controller;
