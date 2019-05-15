@@ -1,11 +1,13 @@
-﻿namespace Eem.Thraxus.Bots.Modules
+﻿using Eem.Thraxus.Common.Settings;
+
+namespace Eem.Thraxus.Common.DataTypes
 {
 	public class ThrusterDamageTracker
 	{
 		public double DamageTaken;
 		private readonly long _offendingEntity;
 
-		public bool ThresholdReached => DamageTaken > 500;
+		public bool ThresholdReached => DamageTaken > BotSettings.MaxAllowedThrusterDamage;
 
 		public ThrusterDamageTracker(long offendingEntity, double damageTaken)
 		{

@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using VRage.ModAPI;
+﻿using VRage.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules
+namespace Eem.Thraxus.Common.DataTypes
 {
 	public class TargetEntity
 	{

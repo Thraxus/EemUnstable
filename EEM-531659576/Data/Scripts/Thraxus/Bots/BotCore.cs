@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.Models;
 using Eem.Thraxus.Bots.SessionComps;
-using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
+using Eem.Thraxus.Common.Settings;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
@@ -53,7 +53,7 @@ namespace Eem.Thraxus.Bots
 			base.Init(objectBuilder);
 			if (!Helpers.Constants.IsServer) return;
 			_originalUpdateEnum = NeedsUpdate;
-			NeedsUpdate |= Constants.CoreUpdateSchedule;
+			NeedsUpdate |= BotSettings.CoreUpdateSchedule;
 		}
 
 		public override void UpdateOnceBeforeFrame()
@@ -103,7 +103,7 @@ namespace Eem.Thraxus.Bots
 
 		private void WakeUp()
 		{
-			NeedsUpdate |= Constants.CoreUpdateSchedule;
+			NeedsUpdate |= BotSettings.CoreUpdateSchedule;
 		}
 
 		/// <inheritdoc />
@@ -134,7 +134,7 @@ namespace Eem.Thraxus.Bots
 				}
 
 				foreach (IMyShipController myShipController in _myShipControllers)
-					if (myShipController.CustomData.Contains(Constants.EemAiPrefix)) _myShipController = myShipController;
+					if (myShipController.CustomData.Contains(BotSettings.EemAiPrefix)) _myShipController = myShipController;
 
 				return _myShipController != null;
 			}

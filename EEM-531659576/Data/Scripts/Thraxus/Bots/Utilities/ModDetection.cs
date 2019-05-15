@@ -1,6 +1,6 @@
 ﻿using System;
 using Eem.Thraxus.Common;
-using Eem.Thraxus.Common.Utilities;
+using Eem.Thraxus.Common.SessionComps;
 using Sandbox.ModAPI;
 using VRage.Game;
 

@@ -1,5 +1,5 @@
 ﻿using Eem.Thraxus.Common.Interfaces;
-using Eem.Thraxus.Common.Utilities;
+using Eem.Thraxus.Common.SessionComps;
 using VRage.Game.Components;
 
 namespace Eem.Thraxus.Common.BaseClasses

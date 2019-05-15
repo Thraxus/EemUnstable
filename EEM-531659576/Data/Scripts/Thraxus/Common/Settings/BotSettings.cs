@@ -2,14 +2,15 @@
 using VRage.Game;
 using VRage.ModAPI;
 
-namespace Eem.Thraxus.Bots.Settings
+namespace Eem.Thraxus.Common.Settings
 {
-	internal static class Constants
+	internal static class BotSettings
 	{
 		public const string EemAiPrefix = "[EEM_AI]";
 		public const MyOwnershipShareModeEnum ShareMode = MyOwnershipShareModeEnum.Faction;
 		public const MyEntityUpdateEnum CoreUpdateSchedule = MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_FRAME;
 		public const int UnownedGridDetectionRange = 250;
+		public const int MaxAllowedThrusterDamage = 500;
 		
 		#region ModId's for mods we need protection from
 

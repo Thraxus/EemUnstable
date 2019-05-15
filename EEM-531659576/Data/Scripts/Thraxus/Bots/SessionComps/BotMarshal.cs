@@ -2,10 +2,11 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.Modules;
-using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
+using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Settings;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game.Components;
@@ -37,7 +38,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			base.EarlySetup();
 			ModDictionary = new ConcurrentDictionary<ulong, bool>();
-			foreach (ulong mod in Constants.ModsToWatch)
+			foreach (ulong mod in BotSettings.ModsToWatch)
 				ModDictionary.TryAdd(mod, ModDetection.DetectMod(mod));
 			BotOrphans = new ConcurrentDictionary<long, BotOrphan>();
 			ActiveShipRegistry = new ConcurrentCachingList<long>();

@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Eem.Thraxus.Bots.Modules;
 using Eem.Thraxus.Bots.Modules.ModManagers;
-using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
+using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Settings;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Weapons;
@@ -77,7 +78,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 		public static void BarsSuspected(IMyEntity shipEntity)
 		{   // Takes the ship id for the grid suspected of being under attack by BARS and casts spells to see if its true or not
 			_instance.WriteToLog("BarsSuspected",$"Triggered by: {shipEntity.DisplayName}", LogType.General);
-			List<IMyEntity> detectedBars = BuildAndRepairSystem.DetectAllBars(shipEntity.GetPosition(), Constants.UnownedGridDetectionRange);
+			List<IMyEntity> detectedBars = BuildAndRepairSystem.DetectAllBars(shipEntity.GetPosition(), BotSettings.UnownedGridDetectionRange);
 			if (detectedBars.Count == 0) return;
 			foreach (IMyEntity bars in detectedBars)
 			{
@@ -238,7 +239,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 						}
 					}
 
-					List<MyEntity> detectEntitiesInSphere = (List<MyEntity>)StaticMethods.DetectPlayersInSphere(myCubeGrid.GetPosition(), Constants.UnownedGridDetectionRange);
+					List<MyEntity> detectEntitiesInSphere = (List<MyEntity>)StaticMethods.DetectPlayersInSphere(myCubeGrid.GetPosition(), BotSettings.UnownedGridDetectionRange);
 					foreach (MyEntity myDetectedEntity in detectEntitiesInSphere)
 					{
 						myPlayer = MyAPIGateway.Players.GetPlayerById(BotMarshal.PlayerShipControllerHistory[myDetectedEntity.EntityId]);

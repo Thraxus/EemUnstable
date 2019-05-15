@@ -2,7 +2,7 @@
 using VRage.Game;
 using VRage.Game.Components;
 
-namespace Eem.Thraxus.Common.Utilities
+namespace Eem.Thraxus.Common.SessionComps
 {
 	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue)]
 	// ReSharper disable once ClassNeverInstantiated.Global

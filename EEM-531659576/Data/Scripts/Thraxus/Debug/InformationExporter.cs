@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eem.Thraxus.Common;
+using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Utilities;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;

@@ -9,8 +9,8 @@
 		public Queue(int size)
 		{
 			_nodes = new T[size];
-			this._current = 0;
-			this._emptySpot = 0;
+			_current = 0;
+			_emptySpot = 0;
 		}
 
 		public void Enqueue(T value)

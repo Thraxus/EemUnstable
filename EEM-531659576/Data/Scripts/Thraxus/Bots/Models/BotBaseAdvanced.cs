@@ -1,9 +1,10 @@
 ﻿using System;
 using Eem.Thraxus.Bots.SessionComps;
-using Eem.Thraxus.Bots.Settings;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
+using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Settings;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game.ModAPI;
@@ -54,7 +55,7 @@ namespace Eem.Thraxus.Bots.Models
 			ThisCubeGrid.OnBlockIntegrityChanged += OnBlockIntegrityChanged;
 			BotMarshal.RegisterNewEntity(ThisEntity.EntityId);
 			DamageHandler.TriggerAlert += DamageHandlerOnTriggerAlert;
-			BotMarshal.ModDictionary.TryGetValue(Constants.BarsModId, out _barsActive);
+			BotMarshal.ModDictionary.TryGetValue(BotSettings.BarsModId, out _barsActive);
 			SetupBot();
 		}
 
@@ -81,9 +82,9 @@ namespace Eem.Thraxus.Bots.Models
 			{
 				string factionTag = _ownerId == 0 ? "Nobody" : MyAPIGateway.Session.Factions.TryGetFactionByTag(_myConfig.Faction).Tag;
 				WriteToLog("SetFactionOwnership", $"Setting faction ownership to {factionTag}", LogType.General);
-				ThisCubeGrid.ChangeGridOwnership(_ownerId, Constants.ShareMode);
+				ThisCubeGrid.ChangeGridOwnership(_ownerId, BotSettings.ShareMode);
 				foreach (IMyCubeGrid grid in MyAPIGateway.GridGroups.GetGroup(ThisCubeGrid, GridLinkTypeEnum.Mechanical))
-					grid.ChangeGridOwnership(_ownerId, Constants.ShareMode);
+					grid.ChangeGridOwnership(_ownerId, BotSettings.ShareMode);
 			}
 			catch (Exception e)
 			{
