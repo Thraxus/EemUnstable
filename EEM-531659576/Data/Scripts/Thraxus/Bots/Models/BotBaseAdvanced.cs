@@ -12,7 +12,7 @@ using VRage.ModAPI;
 
 namespace Eem.Thraxus.Bots.Models
 {
-	public class BotBaseAdvanced : LogBase
+	public class BotBaseAdvanced : StaticLogBase
 	{
 		internal readonly IMyEntity ThisEntity;
 		internal readonly IMyCubeGrid ThisCubeGrid;

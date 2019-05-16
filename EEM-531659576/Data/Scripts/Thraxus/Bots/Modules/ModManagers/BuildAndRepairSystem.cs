@@ -26,6 +26,12 @@ namespace Eem.Thraxus.Bots.Modules.ModManagers
 		{
 			StaticMethods.AddGpsLocation($"Detecting BaRS {range}", detectionCenter);
 
+			// Linq, but possibly slower.  Need to profile.
+			//return StaticMethods.DetectAllEntitiesInSphere(detectionCenter, range)
+			//	.OfType<MyCubeGrid>().SelectMany(myGrid => myGrid.GetFatBlocks())
+			//	.OfType<IMyShipWelder>().Where(block => BuildAndRepairDefinitions.Any(x => block.BlockDefinition.SubtypeId.Contains(x)))
+			//	.Cast<IMyEntity>().ToList();
+
 			List<IMyEntity> barsList = new List<IMyEntity>();
 			foreach (MyEntity ent in StaticMethods.DetectAllEntitiesInSphere(detectionCenter, range))
 			{
@@ -35,8 +41,6 @@ namespace Eem.Thraxus.Bots.Modules.ModManagers
 				{
 					if (!(block is IMyShipWelder)) continue;
 					if (!BuildAndRepairDefinitions.Any(x => block.BlockDefinition.BlockPairName.Contains(x))) continue;
-					//(block as IMyShipWelder).Enabled = false; //Disables the BaRS
-					//(block as IMyShipWelder).Render.ColorMaskHsv = new Vector3(0, 0, 0.05f); //Colors it red
 					barsList.Add(block);
 				}
 			}

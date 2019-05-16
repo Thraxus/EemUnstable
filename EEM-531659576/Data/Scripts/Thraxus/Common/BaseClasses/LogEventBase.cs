@@ -2,15 +2,14 @@
 
 namespace Eem.Thraxus.Common.BaseClasses
 {
-	public abstract class LogBase : ILogEntry
+	public class LogEventBase : ILogEntry
 	{
-		public event TriggerLog WriteToStaticLog;
+		public event TriggerLog OnWriteToLog;
 		public delegate void TriggerLog(string caller, string message, LogType logType);
-
-		/// <inheritdoc />
+		
 		public void WriteToLog(string caller, string message, LogType logType)
 		{
-			WriteToStaticLog?.Invoke(caller, message, logType);
+			OnWriteToLog?.Invoke(caller, message, logType);
 		}
 	}
 }

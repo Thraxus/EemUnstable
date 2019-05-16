@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
+using Eem.Thraxus.Common.Interfaces;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
@@ -10,7 +11,7 @@ using VRageMath;
 
 namespace Eem.Thraxus.EntityManager.Models
 {
-	public class EntityTracker : LogBase
+	public class EntityTracker : LogEventBase
 	{
 		public EntityTracker()
 		{

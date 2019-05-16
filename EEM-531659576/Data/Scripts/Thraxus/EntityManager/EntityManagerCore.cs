@@ -22,13 +22,13 @@ namespace Eem.Thraxus.EntityManager
 		{
 			base.EarlySetup();
 			_entityTracker = new EntityTracker();
-			_entityTracker.WriteToStaticLog += WriteToLog;
+			_entityTracker.OnWriteToLog += WriteToLog;
 		}
 
 		/// <inheritdoc />
 		protected override void Unload()
 		{
-			_entityTracker.WriteToStaticLog -= WriteToLog;
+			_entityTracker.OnWriteToLog -= WriteToLog;
 			_entityTracker?.Close();
 			base.Unload();
 		}

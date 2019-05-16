@@ -594,8 +594,14 @@
     <None Include="EEM-531659576\VoxelMaps\wi_reno.vx2" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\EmergencyLockdownProtocol.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ModManagers\BuildAndRepairSystem.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ModManagers\EnergyShields.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\RegenerationProtocol.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\RetreatProtocol.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\SuicideProtocol.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ThreatAssessment.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\LogEventBase.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\TargetEntity.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Utilities\ModDetection.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\BotOrphan.cs" />
@@ -615,7 +621,7 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Utilities\StaticMethods.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseServerGameLogicComp.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseServerSessionComp.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\LogBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\StaticLogBase.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Enums.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Interfaces\ILogEntry.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\SessionComps\StaticLogger.cs" />
