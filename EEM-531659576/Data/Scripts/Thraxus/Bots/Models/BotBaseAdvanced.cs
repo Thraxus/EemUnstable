@@ -1,10 +1,12 @@
 ﻿using System;
+using Eem.Thraxus.Bots.Modules;
 using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Bots.Utilities;
 using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game.ModAPI;
@@ -34,12 +36,19 @@ namespace Eem.Thraxus.Bots.Models
 
 		private bool _barsActive;
 
+		// TODO Remove the below later to their proper bot type
+		private RegenerationProtocol _regenerationProtocol;
+
 		public BotBaseAdvanced(IMyEntity passedEntity, IMyShipController controller, bool isMultipart = false)
 		{
 			ThisEntity = passedEntity;
 			ThisCubeGrid = ((IMyCubeGrid)ThisEntity);
 			_myShipController = controller;
 			_myConfig = !isMultipart ? new EemPrefabConfig(controller.CustomData) : BotMarshal.BotOrphans[passedEntity.EntityId].MyLegacyConfig;
+
+			// TODO Remove the below later to their proper bot type
+			_regenerationProtocol = new RegenerationProtocol(passedEntity);
+			_regenerationProtocol.OnWriteToLog += WriteToLog;
 		}
 
 		internal void Run()
@@ -64,10 +73,16 @@ namespace Eem.Thraxus.Bots.Models
 			WriteToLog("BotCore", $"Shutting down.", LogType.General);
 			_warDictionary.Clear();
 			BotMarshal.RemoveDeadEntity(ThisEntity.EntityId);
+			DamageHandler.TriggerAlert -= DamageHandlerOnTriggerAlert;
 			ThisCubeGrid.OnBlockAdded -= OnBlockAdded;
 			ThisCubeGrid.OnBlockRemoved -= OnBlockRemoved;
 			ThisCubeGrid.OnBlockOwnershipChanged -= OnOnBlockOwnershipChanged;
 			ThisCubeGrid.OnBlockIntegrityChanged -= OnBlockIntegrityChanged;
+
+
+			// TODO Remove the below later to their proper bot type
+			_regenerationProtocol.OnWriteToLog -= WriteToLog;
+			_regenerationProtocol = null;
 		}
 
 		internal void SetupBot()
@@ -95,7 +110,7 @@ namespace Eem.Thraxus.Bots.Models
 		private void HandleBars()
 		{
 			if (!_barsActive) return;
-			WriteToLog("HandleBars", $"Bars Suspected... {_lastAttacked} -- {DateTime.Now}", LogType.General);
+			//WriteToLog("HandleBars", $"Bars Suspected... {_lastAttacked} -- {DateTime.Now}", LogType.General);
 			if (_lastAttacked.AddSeconds(1) > DateTime.Now) return;
 			WriteToLog("HandleBars", $"Time trigger passed, alerting the damage handler...", LogType.General);
 			DamageHandler.BarsSuspected(ThisEntity);
@@ -105,6 +120,8 @@ namespace Eem.Thraxus.Bots.Models
 		{
 			if (ThisEntity.EntityId == shipId)
 				TriggerAlertConditions(playerId);
+
+			
 		}
 
 		private void TriggerAlertConditions(long playerId)
@@ -124,6 +141,10 @@ namespace Eem.Thraxus.Bots.Models
 
 		private void OnBlockRemoved(IMySlimBlock removedBlock)
 		{   // Trigger alert, war, all the fun stuff against the player / faction that removed the block; also scan for main RC removal and shut down bot if Single Part
+			// TODO Remove the below later to their proper bot type
+			_regenerationProtocol.ReportBlockState();
+
+
 			if (_barsActive)
 				HandleBars();
 			if (removedBlock.FatBlock != _myShipController) return;
