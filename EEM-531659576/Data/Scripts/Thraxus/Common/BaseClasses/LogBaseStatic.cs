@@ -2,7 +2,7 @@
 
 namespace Eem.Thraxus.Common.BaseClasses
 {
-	public abstract class StaticLogBase
+	public abstract class LogBaseStatic
 	{
 		public event TriggerLog WriteToStaticLog;
 		public delegate void TriggerLog(string caller, string message, LogType logType);

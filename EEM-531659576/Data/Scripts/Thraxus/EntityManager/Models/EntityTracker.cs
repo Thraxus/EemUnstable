@@ -10,7 +10,7 @@ using VRageMath;
 
 namespace Eem.Thraxus.EntityManager.Models
 {
-	public class EntityTracker : LogEventBase
+	public class EntityTracker : LogBaseEvent
 	{
 		public EntityTracker()
 		{

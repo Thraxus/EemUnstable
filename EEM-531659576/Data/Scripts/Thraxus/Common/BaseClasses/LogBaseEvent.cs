@@ -2,7 +2,7 @@
 
 namespace Eem.Thraxus.Common.BaseClasses
 {
-	abstract class LogBaseEvent
+	public abstract class LogBaseEvent
 	{
 		public event TriggerLog OnWriteToLog;
 		public delegate void TriggerLog(string caller, string message, LogType logType);

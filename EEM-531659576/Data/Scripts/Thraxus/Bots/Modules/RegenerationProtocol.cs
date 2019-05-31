@@ -11,7 +11,7 @@ using VRageMath;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	public class RegenerationProtocol : LogEventBase
+	public class RegenerationProtocol : LogBaseEvent
 	{
 		private readonly MyObjectBuilder_CubeGrid _myOb;
 		private readonly IMyEntity _myEntity;
