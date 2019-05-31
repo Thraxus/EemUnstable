@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Eem.Thraxus.Factions.Messages;
 using Eem.Thraxus.Factions.Utilities.Messages;
 using VRage.Game.ModAPI;
 

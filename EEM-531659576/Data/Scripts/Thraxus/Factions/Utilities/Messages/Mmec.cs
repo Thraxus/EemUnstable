@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Eem.Thraxus.Factions.Messages
+namespace Eem.Thraxus.Factions.Utilities.Messages
 {
 	internal static class Mmec
 	{

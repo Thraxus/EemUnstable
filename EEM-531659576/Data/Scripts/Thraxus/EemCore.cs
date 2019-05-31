@@ -1,8 +1,13 @@
-﻿using Eem.Thraxus.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
+using Eem.Thraxus.Common.SessionComps;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.ModAPI;
 
 namespace Eem.Thraxus
 {
@@ -37,6 +42,10 @@ namespace Eem.Thraxus
 			WriteToLog("LateSetup", $"TotalPCU: {MyAPIGateway.Session.SessionSettings.TotalPCU}", LogType.General);
 			foreach (MyObjectBuilder_Checkpoint.ModItem mod in MyAPIGateway.Session.Mods)
 				WriteToLog("LateSetup", $"Mod: {mod}", LogType.General);
+			List<IMyIdentity> identityList = new List<IMyIdentity>();
+			MyAPIGateway.Players.GetAllIdentites(identityList);
+			foreach (IMyIdentity identity in identityList)
+				WriteToLog("LateSetup", $"Identity: {identity.IdentityId} | {identity.DisplayName} | {identity.IsDead}", LogType.General);
 		}
 
 		/// <inheritdoc />

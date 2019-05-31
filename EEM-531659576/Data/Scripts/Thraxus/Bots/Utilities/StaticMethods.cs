@@ -61,6 +61,16 @@ namespace Eem.Thraxus.Bots.Utilities
 			return myPlayers.FirstOrDefault();
 		}
 
+		public static IMyIdentity GetIdentityById(long playerId)
+		{
+			List<IMyIdentity> identityList = new List<IMyIdentity>();
+			MyAPIGateway.Players.GetAllIdentites(identityList);
+			return identityList.FirstOrDefault(x => x.IdentityId == playerId);
+			//List<IMyPlayer> myPlayers = new List<IMyPlayer>();
+			//MyAPIGateway.Players.GetPlayers(myPlayers, x => x.IdentityId == playerId);
+			//return myPlayers.FirstOrDefault();
+		}
+
 		public static void AddGpsLocation(string message, Vector3D location)
 		{
 			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create(message, "", location, true));

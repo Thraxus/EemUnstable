@@ -10,6 +10,7 @@ using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Weapons;
 using VRage.Game.Components;
@@ -120,6 +121,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 				IMyEntity attackingEntity;
 				if (damageInfo.AttackerId == 0)
 				{   // possible instance of a missile getting through to here, need to account for it here or dismiss the damage outright if  no owner can be found
+					_instance.WriteToLog("IdentifyDamageDealer", $"AttackedId was 0!: {damageInfo.Type.String} - {damageInfo.Amount} - {damageInfo.IsDeformation} - {damageInfo.AttackerId}", LogType.General);
 					CheckForUnownedMissileDamage(damagedEntity, damageInfo);
 					return;
 				}
@@ -139,7 +141,17 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (attacker.GetType() == typeof(MyCubeGrid))
 			{
 				_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as a CubeGrid!", LogType.General);
-				IdentifyOffendingPlayerFromEntity(damagedEntity, attacker.EntityId);
+				IdentifyOffendingIdentityFromEntity(damagedEntity, attacker);
+				return;
+			}
+
+			// TODO Grid weapons aren't being detected properly now;  need to get owner from weapon and declare war against them. MUST BE NPC FACTION AWARE for proper declarations between factions, so, for instance, this must report MGE Faction Leader if they are responsible for damage
+
+			if (attacker is IMyLargeTurretBase)
+			{
+				_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as a Grid Weapon!", LogType.General);
+				//RegisterWarEvent(damagedEntity, attacker.EntityId);
+				IdentifyOffendingIdentityFromEntity(damagedEntity, attacker);
 				return;
 			}
 
@@ -185,7 +197,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 					_thrusterDamageTrackers[damagedTopMost].DamageTaken += damageInfo.Amount;
 				if (!_thrusterDamageTrackers[damagedTopMost].ThresholdReached) return;
 				_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as a Thruster!", LogType.General);
-				IdentifyOffendingPlayerFromEntity(damagedEntity, attacker.EntityId);
+				IdentifyOffendingIdentityFromEntity(damagedEntity, attacker);
 				return;
 			}
 
@@ -198,11 +210,13 @@ namespace Eem.Thraxus.Bots.SessionComps
 			{
 				for (int i = _unownedMissiles.Count - 1; i >= 0; i--)
 				{
+					_instance.WriteToLog("CheckForUnownedMissileDamage", $"Debug 1 - ActiveShipRegistry Count: {BotMarshal.ActiveShipRegistry.Count} | unownedMissiles: {_unownedMissiles[i]} | {i}", LogType.General);
 					bool identified = false;
 					for (int index = BotMarshal.ActiveShipRegistry.Count - 1; index >= 0; index--)
 					{
+						_instance.WriteToLog("CheckForUnownedMissileDamage", $"Debug 2 - {CheckForImpactedEntity(BotMarshal.ActiveShipRegistry[index],  _unownedMissiles[i].Location)} | {_unownedMissiles[i]} | {index}", LogType.General);
 						if (!CheckForImpactedEntity(BotMarshal.ActiveShipRegistry[index], _unownedMissiles[i].Location)) continue;
-						IdentifyOffendingPlayerFromEntity(damagedEntity, _unownedMissiles[i].LauncherId);
+						IdentifyOffendingIdentityFromEntity(damagedEntity, MyAPIGateway.Entities.GetEntityById(_unownedMissiles[i].LauncherId));
 						identified = true;
 					}
 
@@ -216,17 +230,15 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 		}
 
-		private static void IdentifyOffendingPlayerFromEntity(long damagedEntity, long offendingEntity)
+		private static void IdentifyOffendingIdentityFromEntity(long damagedEntity, IMyEntity offendingEntity)
 		{
 			try
 			{
-				IMyEntity myEntity;
-				if (!MyAPIGateway.Entities.TryGetEntityById(offendingEntity, out myEntity)) return;
-				IMyCubeGrid myCubeGrid = myEntity.GetTopMostParent() as IMyCubeGrid;
+				IMyCubeGrid myCubeGrid = offendingEntity.GetTopMostParent() as IMyCubeGrid;
 				if (myCubeGrid == null) return;
-				IMyPlayer myPlayer;
 				if (myCubeGrid.BigOwners.Count == 0)
-				{
+				{	// This should only trigger when a player is being a cheeky fucker
+					IMyPlayer myPlayer;
 					long tmpId;
 					if (BotMarshal.PlayerShipControllerHistory.TryGetValue(myCubeGrid.EntityId, out tmpId))
 					{ 
@@ -250,15 +262,15 @@ namespace Eem.Thraxus.Bots.SessionComps
 					return;
 				}
 
-				myPlayer = MyAPIGateway.Players.GetPlayerById(myCubeGrid.BigOwners.FirstOrDefault());
-				if (myPlayer != null && !myPlayer.IsBot)
+				IMyIdentity myIdentity = StaticMethods.GetIdentityById(myCubeGrid.BigOwners.FirstOrDefault());
+				if (myIdentity != null)
 				{
-					_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via BigOwners: {myPlayer.DisplayName}", LogType.General);
-					RegisterWarEvent(damagedEntity, myPlayer.IdentityId);
+					_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via BigOwners: {myIdentity.DisplayName}", LogType.General);
+					RegisterWarEvent(damagedEntity, myIdentity.IdentityId);
 					return;
 				}
-
-				_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target is an elusive shithead!", LogType.General);
+				
+				_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target is an elusive shithead! {myCubeGrid.BigOwners.FirstOrDefault()}", LogType.General);
 			}
 			catch (Exception e)
 			{
@@ -284,7 +296,8 @@ namespace Eem.Thraxus.Bots.SessionComps
 		public static void RegisterUnownedMissileImpact(MissileHistory missileInfo)
 		{
 			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"Remove: {missileInfo.LauncherId} -- {missileInfo.OwnerId}", "", missileInfo.Location, true));
-			if (missileInfo.OwnerId == 0) _unownedMissiles.Add(missileInfo);
+			//if (missileInfo.OwnerId != 0) return;
+			_unownedMissiles.Add(missileInfo);
 			_instance.WriteToLog("RegisterUnownedMissileImpact", $"Missile {missileInfo.LauncherId} added to registry.", LogType.General);
 		}
 	}

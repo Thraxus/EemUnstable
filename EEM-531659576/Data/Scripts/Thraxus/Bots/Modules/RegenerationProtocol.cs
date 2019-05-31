@@ -24,12 +24,12 @@ namespace Eem.Thraxus.Bots.Modules
 
 		public RegenerationProtocol(IMyEntity myEntity)
 		{
-			_myOb = (MyObjectBuilder_CubeGrid) ((MyCubeGrid) myEntity).GetObjectBuilder().Clone();
+			_myOb = (MyObjectBuilder_CubeGrid)((MyCubeGrid)myEntity).GetObjectBuilder().Clone();
 			_myEntity = myEntity;
 			_myObMins = new List<Vector3I>();
 			foreach (MyObjectBuilder_CubeBlock myObCubeBlock in _myOb.CubeBlocks)
 				_myObMins.Add(myObCubeBlock.Min);
-			
+
 		}
 
 		public void HealExisting()

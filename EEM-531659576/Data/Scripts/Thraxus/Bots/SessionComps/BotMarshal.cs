@@ -9,6 +9,7 @@ using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Sandbox.ModAPI;
 using VRage.Collections;
+using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
@@ -25,7 +26,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 
 		public BotMarshal() : base(GeneralLogName, DebugLogName, SessionCompName) {  } // Do nothing else
 		
-		public static ConcurrentCachingList<long> ActiveShipRegistry;
+		public static readonly ConcurrentCachingList<long> ActiveShipRegistry = new ConcurrentCachingList<long>();
 		
 		public static ConcurrentDictionary<long, long> PlayerShipControllerHistory;
 		public static ConcurrentDictionary<long, BotOrphan> BotOrphans;
@@ -34,17 +35,23 @@ namespace Eem.Thraxus.Bots.SessionComps
 		public static ConcurrentDictionary<long, ConcurrentCachingHashSet<TargetEntity>> PriorityTargetDictionary;
 
 		/// <inheritdoc />
-		protected override void EarlySetup()
+		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
 		{
-			base.EarlySetup();
+			base.Init(sessionComponent);
 			ModDictionary = new ConcurrentDictionary<ulong, bool>();
 			foreach (ulong mod in BotSettings.ModsToWatch)
 				ModDictionary.TryAdd(mod, ModDetection.DetectMod(mod));
 			BotOrphans = new ConcurrentDictionary<long, BotOrphan>();
-			ActiveShipRegistry = new ConcurrentCachingList<long>();
+			//ActiveShipRegistry = new ConcurrentCachingList<long>();
 			PlayerShipControllerHistory = new ConcurrentDictionary<long, long>();
 			WarRegistry = new ConcurrentDictionary<long, long>();
 			PriorityTargetDictionary = new ConcurrentDictionary<long, ConcurrentCachingHashSet<TargetEntity>>();
+		}
+
+		/// <inheritdoc />
+		protected override void EarlySetup()
+		{
+			base.EarlySetup();
 			DamageHandler.TriggerAlert += RegisterNewWar;
 		}
 		
@@ -88,6 +95,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			try
 			{
+				WriteToStaticLog WriteToLog("ControlAcquired", $"Exception! {e}", LogType.Exception);
 				ActiveShipRegistry.Add(entityId);
 			}
 			catch (Exception e)

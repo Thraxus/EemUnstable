@@ -1,5 +1,5 @@
 ﻿using Eem.Thraxus.Factions.Networking;
-using ProtoBuf;
+//using ProtoBuf;
 using Sandbox.ModAPI;
 
 // ReSharper disable RedundantArgumentDefaultValue
@@ -7,15 +7,15 @@ using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Networking
 {
-	[ProtoInclude(10, typeof(FactionsChangeMessage))]
-	[ProtoContract]
+	//[ProtoInclude(10, typeof(FactionsChangeMessage))]
+	//[ProtoContract]
 	public abstract class MessageBase
 	{
-		[ProtoMember(1)] protected readonly ulong SenderId;
+		//[ProtoMember(1)] protected readonly ulong SenderId;
 
 		protected MessageBase()
 		{
-			SenderId = MyAPIGateway.Multiplayer.MyId;
+			//SenderId = MyAPIGateway.Multiplayer.MyId;
 		}
 
 		public abstract void HandleServer();

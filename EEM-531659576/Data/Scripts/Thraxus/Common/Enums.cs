@@ -2,7 +2,7 @@
 {
 	public enum LogType
 	{
-		General, Debug, Exception
+		Debug, Exception, General, Profiling
 	}
 
 	public class BaseTargetPriorities
