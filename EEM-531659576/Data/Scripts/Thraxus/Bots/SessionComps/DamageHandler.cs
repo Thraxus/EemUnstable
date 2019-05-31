@@ -2,22 +2,18 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Eem.Thraxus.Bots.Modules;
 using Eem.Thraxus.Bots.Modules.ModManagers;
 using Eem.Thraxus.Bots.Utilities;
-using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Weapons;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
-using VRage.Utils;
 using VRageMath;
 
 namespace Eem.Thraxus.Bots.SessionComps
@@ -132,7 +128,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 			catch (Exception e)
 			{
-				StaticExceptionLog("IdentifyDamageDealer", e.ToString());
+				WriteToStaticLog("IdentifyDamageDealer", e.ToString(), LogType.Exception);
 			}
 		}
 
@@ -226,7 +222,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 			catch (Exception e)
 			{
-				StaticExceptionLog("CheckForUnownedMissileDamage", e.ToString());
+				WriteToStaticLog("CheckForUnownedMissileDamage", e.ToString(), LogType.Exception);
 			}
 		}
 
@@ -274,7 +270,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 			catch (Exception e)
 			{
-				StaticExceptionLog("IdentifyOffendingPlayer", e.ToString());
+				WriteToStaticLog("IdentifyOffendingPlayer", e.ToString(), LogType.Exception);
 			}
 		}
 
@@ -288,7 +284,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 			catch (Exception e)
 			{
-				StaticExceptionLog("CheckForImpactedEntity", e.ToString());
+				WriteToStaticLog("CheckForImpactedEntity", e.ToString(), LogType.Exception);
 				return false;
 			}
 		}

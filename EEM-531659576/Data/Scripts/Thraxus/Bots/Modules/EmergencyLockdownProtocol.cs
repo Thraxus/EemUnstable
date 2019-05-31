@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
-using Sandbox.Common.ObjectBuilders;
+using Eem.Thraxus.Common.DataTypes;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Gui;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
-using VRage.Game;
-using VRage.Game.ModAPI;
-using VRage.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules
 {

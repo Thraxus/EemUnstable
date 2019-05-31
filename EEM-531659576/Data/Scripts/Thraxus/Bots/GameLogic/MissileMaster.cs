@@ -1,9 +1,7 @@
 ﻿using System;
 using Eem.Thraxus.Bots.SessionComps;
-using Eem.Thraxus.Bots.Utilities;
-using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Common.SessionComps;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Game.Components;
 

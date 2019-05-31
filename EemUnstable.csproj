@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="protobuf-net">
+      <HintPath>E:\SteamLibrary\steamapps\common\SpaceEngineers\Bin64\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="Sandbox.Common">
       <HintPath>E:\SteamLibrary\steamapps\common\SpaceEngineers\Bin64\Sandbox.Common.dll</HintPath>
     </Reference>
@@ -601,7 +604,14 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\RetreatProtocol.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\SuicideProtocol.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ThreatAssessment.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseClientSessionComp.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseGameLogicComp.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\LogBaseEvent.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\LogEventBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\BufferedBinaryReader.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\Enums.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\FastQueue.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\Structs.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\TargetEntity.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Utilities\ModDetection.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\BotOrphan.cs" />
@@ -610,6 +620,13 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\PrefabPreAlertBlockStatus.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\ShipControllerHistory.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Settings\Settings.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Logging\Log.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Logging\StaticLog.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\ChatHandler.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\MessageBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\Messages\ExampleMessage.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\Messaging.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Profiler.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\EemCore.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\BotCore.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Models\BotBaseAdvanced.cs" />
@@ -620,12 +637,8 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Settings\BotSettings.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\BotMarshal.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Utilities\StaticMethods.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseServerGameLogicComp.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseServerSessionComp.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\StaticLogBase.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Enums.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Interfaces\ILogEntry.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\SessionComps\StaticLog.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\ModProtection.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Debug\InformationExporter.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Debug\Settings.cs" />
@@ -661,6 +674,9 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Utilities\Profiler.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Utilities\Queue.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="EEM-531659576\Data\Scripts\Thraxus\Common\SessionComps\" />
+    <Folder Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\StaticMethods\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

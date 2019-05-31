@@ -1,14 +1,14 @@
-﻿using Eem.Thraxus.Common.Interfaces;
-using Eem.Thraxus.Common.SessionComps;
+﻿using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using VRage.Game.Components;
 
 namespace Eem.Thraxus.Common.BaseClasses
 {
-	internal abstract class BaseServerGameLogicComp : MyGameLogicComponent, ILogEntry
+	internal abstract class BaseGameLogicComp : MyGameLogicComponent
 	{
 		protected string EntityName = "PlaceholderName";
 		protected long EntityId = 0L;
-		
+
 		public void WriteToLog(string caller, string message, LogType logType)
 		{
 			switch (logType)
@@ -26,20 +26,20 @@ namespace Eem.Thraxus.Common.BaseClasses
 					return;
 			}
 		}
-		
+
 		private void GeneralLog(string caller, string message)
 		{
-			StaticLogger.WriteToLog($"{EntityName} ({EntityId}): {caller}", message, LogType.General);
+			StaticLog.WriteToLog($"{EntityName} ({EntityId}): {caller}", message, LogType.General);
 		}
 
 		private void DebugLog(string caller, string message)
 		{
-			StaticLogger.WriteToLog($"{EntityName} ({EntityId}): {caller}", message, LogType.Debug);
+			StaticLog.WriteToLog($"{EntityName} ({EntityId}): {caller}", message, LogType.Debug);
 		}
 
 		private void ExceptionLog(string caller, string message)
 		{
-			StaticLogger.WriteToLog($"{EntityName} ({EntityId}): {caller}", $"Exception! {message}", LogType.Exception);
+			StaticLog.WriteToLog($"{EntityName} ({EntityId}): {caller}", $"Exception! {message}", LogType.Exception);
 		}
 	}
 }

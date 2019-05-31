@@ -1,10 +1,11 @@
 ﻿using System;
 using Sandbox.ModAPI;
 
-namespace Settings Eem.Thraxus.Common.
+namespace Eem.Thraxus.Common.Settings
 {
-	internal static class Settings
+	public static class Settings
 	{
+
 		#region Constant Values
 
 		public const bool ForcedDebugMode = false;
@@ -17,7 +18,7 @@ namespace Settings Eem.Thraxus.Common.
 		public const string ProflingLogName = "Profiler";
 
 		public const ushort NetworkId = 12345;
-
+		
 		#endregion
 
 		#region Reference Values

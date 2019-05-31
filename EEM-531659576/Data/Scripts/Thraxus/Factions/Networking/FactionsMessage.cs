@@ -1,7 +1,5 @@
-﻿using Eem.Thraxus.Helpers;
-using Eem.Thraxus.Networking;
+﻿using Eem.Thraxus.Networking;
 //using ProtoBuf;
-using Sandbox.ModAPI;
 
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable ExplicitCallerInfoArgument

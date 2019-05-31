@@ -1,13 +1,10 @@
 ﻿using System;
 using Eem.Thraxus.Bots.Modules;
 using Eem.Thraxus.Bots.SessionComps;
-using Eem.Thraxus.Bots.Utilities;
-using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game.ModAPI;

@@ -6,7 +6,7 @@ using VRage.Game.Components;
 
 namespace Eem.Thraxus.Common.BaseClasses
 {
-	public abstract class BaseServerSessionComp : MySessionComponentBase
+	class BaseClientSessionComp : MySessionComponentBase
 	{
 		private readonly string _baseGeneralLogName;
 		private readonly string _baseDebugLogName;
@@ -20,7 +20,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 		private bool _earlySetupComplete;
 		private bool _lateSetupComplete;
 
-		protected BaseServerSessionComp(string generalLogName, string debugLogName, string baseType, bool noUpdate = true)
+		protected BaseClientSessionComp(string generalLogName, string debugLogName, string baseType, bool noUpdate = true)
 		{
 			_baseGeneralLogName = generalLogName;
 			_baseDebugLogName = debugLogName;
@@ -30,13 +30,13 @@ namespace Eem.Thraxus.Common.BaseClasses
 
 		public override void BeforeStart()
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (Settings.Settings.IsServer) return;
 			base.BeforeStart();
 		}
 
 		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (Settings.Settings.IsServer) return;
 			base.Init(sessionComponent);
 			if (!_earlySetupComplete) EarlySetup();
 		}
@@ -51,14 +51,14 @@ namespace Eem.Thraxus.Common.BaseClasses
 
 		public override void UpdateBeforeSimulation()
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (Settings.Settings.IsServer) return;
 			base.UpdateBeforeSimulation();
 			if (!_lateSetupComplete) LateSetup();
 		}
 
 		public override void UpdateAfterSimulation()
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (Settings.Settings.IsServer) return;
 			base.UpdateAfterSimulation();
 		}
 
@@ -77,7 +77,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 
 		protected virtual void Unload()
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (Settings.Settings.IsServer) return;
 			WriteToLog("Unload", $"Retired.", LogType.General);
 			_debugLog?.Close();
 			_generalLog?.Close();

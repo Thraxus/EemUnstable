@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Eem.Thraxus.Bots.Modules;
 using Eem.Thraxus.Bots.Utilities;
-using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
@@ -95,12 +93,12 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			try
 			{
-				WriteToStaticLog WriteToLog("ControlAcquired", $"Exception! {e}", LogType.Exception);
+				WriteToStaticLog("RegisterNewEntity", $"New Entity: {entityId}", LogType.General);
 				ActiveShipRegistry.Add(entityId);
 			}
 			catch (Exception e)
 			{
-				StaticExceptionLog("RegisterNewEntity", e.ToString());
+				WriteToStaticLog("RegisterNewEntity", e.ToString(), LogType.Exception);
 			}
 		}
 
@@ -112,7 +110,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 			catch (Exception e)
 			{
-				StaticExceptionLog("RemoveDeadEntity", e.ToString());
+				WriteToStaticLog("RemoveDeadEntity", e.ToString(), LogType.Exception);
 			}
 		}
 
@@ -124,7 +122,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 			catch (Exception e)
 			{
-				StaticExceptionLog("RegisterNewWar", e.ToString());
+				WriteToStaticLog("RegisterNewWar", e.ToString(), LogType.Exception);
 			}
 		}
 
@@ -136,7 +134,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 			catch (Exception e)
 			{
-				StaticExceptionLog("RemoveOldWar", e.ToString());
+				WriteToStaticLog("RemoveOldWar", e.ToString(), LogType.Exception);
 			}
 		}
 
@@ -149,7 +147,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 			catch (Exception e)
 			{
-				StaticExceptionLog("RegisterNewPriorityTarget", e.ToString());
+				WriteToStaticLog("RegisterNewPriorityTarget", e.ToString(), LogType.Exception);
 			}
 		}
 
@@ -163,7 +161,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 			catch (Exception e)
 			{
-				StaticExceptionLog("RemoveOldPriorityTarget", e.ToString());
+				WriteToStaticLog("RemoveOldPriorityTarget", e.ToString(), LogType.Exception);
 			}
 		}
 	}

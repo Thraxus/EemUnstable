@@ -1,6 +1,6 @@
 ﻿using System;
-using Eem.Thraxus.Common;
-using Eem.Thraxus.Common.SessionComps;
+using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.ModAPI;
 using VRage.Game;
 
@@ -18,7 +18,7 @@ namespace Eem.Thraxus.Bots.Utilities
 			}
 			catch (Exception e)
 			{
-				StaticLogger.WriteToLog("DetectMod",$"Exception! {e}", LogType.Exception);
+				StaticLog.WriteToLog("DetectMod",$"Exception! {e}", LogType.Exception);
 				return false;
 			}
 		}

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Eem.Thraxus.Common;
+﻿using System.Collections.Generic;
 using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.SessionComps;
+using Eem.Thraxus.Common.DataTypes;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;

@@ -1,11 +1,11 @@
-﻿namespace Eem.Thraxus.Common
+﻿namespace Eem.Thraxus.Common.DataTypes
 {
 	public enum LogType
 	{
 		Debug, Exception, General, Profiling
 	}
 
-	public class BaseTargetPriorities
+		public class BaseTargetPriorities
 	{	// yeah, not a true enum, but it's serving the same purpose with some flexibility
 		public const int Bars = 0;
 	}

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.Models;
 using Eem.Thraxus.Bots.SessionComps;
-using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
+using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Sandbox.ModAPI;
 using VRage.Game;
@@ -17,7 +17,7 @@ namespace Eem.Thraxus.Bots
 	[MyEntityComponentDescriptor(typeof(MyObjectBuilder_CubeGrid), false)]
 	// ReSharper disable once ClassNeverInstantiated.Global
 	// ReSharper disable once UnusedMember.Global
-	internal class BotCore : BaseServerGameLogicComp
+	internal class BotCore : BaseGameLogicComp
 	{
 		/*
 		 * TODO Damage Handler - done

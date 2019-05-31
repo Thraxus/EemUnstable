@@ -1,8 +1,8 @@
-﻿using Eem.Thraxus.Common.Interfaces;
+﻿using Eem.Thraxus.Common.DataTypes;
 
 namespace Eem.Thraxus.Common.BaseClasses
 {
-	public class LogEventBase : ILogEntry
+	public class LogEventBase
 	{
 		public event TriggerLog OnWriteToLog;
 		public delegate void TriggerLog(string caller, string message, LogType logType);

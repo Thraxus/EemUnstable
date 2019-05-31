@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eem.Thraxus.Common;
 using Eem.Thraxus.Common.BaseClasses;
-using Sandbox.Definitions;
+using Eem.Thraxus.Common.DataTypes;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.ModAPI;
-using VRage;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
-using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Eem.Thraxus.Bots.Modules
