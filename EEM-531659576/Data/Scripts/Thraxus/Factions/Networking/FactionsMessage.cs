@@ -1,4 +1,4 @@
-﻿using Eem.Thraxus.Networking;
+﻿using Eem.Thraxus.Common.Utilities.Tools.Networking;
 //using ProtoBuf;
 
 // ReSharper disable RedundantArgumentDefaultValue

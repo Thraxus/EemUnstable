@@ -1,5 +1,5 @@
-﻿using Eem.Thraxus.Factions.Models;
-using Eem.Thraxus.Utilities;
+﻿using Eem.Thraxus.Common.Utilities.Tools.Logging;
+using Eem.Thraxus.Factions.Models;
 using Eem.Thraxus.Helpers;
 using Sandbox.ModAPI;
 using VRage.Game.Components;

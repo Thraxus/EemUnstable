@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Eem.Thraxus.Common.Utilities.Tools.Networking;
 using Eem.Thraxus.Factions.Settings;
 using Eem.Thraxus.Factions.Utilities;
-using Eem.Thraxus.Networking;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game;

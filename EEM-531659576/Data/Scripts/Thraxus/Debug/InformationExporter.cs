@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Utilities;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
