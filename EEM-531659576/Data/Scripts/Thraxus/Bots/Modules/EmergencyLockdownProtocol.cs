@@ -8,7 +8,7 @@ using SpaceEngineers.Game.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	public class EmergencyLockDownProtocol : LogEventBase
+	public class EmergencyLockDownProtocol : LogBaseEvent
 	{
 		private enum CubeType
 		{
