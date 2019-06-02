@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.StaticMethods;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	public class EmergencyLockDownProtocol : LogBaseEvent
+	public class EmergencyLockDownProtocol : LogBaseEvent, IDisposable
 	{
 		private enum CubeType
 		{
@@ -87,7 +88,7 @@ namespace Eem.Thraxus.Bots.Modules
 					{
 						++turrets;
 						//WriteToLog("EmergencyLockDownProtocol", $"Found a turret! {myCubeBlock.GetType()} {++turrets}", LogType.General);
-						Utilities.StaticMethods.AddGpsLocation($"{CubeType.Turret.ToString()} {turrets}", largeTurretBase.GetPosition());
+						StaticMethods.AddGpsLocation($"{CubeType.Turret.ToString()} {turrets}", largeTurretBase.GetPosition());
 					}
 
 					IMyDoor door = myCubeBlock as IMyDoor;
@@ -95,7 +96,7 @@ namespace Eem.Thraxus.Bots.Modules
 					{
 						++doors;
 						//WriteToLog("EmergencyLockDownProtocol", $"Found a door! {myCubeBlock.GetType()} {++doors}", LogType.General);
-						Utilities.StaticMethods.AddGpsLocation($"{CubeType.Door.ToString()} {doors}", door.GetPosition());
+						StaticMethods.AddGpsLocation($"{CubeType.Door.ToString()} {doors}", door.GetPosition());
 					}
 
 					IMyGravityGeneratorBase generatorBase = myCubeBlock as IMyGravityGeneratorBase;
@@ -103,13 +104,13 @@ namespace Eem.Thraxus.Bots.Modules
 					{
 						++gravityGenerators;
 						//WriteToLog("EmergencyLockDownProtocol", $"Found a Gravity Generator! {myCubeBlock.GetType()} {++gravityGenerators}", LogType.General);
-						Utilities.StaticMethods.AddGpsLocation($"{CubeType.GravityGenerator.ToString()} {gravityGenerators}", generatorBase.GetPosition());
+						StaticMethods.AddGpsLocation($"{CubeType.GravityGenerator.ToString()} {gravityGenerators}", generatorBase.GetPosition());
 					}
 
 					IMyAirVent vent = myCubeBlock as IMyAirVent;
 					if (vent == null) continue;
 					++airvents;
-					Utilities.StaticMethods.AddGpsLocation($"{CubeType.AirVent.ToString()} {airvents}", vent.GetPosition());
+					StaticMethods.AddGpsLocation($"{CubeType.AirVent.ToString()} {airvents}", vent.GetPosition());
 				}
 				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Turrets: {turrets} | Air Vents: {airvents} | Doors: {doors} | Gravity Generators: {gravityGenerators}", LogType.General);
 
@@ -182,6 +183,20 @@ namespace Eem.Thraxus.Bots.Modules
 			//}
 		}
 
-		
+		private bool _unloaded = false;
+
+		~EmergencyLockDownProtocol()
+		{
+			Dispose();
+		}
+		/// <inheritdoc />
+		public void Dispose()
+		{
+			if (!_unloaded)
+			{
+
+			}
+			_unloaded = true;
+		}
 	}
 }
