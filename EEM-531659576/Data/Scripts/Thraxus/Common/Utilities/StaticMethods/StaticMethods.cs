@@ -7,14 +7,14 @@ using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRageMath;
 
-namespace Eem.Thraxus.Bots.Utilities
+namespace Eem.Thraxus.Common.Utilities.StaticMethods
 {
 	public static class StaticMethods
 	{
 		public static IEnumerable<MyEntity> DetectDynamicEntitiesInSphere(Vector3D detectionCenter, double range)
 		{
 			AddGpsLocation($"DetectDynamicEntitiesInSphere {range}", detectionCenter);
-			
+
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
 			MyGamePruningStructure.GetAllEntitiesInSphere(ref pruneSphere, pruneList, MyEntityQueryType.Dynamic);
@@ -24,7 +24,7 @@ namespace Eem.Thraxus.Bots.Utilities
 		public static IEnumerable<MyEntity> DetectStaticEntitiesInSphere(Vector3D detectionCenter, double range)
 		{
 			AddGpsLocation($"DetectStaticEntitiesInSphere {range}", detectionCenter);
-			
+
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
 			MyGamePruningStructure.GetAllEntitiesInSphere(ref pruneSphere, pruneList, MyEntityQueryType.Static);
@@ -34,7 +34,7 @@ namespace Eem.Thraxus.Bots.Utilities
 		public static IEnumerable<MyEntity> DetectAllEntitiesInSphere(Vector3D detectionCenter, double range)
 		{
 			AddGpsLocation($"DetectAllEntitiesInSphere {range}", detectionCenter);
-			
+
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
 			MyGamePruningStructure.GetAllEntitiesInSphere(ref pruneSphere, pruneList);
@@ -44,7 +44,7 @@ namespace Eem.Thraxus.Bots.Utilities
 		public static IEnumerable<MyEntity> DetectPlayersInSphere(Vector3D detectionCenter, double range)
 		{
 			AddGpsLocation($"DetectPlayersInSphere {range}", detectionCenter);
-			
+
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
 			MyGamePruningStructure.GetAllEntitiesInSphere(ref pruneSphere, pruneList, MyEntityQueryType.Dynamic);
@@ -66,9 +66,6 @@ namespace Eem.Thraxus.Bots.Utilities
 			List<IMyIdentity> identityList = new List<IMyIdentity>();
 			MyAPIGateway.Players.GetAllIdentites(identityList);
 			return identityList.FirstOrDefault(x => x.IdentityId == playerId);
-			//List<IMyPlayer> myPlayers = new List<IMyPlayer>();
-			//MyAPIGateway.Players.GetPlayers(myPlayers, x => x.IdentityId == playerId);
-			//return myPlayers.FirstOrDefault();
 		}
 
 		public static void AddGpsLocation(string message, Vector3D location)
@@ -95,6 +92,26 @@ namespace Eem.Thraxus.Bots.Utilities
 				ObjectsRemoveDelayInMiliseconds = 0
 			};
 			MyExplosions.AddExplosion(ref explosionInfo);
+		}
+
+		internal static IMyFaction GetFactionById(this long factionId)
+		{
+			return MyAPIGateway.Session.Factions.TryGetFactionById(factionId);
+		}
+
+		private static bool IsPlayer(this long faction)
+		{
+			return !MyAPIGateway.Session.Factions.TryGetFactionById(faction).IsEveryoneNpc();
+		}
+
+		private static bool IsNpc(this long faction)
+		{
+			return MyAPIGateway.Session.Factions.TryGetFactionById(faction).IsEveryoneNpc();
+		}
+
+		private static bool ValidateFactions(IMyFaction leftFaction, IMyFaction rightFaction)
+		{
+			return (leftFaction == null || rightFaction == null);
 		}
 	}
 }

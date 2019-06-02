@@ -1,6 +1,7 @@
 ﻿using System;
 using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Game.Components;
@@ -32,7 +33,7 @@ namespace Eem.Thraxus.Bots.GameLogic
 			MyObjectBuilder_Missile missile = (MyObjectBuilder_Missile) Entity.GetObjectBuilder();
 			try
 			{
-				if (!Helpers.Constants.IsServer) return;
+				if (!Settings.IsServer) return;
 				DamageHandler.RegisterUnownedMissileImpact(new 
 					MissileHistory(
 						missile.OriginEntity,

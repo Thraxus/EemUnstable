@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Eem.Thraxus.Common.Settings;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;
 using VRage.Game.Components;
@@ -20,46 +21,46 @@ namespace Eem.Thraxus.Helpers
 
         public override void UpdateAfterSimulation100()
         {
-	        if (!Constants.DisableCleanup) return;
+	        if (!Settings.DisableCleanup) return;
 				try
             {
                 //if(!MyAPIGateway.Multiplayer.IsServer) // only server-side/SP
-                if (!Constants.IsServer)
+                if (!Settings.IsServer)
                     return;
 
                 IMyRemoteControl rc = (IMyRemoteControl)Entity;
                 IMyCubeGrid grid = rc.CubeGrid;
 
-                if (grid.Physics == null || !rc.IsWorking || !Factions.Settings.Constants.AllNpcFactions.Contains(rc.GetOwnerFactionTag()))
+                if (grid.Physics == null || !rc.IsWorking || !Settings.AllNpcFactions.Contains(rc.GetOwnerFactionTag()))
                 {
-                  //  if (Constants.CleanupDebug)
-                        //EemCore.GeneralLog.WriteToLog("CleanEemRc", grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") is not valid; " + (grid.Physics == null ? "Phys=null" : "Phys OK") + "; " + (rc.IsWorking ? "RC OK" : "RC Not working!") + "; " + (!Factions.Settings.Constants.AllNpcFactions.Contains(rc.GetOwnerFactionTag()) ? "Owner faction tag is not in NPC list (" + rc.GetOwnerFactionTag() + ")" : "Owner Faction OK"));
+                  //  if (Settings.CleanupDebug)
+                        //EemCore.GeneralLog.WriteToLog("CleanEemRc", grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") is not valid; " + (grid.Physics == null ? "Phys=null" : "Phys OK") + "; " + (rc.IsWorking ? "RC OK" : "RC Not working!") + "; " + (!Factions.Settings.Settings.AllNpcFactions.Contains(rc.GetOwnerFactionTag()) ? "Owner faction tag is not in NPC list (" + rc.GetOwnerFactionTag() + ")" : "Owner Faction OK"));
 
                     return;
                 }
 
-                if (!rc.CustomData.Contains(Constants.CleanupRcTag))
+                if (!rc.CustomData.Contains(Settings.CleanupRcTag))
                 {
-                    //if (Constants.CleanupDebug)
-                       // EemCore.GeneralLog.WriteToLog("CleanEemRc", grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain the " + Constants.CleanupRcTag + "tag!");
+                    //if (Settings.CleanupDebug)
+                       // EemCore.GeneralLog.WriteToLog("CleanEemRc", grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain the " + Settings.CleanupRcTag + "tag!");
 
                     return;
                 }
 
-                if (Constants.CleanupRcExtraTags.Length > 0)
+                if (Settings.CleanupRcExtraTags.Length > 0)
                 {
-                    bool hasExtraTag = Constants.CleanupRcExtraTags.Any(tag => rc.CustomData.Contains(tag));
+                    bool hasExtraTag = Settings.CleanupRcExtraTags.Any(tag => rc.CustomData.Contains(tag));
 
                     if (!hasExtraTag)
                     {
-                       // if (Constants.CleanupDebug)
+                       // if (Settings.CleanupDebug)
                           //  EemCore.GeneralLog.WriteToLog("CleanEemRc", grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain one of the extra tags!");
 
                         return;
                     }
                 }
 
-               // if (Constants.CleanupDebug)
+               // if (Settings.CleanupDebug)
                   //  EemCore.GeneralLog.WriteToLog("CleanEemRc", "Checking RC '" + rc.CustomName + "' from grid '" + grid.DisplayName + "' (" + grid.EntityId + ") for any nearby players...");
 
                 int rangeSq = CleanEem.RangeSq;
@@ -67,7 +68,7 @@ namespace Eem.Thraxus.Helpers
 
                 if (rangeSq <= 0)
                 {
-                   // if (Constants.CleanupDebug)
+                   // if (Settings.CleanupDebug)
                        // EemCore.GeneralLog.WriteToLog("CleanEemRc", "- WARNING: Range not assigned yet, ignoring grid for now.");
 
                     return;
@@ -78,14 +79,14 @@ namespace Eem.Thraxus.Helpers
                 {
                     if (Vector3D.DistanceSquared(player.GetPosition(), gridCenter) <= rangeSq)
                     {
-                     //   if (Constants.CleanupDebug)
+                     //   if (Settings.CleanupDebug)
                       //      EemCore.GeneralLog.WriteToLog("CleanEemRc", " - player '" + player.DisplayName + "' is within " + Math.Round(Math.Sqrt(rangeSq), 1) + "m of it, not removing.");
 
                         return;
                     }
                 }
 
-             //   if (Constants.CleanupDebug)
+             //   if (Settings.CleanupDebug)
               //      EemCore.GeneralLog.WriteToLog("CleanEemRc", " - no player is within " + Math.Round(Math.Sqrt(rangeSq), 1) + "m of it, removing...");
 
               //  EemCore.GeneralLog.WriteToLog("CleanEemRc", "NPC ship '" + grid.DisplayName + "' (" + grid.EntityId + ") removed.");

@@ -13,9 +13,6 @@ namespace Eem.Thraxus.Debug
 {
 	internal static class InformationExporter
 	{
-
-
-
 		public static void Run()
 		{
 			PrintAllShipInfo();
@@ -52,8 +49,8 @@ namespace Eem.Thraxus.Debug
 						spawnGroupLog.WriteToLog($"SpawnGroupLog", $"{spawnGroupDefinition.Id.SubtypeName}\t{spawnGroupInfo}\t{prefab.SubtypeId}\t{prefab.BeaconText}\t{prefab.Behaviour}\t{prefab.BehaviourActivationDistance}");
 					}
 				}
-				spawnGroupLog?.WriteToLog("SpawnGroupLog", "Complete");
-				spawnGroupLog?.Close();
+				spawnGroupLog.WriteToLog("SpawnGroupLog", "Complete");
+				spawnGroupLog.Close();
 			});
 		}
 

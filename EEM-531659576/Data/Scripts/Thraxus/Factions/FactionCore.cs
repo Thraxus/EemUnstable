@@ -1,24 +1,28 @@
-﻿using Eem.Thraxus.Common.Utilities.Tools.Logging;
+﻿using Eem.Thraxus.Common.BaseClasses;
+using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Factions.Models;
-using Eem.Thraxus.Helpers;
+using Eem.Thraxus.Common.Settings;
 using Sandbox.ModAPI;
 using VRage.Game.Components;
 
+
 namespace Eem.Thraxus.Factions
 {
-	[MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
+	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
 	// ReSharper disable once ClassNeverInstantiated.Global
-	public class FactionCore : MySessionComponentBase
+	public class FactionCore : BaseServerSessionComp
 	{
+
+		private const string GeneralLogName = "FactionsGeneral";
+		private const string DebugLogName = "FactionsDebug";
+		private const string SessionCompName = "Factions";
+
+		/// <inheritdoc />
+		public FactionCore() : base(GeneralLogName, DebugLogName, SessionCompName) { } // Do nothing else
+
 		// Fields
 
-		private bool _registerEarly;
-		private bool _initialized;
-
-		private static Log _debugLog;
-		private static Log _generalLog;
-
-		public RelationshipManager RelationshipManager { get; private set; }
+		private RelationshipManager _relationshipManager;
 
 		public static FactionCore FactionCoreStaticInstance;
 
@@ -30,67 +34,37 @@ namespace Eem.Thraxus.Factions
 		}
 		
 		// Init Methods
-
-		/// <summary>
-		/// Runs before the game is ready, safe for some initializations, not safe for others
-		/// </summary>
-		public override void BeforeStart()
-		{
-			base.BeforeStart();
-			if (!Constants.IsServer) return;
-			if (!_registerEarly) RegisterEarly();
-		}
-
+		
 		/// <summary>
 		/// Runs every tick before the simulation is updated
 		/// </summary>
 		public override void UpdateBeforeSimulation()
 		{
 			base.UpdateBeforeSimulation();
-			if (!Constants.IsServer) return;
-			if (!_initialized) Initialize();
 			TickTimer();
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		private void RegisterEarly()
+		/// <inheritdoc />
+		protected override void LateSetup()
 		{
-			if (_registerEarly) return;
-			if (Constants.DebugMode) _debugLog = new Log(Settings.Constants.DebugLogName);
-			_generalLog = new Log(Settings.Constants.GeneralLogName);
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.BeforeSimulation));
-			WriteToLog("FactionCore", $"RegisterEarly Complete... {UpdateOrder}", true);
-			_registerEarly = true;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		private void Initialize()
-		{
-			RelationshipManager = new RelationshipManager();
+			base.LateSetup();
+			_relationshipManager = new RelationshipManager();
+			_relationshipManager.OnWriteToLog += WriteToLog;
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
-			WriteToLog("FactionCore", $"Initialized... {UpdateOrder}", true);
-			_initialized = true;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		protected override void UnloadData()
-		{
-			base.UnloadData();
-			if (!Constants.IsServer) return;
-			RelationshipManager?.Close();
-			FactionCoreStaticInstance = null;
-			WriteToLog("FactionCore", $"I'm out!... {UpdateOrder}", true);
-			_debugLog?.Close();
-			_generalLog.Close();
-			
+			WriteToLog("FactionCore", $"Initialized... {UpdateOrder}", LogType.General);
 		}
 		
+		/// <inheritdoc />
+		protected override void Unload()
+		{
+			if (_relationshipManager != null)
+			{
+				_relationshipManager.OnWriteToLog -= WriteToLog;
+				_relationshipManager.Close();
+			}
+			FactionCoreStaticInstance = null;
+			base.Unload();
+		}
 
 		// Core Logic Methods
 
@@ -105,24 +79,10 @@ namespace Eem.Thraxus.Factions
 		private void TickTimer()
 		{
 			_tickTimer++;
-			if (_tickTimer % Constants.FactionNegativeRelationshipAssessment == 0)
-				RelationshipManager.CheckNegativeRelationships();
-			if (_tickTimer % Constants.FactionMendingRelationshipAssessment == 0)
-				RelationshipManager.CheckMendingRelationships();
-		}
-
-		// Non-Core logic below this point
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="caller"></param>
-		/// <param name="message"></param>
-		/// <param name="general"></param>
-		public static void WriteToLog(string caller, string message, bool general = false)
-		{
-			_debugLog?.WriteToLog(caller, message);
-			if (general) _generalLog?.WriteToLog(caller, message);
+			if (_tickTimer % Settings.FactionNegativeRelationshipAssessment == 0)
+				_relationshipManager.CheckNegativeRelationships();
+			if (_tickTimer % Settings.FactionMendingRelationshipAssessment == 0)
+				_relationshipManager.CheckMendingRelationships();
 		}
 	}
 }

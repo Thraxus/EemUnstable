@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Eem.Thraxus.Common.Settings;
 
 namespace Eem.Thraxus.Factions.Utilities.Messages
 
@@ -10,7 +11,7 @@ namespace Eem.Thraxus.Factions.Utilities.Messages
 	{
 		public const string DefaultTag = "TheUnknown";
 
-		public static readonly Func<string> CatchAll = () => CatchAllMessages.ElementAt(Helpers.Constants.Random.Next(CatchAllMessages.Count));
+		public static readonly Func<string> CatchAll = () => CatchAllMessages.ElementAt(Settings.Random.Next(CatchAllMessages.Count));
         
 		private static readonly List<string> CatchAllMessages = new List<string>()
 		{
@@ -26,14 +27,14 @@ namespace Eem.Thraxus.Factions.Utilities.Messages
 
 	    public const string CollectiveTag = "The Lawful Collective";
 
-        public static readonly Func<string> CollectiveDisappointment = () => CollectiveDisappointmentMessages.ElementAt(Helpers.Constants.Random.Next(CollectiveDisappointmentMessages.Count));
+        public static readonly Func<string> CollectiveDisappointment = () => CollectiveDisappointmentMessages.ElementAt(Settings.Random.Next(CollectiveDisappointmentMessages.Count));
 
         private static readonly List<string> CollectiveDisappointmentMessages = new List<string>()
 		{
 			"Yo ho ho, it's a pirate life fer ye!"
 		};
 
-	    public static readonly Func<string> CollectiveReprieve = () => CollectiveReprieveMessages.ElementAt(Helpers.Constants.Random.Next(CollectiveReprieveMessages.Count));
+	    public static readonly Func<string> CollectiveReprieve = () => CollectiveReprieveMessages.ElementAt(Settings.Random.Next(CollectiveReprieveMessages.Count));
 
 	    private static readonly List<string> CollectiveReprieveMessages = new List<string>()
 	    {
@@ -42,7 +43,7 @@ namespace Eem.Thraxus.Factions.Utilities.Messages
             "Cindy!  Who writes these messages?  Wait, is this thing on?  Uh... Hi.  We're discussing your proposal now."
 	    };
 
-	    public static readonly Func<string> CollectiveWelcome = () => CollectiveWelcomeMessages.ElementAt(Helpers.Constants.Random.Next(CollectiveWelcomeMessages.Count));
+	    public static readonly Func<string> CollectiveWelcome = () => CollectiveWelcomeMessages.ElementAt(Settings.Random.Next(CollectiveWelcomeMessages.Count));
 
 	    private static readonly List<string> CollectiveWelcomeMessages = new List<string>()
 	    {

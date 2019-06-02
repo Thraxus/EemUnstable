@@ -12,7 +12,7 @@ using VRage.ModAPI;
 
 namespace Eem.Thraxus.Bots.Models
 {
-	public class BotBaseAdvanced : LogBaseStatic
+	public class BotBaseAdvanced : LogBaseEvent
 	{
 		internal readonly IMyEntity ThisEntity;
 		internal readonly MyCubeGrid ThisCubeGrid;
@@ -23,9 +23,7 @@ namespace Eem.Thraxus.Bots.Models
 		private MyConcurrentDictionary<long, DateTime> _warDictionary;
 		private MyConcurrentDictionary<IMySlimBlock, float> _integrityDictionary;
 		private DateTime _lastAttacked;
-
-
-
+		
 		public event ShutdownRequest BotShutdown;
 		public delegate void ShutdownRequest();
 
@@ -84,11 +82,7 @@ namespace Eem.Thraxus.Bots.Models
 			try
 			{
 				WriteToLog("BotCore", $"Shutting down.", LogType.General);
-				_warDictionary.Clear();
-				_integrityDictionary.Clear();
 				BotMarshal.RemoveDeadEntity(ThisEntity.EntityId);
-				_emergencyLockDownProtocol.OnWriteToLog -= WriteToLog;
-				_emergencyLockDownProtocol = null;
 				DamageHandler.TriggerAlert -= DamageHandlerOnTriggerAlert;
 				ThisCubeGrid.OnBlockAdded -= OnBlockAdded;
 				ThisCubeGrid.OnBlockRemoved -= OnBlockRemoved;
@@ -97,6 +91,7 @@ namespace Eem.Thraxus.Bots.Models
 
 
 				// TODO Remove the below later to their proper bot type
+				_emergencyLockDownProtocol.OnWriteToLog -= WriteToLog;
 				//_regenerationProtocol.OnWriteToLog -= WriteToLog;
 				//_regenerationProtocol = null;
 			}

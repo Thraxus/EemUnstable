@@ -51,7 +51,7 @@ namespace Eem.Thraxus.Bots
 		public override void Init(MyObjectBuilder_EntityBase objectBuilder)
 		{
 			base.Init(objectBuilder);
-			if (!Helpers.Constants.IsServer) return;
+			if (!Settings.IsServer) return;
 			_originalUpdateEnum = NeedsUpdate;
 			NeedsUpdate |= BotSettings.CoreUpdateSchedule;
 		}
@@ -59,7 +59,7 @@ namespace Eem.Thraxus.Bots
 		public override void UpdateOnceBeforeFrame()
 		{
 			base.UpdateOnceBeforeFrame();
-			if (!Helpers.Constants.IsServer) return;
+			if (!Settings.IsServer) return;
 			if (!_setupComplete) Setup();
 		}
 
@@ -73,7 +73,7 @@ namespace Eem.Thraxus.Bots
 			}
 			WriteToLog("Setup", $"Approved.", LogType.General);
 			_bot = new BotBaseAdvanced(Entity, _myShipController, _multiPart);
-			_bot.WriteToStaticLog += WriteToLog;
+			_bot.OnWriteToLog += WriteToLog;
 			_bot.BotShutdown += Shutdown;
 			_bot.BotSleep += Sleep;
 			_bot.BotWakeup += WakeUp;
@@ -85,15 +85,13 @@ namespace Eem.Thraxus.Bots
 			WriteToLog("Shutdown", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", LogType.General);
 			_setupComplete = true;
 			NeedsUpdate = _originalUpdateEnum;
-			_myShipControllers?.Clear();
-			if (_bot != null)
-			{
-				_bot.BotShutdown -= Shutdown;
-				_bot.BotSleep -= Sleep;
-				_bot.BotWakeup -= WakeUp;
-				_bot.WriteToStaticLog -= WriteToLog;
-			}
-			_bot?.Unload();
+
+			if (_bot == null) return;
+			_bot.BotShutdown -= Shutdown;
+			_bot.BotSleep -= Sleep;
+			_bot.BotWakeup -= WakeUp;
+			_bot.OnWriteToLog -= WriteToLog;
+			_bot.Unload();
 		}
 
 		private void Sleep()
@@ -148,7 +146,7 @@ namespace Eem.Thraxus.Bots
 		/// <inheritdoc />
 		public override void Close()
 		{
-			if (!Helpers.Constants.IsServer) return;
+			if (!Settings.IsServer) return;
 			Shutdown();
 			base.Close();
 		}

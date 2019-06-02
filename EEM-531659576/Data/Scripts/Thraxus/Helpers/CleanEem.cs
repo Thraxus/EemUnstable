@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Eem.Thraxus.Common.Settings;
 using Sandbox.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
@@ -27,7 +28,7 @@ namespace Eem.Thraxus.Helpers
 		public void Init()
 		{
 			_init = true;
-			MyAPIGateway.Session.SessionSettings.MaxDrones = Constants.ForceMaxDrones;
+			MyAPIGateway.Session.SessionSettings.MaxDrones = Settings.ForceMaxDrones;
 		}
 
 		protected override void UnloadData()
@@ -42,7 +43,7 @@ namespace Eem.Thraxus.Helpers
 		public override void UpdateBeforeSimulation()
 		{
 			if (!MyAPIGateway.Multiplayer.IsServer) return; // only server-side/SP
-			if (!Constants.DisableCleanup) return;
+			if (!Settings.DisableCleanup) return;
 
 			if (!_init)
 			{
@@ -58,13 +59,13 @@ namespace Eem.Thraxus.Helpers
 				_skip = 0;
 
 				// the range used to check player distance from ships before removing them
-				RangeSq = Math.Max(MyAPIGateway.Session.SessionSettings.ViewDistance, Constants.CleanupMinRange);
+				RangeSq = Math.Max(MyAPIGateway.Session.SessionSettings.ViewDistance, Settings.CleanupMinRange);
 				RangeSq *= RangeSq;
 
 				Players.Clear();
 				MyAPIGateway.Players.GetPlayers(Players);
 
-				//if(Constants.CLEANUP_DEBUG)
+				//if(Settings.CLEANUP_DEBUG)
 				//	Log.Info("player list updated; view range updated: " + Math.Round(Math.Sqrt(RangeSq), 1));
 			}
 			catch (Exception e)
@@ -91,7 +92,7 @@ namespace Eem.Thraxus.Helpers
 			if (block == null)
 				return false;
 
-			//if(Constants.CLEANUP_CONNECTOR_CONNECTED)
+			//if(Settings.CLEANUP_CONNECTOR_CONNECTED)
 			//{
 			//	IMyShipConnector connector = block as IMyShipConnector;
 
