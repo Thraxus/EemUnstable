@@ -17,6 +17,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 		private Log _generalLog;
 		private Log _debugLog;
 
+		private bool _superEarlySetupComplete;
 		private bool _earlySetupComplete;
 		private bool _lateSetupComplete;
 
@@ -26,6 +27,21 @@ namespace Eem.Thraxus.Common.BaseClasses
 			_baseDebugLogName = debugLogName;
 			_baseType = baseType;
 			_noUpdate = noUpdate;
+		}
+
+		/// <inheritdoc />
+		public override void LoadData()
+		{
+			if (!Settings.Settings.IsServer) return;
+			base.LoadData();
+			if (!_superEarlySetupComplete) SuperEarlySetup();
+		}
+
+		protected virtual void SuperEarlySetup()
+		{
+			_superEarlySetupComplete = true;
+			_generalLog = new Log(_baseGeneralLogName);
+			if (Settings.Settings.DebugMode) _debugLog = new Log(_baseDebugLogName);
 		}
 
 		public override void BeforeStart()
@@ -44,8 +60,6 @@ namespace Eem.Thraxus.Common.BaseClasses
 		protected virtual void EarlySetup()
 		{
 			_earlySetupComplete = true;
-			_generalLog = new Log(_baseGeneralLogName);
-			if (Settings.Settings.DebugMode) _debugLog = new Log(_baseDebugLogName);
 			WriteToLog("EarlySetup", $"Waking up.", LogType.General);
 		}
 
@@ -56,17 +70,18 @@ namespace Eem.Thraxus.Common.BaseClasses
 			if (!_lateSetupComplete) LateSetup();
 		}
 
-		public override void UpdateAfterSimulation()
-		{
-			if (!Settings.Settings.IsServer) return;
-			base.UpdateAfterSimulation();
-		}
-
 		protected virtual void LateSetup()
 		{
 			_lateSetupComplete = true;
 			if (_noUpdate) MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
 			WriteToLog("LateSetup", $"Fully online.", LogType.General);
+		}
+
+
+		public override void UpdateAfterSimulation()
+		{
+			if (!Settings.Settings.IsServer) return;
+			base.UpdateAfterSimulation();
 		}
 
 		protected override void UnloadData()

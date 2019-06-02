@@ -75,6 +75,8 @@ namespace Eem.Thraxus.Bots.Models
 			_emergencyLockDownProtocol = new EmergencyLockDownProtocol(ThisCubeGrid);
 			_emergencyLockDownProtocol.OnWriteToLog += WriteToLog;
 			_emergencyLockDownProtocol.Init();
+
+			WriteToLog("BotCore", $"BotBaseAdvanced ready to rock!", LogType.General);
 		}
 
 		public void Unload()
@@ -131,13 +133,14 @@ namespace Eem.Thraxus.Bots.Models
 		private void HandleBars(IMySlimBlock block, CheckType check)
 		{
 			//if (!_barsActive) return;
-			if (_lastAttacked.AddMilliseconds(500) > DateTime.Now) return;
-
+			TimeSpan timeSinceLastAttack = DateTime.Now - _lastAttacked;
+			if (timeSinceLastAttack.TotalMilliseconds < 500) return;
+			
 			switch (check)
 			{
 				case CheckType.Removed:
 				case CheckType.Ownership:
-					WriteToLog("HandleBars", $"Block removed or owner changed, alerting the damage handler...", LogType.General);
+					//WriteToLog("HandleBars", $"Block removed or owner changed, alerting the damage handler... {inMs}", LogType.General);
 					DamageHandler.BarsSuspected(ThisEntity);
 					break;
 				case CheckType.Integrity:
@@ -147,12 +150,12 @@ namespace Eem.Thraxus.Bots.Models
 							return;
 						if (oldIntegrity <= block.Integrity)
 						{
-							WriteToLog("HandleBars", $"Block integrity improved; setting check value higher", LogType.General);
+							//WriteToLog("HandleBars", $"Block integrity improved; setting check value higher", LogType.General);
 							_integrityDictionary[block] = block.Integrity;
 							return;
 						}
 
-						WriteToLog("HandleBars", $"Block integrity lowered, alerting the damage handler...", LogType.General);
+						//WriteToLog("HandleBars", $"Block integrity lowered, alerting the damage handler... {inMs}", LogType.General);
 						DamageHandler.BarsSuspected(ThisEntity);
 
 						break;
@@ -173,18 +176,18 @@ namespace Eem.Thraxus.Bots.Models
 
 		}
 
-		private void TriggerAlertConditions(long playerId)
+		private void TriggerAlertConditions(long identityId)
 		{
-			WriteToLog("TriggerAlertConditions", $"Alert conditions triggered against {playerId}", LogType.General);
-			if (!_warDictionary.TryAdd(playerId, DateTime.Now))
-				_warDictionary[playerId] = DateTime.Now;
+			WriteToLog("TriggerAlertConditions", $"Alert conditions triggered against {identityId}", LogType.General);
+			if (!_warDictionary.TryAdd(identityId, DateTime.Now))
+				_warDictionary[identityId] = DateTime.Now;
 			_lastAttacked = DateTime.Now;
 			// TODO Add alert conditions
 		}
 
 		private void OnBlockAdded(IMySlimBlock addedBlock)
 		{   // Trigger alert, war, all the fun stuff against the player / faction that added the block
-			WriteToLog("OnBlockAdded", $"Triggering alert to Damage Handler", LogType.General);
+			//WriteToLog("OnBlockAdded", $"Triggering alert to Damage Handler", LogType.General);
 			DamageHandler.ErrantBlockPlaced(ThisEntity.EntityId, addedBlock);
 		}
 
@@ -197,7 +200,7 @@ namespace Eem.Thraxus.Bots.Models
 			if (_barsActive)
 				HandleBars(removedBlock, CheckType.Removed);
 			if (removedBlock.FatBlock != _myShipController) return;
-			WriteToLog("OnBlockRemoved", $"Triggering shutdown.", LogType.General);
+			//WriteToLog("OnBlockRemoved", $"Triggering shutdown.", LogType.General);
 			BotShutdown?.Invoke();
 		}
 
@@ -205,17 +208,17 @@ namespace Eem.Thraxus.Bots.Models
 		{   // Trigger alert, war, all the fun stuff against the entity owner that triggered the integrity change (probably negative only)
 			if (_barsActive)
 				HandleBars(block, CheckType.Integrity);
-			WriteToLog("OnBlockIntegrityChanged", $"Block integrity changed for block {block} {_lastAttacked.AddSeconds(1) < DateTime.Now} {_lastAttacked.AddSeconds(1)} {DateTime.Now}", LogType.General);
+			//WriteToLog("OnBlockIntegrityChanged", $"Block integrity changed for block {block} {_lastAttacked.AddSeconds(1) < DateTime.Now} {_lastAttacked.AddSeconds(1)} {DateTime.Now}", LogType.General);
 			if (block.FatBlock == _myShipController && !_myShipController.IsFunctional)
 			{
-				WriteToLog("OnBlockIntegrityChanged", $"Rc integrity compromised... triggering sleep.", LogType.General);
+				//WriteToLog("OnBlockIntegrityChanged", $"Rc integrity compromised... triggering sleep.", LogType.General);
 				Sleep();
 				BotSleep?.Invoke();
 			}
 
 			if (block.FatBlock == _myShipController && _myShipController.IsFunctional && _sleeping)
 			{
-				WriteToLog("OnBlockIntegrityChanged", $"Rc integrity restored... triggering wakeup.", LogType.General);
+				//WriteToLog("OnBlockIntegrityChanged", $"Rc integrity restored... triggering wakeup.", LogType.General);
 				Wakeup();
 				BotWakeup?.Invoke();
 			}
@@ -231,7 +234,7 @@ namespace Eem.Thraxus.Bots.Models
 		{   // Protection for initial spawn with MES, should be disabled after the first few seconds in game (~300 ticks)
 			if (_barsActive)
 				HandleBars(null, CheckType.Ownership);
-			WriteToLog("OnBlockOwnershipChanged", $"Ownership changed. {_lastAttacked.AddSeconds(1) < DateTime.Now} {_lastAttacked.AddSeconds(1)} {DateTime.Now}", LogType.General);
+			//WriteToLog("OnBlockOwnershipChanged", $"Ownership changed. {_lastAttacked.AddSeconds(1) < DateTime.Now} {_lastAttacked.AddSeconds(1)} {DateTime.Now}", LogType.General);
 			if (_myShipController.OwnerId != _ownerId) BotShutdown?.Invoke();
 		}
 

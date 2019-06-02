@@ -37,11 +37,14 @@ namespace Eem.Thraxus.Bots.SessionComps
 		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
 		{
 			base.Init(sessionComponent);
+		}
+
+		/// <inheritdoc />
+		protected override void SuperEarlySetup()
+		{
+			base.SuperEarlySetup();
 			ModDictionary = new ConcurrentDictionary<ulong, bool>();
-			foreach (ulong mod in BotSettings.ModsToWatch)
-				ModDictionary.TryAdd(mod, ModDetection.DetectMod(mod));
 			BotOrphans = new ConcurrentDictionary<long, BotOrphan>();
-			//ActiveShipRegistry = new ConcurrentCachingList<long>();
 			PlayerShipControllerHistory = new ConcurrentDictionary<long, long>();
 			WarRegistry = new ConcurrentDictionary<long, long>();
 			PriorityTargetDictionary = new ConcurrentDictionary<long, ConcurrentCachingHashSet<TargetEntity>>();
@@ -59,6 +62,8 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			base.LateSetup();
 			MyAPIGateway.Session.Player.Controller.ControlledEntityChanged += ControlAcquired;
+			foreach (ulong mod in BotSettings.ModsToWatch)
+				ModDictionary.TryAdd(mod, ModDetection.DetectMod(mod));
 		}
 		
 		private void ControlAcquired(IMyControllableEntity player, IMyControllableEntity controlled)
@@ -82,11 +87,11 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			DamageHandler.TriggerAlert -= RegisterNewWar;
 			MyAPIGateway.Session.Player.Controller.ControlledEntityChanged -= ControlAcquired;
-			ActiveShipRegistry?.ClearList();
-			PlayerShipControllerHistory?.Clear();
-			WarRegistry?.Clear();
-			PriorityTargetDictionary.Clear();
-			BotOrphans?.Clear();
+			//ActiveShipRegistry?.ClearList();
+			//PlayerShipControllerHistory?.Clear();
+			//WarRegistry?.Clear();
+			//PriorityTargetDictionary.Clear();
+			//BotOrphans?.Clear();
 			base.Unload();
 		}
 
@@ -96,6 +101,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			{
 				WriteToStaticLog("RegisterNewEntity", $"New Entity: {entityId}", LogType.General);
 				ActiveShipRegistry.Add(entityId);
+				ActiveShipRegistry.ApplyAdditions();
 			}
 			catch (Exception e)
 			{
@@ -108,6 +114,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			try
 			{
 				ActiveShipRegistry.Remove(entityId);
+				ActiveShipRegistry.ApplyRemovals();
 			}
 			catch (Exception e)
 			{

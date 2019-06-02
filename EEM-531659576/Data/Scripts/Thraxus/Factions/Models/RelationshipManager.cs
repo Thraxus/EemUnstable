@@ -52,8 +52,12 @@ namespace Eem.Thraxus.Factions.Models
 			MyAPIGateway.Session.Factions.FactionCreated += FactionCreated;
 			MyAPIGateway.Session.Factions.FactionEdited += FactionEdited;
 			MyAPIGateway.Session.Factions.FactionAutoAcceptChanged += MonitorAutoAccept;
-			SetupFactionRelations();
 			WriteToLog("RelationshipManager", $"Constructed!", LogType.General);
+		}
+
+		public void Run()
+		{
+			SetupFactionRelations();
 		}
 
 		public void Close()
@@ -884,7 +888,7 @@ namespace Eem.Thraxus.Factions.Models
 
 		private void DumpEverythingToTheLog()
 		{
-			if (!Common.Settings.Settings.DebugMode) return;
+			if (!Settings.DebugMode) return;
 			try
 			{
 				const string callerName = "FactionsDump";

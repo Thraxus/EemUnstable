@@ -82,11 +82,11 @@ namespace Eem.Thraxus.Bots
 
 		private void Shutdown()
 		{
-			WriteToLog("Shutdown", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", LogType.General);
 			_setupComplete = true;
 			NeedsUpdate = _originalUpdateEnum;
 
 			if (_bot == null) return;
+			WriteToLog("Shutdown", $"Shutdown triggered for {Entity.DisplayName} with ID {Entity.EntityId}", LogType.General);
 			_bot.BotShutdown -= Shutdown;
 			_bot.BotSleep -= Sleep;
 			_bot.BotWakeup -= WakeUp;

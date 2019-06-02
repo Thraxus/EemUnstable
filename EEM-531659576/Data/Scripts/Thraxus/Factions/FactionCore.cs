@@ -50,6 +50,7 @@ namespace Eem.Thraxus.Factions
 			base.LateSetup();
 			_relationshipManager = new RelationshipManager();
 			_relationshipManager.OnWriteToLog += WriteToLog;
+			_relationshipManager.Run();
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
 			WriteToLog("FactionCore", $"Initialized... {UpdateOrder}", LogType.General);
 		}
