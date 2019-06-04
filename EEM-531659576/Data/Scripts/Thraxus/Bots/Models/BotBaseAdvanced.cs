@@ -176,13 +176,31 @@ namespace Eem.Thraxus.Bots.Models
 
 		}
 
+		private bool debugSwitch;
 		private void TriggerAlertConditions(long identityId)
 		{
-			WriteToLog("TriggerAlertConditions", $"Alert conditions triggered against {identityId}", LogType.General);
-			if (!_warDictionary.TryAdd(identityId, DateTime.Now))
-				_warDictionary[identityId] = DateTime.Now;
-			_lastAttacked = DateTime.Now;
-			// TODO Add alert conditions
+			try
+			{
+				WriteToLog("TriggerAlertConditions", $"Alert conditions triggered against {identityId}", LogType.General);
+				if (!_warDictionary.TryAdd(identityId, DateTime.Now))
+					_warDictionary[identityId] = DateTime.Now;
+				_lastAttacked = DateTime.Now;
+				// TODO Add alert conditions
+				if (debugSwitch)
+				{
+					_emergencyLockDownProtocol.DisableAlert();
+					debugSwitch = false;
+				}
+				else
+				{
+					_emergencyLockDownProtocol.EnableAlert();
+					debugSwitch = true;
+				}
+			}
+			catch (Exception e)
+			{
+				WriteToLog("TriggerAlertConditions", $"Exception! {e}", LogType.Exception);
+			}
 		}
 
 		private void OnBlockAdded(IMySlimBlock addedBlock)
