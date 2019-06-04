@@ -8,11 +8,8 @@ using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using SpaceEngineers.Game.ModAPI;
-using VRage.Game;
-using VRage.Game.ModAPI;
 using VRage.ModAPI;
-using VRage.ObjectBuilders;
-using IMyEntity = VRage.Game.ModAPI.Ingame.IMyEntity;
+using IMyEntityIngame = VRage.Game.ModAPI.Ingame.IMyEntity;
 
 namespace Eem.Thraxus.Bots.Modules
 {
@@ -58,15 +55,36 @@ namespace Eem.Thraxus.Bots.Modules
 			}
 		}
 
+		private readonly List<GridTurrets> _gridTurretSettings;
+
+		private struct GridTurrets
+		{
+			public readonly IMyLargeTurretBase Turret;
+			public readonly TurretSettings WarTimeSettings;
+			public readonly TurretSettings PeaceTimeSettings;
+
+			public GridTurrets(IMyLargeTurretBase largeTurretBase, TurretSettings warTimeSettings, TurretSettings peaceTimeSettings)
+			{
+				Turret = largeTurretBase;
+				WarTimeSettings = warTimeSettings;
+				PeaceTimeSettings = peaceTimeSettings;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Turret.EntityId} | {PeaceTimeSettings} | {WarTimeSettings}";
+			}
+		}
+
 		private readonly Dictionary<CubeType, object> _warTimeSettings = new Dictionary<CubeType, object>
 		{
 			{CubeType.Turret, new TurretSettings(true, true, true, false, true, false, true, true, 800) },
-			{CubeType.AirVent,new AirVentSettings(true, false) }
+			{CubeType.AirVent, new AirVentSettings(true, false) }
 		};
 
-
-		private readonly Dictionary<IMyLargeTurretBase, TurretSettings> _archivedTurretSettings;
-		private readonly List<IMyLargeTurretBase> _turretList;
+		//private readonly Dictionary<IMyLargeTurretBase, TurretSettings> _archivedTurretSettings;
+		//private readonly List<IMyLargeTurretBase> _turretList;
 
 		private struct AirVentSettings
 		{
@@ -111,8 +129,8 @@ namespace Eem.Thraxus.Bots.Modules
 							myTurretBase.Range
 							);
 
-						_archivedTurretSettings.Add(largeTurretBase, archiveSettings);
-						_turretList.Add(largeTurretBase);
+						_gridTurretSettings.Add(new GridTurrets(largeTurretBase, (TurretSettings)_warTimeSettings[CubeType.Turret], archiveSettings));
+
 						++turrets;
 						StaticMethods.AddGpsLocation($"{CubeType.Turret.ToString()} {turrets}", largeTurretBase.GetPosition());
 					}
@@ -139,8 +157,8 @@ namespace Eem.Thraxus.Bots.Modules
 					StaticMethods.AddGpsLocation($"{CubeType.AirVent.ToString()} {airvents}", vent.GetPosition());
 				}
 				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Turrets: {turrets} | Air Vents: {airvents} | Doors: {doors} | Gravity Generators: {gravityGenerators}", LogType.General);
-				foreach (KeyValuePair<IMyLargeTurretBase, TurretSettings> archivedTurretSetting in _archivedTurretSettings)
-					WriteToLog("EmergencyLockDownProtocol", $"{archivedTurretSetting.Key} | {archivedTurretSetting.Value}", LogType.General);
+				foreach (GridTurrets gridTurretSettings in _gridTurretSettings)
+					WriteToLog("EmergencyLockDownProtocol", $"{gridTurretSettings}", LogType.General);
 
 			}
 			catch (Exception e)
@@ -152,21 +170,25 @@ namespace Eem.Thraxus.Bots.Modules
 		public void EnableAlert()
 		{
 			if (AlertEnabled) return;
-			foreach (IMyLargeTurretBase turretBase in _turretList)
+			for (int index = _gridTurretSettings.Count - 1; index >= 0; index--)
 			{
-				if (turretBase == null) continue;
+				IMyLargeTurretBase turretBase = _gridTurretSettings[index].Turret;
+				if (!turretBase.InScene)
+				{
+					_gridTurretSettings.RemoveAtFast(index);
+					continue;
+				}
+
 				WriteToLog("EnableAlert", $"{turretBase.EntityId} - Loading Wartime Settings...", LogType.General);
-				turretBase.Enabled = ((TurretSettings)_warTimeSettings[CubeType.Turret]).Enabled;
-
-				turretBase.SetValueBool("TargetMeteors", ((TurretSettings)_warTimeSettings[CubeType.Turret]).TargetCharacters);
-				turretBase.SetValueBool("TargetLargeShips", ((TurretSettings)_warTimeSettings[CubeType.Turret]).TargetLargeShips);
-				turretBase.SetValueBool("TargetMeteors", ((TurretSettings)_warTimeSettings[CubeType.Turret]).TargetMeteors);
-				turretBase.SetValueBool("TargetMissiles", ((TurretSettings)_warTimeSettings[CubeType.Turret]).TargetMissiles);
-				turretBase.SetValueBool("TargetNeutrals", ((TurretSettings)_warTimeSettings[CubeType.Turret]).TargetNeutrals);
-				turretBase.SetValueBool("TargetSmallShips", ((TurretSettings)_warTimeSettings[CubeType.Turret]).TargetSmallShips);
-				turretBase.SetValueBool("TargetStations", ((TurretSettings)_warTimeSettings[CubeType.Turret]).TargetStations);
-
-				turretBase.SetValueFloat("Range", ((TurretSettings)_warTimeSettings[CubeType.Turret]).Range);
+				turretBase.Enabled = _gridTurretSettings[index].WarTimeSettings.Enabled;
+				turretBase.SetValueBool("TargetMeteors", _gridTurretSettings[index].WarTimeSettings.TargetCharacters);
+				turretBase.SetValueBool("TargetLargeShips", _gridTurretSettings[index].WarTimeSettings.TargetLargeShips);
+				turretBase.SetValueBool("TargetMeteors", _gridTurretSettings[index].WarTimeSettings.TargetMeteors);
+				turretBase.SetValueBool("TargetMissiles", _gridTurretSettings[index].WarTimeSettings.TargetMissiles);
+				turretBase.SetValueBool("TargetNeutrals", _gridTurretSettings[index].WarTimeSettings.TargetNeutrals);
+				turretBase.SetValueBool("TargetSmallShips", _gridTurretSettings[index].WarTimeSettings.TargetSmallShips);
+				turretBase.SetValueBool("TargetStations", _gridTurretSettings[index].WarTimeSettings.TargetStations);
+				turretBase.SetValueFloat("Range", _gridTurretSettings[index].WarTimeSettings.Range);
 			}
 
 			AlertEnabled = true;
@@ -184,46 +206,38 @@ namespace Eem.Thraxus.Bots.Modules
 			}
 		}
 
-		//using Sandbox.ModAPI.Interfaces;
-
-
-		//block.SetValueFloat("Range", 800);
-		//block.SetValueBool("TargetMeteors", true);
-		//block.SetValueBool("TargetMissiles", true);
-		//block.SetValueBool("TargetSmallShips", true);
-		//block.SetValueBool("TargetLargeShips", true);
-		//block.SetValueBool("TargetCharacters", true);
-		//block.SetValueBool("TargetStations", true);
-		//block.SetValueBool("TargetNeutrals", true);
-
 		public void DisableAlert()
 		{
 			if (!AlertEnabled) return;
-			foreach (KeyValuePair<IMyLargeTurretBase, TurretSettings> archivedTurretSetting in _archivedTurretSettings)
+			for (int index = _gridTurretSettings.Count - 1; index >= 0; index--)
 			{
-				if (archivedTurretSetting.Key == null) continue;
-				WriteToLog("DisableAlert", $"{archivedTurretSetting.Key.EntityId} - Loading Default Settings...", LogType.General);
-				archivedTurretSetting.Key.Enabled = archivedTurretSetting.Value.Enabled;
+				IMyLargeTurretBase turretBase = _gridTurretSettings[index].Turret;
+				if (!turretBase.InScene)
+				{
+					_gridTurretSettings.RemoveAtFast(index);
+					continue;
+				}
 
-				archivedTurretSetting.Key.SetValueBool("TargetMeteors", archivedTurretSetting.Value.TargetCharacters);
-				archivedTurretSetting.Key.SetValueBool("TargetLargeShips", archivedTurretSetting.Value.TargetLargeShips);
-				archivedTurretSetting.Key.SetValueBool("TargetMeteors", archivedTurretSetting.Value.TargetMeteors);
-				archivedTurretSetting.Key.SetValueBool("TargetMissiles", archivedTurretSetting.Value.TargetMissiles);
-				archivedTurretSetting.Key.SetValueBool("TargetNeutrals", archivedTurretSetting.Value.TargetNeutrals);
-				archivedTurretSetting.Key.SetValueBool("TargetSmallShips", archivedTurretSetting.Value.TargetSmallShips);
-				archivedTurretSetting.Key.SetValueBool("TargetStations", archivedTurretSetting.Value.TargetStations);
-				
-				archivedTurretSetting.Key.SetValueFloat("Range", archivedTurretSetting.Value.Range);
+				WriteToLog("DisableAlert", $"{turretBase.EntityId} - Loading Default Settings...", LogType.General);
+				turretBase.Enabled = _gridTurretSettings[index].PeaceTimeSettings.Enabled;
+				turretBase.SetValueBool("TargetMeteors", _gridTurretSettings[index].PeaceTimeSettings.TargetCharacters);
+				turretBase.SetValueBool("TargetLargeShips", _gridTurretSettings[index].PeaceTimeSettings.TargetLargeShips);
+				turretBase.SetValueBool("TargetMeteors", _gridTurretSettings[index].PeaceTimeSettings.TargetMeteors);
+				turretBase.SetValueBool("TargetMissiles", _gridTurretSettings[index].PeaceTimeSettings.TargetMissiles);
+				turretBase.SetValueBool("TargetNeutrals", _gridTurretSettings[index].PeaceTimeSettings.TargetNeutrals);
+				turretBase.SetValueBool("TargetSmallShips", _gridTurretSettings[index].PeaceTimeSettings.TargetSmallShips);
+				turretBase.SetValueBool("TargetStations", _gridTurretSettings[index].PeaceTimeSettings.TargetStations);
+				turretBase.SetValueFloat("Range", _gridTurretSettings[index].PeaceTimeSettings.Range);
 			}
-
 			AlertEnabled = false;
 		}
 
 		public EmergencyLockDownProtocol(MyCubeGrid myCubeGrid)
 		{
 			_thisGrid = myCubeGrid;
-			_archivedTurretSettings = new Dictionary<IMyLargeTurretBase, TurretSettings>();
-			_turretList = new List<IMyLargeTurretBase>();
+			_gridTurretSettings = new List<GridTurrets>();
+			//_archivedTurretSettings = new Dictionary<IMyLargeTurretBase, TurretSettings>();
+			//_turretList = new List<IMyLargeTurretBase>();
 
 			//MyCubeGrid myCube = new MyCubeGrid();
 			//myCube.getf
