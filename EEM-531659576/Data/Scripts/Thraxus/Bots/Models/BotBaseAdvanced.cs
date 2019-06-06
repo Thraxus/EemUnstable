@@ -99,7 +99,7 @@ namespace Eem.Thraxus.Bots.Models
 			}
 			catch (Exception e)
 			{
-				WriteToLog("Unload", $"Exception!", LogType.Exception);
+				WriteToLog("Unload", $"Exception! {e}", LogType.Exception);
 			}
 		}
 

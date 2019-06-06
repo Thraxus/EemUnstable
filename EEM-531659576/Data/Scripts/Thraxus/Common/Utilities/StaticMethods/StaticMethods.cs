@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Eem.Thraxus.Common.Utilities.StaticMethods
@@ -94,24 +98,41 @@ namespace Eem.Thraxus.Common.Utilities.StaticMethods
 			MyExplosions.AddExplosion(ref explosionInfo);
 		}
 
-		internal static IMyFaction GetFactionById(this long factionId)
+		public static IMyFaction GetFactionById(this long factionId)
 		{
 			return MyAPIGateway.Session.Factions.TryGetFactionById(factionId);
 		}
 
-		private static bool IsPlayer(this long faction)
+		public static bool IsPlayer(this long faction)
 		{
 			return !MyAPIGateway.Session.Factions.TryGetFactionById(faction).IsEveryoneNpc();
 		}
 
-		private static bool IsNpc(this long faction)
+		public static bool IsNpc(this long faction)
 		{
 			return MyAPIGateway.Session.Factions.TryGetFactionById(faction).IsEveryoneNpc();
 		}
 
-		private static bool ValidateFactions(IMyFaction leftFaction, IMyFaction rightFaction)
+		public static bool ValidateFactions(IMyFaction leftFaction, IMyFaction rightFaction)
 		{
 			return (leftFaction == null || rightFaction == null);
 		}
+
+		#region Debug methods - should not be used in production code
+
+		public static void PrintTerminalActions(IMyEntity block)
+		{
+			IMyTerminalBlock myTerminalBlock = block as IMyTerminalBlock;
+			if (myTerminalBlock == null) return;
+			List<ITerminalAction> results = new List<ITerminalAction>();
+			myTerminalBlock.GetActions(results);
+			foreach (ITerminalAction terminalAction in results)
+			{
+				StaticLog.WriteToLog("PrintTerminalActions", $"Actions: {terminalAction.Id} | {terminalAction.Name}", LogType.General);
+			}
+		}
+
+		#endregion
+
 	}
 }
