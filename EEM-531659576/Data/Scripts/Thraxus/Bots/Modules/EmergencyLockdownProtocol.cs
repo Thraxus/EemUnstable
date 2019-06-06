@@ -8,11 +8,10 @@ using Sandbox.Game.Entities;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using SpaceEngineers.Game.ModAPI;
-using VRage.ModAPI;
+using VRageMath;
 using IMyDoor = Sandbox.ModAPI.IMyDoor;
 using IMyEntityIngame = VRage.Game.ModAPI.Ingame.IMyEntity;
 using IMyLargeTurretBase = Sandbox.ModAPI.IMyLargeTurretBase;
-using IMyTerminalBlock = Sandbox.ModAPI.IMyTerminalBlock;
 
 namespace Eem.Thraxus.Bots.Modules
 {
@@ -20,7 +19,7 @@ namespace Eem.Thraxus.Bots.Modules
 	{
 		private enum CubeType
 		{
-			AirVent, Door, Turret, GravityGenerator
+			AirVent, Door, Turret, GravityGenerator, GravityGeneratorReversed, SphericalGravityGenerator
 		}
 
 		private struct TurretSettings
@@ -105,16 +104,18 @@ namespace Eem.Thraxus.Bots.Modules
 		private struct AirVentSettings
 		{
 			public readonly bool Depressurize;
+			public readonly bool Enabled;
 
-			public AirVentSettings(bool depressurize)
+			public AirVentSettings(bool enabled, bool depressurize)
 			{
+				Enabled = enabled;
 				Depressurize = depressurize;
 			}
 
 			/// <inheritdoc />
 			public override string ToString()
 			{
-				return $"{Depressurize}";
+				return $"{Enabled} | {Depressurize}";
 			}
 		}
 
@@ -138,13 +139,85 @@ namespace Eem.Thraxus.Bots.Modules
 			}
 		}
 
-		private readonly Dictionary<CubeType, object> _warTimeSettings = new Dictionary<CubeType, object>
+		private struct GravityGeneratorSettings
 		{
-			{CubeType.Turret, new TurretSettings(true, true, true, false, true, false, true, true, 800) },
-			{CubeType.AirVent, new AirVentSettings(true) },
-			{CubeType.Door, new DoorSettings(false) }
-		};
+			public readonly bool Enabled;
+			public readonly Vector3 FieldSize;
+			public readonly float FieldStrength;
 
+			public GravityGeneratorSettings(bool enabled, Vector3 fieldSize, float fieldStrength)
+			{
+				Enabled = enabled;
+				FieldSize = fieldSize;
+				FieldStrength = fieldStrength;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Enabled} | {FieldSize} | {FieldStrength}";
+			}
+		}
+
+		private struct SphericalGravityGeneratorSettings
+		{
+			public readonly bool Enabled;
+			public readonly float FieldSize;
+			public readonly float FieldStrength;
+
+			public SphericalGravityGeneratorSettings(bool enabled, float fieldSize, float fieldStrength)
+			{
+				Enabled = enabled;
+				FieldSize = fieldSize;
+				FieldStrength = fieldStrength;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Enabled} | {FieldSize} | {FieldStrength}";
+			}
+		}
+
+		private struct GridGravityGenerators
+		{
+			public readonly IMyGravityGenerator GravityGenerator;
+			public readonly GravityGeneratorSettings WarTimeSettings;
+			public readonly GravityGeneratorSettings PeaceTimeSettings;
+
+			public GridGravityGenerators(IMyGravityGenerator gravityGenerator, GravityGeneratorSettings warTimeSettings, GravityGeneratorSettings peaceTimeSettings)
+			{
+				GravityGenerator = gravityGenerator;
+				WarTimeSettings = warTimeSettings;
+				PeaceTimeSettings = peaceTimeSettings;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{GravityGenerator.CustomName} | {PeaceTimeSettings} | {WarTimeSettings}";
+			}
+		}
+
+		private struct GridSphericalGravityGenerators
+		{
+			public readonly IMyGravityGeneratorSphere SphericalGravityGenerator;
+			public readonly SphericalGravityGeneratorSettings WarTimeSettings;
+			public readonly SphericalGravityGeneratorSettings PeaceTimeSettings;
+
+			public GridSphericalGravityGenerators(IMyGravityGeneratorSphere gravityGenerator, SphericalGravityGeneratorSettings warTimeSettings, SphericalGravityGeneratorSettings peaceTimeSettings)
+			{
+				SphericalGravityGenerator = gravityGenerator;
+				WarTimeSettings = warTimeSettings;
+				PeaceTimeSettings = peaceTimeSettings;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{SphericalGravityGenerator.CustomName} | {PeaceTimeSettings} | {WarTimeSettings}";
+			}
+		}
 		
 		public void Init()
 		{
@@ -152,6 +225,7 @@ namespace Eem.Thraxus.Bots.Modules
 			int airvents = 0;
 			int doors = 0;
 			int gravityGenerators = 0;
+			int sphericalGravityGenerators = 0;
 
 			try
 			{
@@ -184,15 +258,6 @@ namespace Eem.Thraxus.Bots.Modules
 					IMyDoor door = myCubeBlock as IMyDoor;
 					if (door != null)
 					{
-						//Actions: OnOff | Toggle block On/ Off
-						//Actions: OnOff_On | Toggle block On
-						//Actions: OnOff_Off | Toggle block Off
-						//Actions: ShowOnHUD | Show on HUD On / Off
-						//Actions: ShowOnHUD_On | Show on HUD On
-						//Actions: ShowOnHUD_Off | Show on HUD Off
-						//Actions: Open | Open / Closed
-						//Actions: Open_On | Open
-						//Actions: Open_Off | Closed
 						door.OnDoorStateChanged += delegate(IMyDoor myDoor, bool b)
 						{
 							if (myDoor.OwnerId != _gridOwnerId) return;
@@ -207,44 +272,63 @@ namespace Eem.Thraxus.Bots.Modules
 								new DoorSettings(door.Enabled)
 								)
 							);
-						
-						//door.SetValueBool("Open", true);
-						//WriteToLog("EmergencyLockDownProtocol", $"{door.EntityId} | {door.CustomName}", LogType.General);
-						//PrintTerminalActions(door);		
 						++doors;
-						//WriteToLog("EmergencyLockDownProtocol", $"Found a door! {myCubeBlock.GetType()} {++doors}", LogType.General);
 						StaticMethods.AddGpsLocation($"{CubeType.Door.ToString()} {doors}", door.GetPosition());
 					}
 
-					IMyGravityGeneratorBase generatorBase = myCubeBlock as IMyGravityGeneratorBase;
-					if (generatorBase != null)
+					IMyGravityGenerator generator = myCubeBlock as IMyGravityGenerator;
+					if (generator != null)
 					{
-						//Actions: OnOff | Toggle block On/ Off
-						//Actions: OnOff_On | Toggle block On
-						//Actions: OnOff_Off | Toggle block Off
-						//Actions: ShowOnHUD | Show on HUD On / Off
-						//Actions: ShowOnHUD_On | Show on HUD On
-						//Actions: ShowOnHUD_Off | Show on HUD Off
-						//Actions: IncreaseWidth | Increase Field width
-						//Actions: DecreaseWidth | Decrease Field width
-						//Actions: IncreaseHeight | Increase Field height
-						//Actions: DecreaseHeight | Decrease Field height
-						//Actions: IncreaseDepth | Increase Field depth
-						//Actions: DecreaseDepth | Decrease Field depth
-						//Actions: IncreaseGravity | Increase Acceleration
-						//Actions: DecreaseGravity | Decrease Acceleration
+						if (generator.GravityAcceleration > 0)
+							_gridGravityGenerators.Add(
+								new GridGravityGenerators(
+								generator, 
+								(GravityGeneratorSettings)_warTimeSettings[CubeType.GravityGeneratorReversed],
+								new GravityGeneratorSettings(
+									generator.Enabled,
+									generator.FieldSize, 
+									generator.GravityAcceleration
+									)
+								));
+						else
+							_gridGravityGenerators.Add(
+								new GridGravityGenerators(
+									generator,
+									(GravityGeneratorSettings)_warTimeSettings[CubeType.GravityGenerator],
+									new GravityGeneratorSettings(
+										generator.Enabled,
+										generator.FieldSize,
+										generator.GravityAcceleration
+									)
+								));
 
-						WriteToLog("EmergencyLockDownProtocol", $"{generatorBase.EntityId} | {generatorBase.CustomName}", LogType.General);
-						PrintTerminalActions(generatorBase);
 						++gravityGenerators;
-						//WriteToLog("EmergencyLockDownProtocol", $"Found a Gravity Generator! {myCubeBlock.GetType()} {++gravityGenerators}", LogType.General);
-						StaticMethods.AddGpsLocation($"{CubeType.GravityGenerator.ToString()} {gravityGenerators}", generatorBase.GetPosition());
+						StaticMethods.AddGpsLocation($"{CubeType.GravityGenerator.ToString()} {gravityGenerators}", generator.GetPosition());
+					}
+
+					IMyGravityGeneratorSphere generatorSphere = myCubeBlock as IMyGravityGeneratorSphere;
+					if (generatorSphere != null)
+					{
+						_gridSphericalGravityGenerators.Add(
+							new GridSphericalGravityGenerators (
+								generatorSphere,
+								(SphericalGravityGeneratorSettings)_warTimeSettings[CubeType.GravityGeneratorReversed],
+								new SphericalGravityGeneratorSettings(
+									generatorSphere.Enabled,
+									generatorSphere.Radius,
+									generatorSphere.GravityAcceleration
+								)
+							));
+
+						++sphericalGravityGenerators;
+						StaticMethods.AddGpsLocation($"{CubeType.SphericalGravityGenerator.ToString()} {sphericalGravityGenerators}", generatorSphere.GetPosition());
 					}
 
 					IMyAirVent vent = myCubeBlock as IMyAirVent;
 					if (vent == null) continue;
 					
 					AirVentSettings archivedSettings = new AirVentSettings(
+						vent.Enabled,
 						vent.Depressurize
 					);
 
@@ -254,10 +338,7 @@ namespace Eem.Thraxus.Bots.Modules
 					StaticMethods.AddGpsLocation($"{CubeType.AirVent.ToString()} {airvents}", vent.GetPosition());
 				}
 				
-				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Turrets: {turrets} | Air Vents: {airvents} | Doors: {doors} | Gravity Generators: {gravityGenerators}", LogType.General);
-				foreach (GridTurrets gridTurretSettings in _gridTurretSettings)
-					WriteToLog("EmergencyLockDownProtocol", $"{gridTurretSettings}", LogType.General);
-
+				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Turrets: {turrets} | Air Vents: {airvents} | Doors: {doors} | Gravity Generators: {gravityGenerators}  | Spherical Gravity Generators: {sphericalGravityGenerators}", LogType.General);
 			}
 			catch (Exception e)
 			{
@@ -314,7 +395,36 @@ namespace Eem.Thraxus.Bots.Modules
 					continue;
 				}
 
-				airVent.Enabled = _gridAirVentSettings[index].WarTimeSettings.Depressurize;
+				airVent.Enabled = _gridAirVentSettings[index].WarTimeSettings.Enabled;
+				airVent.Depressurize = _gridAirVentSettings[index].WarTimeSettings.Depressurize;
+			}
+
+			for (int index = _gridGravityGenerators.Count - 1; index >= 0; index--)
+			{
+				IMyGravityGenerator gravityGenerator = _gridGravityGenerators[index].GravityGenerator;
+				if (!gravityGenerator.InScene || gravityGenerator.OwnerId != _gridOwnerId)
+				{
+					_gridGravityGenerators.RemoveAtFast(index);
+					continue;
+				}
+
+				gravityGenerator.Enabled = _gridGravityGenerators[index].WarTimeSettings.Enabled;
+				gravityGenerator.FieldSize = _gridGravityGenerators[index].WarTimeSettings.FieldSize;
+				gravityGenerator.GravityAcceleration = _gridGravityGenerators[index].WarTimeSettings.FieldStrength;
+			}
+
+			for (int index = _gridSphericalGravityGenerators.Count - 1; index >= 0; index--)
+			{
+				IMyGravityGeneratorSphere sphericalGravityGenerator = _gridSphericalGravityGenerators[index].SphericalGravityGenerator;
+				if (!sphericalGravityGenerator.InScene || sphericalGravityGenerator.OwnerId != _gridOwnerId)
+				{
+					_gridSphericalGravityGenerators.RemoveAtFast(index);
+					continue;
+				}
+
+				sphericalGravityGenerator.Enabled = _gridSphericalGravityGenerators[index].WarTimeSettings.Enabled;
+				sphericalGravityGenerator.Radius = _gridSphericalGravityGenerators[index].WarTimeSettings.FieldSize;
+				sphericalGravityGenerator.GravityAcceleration = _gridSphericalGravityGenerators[index].WarTimeSettings.FieldStrength;
 			}
 
 			_alertEnabled = true;
@@ -324,6 +434,7 @@ namespace Eem.Thraxus.Bots.Modules
 		public void DisableAlert()
 		{
 			if (!_alertEnabled) return;
+			WriteToLog("DisableAlert", $"Loading Peacetime Settings...", LogType.General);
 
 			for (int index = _gridDoorSettings.Count - 1; index >= 0; index--)
 			{
@@ -367,103 +478,78 @@ namespace Eem.Thraxus.Bots.Modules
 					continue;
 				}
 
-				airVent.Enabled = _gridAirVentSettings[index].PeaceTimeSettings.Depressurize;
+				airVent.Enabled = _gridAirVentSettings[index].PeaceTimeSettings.Enabled;
+				airVent.Depressurize = _gridAirVentSettings[index].PeaceTimeSettings.Depressurize;
 			}
 
+			for (int index = _gridGravityGenerators.Count - 1; index >= 0; index--)
+			{
+				IMyGravityGenerator gravityGenerator = _gridGravityGenerators[index].GravityGenerator;
+				if (!gravityGenerator.InScene || gravityGenerator.OwnerId != _gridOwnerId)
+				{
+					_gridGravityGenerators.RemoveAtFast(index);
+					continue;
+				}
+
+				gravityGenerator.Enabled = _gridGravityGenerators[index].PeaceTimeSettings.Enabled;
+				gravityGenerator.FieldSize = _gridGravityGenerators[index].PeaceTimeSettings.FieldSize;
+				gravityGenerator.GravityAcceleration = _gridGravityGenerators[index].PeaceTimeSettings.FieldStrength;
+			}
+
+			for (int index = _gridSphericalGravityGenerators.Count - 1; index >= 0; index--)
+			{
+				IMyGravityGeneratorSphere sphericalGravityGenerator = _gridSphericalGravityGenerators[index].SphericalGravityGenerator;
+				if (!sphericalGravityGenerator.InScene || sphericalGravityGenerator.OwnerId != _gridOwnerId)
+				{
+					_gridSphericalGravityGenerators.RemoveAtFast(index);
+					continue;
+				}
+
+				sphericalGravityGenerator.Enabled = _gridSphericalGravityGenerators[index].PeaceTimeSettings.Enabled;
+				sphericalGravityGenerator.Radius = _gridSphericalGravityGenerators[index].PeaceTimeSettings.FieldSize;
+				sphericalGravityGenerator.GravityAcceleration = _gridSphericalGravityGenerators[index].PeaceTimeSettings.FieldStrength;
+			}
+
+			WriteToLog("DisableAlert", $"Peacetime Settings Loaded...", LogType.General);
 			_alertEnabled = false;
 		}
 
-		private void PrintTerminalActions(IMyEntity block)
+		private readonly Dictionary<CubeType, object> _warTimeSettings = new Dictionary<CubeType, object>
 		{
-			IMyTerminalBlock myTerminalBlock = block as IMyTerminalBlock;
-			if (myTerminalBlock == null) return;
-			List<ITerminalAction> results = new List<ITerminalAction>();
-			myTerminalBlock.GetActions(results);
-			foreach (ITerminalAction terminalAction in results)
-			{
-				WriteToLog("PrintTerminalActions", $"Actions: {terminalAction.Id} | {terminalAction.Name}", LogType.General);
-			}
-		}
-
+			{CubeType.Turret, new TurretSettings(true, true, true, false, true, false, true, true, 800) },
+			{CubeType.AirVent, new AirVentSettings(true, true) },
+			{CubeType.Door, new DoorSettings(false) },
+			{CubeType.GravityGenerator, new GravityGeneratorSettings(true, new Vector3(150, 150, 150), 9.81f ) },
+			{CubeType.GravityGeneratorReversed, new GravityGeneratorSettings(true, new Vector3(150, 150, 150), -9.81f ) },
+			{CubeType.SphericalGravityGenerator,  new SphericalGravityGeneratorSettings(true, 450f, 9.81f )},
+		};
 
 		private bool _alertEnabled;
+
 		private readonly long _gridOwnerId;
-
-
+		
 		private readonly MyCubeGrid _thisGrid;
 		private readonly List<GridTurrets> _gridTurretSettings;
 		private readonly List<GridDoors> _gridDoorSettings;
 		private readonly List<GridAirVents> _gridAirVentSettings;
+		private readonly List<GridGravityGenerators> _gridGravityGenerators;
+		private readonly List<GridSphericalGravityGenerators> _gridSphericalGravityGenerators;
 
 		public EmergencyLockDownProtocol(MyCubeGrid myCubeGrid)
 		{
+			// TODO Timers for existing flavor emergency conditions (possibly scan for settings related to what this code controls now and remove it)
+			//		Example from Helios: [HELIOS|Tme] [Alert_On] Timer Alarm is the alert timer, trigger for on, trigger for off?  need to research.
+			// TODO Antenna for custom drone spawning for special conditions / alert if enemy seen within some range - may move this idea to a separate module though
+
 			_thisGrid = myCubeGrid;
 			_gridOwnerId = myCubeGrid.BigOwners[0];
 
 			_gridTurretSettings = new List<GridTurrets>();
 			_gridAirVentSettings = new List<GridAirVents>();
 			_gridDoorSettings = new List<GridDoors>();
-			//_archivedTurretSettings = new Dictionary<IMyLargeTurretBase, TurretSettings>();
-			//_turretList = new List<IMyLargeTurretBase>();
-
-			//MyCubeGrid myCube = new MyCubeGrid();
-			//myCube.getf
-			//List<IMySlimBlock> blocks = new List<IMySlimBlock>();
-			//myCubeGrid.blocks  .GetBlocks(blocks);
-
-
-
-
-			//myLargeTurretBase = new MyLargeGatlingTurret();
-			//myLargeTurretBase.
-
-			//IMyTerminalActionsHelper myTerminalActionsHelper = new MyTerminalControlFactoryHelper();
-
-			//IMyTerminalControls myTerminalControls = new MyTerminalControls();
-
-			//MyObjectBuilder_TurretBase myObjectBuilderTurretBase = new MyObjectBuilder_TurretBase();
-
-			//myObjectBuilderTurretBase.TargetLargeGrids = false;
-
-			//myLargeTurretBase.tar
-
-
-			//_myLargeInteriorTurretList.Enabled;
-			//_myLargeInteriorTurretList.tar
-
-			//_thisGrid = myCubeGrid;
-			//_myLargeInteriorTurretList = new List<IMyLargeInteriorTurret>();
-			//_myLargeMissileTurretList = new List<IMyLargeMissileTurret>();
-			//_myLargeGatlingTurretList = new List<IMyLargeGatlingTurret>();
-			//_myAirVentList = new List<IMyAirVent>();
-			//_myGravityGeneratorList = new List<IMyGravityGenerator>();
-			//_myDoorList = new List<IMyDoor>();
-
-			//ParseCubes();
+			_gridGravityGenerators = new List<GridGravityGenerators>();
+			_gridSphericalGravityGenerators = new List<GridSphericalGravityGenerators>();
 		}
-
-		public void Unload()
-		{
-			//_myLargeInteriorTurretList.Clear();
-			//_myLargeMissileTurretList.Clear();
-			//_myLargeGatlingTurretList.Clear();
-			//_myAirVentList.Clear();
-			//_myGravityGeneratorList.Clear();
-			//_myDoorList.Clear();
-		}
-		private void ParseCubes()
-		{
-			//List<IMySlimBlock> slimBlocks = new List<IMySlimBlock>();
-			//_thisGrid.GetBlocks(slimBlocks, block => block.FatBlock != null);
-			//foreach (IMySlimBlock cubeBlock in slimBlocks)
-			//{
-			//	if(cubeBlock.GetType() == typeof(IMyLargeGatlingTurret))
-			//	{
-
-			//	}
-			//}
-		}
-
 		private bool _unloaded = false;
 
 		~EmergencyLockDownProtocol()
