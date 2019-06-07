@@ -37,7 +37,7 @@ namespace Eem.Thraxus.Bots.Models
 
 		// TODO Remove the below later to their proper bot type
 		//private RegenerationProtocol _regenerationProtocol;
-		private EmergencyLockDownProtocol _emergencyLockDownProtocol;
+		private EmergencyLockdownProtocol _emergencyLockDownProtocol;
 
 		public BotBaseAdvanced(IMyEntity passedEntity, IMyShipController controller, bool isMultipart = false)
 		{
@@ -72,7 +72,7 @@ namespace Eem.Thraxus.Bots.Models
 				_integrityDictionary.Add(mySlimBlock, mySlimBlock.Integrity);
 
 			// TODO Remove the below later to their proper bot type
-			_emergencyLockDownProtocol = new EmergencyLockDownProtocol(ThisCubeGrid);
+			_emergencyLockDownProtocol = new EmergencyLockdownProtocol(ThisCubeGrid);
 			_emergencyLockDownProtocol.OnWriteToLog += WriteToLog;
 			_emergencyLockDownProtocol.Init();
 

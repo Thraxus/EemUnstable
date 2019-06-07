@@ -15,7 +15,7 @@ using IMyLargeTurretBase = Sandbox.ModAPI.IMyLargeTurretBase;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	public class EmergencyLockDownProtocol : LogBaseEvent, IDisposable
+	public class EmergencyLockdownProtocol : LogBaseEvent, IDisposable
 	{
 		private enum CubeType
 		{
@@ -535,7 +535,7 @@ namespace Eem.Thraxus.Bots.Modules
 		private readonly List<GridGravityGenerators> _gridGravityGenerators;
 		private readonly List<GridSphericalGravityGenerators> _gridSphericalGravityGenerators;
 
-		public EmergencyLockDownProtocol(MyCubeGrid myCubeGrid)
+		public EmergencyLockdownProtocol(MyCubeGrid myCubeGrid)
 		{
 			// TODO Timers for existing flavor emergency conditions (possibly scan for settings related to what this code controls now and remove it)
 			//		Example from Helios: [HELIOS|Tme] [Alert_On] Timer Alarm is the alert timer, trigger for on, trigger for off?  need to research.
@@ -552,7 +552,7 @@ namespace Eem.Thraxus.Bots.Modules
 		}
 		private bool _unloaded = false;
 
-		~EmergencyLockDownProtocol()
+		~EmergencyLockdownProtocol()
 		{
 			Dispose();
 		}
