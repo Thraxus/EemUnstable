@@ -10,7 +10,6 @@ using Sandbox.ModAPI.Interfaces;
 using SpaceEngineers.Game.ModAPI;
 using VRageMath;
 using IMyDoor = Sandbox.ModAPI.IMyDoor;
-using IMyEntityIngame = VRage.Game.ModAPI.Ingame.IMyEntity;
 using IMyLargeTurretBase = Sandbox.ModAPI.IMyLargeTurretBase;
 
 namespace Eem.Thraxus.Bots.Modules
@@ -19,86 +18,12 @@ namespace Eem.Thraxus.Bots.Modules
 	{
 		private enum CubeType
 		{
-			AirVent, Door, Turret, GravityGenerator, GravityGeneratorReversed, SphericalGravityGenerator
+			AirVent, Door, GravityGenerator, SphericalGravityGenerator, Timer, Turret
 		}
 
-		private struct TurretSettings
+		enum EmergencySetting
 		{
-			public readonly bool Enabled;
-			public readonly bool TargetCharacters;
-			public readonly bool TargetLargeShips;
-			public readonly bool TargetMeteors;
-			public readonly bool TargetMissiles;
-			public readonly bool TargetNeutrals;
-			public readonly bool TargetSmallShips;
-			public readonly bool TargetStations;
-
-			public readonly float Range;
-
-			public TurretSettings(bool enabled, bool targetCharacters, bool targetLargeShips, bool targetMeteors, bool targetMissiles, bool targetNeutrals, bool targetSmallShips, bool targetStations, float range)
-			{
-				Enabled = enabled;
-				TargetCharacters = targetCharacters;
-				TargetLargeShips = targetLargeShips;
-				TargetMeteors = targetMeteors;
-				TargetMissiles = targetMissiles;
-				TargetNeutrals = targetNeutrals;
-				TargetSmallShips = targetSmallShips;
-				TargetStations = targetStations;
-				Range = range;
-			}
-
-			/// <inheritdoc />
-			public override string ToString()
-			{
-				return $"{Enabled} | {TargetCharacters} | {TargetLargeShips} | {TargetMeteors} | {TargetMissiles} | {TargetSmallShips} | {TargetStations} | {Range}";
-			}
-		}
-
-		private struct GridTurrets
-		{
-			public readonly IMyLargeTurretBase Turret;
-			public readonly TurretSettings WarTimeSettings;
-			public readonly TurretSettings PeaceTimeSettings;
-
-			public GridTurrets(IMyLargeTurretBase largeTurretBase, TurretSettings warTimeSettings, TurretSettings peaceTimeSettings)
-			{
-				Turret = largeTurretBase;
-				WarTimeSettings = warTimeSettings;
-				PeaceTimeSettings = peaceTimeSettings;
-			}
-
-			/// <inheritdoc />
-			public override string ToString()
-			{
-				return $"{Turret.EntityId} | {PeaceTimeSettings} | {WarTimeSettings}";
-			}
-		}
-
-
-		private struct DoorSettings
-		{
-			public readonly bool Enabled;
-
-			public DoorSettings(bool enabled)
-			{
-				Enabled = enabled;
-			}
-		}
-
-		private struct GridDoors
-		{
-			public readonly IMyDoor Door;
-			public readonly DoorSettings WarTimeSettings;
-			public readonly DoorSettings PeaceTimeSettings;
-
-			public GridDoors(IMyDoor door, DoorSettings warTimeSettings, DoorSettings peaceTimeSettings)
-			{
-				Door = door;
-				WarTimeSettings = warTimeSettings;
-				PeaceTimeSettings = peaceTimeSettings;
-			}
-
+			PeaceTime, Wartime
 		}
 
 		private struct AirVentSettings
@@ -119,23 +44,19 @@ namespace Eem.Thraxus.Bots.Modules
 			}
 		}
 
-		private struct GridAirVents
+		private struct DoorSettings
 		{
-			public readonly IMyAirVent AirVent;
-			public readonly AirVentSettings WarTimeSettings;
-			public readonly AirVentSettings PeaceTimeSettings;
+			public readonly bool Enabled;
 
-			public GridAirVents(IMyAirVent airVent, AirVentSettings warTimeSettings, AirVentSettings peaceTimeSettings)
+			public DoorSettings(bool enabled)
 			{
-				AirVent = airVent;
-				WarTimeSettings = warTimeSettings;
-				PeaceTimeSettings = peaceTimeSettings;
+				Enabled = enabled;
 			}
 
 			/// <inheritdoc />
 			public override string ToString()
 			{
-				return $"{AirVent.EntityId} | {PeaceTimeSettings} | {WarTimeSettings}";
+				return $"{Enabled}";
 			}
 		}
 
@@ -179,6 +100,80 @@ namespace Eem.Thraxus.Bots.Modules
 			}
 		}
 
+
+		private struct TurretSettings
+		{
+			public readonly bool Enabled;
+			public readonly bool TargetCharacters;
+			public readonly bool TargetLargeShips;
+			public readonly bool TargetMeteors;
+			public readonly bool TargetMissiles;
+			public readonly bool TargetNeutrals;
+			public readonly bool TargetSmallShips;
+			public readonly bool TargetStations;
+
+			public readonly float Range;
+
+			public TurretSettings(bool enabled, bool targetCharacters, bool targetLargeShips, bool targetMeteors, bool targetMissiles, bool targetNeutrals, bool targetSmallShips, bool targetStations, float range)
+			{
+				Enabled = enabled;
+				TargetCharacters = targetCharacters;
+				TargetLargeShips = targetLargeShips;
+				TargetMeteors = targetMeteors;
+				TargetMissiles = targetMissiles;
+				TargetNeutrals = targetNeutrals;
+				TargetSmallShips = targetSmallShips;
+				TargetStations = targetStations;
+				Range = range;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Enabled} | {TargetCharacters} | {TargetLargeShips} | {TargetMeteors} | {TargetMissiles} | {TargetSmallShips} | {TargetStations} | {Range}";
+			}
+		}
+
+		private struct GridAirVents
+		{
+			public readonly IMyAirVent AirVent;
+			public readonly AirVentSettings WarTimeSettings;
+			public readonly AirVentSettings PeaceTimeSettings;
+
+			public GridAirVents(IMyAirVent airVent, AirVentSettings warTimeSettings, AirVentSettings peaceTimeSettings)
+			{
+				AirVent = airVent;
+				WarTimeSettings = warTimeSettings;
+				PeaceTimeSettings = peaceTimeSettings;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{AirVent.CustomName} | {PeaceTimeSettings} | {WarTimeSettings}";
+			}
+		}
+
+		private struct GridDoors
+		{
+			public readonly IMyDoor Door;
+			public readonly DoorSettings WarTimeSettings;
+			public readonly DoorSettings PeaceTimeSettings;
+
+			public GridDoors(IMyDoor door, DoorSettings warTimeSettings, DoorSettings peaceTimeSettings)
+			{
+				Door = door;
+				WarTimeSettings = warTimeSettings;
+				PeaceTimeSettings = peaceTimeSettings;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Door.CustomName} | {PeaceTimeSettings} | {WarTimeSettings}";
+			}
+		}
+
 		private struct GridGravityGenerators
 		{
 			public readonly IMyGravityGenerator GravityGenerator;
@@ -218,7 +213,27 @@ namespace Eem.Thraxus.Bots.Modules
 				return $"{SphericalGravityGenerator.CustomName} | {PeaceTimeSettings} | {WarTimeSettings}";
 			}
 		}
-		
+
+		private struct GridTurrets
+		{
+			public readonly IMyLargeTurretBase Turret;
+			public readonly TurretSettings WarTimeSettings;
+			public readonly TurretSettings PeaceTimeSettings;
+
+			public GridTurrets(IMyLargeTurretBase largeTurretBase, TurretSettings warTimeSettings, TurretSettings peaceTimeSettings)
+			{
+				Turret = largeTurretBase;
+				WarTimeSettings = warTimeSettings;
+				PeaceTimeSettings = peaceTimeSettings;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Turret.CustomName} | {PeaceTimeSettings} | {WarTimeSettings}";
+			}
+		}
+
 		public void Init()
 		{
 			int turrets = 0;
@@ -279,28 +294,16 @@ namespace Eem.Thraxus.Bots.Modules
 					IMyGravityGenerator generator = myCubeBlock as IMyGravityGenerator;
 					if (generator != null)
 					{
-						if (generator.GravityAcceleration > 0)
-							_gridGravityGenerators.Add(
-								new GridGravityGenerators(
-								generator, 
-								(GravityGeneratorSettings)_warTimeSettings[CubeType.GravityGeneratorReversed],
+						_gridGravityGenerators.Add(
+							new GridGravityGenerators(
+								generator,
+								(GravityGeneratorSettings)_warTimeSettings[CubeType.GravityGenerator],
 								new GravityGeneratorSettings(
 									generator.Enabled,
-									generator.FieldSize, 
+									generator.FieldSize,
 									generator.GravityAcceleration
-									)
-								));
-						else
-							_gridGravityGenerators.Add(
-								new GridGravityGenerators(
-									generator,
-									(GravityGeneratorSettings)_warTimeSettings[CubeType.GravityGenerator],
-									new GravityGeneratorSettings(
-										generator.Enabled,
-										generator.FieldSize,
-										generator.GravityAcceleration
-									)
-								));
+								)
+							));
 
 						++gravityGenerators;
 						StaticMethods.AddGpsLocation($"{CubeType.GravityGenerator.ToString()} {gravityGenerators}", generator.GetPosition());
@@ -312,7 +315,7 @@ namespace Eem.Thraxus.Bots.Modules
 						_gridSphericalGravityGenerators.Add(
 							new GridSphericalGravityGenerators (
 								generatorSphere,
-								(SphericalGravityGeneratorSettings)_warTimeSettings[CubeType.GravityGeneratorReversed],
+								(SphericalGravityGeneratorSettings)_warTimeSettings[CubeType.SphericalGravityGenerator],
 								new SphericalGravityGeneratorSettings(
 									generatorSphere.Enabled,
 									generatorSphere.Radius,
@@ -351,84 +354,14 @@ namespace Eem.Thraxus.Bots.Modules
 			if (_alertEnabled) return;
 			WriteToLog("EnableAlert", $"Loading Wartime Settings...", LogType.General);
 
-			for (int index = _gridDoorSettings.Count - 1; index >= 0; index--)
-			{
-				IMyDoor gridDoor = _gridDoorSettings[index].Door;
-				if (!gridDoor.InScene || gridDoor.OwnerId != _gridOwnerId)
-				{
-					_gridDoorSettings.RemoveAtFast(index);
-					continue;
-				}
-				
-				gridDoor.SetValueBool("Open", false);
-				if (gridDoor.Status == DoorStatus.Closed)
-					gridDoor.Enabled = _gridDoorSettings[index].WarTimeSettings.Enabled;
-			}
-
-			for (int index = _gridTurretSettings.Count - 1; index >= 0; index--)
-			{
-				IMyLargeTurretBase turretBase = _gridTurretSettings[index].Turret;
-				if (!turretBase.InScene || turretBase.OwnerId != _gridOwnerId)
-				{
-					_gridTurretSettings.RemoveAtFast(index);
-					continue;
-				}
-				
-				turretBase.Enabled = _gridTurretSettings[index].WarTimeSettings.Enabled;
-				turretBase.SetValueBool("TargetMeteors", _gridTurretSettings[index].WarTimeSettings.TargetCharacters);
-				turretBase.SetValueBool("TargetLargeShips", _gridTurretSettings[index].WarTimeSettings.TargetLargeShips);
-				turretBase.SetValueBool("TargetMeteors", _gridTurretSettings[index].WarTimeSettings.TargetMeteors);
-				turretBase.SetValueBool("TargetMissiles", _gridTurretSettings[index].WarTimeSettings.TargetMissiles);
-				turretBase.SetValueBool("TargetNeutrals", _gridTurretSettings[index].WarTimeSettings.TargetNeutrals);
-				turretBase.SetValueBool("TargetSmallShips", _gridTurretSettings[index].WarTimeSettings.TargetSmallShips);
-				turretBase.SetValueBool("TargetStations", _gridTurretSettings[index].WarTimeSettings.TargetStations);
-				turretBase.SetValueFloat("Range", _gridTurretSettings[index].WarTimeSettings.Range);
-			}
-
-
-			for (int index = _gridAirVentSettings.Count - 1; index >= 0; index--)
-			{
-				IMyAirVent airVent = _gridAirVentSettings[index].AirVent;
-				if (!airVent.InScene || airVent.OwnerId != _gridOwnerId)
-				{
-					_gridAirVentSettings.RemoveAtFast(index);
-					continue;
-				}
-
-				airVent.Enabled = _gridAirVentSettings[index].WarTimeSettings.Enabled;
-				airVent.Depressurize = _gridAirVentSettings[index].WarTimeSettings.Depressurize;
-			}
-
-			for (int index = _gridGravityGenerators.Count - 1; index >= 0; index--)
-			{
-				IMyGravityGenerator gravityGenerator = _gridGravityGenerators[index].GravityGenerator;
-				if (!gravityGenerator.InScene || gravityGenerator.OwnerId != _gridOwnerId)
-				{
-					_gridGravityGenerators.RemoveAtFast(index);
-					continue;
-				}
-
-				gravityGenerator.Enabled = _gridGravityGenerators[index].WarTimeSettings.Enabled;
-				gravityGenerator.FieldSize = _gridGravityGenerators[index].WarTimeSettings.FieldSize;
-				gravityGenerator.GravityAcceleration = _gridGravityGenerators[index].WarTimeSettings.FieldStrength;
-			}
-
-			for (int index = _gridSphericalGravityGenerators.Count - 1; index >= 0; index--)
-			{
-				IMyGravityGeneratorSphere sphericalGravityGenerator = _gridSphericalGravityGenerators[index].SphericalGravityGenerator;
-				if (!sphericalGravityGenerator.InScene || sphericalGravityGenerator.OwnerId != _gridOwnerId)
-				{
-					_gridSphericalGravityGenerators.RemoveAtFast(index);
-					continue;
-				}
-
-				sphericalGravityGenerator.Enabled = _gridSphericalGravityGenerators[index].WarTimeSettings.Enabled;
-				sphericalGravityGenerator.Radius = _gridSphericalGravityGenerators[index].WarTimeSettings.FieldSize;
-				sphericalGravityGenerator.GravityAcceleration = _gridSphericalGravityGenerators[index].WarTimeSettings.FieldStrength;
-			}
-
-			_alertEnabled = true;
+			SetAirVentSettings(EmergencySetting.Wartime);
+			SetDoorSettings(EmergencySetting.Wartime);
+			SetGravityGeneratorSettings(EmergencySetting.Wartime);
+			SetSphericalGravityGeneratorSettings(EmergencySetting.Wartime);
+			SetTurretSettings(EmergencySetting.Wartime);
+			
 			WriteToLog("EnableAlert", $"Wartime Settings Loaded...", LogType.General);
+			_alertEnabled = true;
 		}
 
 		public void DisableAlert()
@@ -436,52 +369,68 @@ namespace Eem.Thraxus.Bots.Modules
 			if (!_alertEnabled) return;
 			WriteToLog("DisableAlert", $"Loading Peacetime Settings...", LogType.General);
 
-			for (int index = _gridDoorSettings.Count - 1; index >= 0; index--)
-			{
-				IMyDoor gridDoor = _gridDoorSettings[index].Door;
-				if (!gridDoor.InScene || gridDoor.OwnerId != _gridOwnerId)
-				{
-					_gridDoorSettings.RemoveAtFast(index);
-					continue;
-				}
+			SetAirVentSettings(EmergencySetting.PeaceTime);
+			SetDoorSettings(EmergencySetting.PeaceTime);
+			SetGravityGeneratorSettings(EmergencySetting.PeaceTime);
+			SetSphericalGravityGeneratorSettings(EmergencySetting.PeaceTime);
+			SetTurretSettings(EmergencySetting.PeaceTime);
 
-				gridDoor.Enabled = _gridDoorSettings[index].PeaceTimeSettings.Enabled;
-			}
+			WriteToLog("DisableAlert", $"Peacetime Settings Loaded...", LogType.General);
+			_alertEnabled = false;
+		}
 
-			for (int index = _gridTurretSettings.Count - 1; index >= 0; index--)
-			{
-				IMyLargeTurretBase turretBase = _gridTurretSettings[index].Turret;
-				if (!turretBase.InScene || turretBase.OwnerId != _gridOwnerId)
-				{
-					_gridTurretSettings.RemoveAtFast(index);
-					continue;
-				}
-
-				WriteToLog("DisableAlert", $"{turretBase.EntityId} - Loading Default Settings...", LogType.General);
-				turretBase.Enabled = _gridTurretSettings[index].PeaceTimeSettings.Enabled;
-				turretBase.SetValueBool("TargetMeteors", _gridTurretSettings[index].PeaceTimeSettings.TargetCharacters);
-				turretBase.SetValueBool("TargetLargeShips", _gridTurretSettings[index].PeaceTimeSettings.TargetLargeShips);
-				turretBase.SetValueBool("TargetMeteors", _gridTurretSettings[index].PeaceTimeSettings.TargetMeteors);
-				turretBase.SetValueBool("TargetMissiles", _gridTurretSettings[index].PeaceTimeSettings.TargetMissiles);
-				turretBase.SetValueBool("TargetNeutrals", _gridTurretSettings[index].PeaceTimeSettings.TargetNeutrals);
-				turretBase.SetValueBool("TargetSmallShips", _gridTurretSettings[index].PeaceTimeSettings.TargetSmallShips);
-				turretBase.SetValueBool("TargetStations", _gridTurretSettings[index].PeaceTimeSettings.TargetStations);
-				turretBase.SetValueFloat("Range", _gridTurretSettings[index].PeaceTimeSettings.Range);
-			}
-
+		private void SetAirVentSettings(EmergencySetting emergencySetting)
+		{
 			for (int index = _gridAirVentSettings.Count - 1; index >= 0; index--)
 			{
-				IMyAirVent airVent = _gridAirVentSettings[index].AirVent;
-				if (!airVent.InScene || airVent.OwnerId != _gridOwnerId)
+				if (!_gridAirVentSettings[index].AirVent.InScene || _gridAirVentSettings[index].AirVent.OwnerId != _gridOwnerId)
 				{
 					_gridAirVentSettings.RemoveAtFast(index);
 					continue;
 				}
 
-				airVent.Enabled = _gridAirVentSettings[index].PeaceTimeSettings.Enabled;
-				airVent.Depressurize = _gridAirVentSettings[index].PeaceTimeSettings.Depressurize;
+				switch (emergencySetting)
+				{
+					case EmergencySetting.PeaceTime:
+						_gridAirVentSettings[index].AirVent.Enabled = _gridAirVentSettings[index].PeaceTimeSettings.Enabled;
+						_gridAirVentSettings[index].AirVent.Depressurize = _gridAirVentSettings[index].PeaceTimeSettings.Depressurize;
+						break;
+					case EmergencySetting.Wartime:
+						_gridAirVentSettings[index].AirVent.Enabled = _gridAirVentSettings[index].WarTimeSettings.Enabled;
+						_gridAirVentSettings[index].AirVent.Depressurize = _gridAirVentSettings[index].WarTimeSettings.Depressurize;
+						break;
+					default:
+						return;
+				}
 			}
+		}
 
+		private void SetDoorSettings(EmergencySetting emergencySetting)
+		{
+			for (int index = _gridDoorSettings.Count - 1; index >= 0; index--)
+			{
+				if (!_gridDoorSettings[index].Door.InScene || _gridDoorSettings[index].Door.OwnerId != _gridOwnerId)
+				{
+					_gridDoorSettings.RemoveAtFast(index);
+					continue;
+				}
+
+				switch (emergencySetting)
+				{
+					case EmergencySetting.PeaceTime:
+						_gridDoorSettings[index].Door.Enabled = _gridDoorSettings[index].PeaceTimeSettings.Enabled;
+						break;
+					case EmergencySetting.Wartime:
+						_gridDoorSettings[index].Door.Enabled = _gridDoorSettings[index].WarTimeSettings.Enabled;
+						break;
+					default:
+						return;
+				}
+			}
+		}
+
+		private void SetGravityGeneratorSettings(EmergencySetting emergencySetting)
+		{
 			for (int index = _gridGravityGenerators.Count - 1; index >= 0; index--)
 			{
 				IMyGravityGenerator gravityGenerator = _gridGravityGenerators[index].GravityGenerator;
@@ -491,27 +440,91 @@ namespace Eem.Thraxus.Bots.Modules
 					continue;
 				}
 
-				gravityGenerator.Enabled = _gridGravityGenerators[index].PeaceTimeSettings.Enabled;
-				gravityGenerator.FieldSize = _gridGravityGenerators[index].PeaceTimeSettings.FieldSize;
-				gravityGenerator.GravityAcceleration = _gridGravityGenerators[index].PeaceTimeSettings.FieldStrength;
+				switch (emergencySetting)
+				{
+					case EmergencySetting.PeaceTime:
+						gravityGenerator.Enabled = _gridGravityGenerators[index].PeaceTimeSettings.Enabled;
+						gravityGenerator.FieldSize = _gridGravityGenerators[index].PeaceTimeSettings.FieldSize;
+						gravityGenerator.GravityAcceleration = _gridGravityGenerators[index].PeaceTimeSettings.FieldStrength;
+						break;
+					case EmergencySetting.Wartime:
+						gravityGenerator.Enabled = _gridGravityGenerators[index].WarTimeSettings.Enabled;
+						gravityGenerator.FieldSize = _gridGravityGenerators[index].WarTimeSettings.FieldSize;
+						gravityGenerator.GravityAcceleration = _gridGravityGenerators[index].WarTimeSettings.FieldStrength;
+						if (_gridGravityGenerators[index].PeaceTimeSettings.FieldStrength >= 0) gravityGenerator.GravityAcceleration *= -1;
+						break;
+					default:
+						return;
+				}
 			}
+		}
 
+		private void SetSphericalGravityGeneratorSettings(EmergencySetting emergencySetting)
+		{
 			for (int index = _gridSphericalGravityGenerators.Count - 1; index >= 0; index--)
 			{
-				IMyGravityGeneratorSphere sphericalGravityGenerator = _gridSphericalGravityGenerators[index].SphericalGravityGenerator;
-				if (!sphericalGravityGenerator.InScene || sphericalGravityGenerator.OwnerId != _gridOwnerId)
+				if (!_gridSphericalGravityGenerators[index].SphericalGravityGenerator.InScene || _gridSphericalGravityGenerators[index].SphericalGravityGenerator.OwnerId != _gridOwnerId)
 				{
 					_gridSphericalGravityGenerators.RemoveAtFast(index);
 					continue;
 				}
 
-				sphericalGravityGenerator.Enabled = _gridSphericalGravityGenerators[index].PeaceTimeSettings.Enabled;
-				sphericalGravityGenerator.Radius = _gridSphericalGravityGenerators[index].PeaceTimeSettings.FieldSize;
-				sphericalGravityGenerator.GravityAcceleration = _gridSphericalGravityGenerators[index].PeaceTimeSettings.FieldStrength;
+				switch (emergencySetting)
+				{
+					case EmergencySetting.PeaceTime:
+						_gridSphericalGravityGenerators[index].SphericalGravityGenerator.Enabled = _gridSphericalGravityGenerators[index].PeaceTimeSettings.Enabled;
+						_gridSphericalGravityGenerators[index].SphericalGravityGenerator.Radius = _gridSphericalGravityGenerators[index].PeaceTimeSettings.FieldSize;
+						_gridSphericalGravityGenerators[index].SphericalGravityGenerator.GravityAcceleration = _gridSphericalGravityGenerators[index].PeaceTimeSettings.FieldStrength;
+						break;
+					case EmergencySetting.Wartime:
+						_gridSphericalGravityGenerators[index].SphericalGravityGenerator.Enabled = _gridSphericalGravityGenerators[index].WarTimeSettings.Enabled;
+						_gridSphericalGravityGenerators[index].SphericalGravityGenerator.Radius = _gridSphericalGravityGenerators[index].WarTimeSettings.FieldSize;
+						_gridSphericalGravityGenerators[index].SphericalGravityGenerator.GravityAcceleration = _gridSphericalGravityGenerators[index].WarTimeSettings.FieldStrength;
+						break;
+					default:
+						return;
+				}
 			}
+		}
 
-			WriteToLog("DisableAlert", $"Peacetime Settings Loaded...", LogType.General);
-			_alertEnabled = false;
+		private void SetTurretSettings(EmergencySetting emergencySetting)
+		{
+			for (int index = _gridTurretSettings.Count - 1; index >= 0; index--)
+			{
+				if (!_gridTurretSettings[index].Turret.InScene || _gridTurretSettings[index].Turret.OwnerId != _gridOwnerId)
+				{
+					_gridTurretSettings.RemoveAtFast(index);
+					continue;
+				}
+
+				switch (emergencySetting)
+				{
+					case EmergencySetting.PeaceTime:
+						_gridTurretSettings[index].Turret.Enabled = _gridTurretSettings[index].PeaceTimeSettings.Enabled;
+						_gridTurretSettings[index].Turret.SetValueBool("TargetMeteors", _gridTurretSettings[index].PeaceTimeSettings.TargetCharacters);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetLargeShips", _gridTurretSettings[index].PeaceTimeSettings.TargetLargeShips);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetMeteors", _gridTurretSettings[index].PeaceTimeSettings.TargetMeteors);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetMissiles", _gridTurretSettings[index].PeaceTimeSettings.TargetMissiles);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetNeutrals", _gridTurretSettings[index].PeaceTimeSettings.TargetNeutrals);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetSmallShips", _gridTurretSettings[index].PeaceTimeSettings.TargetSmallShips);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetStations", _gridTurretSettings[index].PeaceTimeSettings.TargetStations);
+						_gridTurretSettings[index].Turret.SetValueFloat("Range", _gridTurretSettings[index].PeaceTimeSettings.Range);
+						break;
+					case EmergencySetting.Wartime:
+						_gridTurretSettings[index].Turret.Enabled = _gridTurretSettings[index].WarTimeSettings.Enabled;
+						_gridTurretSettings[index].Turret.SetValueBool("TargetMeteors", _gridTurretSettings[index].WarTimeSettings.TargetCharacters);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetLargeShips", _gridTurretSettings[index].WarTimeSettings.TargetLargeShips);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetMeteors", _gridTurretSettings[index].WarTimeSettings.TargetMeteors);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetMissiles", _gridTurretSettings[index].WarTimeSettings .TargetMissiles);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetNeutrals", _gridTurretSettings[index].WarTimeSettings.TargetNeutrals);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetSmallShips", _gridTurretSettings[index].WarTimeSettings.TargetSmallShips);
+						_gridTurretSettings[index].Turret.SetValueBool("TargetStations", _gridTurretSettings[index].WarTimeSettings.TargetStations);
+						_gridTurretSettings[index].Turret.SetValueFloat("Range", _gridTurretSettings[index].WarTimeSettings.Range);
+						break;
+					default:
+						return;
+				}
+			}
 		}
 
 		private readonly Dictionary<CubeType, object> _warTimeSettings = new Dictionary<CubeType, object>
@@ -520,7 +533,6 @@ namespace Eem.Thraxus.Bots.Modules
 			{CubeType.AirVent, new AirVentSettings(true, true) },
 			{CubeType.Door, new DoorSettings(false) },
 			{CubeType.GravityGenerator, new GravityGeneratorSettings(true, new Vector3(150, 150, 150), 9.81f ) },
-			{CubeType.GravityGeneratorReversed, new GravityGeneratorSettings(true, new Vector3(150, 150, 150), -9.81f ) },
 			{CubeType.SphericalGravityGenerator,  new SphericalGravityGeneratorSettings(true, 450f, 9.81f )},
 		};
 
