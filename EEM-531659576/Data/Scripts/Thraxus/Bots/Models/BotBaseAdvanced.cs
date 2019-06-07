@@ -72,7 +72,7 @@ namespace Eem.Thraxus.Bots.Models
 				_integrityDictionary.Add(mySlimBlock, mySlimBlock.Integrity);
 
 			// TODO Remove the below later to their proper bot type
-			_emergencyLockDownProtocol = new EmergencyLockdownProtocol(ThisCubeGrid);
+			_emergencyLockDownProtocol = new EmergencyLockdownProtocol(ThisCubeGrid, _ownerId);
 			_emergencyLockDownProtocol.OnWriteToLog += WriteToLog;
 			_emergencyLockDownProtocol.Init();
 

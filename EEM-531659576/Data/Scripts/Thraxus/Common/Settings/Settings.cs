@@ -7,6 +7,15 @@ namespace Eem.Thraxus.Common.Settings
 	public static class Settings
 	{
 
+		#region Bot Settings
+
+		public const string TimerAlertOn = "Alert_On";
+		public const string TimerAlertOff = "Alert_Off";
+		public const string AntennaAlert = "Alert";
+		public const string BackupAntennaAlert = "Alert_Backup";
+
+		#endregion
+
 		#region Constant Values
 
 		public const bool ForcedDebugMode = false;

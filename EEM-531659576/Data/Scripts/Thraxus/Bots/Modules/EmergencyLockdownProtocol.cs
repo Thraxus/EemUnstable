@@ -5,7 +5,6 @@ using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Utilities.StaticMethods;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
-using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using SpaceEngineers.Game.ModAPI;
 using VRageMath;
@@ -14,8 +13,38 @@ using IMyLargeTurretBase = Sandbox.ModAPI.IMyLargeTurretBase;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	public class EmergencyLockdownProtocol : LogBaseEvent, IDisposable
+	public class EmergencyLockdownProtocol : LogBaseEvent
 	{
+		private bool _alertEnabled;
+
+		private readonly long _gridOwnerId;
+
+		private readonly MyCubeGrid _thisGrid;
+
+		private readonly List<GridAirVents> _gridAirVentSettings;
+		private readonly List<GridDoors> _gridDoorSettings;
+		private readonly List<GridGravityGenerators> _gridGravityGenerators;
+		private readonly List<GridSphericalGravityGenerators> _gridSphericalGravityGenerators;
+		private readonly List<IMyTimerBlock> _gridTimers;
+		private readonly List<GridTurrets> _gridTurretSettings;
+
+		public EmergencyLockdownProtocol(MyCubeGrid myCubeGrid, long ownerId)
+		{
+			// TODO Timers for existing flavor emergency conditions (possibly scan for settings related to what this code controls now and remove it)
+			//		Example from Helios: [HELIOS|Tme] [Alert_On] Timer Alarm is the alert timer, trigger for on, trigger for off?  need to research.
+			// TODO Antenna for custom drone spawning for special conditions / alert if enemy seen within some range - may move this idea to a separate module though
+
+			_thisGrid = myCubeGrid;
+			_gridOwnerId = ownerId;
+			
+			_gridAirVentSettings = new List<GridAirVents>();
+			_gridDoorSettings = new List<GridDoors>();
+			_gridGravityGenerators = new List<GridGravityGenerators>();
+			_gridSphericalGravityGenerators = new List<GridSphericalGravityGenerators>();
+			_gridTimers = new List<IMyTimerBlock>();
+			_gridTurretSettings = new List<GridTurrets>();
+		}
+
 		private enum CubeType
 		{
 			AirVent, Door, GravityGenerator, SphericalGravityGenerator, Timer, Turret
@@ -104,6 +133,7 @@ namespace Eem.Thraxus.Bots.Modules
 		private struct TurretSettings
 		{
 			public readonly bool Enabled;
+			public readonly bool EnableIdleRotation;
 			public readonly bool TargetCharacters;
 			public readonly bool TargetLargeShips;
 			public readonly bool TargetMeteors;
@@ -114,9 +144,10 @@ namespace Eem.Thraxus.Bots.Modules
 
 			public readonly float Range;
 
-			public TurretSettings(bool enabled, bool targetCharacters, bool targetLargeShips, bool targetMeteors, bool targetMissiles, bool targetNeutrals, bool targetSmallShips, bool targetStations, float range)
+			public TurretSettings(bool enabled, bool enableIdleRotation, bool targetCharacters, bool targetLargeShips, bool targetMeteors, bool targetMissiles, bool targetNeutrals, bool targetSmallShips, bool targetStations, float range)
 			{
 				Enabled = enabled;
+				EnableIdleRotation = enableIdleRotation;
 				TargetCharacters = targetCharacters;
 				TargetLargeShips = targetLargeShips;
 				TargetMeteors = targetMeteors;
@@ -130,7 +161,7 @@ namespace Eem.Thraxus.Bots.Modules
 			/// <inheritdoc />
 			public override string ToString()
 			{
-				return $"{Enabled} | {TargetCharacters} | {TargetLargeShips} | {TargetMeteors} | {TargetMissiles} | {TargetSmallShips} | {TargetStations} | {Range}";
+				return $"{Enabled} | {EnableIdleRotation} | {TargetCharacters} | {TargetLargeShips} | {TargetMeteors} | {TargetMissiles} | {TargetSmallShips} | {TargetStations} | {Range}";
 			}
 		}
 
@@ -254,6 +285,7 @@ namespace Eem.Thraxus.Bots.Modules
 
 						TurretSettings archiveSettings = new TurretSettings(
 							largeTurretBase.Enabled,
+							largeTurretBase.EnableIdleRotation,
 							myTurretBase.TargetCharacters,
 							myTurretBase.TargetLargeGrids,
 							myTurretBase.TargetMeteors,
@@ -501,6 +533,7 @@ namespace Eem.Thraxus.Bots.Modules
 				{
 					case EmergencySetting.PeaceTime:
 						_gridTurretSettings[index].Turret.Enabled = _gridTurretSettings[index].PeaceTimeSettings.Enabled;
+						_gridTurretSettings[index].Turret.EnableIdleRotation = _gridTurretSettings[index].PeaceTimeSettings.EnableIdleRotation;
 						_gridTurretSettings[index].Turret.SetValueBool("TargetMeteors", _gridTurretSettings[index].PeaceTimeSettings.TargetCharacters);
 						_gridTurretSettings[index].Turret.SetValueBool("TargetLargeShips", _gridTurretSettings[index].PeaceTimeSettings.TargetLargeShips);
 						_gridTurretSettings[index].Turret.SetValueBool("TargetMeteors", _gridTurretSettings[index].PeaceTimeSettings.TargetMeteors);
@@ -512,6 +545,7 @@ namespace Eem.Thraxus.Bots.Modules
 						break;
 					case EmergencySetting.Wartime:
 						_gridTurretSettings[index].Turret.Enabled = _gridTurretSettings[index].WarTimeSettings.Enabled;
+						_gridTurretSettings[index].Turret.EnableIdleRotation = _gridTurretSettings[index].WarTimeSettings.EnableIdleRotation;
 						_gridTurretSettings[index].Turret.SetValueBool("TargetMeteors", _gridTurretSettings[index].WarTimeSettings.TargetCharacters);
 						_gridTurretSettings[index].Turret.SetValueBool("TargetLargeShips", _gridTurretSettings[index].WarTimeSettings.TargetLargeShips);
 						_gridTurretSettings[index].Turret.SetValueBool("TargetMeteors", _gridTurretSettings[index].WarTimeSettings.TargetMeteors);
@@ -529,53 +563,11 @@ namespace Eem.Thraxus.Bots.Modules
 
 		private readonly Dictionary<CubeType, object> _warTimeSettings = new Dictionary<CubeType, object>
 		{
-			{CubeType.Turret, new TurretSettings(true, true, true, false, true, false, true, true, 800) },
+			{CubeType.Turret, new TurretSettings(true, true, true, true, false, true, false, true, true, 800) },
 			{CubeType.AirVent, new AirVentSettings(true, true) },
 			{CubeType.Door, new DoorSettings(false) },
 			{CubeType.GravityGenerator, new GravityGeneratorSettings(true, new Vector3(150, 150, 150), 9.81f ) },
 			{CubeType.SphericalGravityGenerator,  new SphericalGravityGeneratorSettings(true, 450f, 9.81f )},
 		};
-
-		private bool _alertEnabled;
-
-		private readonly long _gridOwnerId;
-		
-		private readonly MyCubeGrid _thisGrid;
-		private readonly List<GridTurrets> _gridTurretSettings;
-		private readonly List<GridDoors> _gridDoorSettings;
-		private readonly List<GridAirVents> _gridAirVentSettings;
-		private readonly List<GridGravityGenerators> _gridGravityGenerators;
-		private readonly List<GridSphericalGravityGenerators> _gridSphericalGravityGenerators;
-
-		public EmergencyLockdownProtocol(MyCubeGrid myCubeGrid)
-		{
-			// TODO Timers for existing flavor emergency conditions (possibly scan for settings related to what this code controls now and remove it)
-			//		Example from Helios: [HELIOS|Tme] [Alert_On] Timer Alarm is the alert timer, trigger for on, trigger for off?  need to research.
-			// TODO Antenna for custom drone spawning for special conditions / alert if enemy seen within some range - may move this idea to a separate module though
-
-			_thisGrid = myCubeGrid;
-			_gridOwnerId = myCubeGrid.BigOwners[0];
-
-			_gridTurretSettings = new List<GridTurrets>();
-			_gridAirVentSettings = new List<GridAirVents>();
-			_gridDoorSettings = new List<GridDoors>();
-			_gridGravityGenerators = new List<GridGravityGenerators>();
-			_gridSphericalGravityGenerators = new List<GridSphericalGravityGenerators>();
-		}
-		private bool _unloaded = false;
-
-		~EmergencyLockdownProtocol()
-		{
-			Dispose();
-		}
-		/// <inheritdoc />
-		public void Dispose()
-		{
-			if (!_unloaded)
-			{
-
-			}
-			_unloaded = true;
-		}
 	}
 }
