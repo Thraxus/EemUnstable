@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
@@ -96,6 +97,29 @@ namespace Eem.Thraxus.Common.Utilities.StaticMethods
 				ObjectsRemoveDelayInMiliseconds = 0
 			};
 			MyExplosions.AddExplosion(ref explosionInfo);
+		}
+
+		//Relative velocity proportional navigation
+		//aka: Whip-Nav
+		internal static Vector3D CalculateMissileIntercept(Vector3D targetPosition, Vector3D targetVelocity, Vector3D missilePos, Vector3D missileVelocity, double missileAcceleration, double compensationFactor = 1)
+		{
+			Vector3D missileToTarget = Vector3D.Normalize(targetPosition - missilePos);
+			Vector3D relativeVelocity = targetVelocity - missileVelocity;
+			Vector3D parallelVelocity = relativeVelocity.Dot(missileToTarget) * missileToTarget;
+			Vector3D normalVelocity = (relativeVelocity - parallelVelocity);
+
+			Vector3D normalMissileAcceleration = normalVelocity * compensationFactor;
+
+			if (Vector3D.IsZero(normalMissileAcceleration))
+				return missileToTarget;
+
+			double diff = missileAcceleration * missileAcceleration - normalMissileAcceleration.LengthSquared();
+			if (diff < 0)
+			{
+				return normalMissileAcceleration; //fly parallel to the target
+			}
+
+			return Math.Sqrt(diff) * missileToTarget + normalMissileAcceleration;
 		}
 
 		public static IMyFaction GetFactionById(this long factionId)

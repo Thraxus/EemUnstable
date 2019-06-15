@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.StaticMethods;
+using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
@@ -40,24 +43,22 @@ namespace Eem.Thraxus.EntityManager.Models
 		{
 			try
 			{
-				if (MyAPIGateway.Multiplayer.Players.Count == 0)
+				MyCubeGrid myCubeGrid = (MyCubeGrid)myEntity;
+				if (myCubeGrid.BigOwners.Count > 0)
 				{
-					WriteToLog("PrintShipSpawn", $"Id:\t{myEntity.EntityId}\tDisplayName:\t{myEntity.DisplayName}\tPlayer:\t{0}\tDistanceTo:\t{0}", LogType.General);
+					IMyIdentity identityById = StaticMethods.GetIdentityById(myCubeGrid.BigOwners.FirstOrDefault());
+					string factiontag = MyAPIGateway.Session.Factions.TryGetPlayerFaction(identityById.IdentityId).Tag;
+					if (string.IsNullOrEmpty(factiontag))
+						factiontag = "NONE";
+					WriteToLog("PrintShipSpawn", $"ShipId:\t{myEntity.EntityId}\tShipDisplayName:\t{myEntity.DisplayName}\tOwningFaction:\t{factiontag}", LogType.General);
 					return;
 				}
-				List<IMyPlayer> playerList = new List<IMyPlayer>();
-				MyAPIGateway.Multiplayer.Players.GetPlayers(playerList);
-				MyCubeGrid mygrid = (MyCubeGrid)myEntity;
-				foreach (IMyPlayer myPlayer in playerList)
-				{
-					WriteToLog("PrintShipSpawn", $"Id:\t{mygrid.EntityId}\tDisplayName:\t{mygrid.DisplayName}\tPCU:\t{mygrid.BlocksPCU}\tPlayer:\t{myPlayer.DisplayName}\tDistanceTo:\t{Vector3D.Distance(myPlayer.GetPosition(), myEntity.GetPosition())}", LogType.General);
-				}
+				WriteToLog("PrintShipSpawn", $"ShipId:\t{myEntity.EntityId}\tShipDisplayName:\t{myEntity.DisplayName}", LogType.General);
 			}
 			catch (Exception e)
 			{
 				WriteToLog("PrintShipSpawn", $"Exception! {e}", LogType.Exception);
 			}
-			
 		}
 
 		private void PrintShipDespawn(IMyEntity myEntity)
