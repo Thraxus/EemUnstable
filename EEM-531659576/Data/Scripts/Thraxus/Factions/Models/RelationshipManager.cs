@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Eem.Thraxus.Extensions;
 using Eem.Thraxus.Factions.Settings;
 using Eem.Thraxus.Factions.Utilities;
 using Eem.Thraxus.Networking;
@@ -222,6 +223,7 @@ namespace Eem.Thraxus.Factions.Models
 			// Condition not accounted for, just accept the request for now (get logs!)
 			FactionCore.WriteToLog("PeaceRequestSent", $"Unknown peace condition detected, please review...\tfromFaction:\t{fromFactionId.GetFactionById().Tag}\ttoFaction:\t{toFactionId.GetFactionById().Tag}", true);
 			DumpEverythingToTheLog(true);
+			SetRep(toFactionId, fromFactionId, false);
 			MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId);
 
 		}
@@ -238,7 +240,8 @@ namespace Eem.Thraxus.Factions.Models
 					_newFactionDictionary.Remove(fromFactionId);
 				}
 			}
-			MyAPIGateway.Session.Factions.AcceptPeace(fromFactionId, toFactionId);
+			SetRep(fromFactionId, toFactionId, false);
+			//MyAPIGateway.Session.Factions.AcceptPeace(fromFactionId, toFactionId);
 		}
 
 		private void RequestDialog(IMyFaction npcFaction, IMyFaction playerFaction, Dialogue.DialogType type)
@@ -335,7 +338,7 @@ namespace Eem.Thraxus.Factions.Models
 
 		private void PeaceCancelled(long fromFactionId, long toFactionId)
 		{   // The only time this matters is if a former player pirate declares war on a NPC, then declares peace, then revokes the peace declaration
-			if (!CheckMentingRelationship(fromFactionId, toFactionId)) return;
+			if (!CheckMendingRelationship(fromFactionId, toFactionId)) return;
 			RemoveMendingRelationship(toFactionId, fromFactionId);
 		}
 
@@ -365,7 +368,8 @@ namespace Eem.Thraxus.Factions.Models
 						continue;
 					}
 
-					if (faction.Value.IsEveryoneNpc())
+					//TODO Note: 1.192 change, marked for AI branch
+					if (faction.Value.IsEveryoneNpc() && Constants.AllNpcFactions.Contains(faction.Value.Tag))
 					{ // If it's not an Enforcement or Lawful faction, it's a pirate.
 						FactionCore.WriteToLog("SetupFactionDictionaries", $"AddToPirateFactionDictionary:\t{faction.Key}\t{faction.Value.Tag}");
 						AddToPirateFactionDictionary(faction.Key, faction.Value);
@@ -531,8 +535,9 @@ namespace Eem.Thraxus.Factions.Models
 
 		private static void AutoPeace(long fromFactionId, long toFactionId)
 		{
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.SendPeaceRequest(fromFactionId, toFactionId));
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId));
+			SetRep(fromFactionId, toFactionId, false);
+			//MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.SendPeaceRequest(fromFactionId, toFactionId));
+			//MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId));
 			ClearPeace(fromFactionId, toFactionId);
 		}
 
@@ -543,8 +548,10 @@ namespace Eem.Thraxus.Factions.Models
 		}
 
 		private static void DeclareWar(long npcFaction, long playerFaction)
-		{	// Vanilla war declaration, ensures invoking on main thread
+		{   // Vanilla war declaration, ensures invoking on main thread
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.DeclareWar(npcFaction, playerFaction));
+			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.DeclareWar(playerFaction, npcFaction));
+			SetRep(npcFaction, playerFaction, true);
 		}
 		
 		private bool CheckTimedNegativeRelationshipState(long npcFaction, long playerFaction)
@@ -552,7 +559,7 @@ namespace Eem.Thraxus.Factions.Models
 			return TimedNegativeRelationships.IndexOf(new TimedRelationship(npcFaction.GetFactionById(), playerFaction.GetFactionById(), 0)) > -1 || TimedNegativeRelationships.IndexOf(new TimedRelationship(playerFaction.GetFactionById(), npcFaction.GetFactionById(), 0)) > -1;
 		}
 
-		private bool CheckMentingRelationship(long fromFactionId, long toFactionId)
+		private bool CheckMendingRelationship(long fromFactionId, long toFactionId)
 		{
 			return MendingRelationships.Contains(new PendingRelation(fromFactionId, toFactionId));
 		}
@@ -983,5 +990,105 @@ namespace Eem.Thraxus.Factions.Models
 				PlayerFaction = playerFactionId;
 			}
 		}
+
+		// Used to manage relations using the new rep system.  Temp until the faction rewrite. 
+
+		//private static bool ranOnce = false;
+		//private static Dictionary<long, string> _identityDictionary = new Dictionary<long, string>();
+		//private static void GetAllPlayerInfo()
+		//{
+		//	List<IMyIdentity> identities = new List<IMyIdentity>();
+		//	MyAPIGateway.Players.GetAllIdentites(identities);
+
+		//	FactionCore.WriteToLog("GetAllPlayerInfo", $"Identity Count: {identities.Count}", true);
+		//	int counter = 0;
+		//	foreach (IMyIdentity myIdentity in identities)
+		//	{
+		//		FactionCore.WriteToLog("GetAllPlayerInfo", $"Identity {counter++}: {myIdentity.IdentityId} | {myIdentity.DisplayName}", true);
+		//		_identityDictionary.Add(myIdentity.IdentityId, myIdentity.DisplayName);
+		//	}
+		//}
+
+		private static void SetRep(long npcFactionId, long playerFactionId, bool hostile)
+		{
+			int value;
+
+			if (hostile)
+				value = -750;
+			else
+				value = 250;
+
+			//if (!ranOnce)
+			//{
+			//	GetAllPlayerInfo();
+			//	ranOnce = true;
+			//}
+
+			//DebugRep("SetRep-Pre", npcFactionId, playerFactionId, hostile);
+
+			try
+			{
+				//MyAPIGateway.Utilities.InvokeOnGameThread(() => { 
+				MyAPIGateway.Session.Factions.SetReputation(npcFactionId, playerFactionId, value);
+				MyAPIGateway.Session.Factions.SetReputation(playerFactionId, npcFactionId, value);
+
+				SetRepPlayers(npcFactionId, playerFactionId, hostile);
+				//});
+
+
+				//SetRepWithPlayers(npcFactionId, playerFactionId, hostile);
+				//DebugRep("SetRep-Post", npcFactionId, playerFactionId, hostile);
+
+			}
+			catch (Exception)
+			{
+				// ignored
+			}
+		}
+
+		private static void SetRepPlayers(long npcFactionId, long playerFactionId, bool hostile)
+		{
+			IMyFaction npcFaction = npcFactionId.GetFactionById();
+			IMyFaction playerFaction = playerFactionId.GetFactionById();
+			int value;
+
+			if (hostile)
+				value = -750;
+			else
+				value = 250;
+			
+			try
+			{
+				//FactionCore.WriteToLog($"SetRepPlayers", $"npcFactionMemberCount: {npcFaction.Members.Count}", true);
+				foreach (KeyValuePair<long, MyFactionMember> npcFactionMember in npcFaction.Members)
+				{
+					MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(npcFactionMember.Value.PlayerId,
+						playerFactionId, value);
+					//FactionCore.WriteToLog($"SetRepPlayers", $"npcFactionMemberId: {npcFactionMember.Value.PlayerId} | {_identityDictionary[npcFactionMember.Value.PlayerId]}", true);
+				}
+				
+				//FactionCore.WriteToLog($"SetRepPlayers", $"playerFactionMemberCount: {playerFaction.Members.Count}", true);
+				foreach (KeyValuePair<long, MyFactionMember> playerFactionMember in playerFaction.Members)
+				{
+					MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(playerFactionMember.Value.PlayerId,
+						npcFactionId, value);
+					//FactionCore.WriteToLog($"SetRepPlayers", $"playerFactionMemberId: {playerFactionMember.Value.PlayerId} | {_identityDictionary[playerFactionMember.Value.PlayerId]}", true);
+				}
+				
+				//DebugRep("SetRepPlayers-Post", npcFactionId, playerFactionId, hostile);
+			}
+			catch (Exception)
+			{
+				// ignored
+			}
+		}
+
+		//private static void DebugRep(string caller, long npcFactionId, long playerFactionId, bool hostile)
+		//{
+		//	FactionCore.WriteToLog($"{caller} npc: {npcFactionId} player: {playerFactionId} hostile: {hostile}", $"Player/Faction between NPC: {npcFactionId} and Player: {playerFactionId} = {MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(npcFactionId, playerFactionId).ToString()}", true);
+		//	FactionCore.WriteToLog($"{caller} npc: {npcFactionId} player: {playerFactionId} hostile: {hostile}", $"Player/Faction between Player: {playerFactionId} and NPC: {npcFactionId} = {MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(playerFactionId, npcFactionId).ToString()}", true);
+		//	FactionCore.WriteToLog($"{caller} npc: {npcFactionId} player: {playerFactionId} hostile: {hostile}", $"Faction/Faction between NPC: {npcFactionId} and Player: {playerFactionId} = {MyAPIGateway.Session.Factions.GetReputationBetweenFactions(npcFactionId, playerFactionId).ToString()}", true);
+		//	FactionCore.WriteToLog($"{caller} npc: {npcFactionId} player: {playerFactionId} hostile: {hostile}", $"Faction/Faction between Player: {playerFactionId} and NPC: {npcFactionId} = {MyAPIGateway.Session.Factions.GetReputationBetweenFactions(playerFactionId, npcFactionId).ToString()}", true);
+		//}
 	}
 }
