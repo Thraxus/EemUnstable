@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Utilities.StaticMethods;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
+using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
+using SpaceEngineers.Game.Entities.Blocks;
 using SpaceEngineers.Game.ModAPI;
 using VRageMath;
 using IMyDoor = Sandbox.ModAPI.IMyDoor;
@@ -13,7 +16,7 @@ using IMyLargeTurretBase = Sandbox.ModAPI.IMyLargeTurretBase;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	public class EmergencyLockdownProtocol : LogBaseEvent
+	public class EmergencyProtocol : LogBaseEvent
 	{
 		private bool _alertEnabled;
 
@@ -25,11 +28,15 @@ namespace Eem.Thraxus.Bots.Modules
 		private readonly List<GridDoors> _gridDoorSettings;
 		private readonly List<GridGravityGenerators> _gridGravityGenerators;
 		private readonly List<GridSphericalGravityGenerators> _gridSphericalGravityGenerators;
-		private readonly List<IMyTimerBlock> _gridTimers;
+		private readonly List<GridTimers> _gridTimers;
 		private readonly List<GridTurrets> _gridTurretSettings;
 
-		public EmergencyLockdownProtocol(MyCubeGrid myCubeGrid, long ownerId)
+		public EmergencyProtocol(MyCubeGrid myCubeGrid, long ownerId)
 		{
+			// TODO 08.28.2019: Feature complete at this point as far as functionality.  Need to add in custom data scanning to make sure all items are parsed properly.				
+			// TODO					An example of this is the term "alert" on a timer telling me it's one i need to track.  No custom data, no timer added to the alert list
+			// TODO					Timers may need to come in pairs; one for on, one for off.
+			// 
 			// TODO Timers for existing flavor emergency conditions (possibly scan for settings related to what this code controls now and remove it)
 			//		Example from Helios: [HELIOS|Tme] [Alert_On] Timer Alarm is the alert timer, trigger for on, trigger for off?  need to research.
 			// TODO Antenna for custom drone spawning for special conditions / alert if enemy seen within some range - may move this idea to a separate module though
@@ -41,7 +48,7 @@ namespace Eem.Thraxus.Bots.Modules
 			_gridDoorSettings = new List<GridDoors>();
 			_gridGravityGenerators = new List<GridGravityGenerators>();
 			_gridSphericalGravityGenerators = new List<GridSphericalGravityGenerators>();
-			_gridTimers = new List<IMyTimerBlock>();
+			_gridTimers = new List<GridTimers>();
 			_gridTurretSettings = new List<GridTurrets>();
 		}
 
@@ -76,16 +83,18 @@ namespace Eem.Thraxus.Bots.Modules
 		private struct DoorSettings
 		{
 			public readonly bool Enabled;
+			public readonly bool IsClosed;
 
-			public DoorSettings(bool enabled)
+			public DoorSettings(bool enabled, bool isClosed)
 			{
 				Enabled = enabled;
+				IsClosed = isClosed;
 			}
 
 			/// <inheritdoc />
 			public override string ToString()
 			{
-				return $"{Enabled}";
+				return $"{Enabled} {IsClosed}";
 			}
 		}
 
@@ -129,6 +138,21 @@ namespace Eem.Thraxus.Bots.Modules
 			}
 		}
 
+		private struct TimerSettings
+		{
+			public readonly bool Enabled;
+
+			public TimerSettings(bool enabled)
+			{
+				Enabled = enabled;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Enabled}";
+			}
+		}
 
 		private struct TurretSettings
 		{
@@ -245,6 +269,26 @@ namespace Eem.Thraxus.Bots.Modules
 			}
 		}
 
+		private struct GridTimers
+		{
+			public readonly IMyTimerBlock TimerBlock;
+			public readonly TimerSettings WarTimeSettings;
+			public readonly TimerSettings PeaceTimeSettings;
+
+			public GridTimers(IMyTimerBlock timer, TimerSettings warTimeSettings, TimerSettings peaceTimeSettings)
+			{
+				TimerBlock = timer;
+				WarTimeSettings = warTimeSettings;
+				PeaceTimeSettings = peaceTimeSettings;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{TimerBlock.CustomName} | {PeaceTimeSettings} | {WarTimeSettings}";
+			}
+		}
+
 		private struct GridTurrets
 		{
 			public readonly IMyLargeTurretBase Turret;
@@ -267,11 +311,12 @@ namespace Eem.Thraxus.Bots.Modules
 
 		public void Init()
 		{
-			int turrets = 0;
-			int airvents = 0;
+			int airVents = 0;
 			int doors = 0;
 			int gravityGenerators = 0;
 			int sphericalGravityGenerators = 0;
+			int timers = 0;
+			int turrets = 0;
 
 			try
 			{
@@ -300,13 +345,16 @@ namespace Eem.Thraxus.Bots.Modules
 
 						++turrets;
 						StaticMethods.AddGpsLocation($"{CubeType.Turret.ToString()} {turrets}", largeTurretBase.GetPosition());
+						continue;
 					}
+
 
 					IMyDoor door = myCubeBlock as IMyDoor;
 					if (door != null)
 					{
 						door.OnDoorStateChanged += delegate(IMyDoor myDoor, bool b)
 						{
+							WriteToLog("DoorStateChange", $"{myDoor.CustomName} is | IsFullyClosed: {myDoor.IsFullyClosed} | Status: {myDoor.Status} | bool: {b}", LogType.General);
 							if (myDoor.OwnerId != _gridOwnerId) return;
 							if (!b && _alertEnabled)
 								door.Enabled = false;
@@ -316,11 +364,12 @@ namespace Eem.Thraxus.Bots.Modules
 							new GridDoors(
 								door,
 								(DoorSettings)_warTimeSettings[CubeType.Door],
-								new DoorSettings(door.Enabled)
+								new DoorSettings(door.Enabled, door.IsFullyClosed)
 								)
 							);
 						++doors;
 						StaticMethods.AddGpsLocation($"{CubeType.Door.ToString()} {doors}", door.GetPosition());
+						continue;
 					}
 
 					IMyGravityGenerator generator = myCubeBlock as IMyGravityGenerator;
@@ -339,6 +388,7 @@ namespace Eem.Thraxus.Bots.Modules
 
 						++gravityGenerators;
 						StaticMethods.AddGpsLocation($"{CubeType.GravityGenerator.ToString()} {gravityGenerators}", generator.GetPosition());
+						continue;
 					}
 
 					IMyGravityGeneratorSphere generatorSphere = myCubeBlock as IMyGravityGeneratorSphere;
@@ -357,8 +407,20 @@ namespace Eem.Thraxus.Bots.Modules
 
 						++sphericalGravityGenerators;
 						StaticMethods.AddGpsLocation($"{CubeType.SphericalGravityGenerator.ToString()} {sphericalGravityGenerators}", generatorSphere.GetPosition());
+						continue;
 					}
 
+					IMyTimerBlock myTimer = myCubeBlock as IMyTimerBlock;
+					if (myTimer != null)
+					{
+						_gridTimers.Add(new GridTimers(
+							myTimer, (TimerSettings)_warTimeSettings[CubeType.Timer],new TimerSettings(myTimer.Enabled)
+							));
+						++timers;
+						StaticMethods.AddGpsLocation($"{CubeType.Timer.ToString()} {timers}", myTimer.GetPosition());
+						continue;
+					}
+					
 					IMyAirVent vent = myCubeBlock as IMyAirVent;
 					if (vent == null) continue;
 					
@@ -369,11 +431,11 @@ namespace Eem.Thraxus.Bots.Modules
 
 					_gridAirVentSettings.Add(new GridAirVents(vent, (AirVentSettings)_warTimeSettings[CubeType.AirVent], archivedSettings));
 
-					++airvents;
-					StaticMethods.AddGpsLocation($"{CubeType.AirVent.ToString()} {airvents}", vent.GetPosition());
+					++airVents;
+					StaticMethods.AddGpsLocation($"{CubeType.AirVent.ToString()} {airVents}", vent.GetPosition());
 				}
 				
-				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Turrets: {turrets} | Air Vents: {airvents} | Doors: {doors} | Gravity Generators: {gravityGenerators}  | Spherical Gravity Generators: {sphericalGravityGenerators}", LogType.General);
+				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Air Vents: {airVents} | Doors: {doors} | Gravity Generators: {gravityGenerators}  | Spherical Gravity Generators: {sphericalGravityGenerators} | Timers: {timers} | Turrets: {turrets} ", LogType.General);
 			}
 			catch (Exception e)
 			{
@@ -390,6 +452,7 @@ namespace Eem.Thraxus.Bots.Modules
 			SetDoorSettings(EmergencySetting.Wartime);
 			SetGravityGeneratorSettings(EmergencySetting.Wartime);
 			SetSphericalGravityGeneratorSettings(EmergencySetting.Wartime);
+			SetTimerSettings(EmergencySetting.Wartime);
 			SetTurretSettings(EmergencySetting.Wartime);
 			
 			WriteToLog("EnableAlert", $"Wartime Settings Loaded...", LogType.General);
@@ -405,6 +468,7 @@ namespace Eem.Thraxus.Bots.Modules
 			SetDoorSettings(EmergencySetting.PeaceTime);
 			SetGravityGeneratorSettings(EmergencySetting.PeaceTime);
 			SetSphericalGravityGeneratorSettings(EmergencySetting.PeaceTime);
+			SetTimerSettings(EmergencySetting.PeaceTime);
 			SetTurretSettings(EmergencySetting.PeaceTime);
 
 			WriteToLog("DisableAlert", $"Peacetime Settings Loaded...", LogType.General);
@@ -451,9 +515,21 @@ namespace Eem.Thraxus.Bots.Modules
 				{
 					case EmergencySetting.PeaceTime:
 						_gridDoorSettings[index].Door.Enabled = _gridDoorSettings[index].PeaceTimeSettings.Enabled;
+						if (!_gridDoorSettings[index].PeaceTimeSettings.IsClosed && (_gridDoorSettings[index].Door.Status == DoorStatus.Closed || _gridDoorSettings[index].Door.Status == DoorStatus.Closing))
+						{
+							_gridDoorSettings[index].Door.Enabled = true;
+							_gridDoorSettings[index].Door.OpenDoor();
+						}
 						break;
 					case EmergencySetting.Wartime:
-						_gridDoorSettings[index].Door.Enabled = _gridDoorSettings[index].WarTimeSettings.Enabled;
+						if (!_gridDoorSettings[index].Door.IsFullyClosed)
+						{
+							_gridDoorSettings[index].Door.Enabled = true;
+							_gridDoorSettings[index].Door.CloseDoor();
+						}
+						else
+							_gridDoorSettings[index].Door.Enabled = _gridDoorSettings[index].WarTimeSettings.Enabled;
+						
 						break;
 					default:
 						return;
@@ -519,6 +595,31 @@ namespace Eem.Thraxus.Bots.Modules
 			}
 		}
 
+		private void SetTimerSettings(EmergencySetting emergencySetting)
+		{
+			for (int index = _gridTimers.Count - 1; index >= 0; index--)
+			{
+				if (!_gridTimers[index].TimerBlock.InScene || _gridTimers[index].TimerBlock.OwnerId != _gridOwnerId)
+				{
+					_gridTimers.RemoveAtFast(index);
+					continue;
+				}
+
+				switch (emergencySetting)
+				{
+					case EmergencySetting.PeaceTime:
+						_gridTimers[index].TimerBlock.Enabled = _gridTimers[index].PeaceTimeSettings.Enabled;
+						break;
+					case EmergencySetting.Wartime:
+						_gridTimers[index].TimerBlock.Enabled = _gridTimers[index].WarTimeSettings.Enabled;
+						if(_gridTimers[index].TimerBlock.Enabled) _gridTimers[index].TimerBlock.Trigger();
+						break;
+					default:
+						return;
+				}
+			}
+		}
+
 		private void SetTurretSettings(EmergencySetting emergencySetting)
 		{
 			for (int index = _gridTurretSettings.Count - 1; index >= 0; index--)
@@ -563,11 +664,12 @@ namespace Eem.Thraxus.Bots.Modules
 
 		private readonly Dictionary<CubeType, object> _warTimeSettings = new Dictionary<CubeType, object>
 		{
-			{CubeType.Turret, new TurretSettings(true, true, true, true, false, true, false, true, true, 800) },
 			{CubeType.AirVent, new AirVentSettings(true, true) },
-			{CubeType.Door, new DoorSettings(false) },
+			{CubeType.Door, new DoorSettings(false, true) },
 			{CubeType.GravityGenerator, new GravityGeneratorSettings(true, new Vector3(150, 150, 150), 9.81f ) },
 			{CubeType.SphericalGravityGenerator,  new SphericalGravityGeneratorSettings(true, 450f, 9.81f )},
+			{CubeType.Timer, new TimerSettings(true) },
+			{CubeType.Turret, new TurretSettings(true, true, true, true, false, true, false, true, true, 800) }
 		};
 	}
 }

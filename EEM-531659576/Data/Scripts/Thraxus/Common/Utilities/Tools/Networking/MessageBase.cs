@@ -8,11 +8,11 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 	[ProtoContract]
 	public abstract class MessageBase
 	{
-		[ProtoMember(1)] protected readonly ulong SenderId;
+		[ProtoMember(1)] private readonly ulong _senderId;
 
 		protected MessageBase()
 		{
-			SenderId = MyAPIGateway.Multiplayer.MyId;
+			_senderId = MyAPIGateway.Multiplayer.MyId;
 		}
 
 		public abstract void HandleServer();
