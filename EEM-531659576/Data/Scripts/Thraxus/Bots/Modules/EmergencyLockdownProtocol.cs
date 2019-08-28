@@ -50,7 +50,7 @@ namespace Eem.Thraxus.Bots.Modules
 			AirVent, Door, GravityGenerator, SphericalGravityGenerator, Timer, Turret
 		}
 
-		enum EmergencySetting
+		private enum EmergencySetting
 		{
 			PeaceTime, Wartime
 		}

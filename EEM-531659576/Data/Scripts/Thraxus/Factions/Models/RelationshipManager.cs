@@ -30,7 +30,7 @@ namespace Eem.Thraxus.Factions.Models
 		private List<TimedRelationship> TimedNegativeRelationships { get; }
 		private List<PendingRelation> MendingRelationships { get; }
 
-		private bool _setupCompelete;
+		private bool _setupComplete;
 
 		private readonly Dialogue _dialogue;
 
@@ -81,6 +81,199 @@ namespace Eem.Thraxus.Factions.Models
 			_dialogue.Unload();
 			WriteToLog("RelationshipManager-Unload", $"Shop all packed up", LogType.General);
 		}
+
+		#region Eco Reputation Hooks for relationships
+
+		private static void SetRep(long npcFactionId, long playerFactionId, bool hostile)
+		{
+			int value;
+
+			if (hostile)
+				value = -750;
+			else
+				value = 250;
+
+			try
+			{
+				MyAPIGateway.Session.Factions.SetReputation(npcFactionId, playerFactionId, value);
+				MyAPIGateway.Session.Factions.SetReputation(playerFactionId, npcFactionId, value);
+
+				SetRepPlayers(npcFactionId, playerFactionId, hostile);
+			}
+			catch (Exception e)
+			{
+				FactionCore.FactionCoreStaticInstance.WriteToLog("SetRep", $"Exception!\t{e}", LogType.Exception);
+			}
+		}
+
+		private static void SetRepPlayers(long npcFactionId, long playerFactionId, bool hostile)
+		{
+			IMyFaction npcFaction = npcFactionId.GetFactionById();
+			IMyFaction playerFaction = playerFactionId.GetFactionById();
+			int value;
+
+			if (hostile)
+				value = -750;
+			else
+				value = 250;
+
+			try
+			{
+				foreach (KeyValuePair<long, MyFactionMember> npcFactionMember in npcFaction.Members)
+				{
+					MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(npcFactionMember.Value.PlayerId,
+						playerFactionId, value);
+				}
+				foreach (KeyValuePair<long, MyFactionMember> playerFactionMember in playerFaction.Members)
+				{
+					MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(playerFactionMember.Value.PlayerId,
+						npcFactionId, value);
+				}
+			}
+			catch (Exception e)
+			{
+			 FactionCore.FactionCoreStaticInstance.WriteToLog("SetRepPlayers", $"Exception!\t{e}", LogType.Exception);
+			}
+		}
+
+		#endregion
+
+		#region Relation State Changes
+		// All relational state change code is here.  Everything else just supports one of these methods firing.
+		private void AcceptPeace(long fromFactionId, long toFactionId)
+		{
+			if (_newFactionDictionary.ContainsKey(fromFactionId))
+			{
+				if (_newFactionDictionary[fromFactionId] > 1)
+					_newFactionDictionary[fromFactionId]--;
+				else
+				{
+					RequestNewFactionDialog(fromFactionId);
+					_newFactionDictionary.Remove(fromFactionId);
+				}
+			}
+
+			SetRep(fromFactionId,toFactionId,false);
+			//MyAPIGateway.Session.Factions.AcceptPeace(fromFactionId, toFactionId);
+		}
+
+		private static void PeaceAccepted(long fromFactionId, long toFactionId)
+		{   // Clearing those leftover flags
+			ClearPeace(fromFactionId, toFactionId);
+		}
+
+		private void PeaceCancelled(long fromFactionId, long toFactionId)
+		{   // The only time this matters is if a former player pirate declares war on a NPC, then declares peace, then revokes the peace declaration
+			if (!CheckMentingRelationship(fromFactionId, toFactionId)) return;
+			RemoveMendingRelationship(toFactionId, fromFactionId);
+		}
+
+		private static void AutoPeace(long fromFactionId, long toFactionId)
+		{
+			SetRep(fromFactionId, toFactionId, false);
+			//MyAPIGateway.Utilities.InvokeOnGameThread(() =>
+			//{
+			//	MyAPIGateway.Session.Factions.SendPeaceRequest(fromFactionId, toFactionId);
+			//	MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId);
+			//	ClearPeace(fromFactionId, toFactionId);
+			//});
+		}
+
+		private static void ClearPeace(long fromFactionId, long toFactionId)
+		{   // Stops the flag from hanging out in the faction menu
+			MyAPIGateway.Utilities.InvokeOnGameThread(() =>
+			{
+				MyAPIGateway.Session.Factions.CancelPeaceRequest(toFactionId, fromFactionId);
+				MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFactionId, toFactionId);
+			});
+		}
+
+		private static void DeclareWar(long npcFaction, long playerFaction)
+		{   // Vanilla war declaration, ensures invoking on main thread
+			SetRep(npcFaction, playerFaction, true);
+			//MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.DeclareWar(npcFaction, playerFaction));
+		}
+
+		// Peace
+
+		private void DeclareFullNpcPeace(long factionId)
+		{
+			try
+			{
+				foreach (KeyValuePair<long, IMyFaction> lawfulFaction in _lawfulFactionDictionary)
+					AutoPeace(lawfulFaction.Key, factionId);
+			}
+			catch (Exception e)
+			{
+				WriteToLog("DeclareFullNpcPeace", $"Exception!\t{e}", LogType.Exception);
+			}
+		}
+
+		// War
+
+		private void WarDeclared(long fromFactionId, long toFactionId)
+		{   // Going to take the stance that if a war is declared by an NPC, it's a valid war
+			// TODO Add dialogue for when a player declares war on an NPC directly
+			if (fromFactionId.GetFactionById().IsEveryoneNpc())
+				VetNewWar(fromFactionId, toFactionId);
+			//// This is for when a player declares war on an NPC 
+			//if (!fromFactionId.GetFactionById().IsEveryoneNpc() && toFactionId.GetFactionById().IsEveryoneNpc())
+			//	DeclarePermanentNpcWar(toFactionId, fromFactionId);
+		}
+
+		private void War(long npcFactionId, long playerFactionId)
+		{
+			// TODO just a bookmark!
+			WriteToLog("War", $"npcFaction:\t{npcFactionId}\tplayerFaction:\t{playerFactionId}", LogType.Debug);
+			NewTimedNegativeRelationship(npcFactionId, playerFactionId);
+			RequestDialog(npcFactionId.GetFactionById(), playerFactionId.GetFactionById(), Dialogue.DialogType.WarDeclared);
+			DeclareWar(npcFactionId, playerFactionId);
+		}
+
+		private void DeclarePermanentNpcWar(long npcFaction, long playerFaction)
+		{   // Used for when a player declares war on a NPC
+			DeclareWar(npcFaction, playerFaction);
+		}
+
+		public void WarDeclaration(long npcFactionId, long playerFactionId)
+		{   // Used by BotBase to declare war until I have the time to redo bots/ai
+			// May revisit parallel threading for this in the future, for now, it's fine as is
+			//MyAPIGateway.Parallel.Start(delegate
+			//{ 
+			WarQueue.Enqueue(new PendingRelation(npcFactionId, playerFactionId));
+			ProcessWarQueue();
+			//});
+		}
+
+		private void DeclareFullNpcWar(long playerFactionId)
+		{   // TODO: Used to declare war against a player for violating the rules of engagement (unused for now, but in place for when it's required)
+			try
+			{
+				foreach (KeyValuePair<long, IMyFaction> lawfulFaction in _lawfulFactionDictionary)
+					NewTimedNegativeRelationship(lawfulFaction.Key, playerFactionId);
+				//RequestNewPirateDialog(playerFactionId); replace this with collective disappointment
+			}
+			catch (Exception e)
+			{
+				WriteToLog("DeclareFullNpcWar", $"Exception!\t{e}", LogType.Exception);
+			}
+		}
+
+		private void DeclarePermanentFullNpcWar(long playerFaction)
+		{   // Used to declare war against a player pirate
+			try
+			{
+				foreach (KeyValuePair<long, IMyFaction> lawfulFaction in _lawfulFactionDictionary)
+					DeclareWar(lawfulFaction.Key, playerFaction);
+				RequestNewPirateDialog(playerFaction);
+			}
+			catch (Exception e)
+			{
+				WriteToLog("DeclarePermanentFullNpcWar", $"Exception!\t{e}", LogType.Exception);
+			}
+		}
+
+		#endregion
 
 		private void FactionStateChanged(MyFactionStateChange action, long fromFactionId, long toFactionId, long playerId, long senderId)
 		{
@@ -228,24 +421,11 @@ namespace Eem.Thraxus.Factions.Models
 			// Condition not accounted for, just accept the request for now (get logs!)
 			WriteToLog("PeaceRequestSent", $"Unknown peace condition detected, please review...\tfromFaction:\t{fromFactionId.GetFactionById().Tag}\ttoFaction:\t{toFactionId.GetFactionById().Tag}", LogType.General);
 			DumpEverythingToTheLog();
-			MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId);
+			AcceptPeace(toFactionId, fromFactionId);
 
 		}
 
-		private void AcceptPeace(long fromFactionId, long toFactionId)
-		{
-			if (_newFactionDictionary.ContainsKey(fromFactionId))
-			{
-				if (_newFactionDictionary[fromFactionId] > 1)
-					_newFactionDictionary[fromFactionId]--;
-				else
-				{
-					RequestNewFactionDialog(fromFactionId);
-					_newFactionDictionary.Remove(fromFactionId);
-				}
-			}
-			MyAPIGateway.Session.Factions.AcceptPeace(fromFactionId, toFactionId);
-		}
+		#region Dialogue triggers
 
 		private void RequestDialog(IMyFaction npcFaction, IMyFaction playerFaction, Dialogue.DialogType type)
 		{
@@ -263,7 +443,7 @@ namespace Eem.Thraxus.Factions.Models
 		}
 
 		private void RequestNewFactionDialog(long playerFactionId)
-		{	
+		{
 			const string npcFactionTag = "The Lawful";
 			try
 			{
@@ -310,6 +490,8 @@ namespace Eem.Thraxus.Factions.Models
 			}
 		}
 
+		#endregion
+		
 		private void SendFactionMessageToAllFactionMembers(string message, string messageSender, DictionaryReader<long, MyFactionMember> target, string color = MyFontEnum.Red)
 		{
 			try
@@ -334,16 +516,7 @@ namespace Eem.Thraxus.Factions.Models
 			return players.Any(x => x.IdentityId == player);
 		}
 
-		private void PeaceAccepted(long fromFactionId, long toFactionId)
-		{   // Clearing those leftover flags
-			ClearPeace(fromFactionId, toFactionId);
-		}
-
-		private void PeaceCancelled(long fromFactionId, long toFactionId)
-		{   // The only time this matters is if a former player pirate declares war on a NPC, then declares peace, then revokes the peace declaration
-			if (!CheckMentingRelationship(fromFactionId, toFactionId)) return;
-			RemoveMendingRelationship(toFactionId, fromFactionId);
-		}
+		
 
 		// Dictionary methods
 
@@ -371,7 +544,7 @@ namespace Eem.Thraxus.Factions.Models
 						continue;
 					}
 
-					if (faction.Value.IsEveryoneNpc())
+					if (faction.Value.IsEveryoneNpc() && Settings.AllNpcFactions.Contains(faction.Value.Tag))
 					{ // If it's not an Enforcement or Lawful faction, it's a pirate.
 						WriteToLog("SetupFactionDictionaries", $"AddToPirateFactionDictionary:\t{faction.Key}\t{faction.Value.Tag}", LogType.General);
 						AddToPirateFactionDictionary(faction.Key, faction.Value);
@@ -408,7 +581,7 @@ namespace Eem.Thraxus.Factions.Models
 			SetupAutoRelations();
 			SetupFactionDeletionProtection();
 			DumpEverythingToTheLog();
-			_setupCompelete = true;
+			_setupComplete = true;
 		}
 
 		private void SetupFactionDeletionProtection()
@@ -473,7 +646,7 @@ namespace Eem.Thraxus.Factions.Models
 
 		private void MonitorAutoAccept(long factionId, bool acceptPeace, bool acceptMember)
 		{
-			if (!_setupCompelete) return;
+			if (!_setupComplete) return;
 			if (!acceptPeace && !acceptMember) return;
 			if (!_npcFactionDictionary.ContainsKey(factionId)) return;
 			SetupAutoRelations();
@@ -542,30 +715,6 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			return leftFactionId.GetFactionById().IsEveryoneNpc() || rightFactionId.GetFactionById().IsEveryoneNpc();
 		}
-
-		private static void AutoPeace(long fromFactionId, long toFactionId)
-		{
-			MyAPIGateway.Utilities.InvokeOnGameThread(() =>
-			{
-				MyAPIGateway.Session.Factions.SendPeaceRequest(fromFactionId, toFactionId);
-				MyAPIGateway.Session.Factions.AcceptPeace(toFactionId, fromFactionId);
-				ClearPeace(fromFactionId, toFactionId);
-			});
-		}
-
-		private static void ClearPeace(long fromFactionId, long toFactionId)
-		{   // Stops the flag from hanging out in the faction menu
-			MyAPIGateway.Utilities.InvokeOnGameThread(() =>
-			{
-				MyAPIGateway.Session.Factions.CancelPeaceRequest(toFactionId, fromFactionId);
-				MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFactionId, toFactionId);
-			});
-		}
-
-		private static void DeclareWar(long npcFaction, long playerFaction)
-		{	// Vanilla war declaration, ensures invoking on main thread
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.DeclareWar(npcFaction, playerFaction));
-		}
 		
 		private bool CheckTimedNegativeRelationshipState(long npcFaction, long playerFaction)
 		{
@@ -575,64 +724,6 @@ namespace Eem.Thraxus.Factions.Models
 		private bool CheckMentingRelationship(long fromFactionId, long toFactionId)
 		{
 			return MendingRelationships.Contains(new PendingRelation(fromFactionId, toFactionId));
-		}
-
-
-		// Methods that handle relationships
-		
-		// Peace
-
-		private void DeclareFullNpcPeace(long factionId)
-		{
-			try
-			{
-				foreach (KeyValuePair<long, IMyFaction> lawfulFaction in _lawfulFactionDictionary)
-					AutoPeace(lawfulFaction.Key, factionId);
-			}
-			catch (Exception e)
-			{
-				WriteToLog("DeclareFullNpcPeace", $"Exception!\t{e}", LogType.Exception);
-			}
-		}
-
-		// War
-
-		private void WarDeclared(long fromFactionId, long toFactionId)
-		{   // Going to take the stance that if a war is declared by an NPC, it's a valid war
-			// TODO Add dialogue for when a player declares war on an NPC directly
-			if (fromFactionId.GetFactionById().IsEveryoneNpc())
-				VetNewWar(fromFactionId, toFactionId);
-			//// This is for when a player declares war on an NPC 
-			//if (!fromFactionId.GetFactionById().IsEveryoneNpc() && toFactionId.GetFactionById().IsEveryoneNpc())
-			//	DeclarePermanentNpcWar(toFactionId, fromFactionId);
-		}
-
-		private void War(long npcFactionId, long playerFactionId)
-		{
-			// TODO just a bookmark!
-			WriteToLog("War", $"npcFaction:\t{npcFactionId}\tplayerFaction:\t{playerFactionId}", LogType.Debug);
-			NewTimedNegativeRelationship(npcFactionId, playerFactionId);
-			RequestDialog(npcFactionId.GetFactionById(), playerFactionId.GetFactionById(), Dialogue.DialogType.WarDeclared);
-			DeclareWar(npcFactionId, playerFactionId);
-		}
-
-		private void DeclarePermanentNpcWar(long npcFaction, long playerFaction)
-		{	// Used for when a player declares war on a NPC
-			DeclareWar(npcFaction, playerFaction);
-		}
-
-		private void DeclarePermanentFullNpcWar(long playerFaction)
-		{	// Used to declare war against a player pirate
-			try
-			{
-				foreach (KeyValuePair<long, IMyFaction> lawfulFaction in _lawfulFactionDictionary)
-					DeclareWar(lawfulFaction.Key, playerFaction);
-				RequestNewPirateDialog(playerFaction);
-			}
-			catch (Exception e)
-			{
-				WriteToLog("DeclarePermanentFullNpcWar", $"Exception!\t{e}", LogType.Exception);
-			}
 		}
 
 		private void HandleFormerPlayerPirate(long playerFactionId)
@@ -646,20 +737,6 @@ namespace Eem.Thraxus.Factions.Models
 			catch (Exception e)
 			{
 				WriteToLog("HandleFormerPlayerPirate", $"Exception!\t{e}", LogType.Exception);
-			}
-		}
-
-		private void DeclareFullNpcWar(long playerFactionId)
-		{   // TODO: Used to declare war against a player for violating the rules of engagement (unused for now, but in place for when it's required)
-			try
-			{
-				foreach (KeyValuePair<long, IMyFaction> lawfulFaction in _lawfulFactionDictionary)
-					NewTimedNegativeRelationship(lawfulFaction.Key, playerFactionId);
-				//RequestNewPirateDialog(playerFactionId); replace this with collective disappointment
-			}
-			catch (Exception e)
-			{
-				WriteToLog("DeclareFullNpcWar", $"Exception!\t{e}", LogType.Exception);
 			}
 		}
 
@@ -702,16 +779,6 @@ namespace Eem.Thraxus.Factions.Models
 			}
 		}
 		
-		public void WarDeclaration(long npcFactionId, long playerFactionId)
-		{   // Used by BotBase to declare war until I have the time to redo bots/ai
-			// May revisit parallel threading for this in the future, for now, it's fine as is
-			//MyAPIGateway.Parallel.Start(delegate
-			//{ 
-				WarQueue.Enqueue(new PendingRelation(npcFactionId, playerFactionId));
-				ProcessWarQueue();
-			//});
-		}
-
 		private void VetNewWar(long npcFactionId, long playerFactionId)
 		{
 			try
