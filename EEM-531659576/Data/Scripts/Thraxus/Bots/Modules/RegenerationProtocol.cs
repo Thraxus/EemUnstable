@@ -11,6 +11,8 @@ using VRageMath;
 
 namespace Eem.Thraxus.Bots.Modules
 {
+	//TODO Unfinished, more concept really.  Leaving it in to work on whenever time arises.  Not important to EEM in reality though.
+
 	public class RegenerationProtocol : LogBaseEvent
 	{
 		private readonly MyObjectBuilder_CubeGrid _myOb;

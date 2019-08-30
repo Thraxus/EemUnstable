@@ -354,7 +354,6 @@ namespace Eem.Thraxus.Bots.Modules
 					{
 						door.OnDoorStateChanged += delegate(IMyDoor myDoor, bool b)
 						{
-							WriteToLog("DoorStateChange", $"{myDoor.CustomName} is | IsFullyClosed: {myDoor.IsFullyClosed} | Status: {myDoor.Status} | bool: {b}", LogType.General);
 							if (myDoor.OwnerId != _gridOwnerId) return;
 							if (!b && _alertEnabled)
 								door.Enabled = false;

@@ -3,12 +3,12 @@ using Sandbox.Game.Entities;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	class SuicideProtocol : LogBaseEvent
+	class TargetIdentification : LogBaseEvent
 	{
 		private MyCubeGrid _thisGrid;
 		private long _gridOwnerId;
 
-		public SuicideProtocol(MyCubeGrid myCubeGrid, long ownerId)
+		public TargetIdentification(MyCubeGrid myCubeGrid, long ownerId)
 		{
 			_thisGrid = myCubeGrid;
 			_gridOwnerId = ownerId;

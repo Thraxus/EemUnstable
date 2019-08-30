@@ -20,13 +20,13 @@ namespace Eem.Thraxus.Bots
 	internal class BotCore : BaseGameLogicComp
 	{
 		/*
-		 * TODO Damage Handler - done
-		 * TODO Bot Setup - done		 
-		 * TODO Bot Classification (drone, fighter, station, trader, etc)
-		 * TODO Replace bot scripts with ModAPI (traders mostly)
+		 * TODO Damage Handler -- done
+		 * TODO Bot Setup -- done		 
+		 * TODO Bot Classification (drone, fighter, station, trader, etc) -- done
+		 * TODO Replace bot scripts with ModAPI (traders mostly) -- ignored
 		 * TODO Target Identifier
-		 * TODO Alert Conditions
-		 * TODO Fight or Flight Conditions
+		 * TODO Alert Conditions -- done
+		 * TODO Fight or Flight Conditions  
 		 * TODO Kamikaze Conditions
 		 * TODO Reinforcement Conditions / calls (antenna drones)
 		 * TODO Faction Monitor to ensure MES isn't stealing us again on init
