@@ -13,13 +13,13 @@ namespace Eem.Thraxus.Bots.Modules
 {
 	//TODO Unfinished, more concept really.  Leaving it in to work on whenever time arises.  Not important to EEM in reality though.
 
-	public class RegenerationProtocol : LogBaseEvent
+	public class Regeneration : LogBaseEvent
 	{
 		private readonly MyObjectBuilder_CubeGrid _myOb;
 		private readonly IMyEntity _myEntity;
 		private readonly List<Vector3I> _myObMins;
 
-		public RegenerationProtocol(IMyEntity myEntity)
+		public Regeneration(IMyEntity myEntity)
 		{
 			_myOb = (MyObjectBuilder_CubeGrid)((MyCubeGrid)myEntity).GetObjectBuilder().Clone();
 			_myEntity = myEntity;

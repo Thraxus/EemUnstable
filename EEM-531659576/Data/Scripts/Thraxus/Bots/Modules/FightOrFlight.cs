@@ -3,7 +3,7 @@ using Sandbox.Game.Entities;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	class FightOrFlight : LogBaseEvent
+	internal class FightOrFlight : LogBaseEvent
 	{
 		private MyCubeGrid _thisGrid;
 		private long _gridOwnerId;

@@ -31,6 +31,17 @@ namespace Eem.Thraxus.Bots
 		 * TODO Reinforcement Conditions / calls (antenna drones)
 		 * TODO Faction Monitor to ensure MES isn't stealing us again on init
 		 *
+		 * Modules and their use:
+		 *	Alert Conditions -- Sets wartime conditions on a ship.  Includes, but is not limited to setting up turrets, closing / locking doors, venting atmosphere
+		 *	Fight or Flight -- Determines whether the NPC is going to engage the player or run
+		 *	Passive Scanner -- Used when just flying around on it's normal path, will keep an eye out for enemies and respond appropriately (call police, keep range, prepare to run, etc.)
+		 *	Regeneration -- Concept only, but will repair a ship or station back to it's original configuration
+		 *	Reinforcements -- Responsible for triggering the antenna and calling for help (drones).  added here for more control / customization of the reinforcements called
+		 *	Retreat -- Controls the method for retreating from the enemy
+		 *	Suicide -- When all else fails, the NPC will attempt to use himself as a weapon
+		 *	Target Identification -- Looks for targets and chooses which to engage
+		 *	Threat Assessment -- Uses targets identified in Target Identification to assess the most dangerous and reports back
+		 *
 		 * TODO Convert existing code to new code base modules, including logs
 		 * TODO Upcoming: Factions
 		 * TODO Finished: EntityManager, BotCore, BotBaseAdvanced, BotMarshall, EemCore, DamageHandler

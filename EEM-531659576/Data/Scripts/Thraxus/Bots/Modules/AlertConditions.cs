@@ -16,7 +16,7 @@ using IMyLargeTurretBase = Sandbox.ModAPI.IMyLargeTurretBase;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	public class EmergencyProtocol : LogBaseEvent
+	public class AlertConditions : LogBaseEvent
 	{
 		private bool _alertEnabled;
 
@@ -31,7 +31,7 @@ namespace Eem.Thraxus.Bots.Modules
 		private readonly List<GridTimers> _gridTimers;
 		private readonly List<GridTurrets> _gridTurretSettings;
 
-		public EmergencyProtocol(MyCubeGrid myCubeGrid, long ownerId)
+		public AlertConditions(MyCubeGrid myCubeGrid, long ownerId)
 		{
 			// TODO 08.28.2019: Feature complete at this point as far as functionality.  Need to add in custom data scanning to make sure all items are parsed properly.				
 			// TODO					An example of this is the term "alert" on a timer telling me it's one i need to track.  No custom data, no timer added to the alert list

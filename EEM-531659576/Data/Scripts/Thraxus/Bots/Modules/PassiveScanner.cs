@@ -3,12 +3,12 @@ using Sandbox.Game.Entities;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	internal class ThreatAssessment : LogBaseEvent
+	internal class PassiveScanner : LogBaseEvent
 	{
 		private MyCubeGrid _thisGrid;
 		private long _gridOwnerId;
 
-		public ThreatAssessment(MyCubeGrid myCubeGrid, long ownerId)
+		public PassiveScanner(MyCubeGrid myCubeGrid, long ownerId)
 		{
 			_thisGrid = myCubeGrid;
 			_gridOwnerId = ownerId;

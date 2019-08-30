@@ -3,12 +3,12 @@ using Sandbox.Game.Entities;
 
 namespace Eem.Thraxus.Bots.Modules
 {
-	class RetreatProtocol : LogBaseEvent
+	internal class Retreat : LogBaseEvent
 	{
 		private MyCubeGrid _thisGrid;
 		private long _gridOwnerId;
 
-		public RetreatProtocol(MyCubeGrid myCubeGrid, long ownerId)
+		public Retreat(MyCubeGrid myCubeGrid, long ownerId)
 		{
 			_thisGrid = myCubeGrid;
 			_gridOwnerId = ownerId;
