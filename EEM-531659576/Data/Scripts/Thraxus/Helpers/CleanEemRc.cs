@@ -21,17 +21,17 @@ namespace Eem.Thraxus.Helpers
 
         public override void UpdateAfterSimulation100()
         {
-	        if (!Settings.DisableCleanup) return;
+	        if (!GeneralSettings.DisableCleanup) return;
 				try
             {
                 //if(!MyAPIGateway.Multiplayer.IsServer) // only server-side/SP
-                if (!Settings.IsServer)
+                if (!GeneralSettings.IsServer)
                     return;
 
                 IMyRemoteControl rc = (IMyRemoteControl)Entity;
                 IMyCubeGrid grid = rc.CubeGrid;
 
-                if (grid.Physics == null || !rc.IsWorking || !Settings.AllNpcFactions.Contains(rc.GetOwnerFactionTag()))
+                if (grid.Physics == null || !rc.IsWorking || !GeneralSettings.AllNpcFactions.Contains(rc.GetOwnerFactionTag()))
                 {
                   //  if (Settings.CleanupDebug)
                         //EemCore.GeneralLog.WriteToLog("CleanEemRc", grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") is not valid; " + (grid.Physics == null ? "Phys=null" : "Phys OK") + "; " + (rc.IsWorking ? "RC OK" : "RC Not working!") + "; " + (!Factions.Settings.Settings.AllNpcFactions.Contains(rc.GetOwnerFactionTag()) ? "Owner faction tag is not in NPC list (" + rc.GetOwnerFactionTag() + ")" : "Owner Faction OK"));
@@ -39,7 +39,7 @@ namespace Eem.Thraxus.Helpers
                     return;
                 }
 
-                if (!rc.CustomData.Contains(Settings.CleanupRcTag))
+                if (!rc.CustomData.Contains(GeneralSettings.CleanupRcTag))
                 {
                     //if (Settings.CleanupDebug)
                        // EemCore.GeneralLog.WriteToLog("CleanEemRc", grid.DisplayName + " (" + grid.EntityId + " @ " + grid.WorldMatrix.Translation + ") RC does not contain the " + Settings.CleanupRcTag + "tag!");
@@ -47,9 +47,9 @@ namespace Eem.Thraxus.Helpers
                     return;
                 }
 
-                if (Settings.CleanupRcExtraTags.Length > 0)
+                if (GeneralSettings.CleanupRcExtraTags.Length > 0)
                 {
-                    bool hasExtraTag = Settings.CleanupRcExtraTags.Any(tag => rc.CustomData.Contains(tag));
+                    bool hasExtraTag = GeneralSettings.CleanupRcExtraTags.Any(tag => rc.CustomData.Contains(tag));
 
                     if (!hasExtraTag)
                     {

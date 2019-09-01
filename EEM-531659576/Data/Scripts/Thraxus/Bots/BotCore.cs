@@ -62,7 +62,7 @@ namespace Eem.Thraxus.Bots
 		public override void Init(MyObjectBuilder_EntityBase objectBuilder)
 		{
 			base.Init(objectBuilder);
-			if (!Settings.IsServer) return;
+			if (!GeneralSettings.IsServer) return;
 			_originalUpdateEnum = NeedsUpdate;
 			NeedsUpdate |= BotSettings.CoreUpdateSchedule;
 		}
@@ -70,7 +70,7 @@ namespace Eem.Thraxus.Bots
 		public override void UpdateOnceBeforeFrame()
 		{
 			base.UpdateOnceBeforeFrame();
-			if (!Settings.IsServer) return;
+			if (!GeneralSettings.IsServer) return;
 			if (!_setupComplete) Setup();
 		}
 
@@ -157,7 +157,7 @@ namespace Eem.Thraxus.Bots
 		/// <inheritdoc />
 		public override void Close()
 		{
-			if (!Settings.IsServer) return;
+			if (!GeneralSettings.IsServer) return;
 			Shutdown();
 			base.Close();
 		}

@@ -28,7 +28,7 @@ namespace Eem.Thraxus.Helpers
 		public void Init()
 		{
 			_init = true;
-			MyAPIGateway.Session.SessionSettings.MaxDrones = Settings.ForceMaxDrones;
+			MyAPIGateway.Session.SessionSettings.MaxDrones = GeneralSettings.ForceMaxDrones;
 		}
 
 		protected override void UnloadData()
@@ -43,7 +43,7 @@ namespace Eem.Thraxus.Helpers
 		public override void UpdateBeforeSimulation()
 		{
 			if (!MyAPIGateway.Multiplayer.IsServer) return; // only server-side/SP
-			if (!Settings.DisableCleanup) return;
+			if (!GeneralSettings.DisableCleanup) return;
 
 			if (!_init)
 			{
@@ -59,7 +59,7 @@ namespace Eem.Thraxus.Helpers
 				_skip = 0;
 
 				// the range used to check player distance from ships before removing them
-				RangeSq = Math.Max(MyAPIGateway.Session.SessionSettings.ViewDistance, Settings.CleanupMinRange);
+				RangeSq = Math.Max(MyAPIGateway.Session.SessionSettings.ViewDistance, GeneralSettings.CleanupMinRange);
 				RangeSq *= RangeSq;
 
 				Players.Clear();

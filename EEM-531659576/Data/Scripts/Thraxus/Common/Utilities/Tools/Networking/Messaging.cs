@@ -13,13 +13,13 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 
 		public static void Register()
 		{
-			MyAPIGateway.Multiplayer.RegisterMessageHandler(Settings.Settings.NetworkId, MessageHandler);
+			MyAPIGateway.Multiplayer.RegisterMessageHandler(Settings.GeneralSettings.NetworkId, MessageHandler);
 			MyAPIGateway.Utilities.MessageEntered += ChatMessageHandler;
 		}
 
-		public static void Unregister()
+		public static void UnRegister()
 		{
-			MyAPIGateway.Multiplayer.UnregisterMessageHandler(Settings.Settings.NetworkId, MessageHandler);
+			MyAPIGateway.Multiplayer.UnregisterMessageHandler(Settings.GeneralSettings.NetworkId, MessageHandler);
 			lock (_playerCache)
 			{
 				_playerCache = null;
@@ -30,7 +30,7 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 		private static void MessageHandler(byte[] bytes)
 		{
 			MessageBase m = MyAPIGateway.Utilities.SerializeFromBinary<MessageBase>(bytes);
-			if (Settings.Settings.IsServer)
+			if (Settings.GeneralSettings.IsServer)
 				m.HandleServer();
 			else
 				m.HandleClient();
@@ -53,7 +53,7 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 			byte[] d = MyAPIGateway.Utilities.SerializeToBinary(message);
 			if (!reliable && d.Length >= 1000)
 				throw new Exception($"Attempting to send unreliable message beyond message size limits! Message type: {message.GetType()} Content: {string.Join(" ", d)}");
-			MyAPIGateway.Multiplayer.SendMessageTo(Settings.Settings.NetworkId, d, steamId, reliable);
+			MyAPIGateway.Multiplayer.SendMessageTo(Settings.GeneralSettings.NetworkId, d, steamId, reliable);
 		}
 
 		public static void SendMessageToServer(MessageBase message, bool reliable = true)
@@ -61,7 +61,7 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 			byte[] d = MyAPIGateway.Utilities.SerializeToBinary(message);
 			if (!reliable && d.Length >= 1000)
 				throw new Exception($"Attempting to send unreliable message beyond message size limits! Message type: {message.GetType()} Content: {string.Join(" ", d)}");
-			MyAPIGateway.Multiplayer.SendMessageToServer(Settings.Settings.NetworkId, d, reliable);
+			MyAPIGateway.Multiplayer.SendMessageToServer(Settings.GeneralSettings.NetworkId, d, reliable);
 		}
 
 		public static void SendMessageToClients(MessageBase message, bool reliable = true, params ulong[] ignore)
@@ -78,7 +78,7 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 					ulong steamId = player.SteamUserId;
 					if (ignore?.Contains(steamId) == true)
 						continue;
-					MyAPIGateway.Multiplayer.SendMessageTo(Settings.Settings.NetworkId, d, steamId, reliable);
+					MyAPIGateway.Multiplayer.SendMessageTo(Settings.GeneralSettings.NetworkId, d, steamId, reliable);
 				}
 				_playerCache.Clear();
 			}
@@ -90,7 +90,7 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 		/// <param name="message">The message to send</param>
 		/// <param name="duration">Optional. How long to display the message for</param>
 		/// <param name="color">Optional.  Color of the sender's name in chat - remember to check it against MyFontEnum else, errors</param>
-		public static void ShowLocalNotification(string message, int duration = Settings.Settings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
+		public static void ShowLocalNotification(string message, int duration = Settings.GeneralSettings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
 		{
 			MyVisualScriptLogicProvider.ShowNotification(message, duration, color);
 		}
@@ -101,7 +101,7 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 		/// <param name="message">Message to send</param>
 		/// <param name="duration">Optional. How long to display the message for</param>
 		/// <param name="color">Optional. Color to send the message in</param>
-		public static void SendMessageToServer(string message, int duration = Settings.Settings.DefaultServerMessageDisplayTime, string color = MyFontEnum.Red)
+		public static void SendMessageToServer(string message, int duration = Settings.GeneralSettings.DefaultServerMessageDisplayTime, string color = MyFontEnum.Red)
 		{
 			MyVisualScriptLogicProvider.ShowNotificationToAll(message, duration, color);
 		}

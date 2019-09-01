@@ -30,7 +30,7 @@ namespace Eem.Thraxus.Common.Utilities.Tools
 		{
 			long end = Stopwatch.GetTimestamp();
 			TimeSpan timespan = new TimeSpan(end - _start);
-			if(Settings.Settings.ProfilingEnabled)
+			if(Settings.GeneralSettings.ProfilingEnabled)
 				StaticLog.WriteToLog(_name, $"{timespan.TotalMilliseconds:0.##########}ms", LogType.Profiling);
 		}
 	}

@@ -5,9 +5,9 @@ using VRage.Game.ModAPI;
 
 namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 {
-	class ChatHandler
+	internal static class ChatHandler
 	{
-		internal const string ChatCommandPrefix = Settings.Settings.ChatCommandPrefix;
+		internal const string ChatCommandPrefix = Settings.GeneralSettings.ChatCommandPrefix;
 		private const string HelpPrefix = "help";
 
 		private static readonly Dictionary<string, Action<string>> ChatAction = new Dictionary<string, Action<string>>
@@ -17,7 +17,6 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 
 		public static void HandleChatMessage(string message)
 		{
-
 			IMyPlayer localPlayer = MyAPIGateway.Session.Player;
 
 			if (localPlayer.PromoteLevel < MyPromoteLevel.Admin)

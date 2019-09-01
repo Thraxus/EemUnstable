@@ -32,7 +32,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 		/// <inheritdoc />
 		public override void LoadData()
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (!Settings.GeneralSettings.IsServer) return;
 			base.LoadData();
 			if (!_superEarlySetupComplete) SuperEarlySetup();
 		}
@@ -41,18 +41,18 @@ namespace Eem.Thraxus.Common.BaseClasses
 		{
 			_superEarlySetupComplete = true;
 			_generalLog = new Log(_baseGeneralLogName);
-			if (Settings.Settings.DebugMode) _debugLog = new Log(_baseDebugLogName);
+			if (Settings.GeneralSettings.DebugMode) _debugLog = new Log(_baseDebugLogName);
 		}
 
 		public override void BeforeStart()
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (!Settings.GeneralSettings.IsServer) return;
 			base.BeforeStart();
 		}
 
 		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (!Settings.GeneralSettings.IsServer) return;
 			base.Init(sessionComponent);
 			if (!_earlySetupComplete) EarlySetup();
 		}
@@ -65,7 +65,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 
 		public override void UpdateBeforeSimulation()
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (!Settings.GeneralSettings.IsServer) return;
 			base.UpdateBeforeSimulation();
 			if (!_lateSetupComplete) LateSetup();
 		}
@@ -80,7 +80,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 
 		public override void UpdateAfterSimulation()
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (!Settings.GeneralSettings.IsServer) return;
 			base.UpdateAfterSimulation();
 		}
 
@@ -92,7 +92,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 
 		protected virtual void Unload()
 		{
-			if (!Settings.Settings.IsServer) return;
+			if (!Settings.GeneralSettings.IsServer) return;
 			WriteToLog("Unload", $"Retired.", LogType.General);
 			_debugLog?.Close();
 			_generalLog?.Close();

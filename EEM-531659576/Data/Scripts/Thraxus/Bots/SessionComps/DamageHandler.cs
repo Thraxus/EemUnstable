@@ -61,9 +61,9 @@ namespace Eem.Thraxus.Bots.SessionComps
 			base.Unload();
 		}
 		
-		private static void OnTriggerAlert(long shipid, long playerId)
+		private static void OnTriggerAlert(long shipId, long playerId)
 		{
-			TriggerAlert?.Invoke(shipid, playerId);
+			TriggerAlert?.Invoke(shipId, playerId);
 		}
 
 		private static void RegisterWarEvent(long shipId, long playerId)

@@ -40,7 +40,7 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Logging
 			TextWriter = null;
 		}
 
-		public void WriteToLog(string caller, string message, bool showOnHud = false, int duration = Settings.Settings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
+		public void WriteToLog(string caller, string message, bool showOnHud = false, int duration = Settings.GeneralSettings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
 		{
 			BuildLogLine(caller, message);
 			if (!showOnHud) return;

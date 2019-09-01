@@ -8,10 +8,10 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Logging
 	// ReSharper disable once ClassNeverInstantiated.Global
 	internal class StaticLog : MySessionComponentBase
 	{
-		private const string DebugLogName = Settings.Settings.StaticDebugLogName;
-		private const string ExceptionLogName = Settings.Settings.ExceptionLogName;
-		private const string GeneralLogName = Settings.Settings.StaticGeneralLogName;
-		private const string ProfilingLogName = Settings.Settings.ProflingLogName;
+		private const string DebugLogName = Settings.GeneralSettings.StaticDebugLogName;
+		private const string ExceptionLogName = Settings.GeneralSettings.ExceptionLogName;
+		private const string GeneralLogName = Settings.GeneralSettings.StaticGeneralLogName;
+		private const string ProfilingLogName = Settings.GeneralSettings.ProfilingLogName;
 
 		private static Log _debugLog;
 		private static Log _exceptionLog;
@@ -27,10 +27,10 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Logging
 		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
 		{
 			base.Init(sessionComponent);
-			if (Settings.Settings.DebugMode) _debugLog = new Log(DebugLogName);
+			if (Settings.GeneralSettings.DebugMode) _debugLog = new Log(DebugLogName);
 			_exceptionLog = new Log(ExceptionLogName);
 			_generalLog = new Log(GeneralLogName);
-			if (Settings.Settings.ProfilingEnabled) _profilingLog = new Log(ProfilingLogName);
+			if (Settings.GeneralSettings.ProfilingEnabled) _profilingLog = new Log(ProfilingLogName);
 			WriteToLog("StaticLogger", "Static logs loaded.", LogType.General);
 		}
 
