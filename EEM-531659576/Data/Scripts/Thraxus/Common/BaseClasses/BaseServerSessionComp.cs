@@ -37,6 +37,18 @@ namespace Eem.Thraxus.Common.BaseClasses
 			if (!_superEarlySetupComplete) SuperEarlySetup();
 		}
 
+		public override MyObjectBuilder_SessionComponent GetObjectBuilder()
+		{   // Always return base.GetObjectBuilder(); after your code! 
+			// Do all saving here, make sure to return the OB when done;
+			return base.GetObjectBuilder();
+		}
+
+		public override void SaveData()
+		{
+			// this save happens after the game save, so it has limited uses really
+			base.SaveData();
+		}
+
 		protected virtual void SuperEarlySetup()
 		{
 			_superEarlySetupComplete = true;

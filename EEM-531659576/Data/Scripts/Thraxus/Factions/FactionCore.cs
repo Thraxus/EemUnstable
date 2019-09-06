@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Factions.Models;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.SaveGame;
 using Eem.Thraxus.Factions.DataTypes;
-using Sandbox;
-using Sandbox.Game.World;
-using Sandbox.ModAPI;
+using VRage.Game;
 using VRage.Game.Components;
-using VRage.Game.ModAPI;
 
 
 namespace Eem.Thraxus.Factions
@@ -23,8 +19,8 @@ namespace Eem.Thraxus.Factions
 		private const string GeneralLogName = "FactionsGeneral";
 		private const string DebugLogName = "FactionsDebug";
 		private const string SessionCompName = "Factions";
-		private const string SaveVarName = "Eem_Factions";
-		private const string SaveFileName = "Eem_Factions.eem";
+		private const string SaveVarName = "Factions_eem";
+		private const string SaveFileName = "Factions.eem";
 
 		/// <inheritdoc />
 		public FactionCore() : base(GeneralLogName, DebugLogName, SessionCompName, false) { } // Do nothing else
@@ -46,7 +42,7 @@ namespace Eem.Thraxus.Factions
 		}
 		
 		// Init Methods
-		
+
 		/// <summary>
 		/// Runs every tick before the simulation is updated
 		/// </summary>
@@ -56,12 +52,17 @@ namespace Eem.Thraxus.Factions
 			TickTimer();
 		}
 
+		public override MyObjectBuilder_SessionComponent GetObjectBuilder()
+		{   // Always return base.GetObjectBuilder(); after your code! 
+			if (_relationshipManager == null) base.GetObjectBuilder();
+			Save.WriteToFile(SaveFileName, _relationshipManager.GetSave(), typeof(Dictionary<long, FactionRelation>));
+			WriteToLog("GetObjectBuilder", $"Saved state", LogType.General);
+			return base.GetObjectBuilder();
+		}
+
 		public override void SaveData()
 		{
 			base.SaveData();
-			if (_relationshipManager == null) return;
-			Save.WriteToFile(SaveFileName, _relationshipManager.GetSave(), typeof(Dictionary<long, FactionRelation>));
-			//MyAPIGateway.Utilities.SetVariable<string>(SaveVarName, MyAPIGateway.Utilities.SerializeToBinary(_relationshipManager.GetSave()).ToString());
 		}
 		
 		/// <inheritdoc />
@@ -74,9 +75,9 @@ namespace Eem.Thraxus.Factions
 			WriteToLog("FactionCore", $"Initialized... {UpdateOrder} | SaveState: {_factionMaster?.Count}", LogType.General);
 		}
 
-		public void ReInitFactions()
+		public void NewIdentityDetected(long identityId)
 		{
-
+			_relationshipManager.NewIdentityDetected(identityId);
 		}
 		
 		/// <inheritdoc />
@@ -108,8 +109,8 @@ namespace Eem.Thraxus.Factions
 				_relationshipManager.CheckNegativeRelationships();
 			if (_tickTimer % GeneralSettings.FactionMendingRelationshipAssessment == 0)
 				_relationshipManager.CheckMendingRelationships();
-			if (_tickTimer % GeneralSettings.TicksPerMinute == 0)
-				_relationshipManager.SetRepDebug(GeneralSettings.Random.Next(-30,30));
+			//if (_tickTimer % GeneralSettings.TicksPerMinute == 0)
+			//	_relationshipManager.SetRepDebug(GeneralSettings.Random.Next(-30,30));
 		}
 	}
 }

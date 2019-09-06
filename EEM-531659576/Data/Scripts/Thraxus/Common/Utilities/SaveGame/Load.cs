@@ -1,10 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
-using Eem.Thraxus.Common.Settings;
-using Eem.Thraxus.Common.Utilities.SaveGame.DataTypes;
 using Sandbox.ModAPI;
-using VRage;
 
 namespace Eem.Thraxus.Common.Utilities.SaveGame
 {
@@ -15,7 +11,7 @@ namespace Eem.Thraxus.Common.Utilities.SaveGame
 			if (!MyAPIGateway.Utilities.FileExistsInWorldStorage(fileName, type))
 				return default(T);
 
-			using (var binaryReader = MyAPIGateway.Utilities.ReadBinaryFileInWorldStorage(fileName, type))
+			using (BinaryReader binaryReader = MyAPIGateway.Utilities.ReadBinaryFileInWorldStorage(fileName, type))
 			{
 				return MyAPIGateway.Utilities.SerializeFromBinary<T>(binaryReader.ReadBytes(binaryReader.ReadInt32()));
 

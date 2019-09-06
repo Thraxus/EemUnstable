@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Common.Utilities.UserConfiguration

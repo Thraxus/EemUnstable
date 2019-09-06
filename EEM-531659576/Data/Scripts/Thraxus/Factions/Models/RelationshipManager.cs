@@ -7,12 +7,12 @@ using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.StaticMethods;
 using Eem.Thraxus.Common.Utilities.Tools.Networking;
 using Eem.Thraxus.Factions.DataTypes;
+using Sandbox.Game;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
-using VRage.Game.ObjectBuilders.Definitions;
 
 namespace Eem.Thraxus.Factions.Models
 {
@@ -22,10 +22,6 @@ namespace Eem.Thraxus.Factions.Models
 		// TODO		On game start, load this dictionary from the sandbox and iterate it to make sure the values match, and any new NPC's are
 		// TODO		added into the rep's properly
 
-		private const int DefaultNegativeRep = -1500;
-		private const int DefaultNeutralRep = -500;
-
-		private readonly Dictionary<long, FactionRelation> _relationMaster;
 
 		private readonly Dictionary<long, IMyFaction> _playerFactionDictionary;
 		private readonly Dictionary<long, IMyFaction> _playerPirateFactionDictionary;
@@ -33,10 +29,22 @@ namespace Eem.Thraxus.Factions.Models
 		private readonly Dictionary<long, IMyFaction> _enforcementFactionDictionary;
 		private readonly Dictionary<long, IMyFaction> _lawfulFactionDictionary;
 		private readonly Dictionary<long, IMyFaction> _npcFactionDictionary;
+
+
 		private readonly Dictionary<long, IMyFaction> _nonEemNpcFactionDictionary;
 		private readonly Dictionary<long, int> _newFactionDictionary;
 
+
+
+		private const int DefaultNegativeRep = -1500;
+		private const int DefaultNeutralRep = -500;
+
+		private readonly Dictionary<long, FactionRelation> _relationMaster;
+
 		private static readonly Queue<PendingRelation> WarQueue = new Queue<PendingRelation>();
+
+
+
 
 		private List<TimedRelationship> TimedNegativeRelationships { get; }
 		private List<PendingRelation> MendingRelationships { get; }
@@ -63,45 +71,112 @@ namespace Eem.Thraxus.Factions.Models
 			_npcFactionDictionary = new Dictionary<long, IMyFaction>();
 			_newFactionDictionary = new Dictionary<long, int>();
 			_nonEemNpcFactionDictionary = new Dictionary<long, IMyFaction>();
+
 			TimedNegativeRelationships = new List<TimedRelationship>();
 			MendingRelationships = new List<PendingRelation>();
+
 			MyAPIGateway.Session.Factions.FactionStateChanged += FactionStateChanged;
 			MyAPIGateway.Session.Factions.FactionCreated += FactionCreated;
 			MyAPIGateway.Session.Factions.FactionEdited += FactionEdited;
 			MyAPIGateway.Session.Factions.FactionAutoAcceptChanged += MonitorAutoAccept;
-			WriteToLog("RelationshipManager", $"Constructed!", LogType.General);
 		}
 
 		public void Run()
 		{
-			SetupFactionRelations();
-			if (_relationMaster.Count <= 0) return;
-			foreach (KeyValuePair<long, FactionRelation> factionRelation in _relationMaster)
+			WriteToLog("RelationshipManager.Run", $"Warming up!", LogType.General);
+			SetupFactionDictionaries();
+			ReconcileRelations();
+			EnforceReputations();
+
+			SetupPlayerRelations();
+			SetupNpcRelations();
+			SetupPirateRelations();
+			SetupAutoRelations();
+
+
+			SetupFactionDeletionProtection();
+			DumpEverythingToTheLog();
+			_setupComplete = true;
+			WriteToLog("RelationshipManager.Run", $"At a full Sprint!", LogType.General);
+		}
+
+		private void ReconcileRelations()
+		{
+			//if (_relationMaster.Count <= 0) return;
+
+			List<IMyIdentity> myIdentities = new List<IMyIdentity>();
+			MyAPIGateway.Players.GetAllIdentites(myIdentities);
+
+			foreach (KeyValuePair<long, FactionRelation> relation in _relationMaster)
+			{   // Reconciling the save game and removing any identity that doesn't exist anymore.
+				bool delete = true;
+				foreach (IMyIdentity myIdentity in myIdentities)
+				{
+					if (myIdentity.IdentityId != relation.Key) continue;
+					delete = false;
+				}
+				if (delete)
+					_relationMaster.Remove(relation.Key);
+			}
+
+			for (int i = myIdentities.Count - 1; i >= 0; i--)
+			{   // This should leave only new identities left to setup
+				if (_relationMaster.ContainsKey(myIdentities[i].IdentityId))
+					myIdentities.RemoveAtFast(i);
+			}
+			
+			foreach (IMyIdentity myIdentity in myIdentities)
 			{
-				WriteToLog("_relationManager", $"{factionRelation.Key} | {factionRelation.Value.ToString()}", LogType.General);
+				SetupNewRelationship(myIdentity.IdentityId);
 			}
 		}
 
-		public void ReInitialize()
+		private void SetupNewRelationship(long identityId, bool enforce = false)
+		{   // This will setup a new identity to default relationship status
+			WriteToLog("SetupNewRelationship", $"Setting up a new relationship... {identityId}", LogType.General);
+			if (enforce) EnforceReputations(identityId); // The defaults have been set, now to force faction status
+		}
+
+		public void NewIdentityDetected(long identityId)
+		{   // Idea here is that the entity manager will key off Factions to handle any new identity detected on the server (player or NPC)
+			WriteToLog("NewIdentityDetected", $"{identityId} is a new friend!!!", LogType.General);
+			if (_relationMaster.ContainsKey(identityId))
+				EnforceReputations(identityId); // If we already know who this identity is, just enforce the faction status
+			else SetupNewRelationship(identityId, true); // This identity is new, so set it up as such
+		}
+
+		private void EnforceReputations(long identityId)
 		{
-			WriteToLog("RelationshipManager", $"Reconstructing!", LogType.General);
-			_playerFactionDictionary.Clear();
-			_playerPirateFactionDictionary.Clear();
-			_pirateFactionDictionary.Clear();
-			_enforcementFactionDictionary.Clear();
-			_lawfulFactionDictionary.Clear();
-			_npcFactionDictionary.Clear();
-			_newFactionDictionary.Clear();
-			_nonEemNpcFactionDictionary.Clear();
-			TimedNegativeRelationships.Clear();
-			MendingRelationships.Clear();
-			Run();
-			WriteToLog("RelationshipManager", $"Reconstructed!", LogType.General);
+			WriteToLog("EnforceReputations", $"Making them all play nice...", LogType.General);
+			IMyFaction identityFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(identityId);
+			if (identityFaction == null)	// identity has no faction, nothing to enforce
+				return;
+			// Get rep from faction -> faction relationships
+			// Iterate identity with all factions and 
+		}
+
+		private void EnforceAllReputations()
+		{
+			WriteToLog("EnforceReputations", $"Making them all play nice...", LogType.General);
+		}
+
+		private void NewFactionMember()
+		{	// Idea here is to make sure that when someone joins a faction, the rep is rebalanced 
+			// there should always be a rep hit, but minor for like reps, but more major the greater the divergence 
+
+
+
+		}
+
+		private void ReBalanceFactionRep(long factionId)
+		{	// Idea here is that all faction members have the same rep.  We take in the faction and use the stored rep 
+			// values to set all members to that rep with all other factions.
+
 		}
 
 		public void Close()
 		{
-			WriteToLog("RelationshipManager-Unload", $"Packing up shop...", LogType.General);
+			WriteToLog("RelationshipManager.Close", $"Cooling down...", LogType.General);
 			MyAPIGateway.Session.Factions.FactionStateChanged -= FactionStateChanged;
 			MyAPIGateway.Session.Factions.FactionCreated -= FactionCreated;
 			MyAPIGateway.Session.Factions.FactionEdited -= FactionEdited;
@@ -118,7 +193,7 @@ namespace Eem.Thraxus.Factions.Models
 			TimedNegativeRelationships.Clear();
 			MendingRelationships.Clear();
 			_dialogue.Unload();
-			WriteToLog("RelationshipManager-Unload", $"Shop all packed up", LogType.General);
+			WriteToLog("RelationshipManager.Close", $"Ready for a vacation!", LogType.General);
 		}
 
 		#region Eco Reputation Hooks for relationships
@@ -381,7 +456,7 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			WriteToLog("FactionStateChanged",
 				$"Action:\t{action.ToString()}\tfromFaction:\t{fromFactionId}\ttag:\t{fromFactionId.GetFactionById()?.Tag}\ttoFaction:\t{toFactionId}\ttag:\t{toFactionId.GetFactionById()?.Tag}\tplayerId:\t{playerId}\tsenderId:\t{senderId}",
-				LogType.Debug);
+				LogType.General);
 			if (action != MyFactionStateChange.RemoveFaction)
 				if (fromFactionId == 0L || toFactionId == 0L) return;
 
@@ -407,6 +482,8 @@ namespace Eem.Thraxus.Factions.Models
 				case MyFactionStateChange.FactionMemberCancelJoin: // Unused
 					break;
 				case MyFactionStateChange.FactionMemberAcceptJoin: // Unused
+					// fromFactionId and toFactionId are identical here, playerId is the new player 
+					FactionNewMember(fromFactionId, playerId);
 					break;
 				case MyFactionStateChange.FactionMemberKick:
 					AddFactionMember(fromFactionId.GetFactionById());
@@ -423,6 +500,11 @@ namespace Eem.Thraxus.Factions.Models
 					WriteToLog("FactionStateChanged", $"Case not found:\t{nameof(action)}\t{action.ToString()}", LogType.General);
 					break;
 			}
+		}
+
+		private void FactionNewMember(long fromFactionId, long playerId)
+		{	// TODO ...this
+			// fromFactionId is the faction an identity joined, playerId is the new member
 		}
 
 		private void FactionCreated(long factionId)
@@ -622,7 +704,7 @@ namespace Eem.Thraxus.Factions.Models
 
 		// Dictionary methods
 
-		private void SetupFactionRelations()
+		private void SetupFactionDictionaries()
 		{
 			foreach (KeyValuePair<long, IMyFaction> faction in MyAPIGateway.Session.Factions.Factions)
 			{
@@ -676,47 +758,6 @@ namespace Eem.Thraxus.Factions.Models
 				}
 
 			}
-
-			List<IMyPlayer> myPlayers = new List<IMyPlayer>();
-			MyAPIGateway.Players.GetPlayers(myPlayers);
-
-			foreach (IMyPlayer myPlayer in myPlayers)
-			{
-				WriteToLog("Debug-myPlayers", $"{myPlayer.DisplayName} | {myPlayer.IdentityId}", LogType.General);
-			}
-
-			List<IMyIdentity> myIdentities = new List<IMyIdentity>();
-			MyAPIGateway.Players.GetAllIdentites(myIdentities);
-
-			foreach (IMyIdentity myIdentity in myIdentities)
-			{
-				WriteToLog("Debug-myIdentities", $"{myIdentity.DisplayName} | {myIdentity.IdentityId}", LogType.General);
-			}
-
-			if (_relationMaster.Count == 0)
-			{
-				_relationMaster.Add(123, new FactionRelation(1234, "tag1", DefaultNegativeRep));
-				// First time setup
-			}
-
-			foreach (KeyValuePair<long, FactionRelation> relationship in _relationMaster)
-			{
-				
-			}
-
-			if (myPlayers.Count != 0)
-			{
-
-			}
-
-			SetupPlayerRelations();
-			SetupNpcRelations();
-			SetupPirateRelations();
-
-			SetupAutoRelations();
-			SetupFactionDeletionProtection();
-			DumpEverythingToTheLog();
-			_setupComplete = true;
 		}
 
 		private void SetupPlayerRelations()

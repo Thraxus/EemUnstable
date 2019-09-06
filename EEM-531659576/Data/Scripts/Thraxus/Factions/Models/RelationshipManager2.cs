@@ -9,9 +9,7 @@ using Eem.Thraxus.Common.Utilities.Tools.Networking;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game;
-using VRage.Game.Components;
 using VRage.Game.ModAPI;
-using VRage.Game.ObjectBuilders.Definitions.Reputation;
 
 namespace Eem.Thraxus.Factions.Models
 {
