@@ -115,7 +115,7 @@ namespace Eem.Thraxus
 			if (Constants.EnableGeneralLog) GeneralLog?.Close();
 		}
 
-		
+
 
 		///// <summary>
 		///// Initial setup
@@ -125,6 +125,14 @@ namespace Eem.Thraxus
 		//{
 		//	base.Init(sessionComponent);
 		//}
+
+		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
+		{
+			if (MyAPIGateway.Session.SessionSettings.BlockLimitsEnabled == MyBlockLimitsEnabledEnum.NONE)
+				MyAPIGateway.Session.SessionSettings.PiratePCU = 1000000;
+			else MyAPIGateway.Session.SessionSettings.PiratePCU = MyAPIGateway.Session.SessionSettings.TotalPCU * 3;
+			base.Init(sessionComponent);
+		}
 
 		public override void BeforeStart()
 		{
