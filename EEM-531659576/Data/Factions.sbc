@@ -14,6 +14,8 @@
       <DefaultRelation>Enemies</DefaultRelation>
       <DiscoveredByDefault>true</DiscoveredByDefault>
       <Description>Peaceful. Every loner or space traveler protected by Space Police is recognized as "civilian".</Description>
+      <StartingBalance>10000</StartingBalance>
+      <FactionIcon>Textures\FactionLogo\Traders\TraderIcon_5.dds</FactionIcon>
     </Faction>
     <Faction Tag="UCMF" Founder="Military Forces">
       <Id>
@@ -28,6 +30,8 @@
       <DefaultRelation>Enemies</DefaultRelation>
       <DiscoveredByDefault>true</DiscoveredByDefault>
       <Description>United Colonies Military Forces. Peaceful, but hostile if called as reinforcements, military objects are restricted and trespassing will make them hostile.</Description>
+      <StartingBalance>10000</StartingBalance>
+      <FactionIcon>Textures\FactionLogo\Others\OtherIcon_15.dds</FactionIcon>
     </Faction>
     <Faction Tag="SEPD" Founder="Police">
       <Id>
@@ -42,6 +46,8 @@
       <DefaultRelation>Enemies</DefaultRelation>
       <DiscoveredByDefault>true</DiscoveredByDefault>
       <Description>Peaceful. Space law enforcement officers. Hostile when called by distress signals.</Description>
+      <StartingBalance>10000</StartingBalance>
+      <FactionIcon>Textures\FactionLogo\Others\OtherIcon_28.dds</FactionIcon>
     </Faction>
     <Faction Tag="ISTG" Founder="Traders">
       <Id>
@@ -56,6 +62,8 @@
       <DefaultRelation>Enemies</DefaultRelation>
       <DiscoveredByDefault>true</DiscoveredByDefault>
       <Description>Peaceful. Lone independent traders united into one faction for better coordination, their ships and rare stations are ready to trade with everyone.</Description>
+      <StartingBalance>1000000000</StartingBalance>
+      <FactionIcon>Textures\FactionLogo\Traders\TraderIcon_2.dds</FactionIcon>
     </Faction>
       <Faction Tag="MMEC" Founder="MMEC">
       <Id>
@@ -69,7 +77,9 @@
 	      <AutoAcceptPeace>false</AutoAcceptPeace>
 	      <DefaultRelation>Enemies</DefaultRelation>
         <DiscoveredByDefault>true</DiscoveredByDefault>
-      <Description>Neutral, but hostile if encountered during their operations. Locations of MMEC stations are currently unknown.</Description>
+        <Description>Neutral, but hostile if encountered during their operations. Locations of MMEC stations are currently unknown.</Description>
+        <StartingBalance>0</StartingBalance>
+        <FactionIcon>Textures\FactionLogo\Others\OtherIcon_1.dds</FactionIcon>
     </Faction>
     <Faction Tag="AMPH" Founder="Amphion Corp.">
       <Id>
@@ -84,6 +94,8 @@
       <DefaultRelation>Enemies</DefaultRelation>
       <DiscoveredByDefault>true</DiscoveredByDefault>
       <Description>Peaceful. The Amphion Mining and Militia Corporation provides low-cost, maneuverable and utilitarian vessels. They prefer quick expansion with many small outposts and way stations.</Description>
+      <StartingBalance>10000</StartingBalance>
+      <FactionIcon>Textures\FactionLogo\Builders\BuilderIcon_6.dds</FactionIcon>
     </Faction>
     <Faction Tag="KUSS" Founder="KUS Shipyards">
       <Id>
@@ -98,6 +110,8 @@
       <DefaultRelation>Enemies</DefaultRelation>
       <DiscoveredByDefault>true</DiscoveredByDefault>
       <Description>Peaceful. Small industrialized corporation, going for quality, not quantity, thus they own just a few, but large industrial stations and ships.</Description>
+      <StartingBalance>10000</StartingBalance>
+      <FactionIcon>Textures\FactionLogo\Others\OtherIcon_2.dds</FactionIcon>
     </Faction>
     <Faction Tag="HS" Founder="Hyperion Systems">
       <Id>
@@ -112,6 +126,8 @@
       <DefaultRelation>Enemies</DefaultRelation>
       <DiscoveredByDefault>true</DiscoveredByDefault>
       <Description>Peaceful. Multinational defense, security and aerospace company. It's merchants are willing to trade with anyone, but are quick to anger if provoked.</Description>
+      <StartingBalance>10000</StartingBalance>
+      <FactionIcon>Textures\FactionLogo\Others\OtherIcon_13.dds</FactionIcon>
     </Faction>
     <Faction Tag="MA-I" Founder="Mahriane Industries">
       <Id>
@@ -126,6 +142,8 @@
       <DefaultRelation>Enemies</DefaultRelation>
       <DiscoveredByDefault>true</DiscoveredByDefault>
       <Description>Peaceful. Primarily specializing on trading, they established wide network of trading stations across the system. Funded enough to hire huge battleships, to protect their interests.</Description>
+      <StartingBalance>1000000000</StartingBalance>
+      <FactionIcon>Textures\FactionLogo\Others\OtherIcon_6.dds</FactionIcon>
     </Faction>
     <Faction Tag="EXMC" Founder="EXMC">
       <Id>
@@ -140,6 +158,8 @@
       <DefaultRelation>Enemies</DefaultRelation>
       <DiscoveredByDefault>true</DiscoveredByDefault>
       <Description>Peaceful. Specialized on resource gathering, the EXMC stations are found throughout the system, trading mostly resources and components.</Description>
+      <StartingBalance>1000000000</StartingBalance>
+      <FactionIcon>Textures\FactionLogo\Miners\MinerIcon_4.dds</FactionIcon>
     </Faction>
     <Faction Tag="IMDC" Founder="IMDC">
       <Id>
@@ -154,6 +174,8 @@
       <DefaultRelation>Enemies</DefaultRelation>
       <DiscoveredByDefault>true</DiscoveredByDefault>
       <Description>Peaceful. The Interstellar Mining and Defense Corporation is a multinational militarized enterprise, constructing ships and vehicles. They also have few trading outposts, yet other stations are not public.</Description>
+      <StartingBalance>1000000000</StartingBalance>
+      <FactionIcon>Textures\FactionLogo\Others\OtherIcon_20.dds</FactionIcon>
     </Faction>
     <Faction Tag="SPRT" Founder="Space Pirates">
       <Id>
