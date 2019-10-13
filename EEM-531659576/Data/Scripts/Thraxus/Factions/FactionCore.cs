@@ -30,14 +30,15 @@ namespace Eem.Thraxus.Factions
 		private RelationshipManager _relationshipManager;
 
 		public static FactionCore FactionCoreStaticInstance;
-		private Dictionary<long, FactionRelation> _factionMaster;
+		private Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> _factionMaster;
 
 		/// <inheritdoc />
 		public override void LoadData()
 		{
 			base.LoadData();
-			_factionMaster = Load.ReadFromFile<Dictionary<long, FactionRelation>>(SaveFileName, typeof(Dictionary<long, FactionRelation>));
-			_relationshipManager = _factionMaster == null ? new RelationshipManager() : new RelationshipManager(_factionMaster);
+			//_factionMaster = Load.ReadFromFile< Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>>>(SaveFileName, typeof(Dictionary<long, FactionRelation>));
+			//_relationshipManager = _factionMaster == null ? new RelationshipManager() : new RelationshipManager(_factionMaster);
+			_relationshipManager = new RelationshipManager(Load.ReadFromFile<Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>>>(SaveFileName, typeof(Dictionary<long, FactionRelation>)));
 			FactionCoreStaticInstance = this;
 		}
 		
@@ -53,7 +54,7 @@ namespace Eem.Thraxus.Factions
 		}
 
 		public override MyObjectBuilder_SessionComponent GetObjectBuilder()
-		{   // Always return base.GetObjectBuilder(); after your code! 
+		{   // Always return base.GetObjectBuilder() after your code! 
 			if (_relationshipManager == null) base.GetObjectBuilder();
 			Save.WriteToFile(SaveFileName, _relationshipManager.GetSave(), typeof(Dictionary<long, FactionRelation>));
 			WriteToLog("GetObjectBuilder", $"Saved state", LogType.General);
@@ -61,7 +62,7 @@ namespace Eem.Thraxus.Factions
 		}
 
 		public override void SaveData()
-		{
+		{	// Don't save here, save in GetObjectBuilder() -- this fires before the actual save
 			base.SaveData();
 		}
 		

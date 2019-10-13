@@ -18,11 +18,6 @@ namespace Eem.Thraxus.Factions.Models
 {
 	public class RelationshipManager : LogBaseEvent
 	{
-		// TODO Just store a dictionary of the player (key) and a struct (value) containing all factions and their relationship to the player
-		// TODO		On game start, load this dictionary from the sandbox and iterate it to make sure the values match, and any new NPC's are
-		// TODO		added into the rep's properly
-
-
 		private readonly Dictionary<long, IMyFaction> _playerFactionDictionary;
 		private readonly Dictionary<long, IMyFaction> _playerPirateFactionDictionary;
 		private readonly Dictionary<long, IMyFaction> _pirateFactionDictionary;
@@ -33,18 +28,13 @@ namespace Eem.Thraxus.Factions.Models
 
 		private readonly Dictionary<long, IMyFaction> _nonEemNpcFactionDictionary;
 		private readonly Dictionary<long, int> _newFactionDictionary;
-
-
-
+		
 		private const int DefaultNegativeRep = -1500;
 		private const int DefaultNeutralRep = -500;
 
-		private readonly Dictionary<long, FactionRelation> _relationMaster;
+		private readonly Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> _relationMaster;
 
 		private static readonly Queue<PendingRelation> WarQueue = new Queue<PendingRelation>();
-
-
-
 
 		private List<TimedRelationship> TimedNegativeRelationships { get; }
 		private List<PendingRelation> MendingRelationships { get; }
@@ -53,15 +43,122 @@ namespace Eem.Thraxus.Factions.Models
 
 		private readonly Dialogue _dialogue;
 
-		public Dictionary<long, FactionRelation> GetSave()
+		//public Dictionary<long, FactionRelation> GetSave()
+		//{
+		//	return _relationMaster;
+		//}
+
+		public Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> GetSave()
 		{
-			return _relationMaster;
+			return SaveFactionState();
 		}
-		
-		public RelationshipManager(Dictionary<long, FactionRelation> save = null)
+
+		private void LoadFactionState(Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> factionSave)
+		{
+			foreach (KeyValuePair<RelationType, Dictionary<long, List<FactionRelationship>>> savedState in factionSave)
+			{
+				switch (savedState.Key)
+				{
+					case RelationType.Identity:
+						foreach (KeyValuePair<long, List<FactionRelationship>> factionPair in savedState.Value)
+						{
+							foreach (FactionRelationship rightFaction in factionPair.Value)
+							{
+								try
+								{
+									MyAPIGateway.Session.Factions.SetReputation(factionPair.Key, rightFaction.FactionId, rightFaction.Reputation);
+								}
+								catch (Exception e)
+								{
+									WriteToLog("LoadFactionState-Faction", $"Setting the relation between faction {factionPair.Key} and {rightFaction.Tag} caused an error: {e}", LogType.Exception);
+								}
+							}
+						}
+						break;
+					case RelationType.Faction:
+						foreach (KeyValuePair<long, List<FactionRelationship>> identityPair in savedState.Value)
+						{
+							foreach (FactionRelationship rightFaction in identityPair.Value)
+							{
+								try
+								{
+									MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(identityPair.Key, rightFaction.FactionId, rightFaction.Reputation);
+								}
+								catch (Exception e)
+								{
+									WriteToLog("LoadFactionState-Identity", $"Setting the relation between identity {identityPair.Key} and {rightFaction.Tag} caused an error: {e}", LogType.Exception);
+								}
+							}
+						}
+						break;
+					default:
+						continue;
+				}
+			}
+		}
+
+		// TODO: * Method to set player rep to faction rep
+		// TODO: * Method to handle new player joining a faction (need algo to penalize relations by some amount while averaging out relationships)
+		// TODO:	- Perhaps: newRep = (oldRep + newMemberRep) / TotalFactionMembers
+		// TODO:	- If the new members rep is at wartime levels, all members rep is set to the new members rep
+		// TODO: * Method to handle rep changes for any reason (+ or -)
+		// TODO: * Method on timer that returns reputations to their natural disposition over time
+		// TODO:	- This method will handle both retuning high values to default values over time (i.e. 1500 -> -500) as well as 
+		// TODO:	-	handling the return to natural after wartime activities (i.e. -1000 -> -500).
+		// TODO:	- The return from wartime activities should be much faster than rep decay
+		// TODO: 
+		// TODO: 
+		// TODO: 
+
+		public Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> SaveFactionState()
+		{
+			Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> saveState = new Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>>();
+			Dictionary<long, List<FactionRelationship>> relationDictionary = new Dictionary<long, List<FactionRelationship>>();
+			foreach (KeyValuePair<long, IMyFaction> leftFaction in _npcFactionDictionary)
+			{	// NPC faction to NPC faction relations
+				relationDictionary.Add(leftFaction.Key, new List<FactionRelationship>());
+				foreach (KeyValuePair<long, IMyFaction> rightFaction in _npcFactionDictionary.Where(rightFaction => leftFaction.Key != rightFaction.Key))
+				{
+					relationDictionary[leftFaction.Key].Add(new FactionRelationship(rightFaction.Key, MyAPIGateway.Session.Factions.GetReputationBetweenFactions(leftFaction.Key, rightFaction.Key), rightFaction.Value.Tag));
+				}
+			}
+			foreach (KeyValuePair<long, IMyFaction> leftFaction in _playerFactionDictionary)
+			{	// Player Faction to NPC faction relations (don't care about player faction to player faction relations; they are what they are)
+				relationDictionary.Add(leftFaction.Key, new List<FactionRelationship>());
+				foreach (KeyValuePair<long, IMyFaction> rightFaction in _npcFactionDictionary.Where(rightFaction => leftFaction.Key != rightFaction.Key))
+				{
+					relationDictionary[leftFaction.Key].Add(new FactionRelationship(rightFaction.Key, MyAPIGateway.Session.Factions.GetReputationBetweenFactions(leftFaction.Key, rightFaction.Key), rightFaction.Value.Tag));
+				}
+			}
+			saveState.Add(RelationType.Faction, relationDictionary);
+
+			relationDictionary = new Dictionary<long, List<FactionRelationship>>();
+			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
+			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
+			foreach (IMyIdentity identity in gameIdentities)
+			{	// Individual relations - needed to account for players with no faction
+				relationDictionary.Add(identity.IdentityId, new List<FactionRelationship>());
+				foreach (KeyValuePair<long, IMyFaction> rightNpcFaction in _npcFactionDictionary.Where(rightNpcFaction => identity.IdentityId != rightNpcFaction.Key))
+				{
+					relationDictionary[identity.IdentityId].Add(new FactionRelationship(rightNpcFaction.Key, MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(identity.IdentityId, rightNpcFaction.Key), rightNpcFaction.Value.Tag));
+				}
+			}
+			saveState.Add(RelationType.Identity, relationDictionary);
+			return saveState;
+		}
+
+		public RelationshipManager(Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> save = null)
 		{
 			WriteToLog("RelationshipManager", $"Constructing!", LogType.General);
-			_relationMaster = save ?? new Dictionary<long, FactionRelation>();
+			if (save != null)
+			{
+				LoadFactionState(save);
+				_relationMaster = save;
+			}
+			else
+			{
+				_relationMaster = new Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>>();
+			}
 			_dialogue = new Dialogue();
 			_playerFactionDictionary = new Dictionary<long, IMyFaction>();
 			_pirateFactionDictionary = new Dictionary<long, IMyFaction>();
