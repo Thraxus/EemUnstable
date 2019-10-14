@@ -18,6 +18,12 @@ namespace Eem.Thraxus.Factions.Models
 {
 	public class RelationshipManager : LogBaseEvent
 	{
+		private enum FactionType
+		{
+			Player,
+			Npc
+		}
+
 		private readonly Dictionary<long, IMyFaction> _playerFactionDictionary;
 		private readonly Dictionary<long, IMyFaction> _playerPirateFactionDictionary;
 		private readonly Dictionary<long, IMyFaction> _pirateFactionDictionary;
@@ -42,26 +48,60 @@ namespace Eem.Thraxus.Factions.Models
 		private bool _setupComplete;
 
 		private readonly Dialogue _dialogue;
-
-		//public Dictionary<long, FactionRelation> GetSave()
-		//{
-		//	return _relationMaster;
-		//}
-
+		
 		public Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> GetSave()
 		{
 			return SaveFactionState();
 		}
 
-		private void LoadFactionState(Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> factionSave)
+		public Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> SaveFactionState()
 		{
-			foreach (KeyValuePair<RelationType, Dictionary<long, List<FactionRelationship>>> savedState in factionSave)
+			Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> saveState = new Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>>();
+			Dictionary<long, List<FactionRelationship>> relationDictionary = new Dictionary<long, List<FactionRelationship>>();
+			foreach (KeyValuePair<long, IMyFaction> leftFaction in _npcFactionDictionary)
+			{   // NPC faction to NPC faction relations
+				relationDictionary.Add(leftFaction.Key, new List<FactionRelationship>());
+				foreach (KeyValuePair<long, IMyFaction> rightFaction in _npcFactionDictionary.Where(rightFaction => leftFaction.Key != rightFaction.Key))
+				{
+					relationDictionary[leftFaction.Key].Add(new FactionRelationship(rightFaction.Key, MyAPIGateway.Session.Factions.GetReputationBetweenFactions(leftFaction.Key, rightFaction.Key), rightFaction.Value.Tag));
+				}
+			}
+			foreach (KeyValuePair<long, IMyFaction> leftFaction in _playerFactionDictionary)
+			{   // Player Faction to NPC faction relations (don't care about player faction to player faction relations; they are what they are)
+				relationDictionary.Add(leftFaction.Key, new List<FactionRelationship>());
+				foreach (KeyValuePair<long, IMyFaction> rightFaction in _npcFactionDictionary.Where(rightFaction => leftFaction.Key != rightFaction.Key))
+				{
+					relationDictionary[leftFaction.Key].Add(new FactionRelationship(rightFaction.Key, MyAPIGateway.Session.Factions.GetReputationBetweenFactions(leftFaction.Key, rightFaction.Key), rightFaction.Value.Tag));
+				}
+			}
+			saveState.Add(RelationType.Faction, relationDictionary);
+
+			relationDictionary = new Dictionary<long, List<FactionRelationship>>();
+			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
+			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
+			foreach (IMyIdentity identity in gameIdentities)
+			{   // Individual relations - needed to account for players with no faction
+				relationDictionary.Add(identity.IdentityId, new List<FactionRelationship>());
+				foreach (KeyValuePair<long, IMyFaction> rightNpcFaction in _npcFactionDictionary.Where(rightNpcFaction => identity.IdentityId != rightNpcFaction.Key))
+				{
+					relationDictionary[identity.IdentityId].Add(new FactionRelationship(rightNpcFaction.Key, MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(identity.IdentityId, rightNpcFaction.Key), rightNpcFaction.Value.Tag));
+				}
+			}
+			saveState.Add(RelationType.Identity, relationDictionary);
+			return saveState;
+		}
+
+		private void LoadFactionState()
+		{
+			foreach (KeyValuePair<RelationType, Dictionary<long, List<FactionRelationship>>> savedState in _relationMaster)
 			{
 				switch (savedState.Key)
 				{
-					case RelationType.Identity:
+					case RelationType.Faction:
 						foreach (KeyValuePair<long, List<FactionRelationship>> factionPair in savedState.Value)
 						{
+							if (!_npcFactionDictionary.ContainsKey(factionPair.Key) && !_playerFactionDictionary.ContainsKey(factionPair.Key))
+								continue;
 							foreach (FactionRelationship rightFaction in factionPair.Value)
 							{
 								try
@@ -75,9 +115,14 @@ namespace Eem.Thraxus.Factions.Models
 							}
 						}
 						break;
-					case RelationType.Faction:
+					case RelationType.Identity:
+						List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
+						MyAPIGateway.Players.GetAllIdentites(gameIdentities);
+						List<long> identityIds = gameIdentities.Select(identity => identity.IdentityId).ToList();
 						foreach (KeyValuePair<long, List<FactionRelationship>> identityPair in savedState.Value)
 						{
+							if (!identityIds.Contains(identityPair.Key))
+								continue;
 							foreach (FactionRelationship rightFaction in identityPair.Value)
 							{
 								try
@@ -104,61 +149,15 @@ namespace Eem.Thraxus.Factions.Models
 		// TODO: * Method to handle rep changes for any reason (+ or -)
 		// TODO: * Method on timer that returns reputations to their natural disposition over time
 		// TODO:	- This method will handle both retuning high values to default values over time (i.e. 1500 -> -500) as well as 
-		// TODO:	-	handling the return to natural after wartime activities (i.e. -1000 -> -500).
+		// TODO:		handling the return to natural after wartime activities (i.e. -1000 -> -500)
 		// TODO:	- The return from wartime activities should be much faster than rep decay
-		// TODO: 
-		// TODO: 
-		// TODO: 
-
-		public Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> SaveFactionState()
-		{
-			Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> saveState = new Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>>();
-			Dictionary<long, List<FactionRelationship>> relationDictionary = new Dictionary<long, List<FactionRelationship>>();
-			foreach (KeyValuePair<long, IMyFaction> leftFaction in _npcFactionDictionary)
-			{	// NPC faction to NPC faction relations
-				relationDictionary.Add(leftFaction.Key, new List<FactionRelationship>());
-				foreach (KeyValuePair<long, IMyFaction> rightFaction in _npcFactionDictionary.Where(rightFaction => leftFaction.Key != rightFaction.Key))
-				{
-					relationDictionary[leftFaction.Key].Add(new FactionRelationship(rightFaction.Key, MyAPIGateway.Session.Factions.GetReputationBetweenFactions(leftFaction.Key, rightFaction.Key), rightFaction.Value.Tag));
-				}
-			}
-			foreach (KeyValuePair<long, IMyFaction> leftFaction in _playerFactionDictionary)
-			{	// Player Faction to NPC faction relations (don't care about player faction to player faction relations; they are what they are)
-				relationDictionary.Add(leftFaction.Key, new List<FactionRelationship>());
-				foreach (KeyValuePair<long, IMyFaction> rightFaction in _npcFactionDictionary.Where(rightFaction => leftFaction.Key != rightFaction.Key))
-				{
-					relationDictionary[leftFaction.Key].Add(new FactionRelationship(rightFaction.Key, MyAPIGateway.Session.Factions.GetReputationBetweenFactions(leftFaction.Key, rightFaction.Key), rightFaction.Value.Tag));
-				}
-			}
-			saveState.Add(RelationType.Faction, relationDictionary);
-
-			relationDictionary = new Dictionary<long, List<FactionRelationship>>();
-			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
-			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
-			foreach (IMyIdentity identity in gameIdentities)
-			{	// Individual relations - needed to account for players with no faction
-				relationDictionary.Add(identity.IdentityId, new List<FactionRelationship>());
-				foreach (KeyValuePair<long, IMyFaction> rightNpcFaction in _npcFactionDictionary.Where(rightNpcFaction => identity.IdentityId != rightNpcFaction.Key))
-				{
-					relationDictionary[identity.IdentityId].Add(new FactionRelationship(rightNpcFaction.Key, MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(identity.IdentityId, rightNpcFaction.Key), rightNpcFaction.Value.Tag));
-				}
-			}
-			saveState.Add(RelationType.Identity, relationDictionary);
-			return saveState;
-		}
+		// TODO: * Add SPID to the EEM protected faction list
+		// TODO:	- This needs to include kicking players from it on parsing
 
 		public RelationshipManager(Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> save = null)
 		{
 			WriteToLog("RelationshipManager", $"Constructing!", LogType.General);
-			if (save != null)
-			{
-				LoadFactionState(save);
-				_relationMaster = save;
-			}
-			else
-			{
-				_relationMaster = new Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>>();
-			}
+			_relationMaster = save ?? new Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>>();
 			_dialogue = new Dialogue();
 			_playerFactionDictionary = new Dictionary<long, IMyFaction>();
 			_pirateFactionDictionary = new Dictionary<long, IMyFaction>();
@@ -182,9 +181,9 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			WriteToLog("RelationshipManager.Run", $"Warming up!", LogType.General);
 			SetupFactionDictionaries();
-			ReconcileRelations();
-			EnforceReputations();
-
+			ReconcileSave();
+			LoadFactionState();
+			
 			SetupPlayerRelations();
 			SetupNpcRelations();
 			SetupPirateRelations();
@@ -197,34 +196,79 @@ namespace Eem.Thraxus.Factions.Models
 			WriteToLog("RelationshipManager.Run", $"At a full Sprint!", LogType.General);
 		}
 
-		private void ReconcileRelations()
+		private void ReconcileSave()
 		{
-			//if (_relationMaster.Count <= 0) return;
-
-			List<IMyIdentity> myIdentities = new List<IMyIdentity>();
-			MyAPIGateway.Players.GetAllIdentites(myIdentities);
-
-			foreach (KeyValuePair<long, FactionRelation> relation in _relationMaster)
-			{   // Reconciling the save game and removing any identity that doesn't exist anymore.
-				bool delete = true;
-				foreach (IMyIdentity myIdentity in myIdentities)
-				{
-					if (myIdentity.IdentityId != relation.Key) continue;
-					delete = false;
-				}
-				if (delete)
-					_relationMaster.Remove(relation.Key);
-			}
-
-			for (int i = myIdentities.Count - 1; i >= 0; i--)
-			{   // This should leave only new identities left to setup
-				if (_relationMaster.ContainsKey(myIdentities[i].IdentityId))
-					myIdentities.RemoveAtFast(i);
-			}
+			List<IMyPlayer> players = new List<IMyPlayer>();
+			MyAPIGateway.Players.GetPlayers(players);
 			
-			foreach (IMyIdentity myIdentity in myIdentities)
+			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
+			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
+			List<long> identityIds = gameIdentities.Select(identity => identity.IdentityId).ToList();
+
+			List<long> newPlayerFactions = (from faction in MyAPIGateway.Session.Factions.Factions where !_relationMaster[RelationType.Faction].ContainsKey(faction.Key) && !faction.Value.IsEveryoneNpc() && faction.Value.Tag != "SPID" select faction.Key).ToList();
+			foreach (long id in newPlayerFactions)
 			{
-				SetupNewRelationship(myIdentity.IdentityId);
+				SetupNewFactionRelationships(id, FactionType.Player);
+			}
+
+			List<long> allNonEemNpcFactions = (from faction in MyAPIGateway.Session.Factions.Factions where !_relationMaster[RelationType.Faction].ContainsKey(faction.Key) && faction.Value.IsEveryoneNpc() && faction.Value.Tag != "SPID" select faction.Key).ToList();
+			foreach (long id in allNonEemNpcFactions)
+			{
+				SetupNewFactionRelationships(id, FactionType.Npc);
+			}
+
+			List<long> newIdentities = identityIds.Where(id => !_relationMaster[RelationType.Identity].ContainsKey(id)).ToList();
+			foreach (long id in newIdentities)
+			{
+				SetupNewIdentityRelationships(id);
+			}
+		}
+
+		private void SetupNewFactionRelationships(long id, FactionType type)
+		{
+			switch (type)
+			{
+				case FactionType.Player:
+					foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
+					{   //DefaultNeutralRep;
+
+					}
+
+					foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
+					{   //DefaultNegativeRep;
+
+					}
+					break;
+				case FactionType.Npc:
+					foreach (KeyValuePair<long, IMyFaction> faction in _npcFactionDictionary)
+					{   //DefaultNegativeRep;
+
+					}
+					break;
+				default:
+					return;
+			}
+		}
+
+		private void SetupNewIdentityRelationships(long id)
+		{
+			IMyFaction tmp = MyAPIGateway.Session.Factions.TryGetPlayerFaction(id);
+			if (tmp != null)
+				return;	// If a new player is in a faction already, it happened outside of EEM being loaded, so just run with the faction rep instead
+			
+			foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
+			{   //DefaultNeutralRep;
+				MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(id, faction.Key, DefaultNeutralRep);
+			}
+
+			foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
+			{   //DefaultNegativeRep;
+				MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(id, faction.Key, DefaultNegativeRep);
+			}
+
+			foreach (KeyValuePair<long, IMyFaction> faction in _nonEemNpcFactionDictionary)
+			{   //DefaultNegativeRep;
+				MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(id, faction.Key, DefaultNegativeRep);
 			}
 		}
 
