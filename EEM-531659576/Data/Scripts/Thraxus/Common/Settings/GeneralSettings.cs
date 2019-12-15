@@ -61,6 +61,24 @@ namespace Eem.Thraxus.Common.Settings
 		#region Factions
 
 		/// <summary>
+		/// Value all hostile relationships start out at
+		/// </summary>
+		public const int DefaultNegativeRep = -1500;
+
+		/// <summary>
+		/// Value all neutral relationships start out at
+		/// </summary>
+		public const int DefaultNeutralRep = -500;
+
+		/// <summary>
+		/// The amount of rep to change every minute from hostile -> neutral
+		/// From above neutral back to neutral should be some fraction of this; perhaps 1/2
+		/// If this doesn't work out, then will need to change rep war conditions
+		/// Value must be an even number!
+		/// </summary>
+		public const int RepDecay = 2;
+
+		/// <summary>
 		/// Faction War cooldown period
 		///		15 minute default cooldown, 2 minute in Debug Mode
 		/// </summary>

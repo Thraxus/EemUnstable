@@ -15,8 +15,6 @@ using VRage.ObjectBuilders;
 namespace Eem.Thraxus.Bots
 {
 	[MyEntityComponentDescriptor(typeof(MyObjectBuilder_CubeGrid), false)]
-	// ReSharper disable once ClassNeverInstantiated.Global
-	// ReSharper disable once UnusedMember.Global
 	internal class BotCore : BaseGameLogicComp
 	{
 		/*

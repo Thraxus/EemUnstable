@@ -7,6 +7,7 @@ using Eem.Thraxus.Common.Utilities.SaveGame;
 using Eem.Thraxus.Factions.DataTypes;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.ModAPI;
 
 
 namespace Eem.Thraxus.Factions
@@ -19,7 +20,6 @@ namespace Eem.Thraxus.Factions
 		private const string GeneralLogName = "FactionsGeneral";
 		private const string DebugLogName = "FactionsDebug";
 		private const string SessionCompName = "Factions";
-		private const string SaveVarName = "Factions_eem";
 		private const string SaveFileName = "Factions.eem";
 
 		/// <inheritdoc />
@@ -30,15 +30,12 @@ namespace Eem.Thraxus.Factions
 		private RelationshipManager _relationshipManager;
 
 		public static FactionCore FactionCoreStaticInstance;
-		private Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>> _factionMaster;
 
 		/// <inheritdoc />
 		public override void LoadData()
 		{
 			base.LoadData();
-			//_factionMaster = Load.ReadFromFile< Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>>>(SaveFileName, typeof(Dictionary<long, FactionRelation>));
-			//_relationshipManager = _factionMaster == null ? new RelationshipManager() : new RelationshipManager(_factionMaster);
-			_relationshipManager = new RelationshipManager(Load.ReadFromFile<Dictionary<RelationType, Dictionary<long, List<FactionRelationship>>>>(SaveFileName, typeof(Dictionary<long, FactionRelation>)));
+			_relationshipManager = new RelationshipManager(Load.ReadFromFile<SaveData>(SaveFileName, typeof(SaveData)));
 			FactionCoreStaticInstance = this;
 		}
 		
@@ -56,7 +53,7 @@ namespace Eem.Thraxus.Factions
 		public override MyObjectBuilder_SessionComponent GetObjectBuilder()
 		{   // Always return base.GetObjectBuilder() after your code! 
 			if (_relationshipManager == null) base.GetObjectBuilder();
-			Save.WriteToFile(SaveFileName, _relationshipManager.GetSave(), typeof(Dictionary<long, FactionRelation>));
+			Save.WriteToFile(SaveFileName, _relationshipManager.GetSaveData(), typeof(SaveData));
 			WriteToLog("GetObjectBuilder", $"Saved state", LogType.General);
 			return base.GetObjectBuilder();
 		}
@@ -73,12 +70,12 @@ namespace Eem.Thraxus.Factions
 			_relationshipManager.OnWriteToLog += WriteToLog;
 			_relationshipManager.Run();
 			//MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
-			WriteToLog("FactionCore", $"Initialized... {UpdateOrder} | SaveState: {_factionMaster?.Count}", LogType.General);
+			WriteToLog("FactionCore", $"Initialized... {UpdateOrder}", LogType.General);
 		}
 
-		public void NewIdentityDetected(long identityId)
-		{
-			_relationshipManager.NewIdentityDetected(identityId);
+		public void NewIdentityDetected(IMyIdentity identity)
+		{	// Should be called form an entity tracker perhaps?  Or on schedule? We'll see...
+			_relationshipManager.AddNewIdentity(identity);
 		}
 		
 		/// <inheritdoc />
@@ -107,9 +104,7 @@ namespace Eem.Thraxus.Factions
 		{
 			_tickTimer++;
 			if (_tickTimer % GeneralSettings.FactionNegativeRelationshipAssessment == 0)
-				_relationshipManager.CheckNegativeRelationships();
-			if (_tickTimer % GeneralSettings.FactionMendingRelationshipAssessment == 0)
-				_relationshipManager.CheckMendingRelationships();
+				_relationshipManager.FactionTimer();
 			//if (_tickTimer % GeneralSettings.TicksPerMinute == 0)
 			//	_relationshipManager.SetRepDebug(GeneralSettings.Random.Next(-30,30));
 		}

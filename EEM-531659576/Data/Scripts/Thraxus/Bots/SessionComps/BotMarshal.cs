@@ -16,7 +16,6 @@ using VRage.Game.ModAPI.Interfaces;
 namespace Eem.Thraxus.Bots.SessionComps
 {
 	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue + 1)]
-	// ReSharper disable once ClassNeverInstantiated.Global
 	internal class BotMarshal : BaseServerSessionComp
 	{
 		private const string GeneralLogName = "BotMarshalGeneral";

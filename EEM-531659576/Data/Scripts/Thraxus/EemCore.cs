@@ -37,6 +37,7 @@ namespace Eem.Thraxus
 			WriteToLog("LateSetup", $"View: {MyAPIGateway.Session.SessionSettings.ViewDistance}", LogType.General);
 			WriteToLog("LateSetup", $"PiratePCU: {MyAPIGateway.Session.SessionSettings.PiratePCU}", LogType.General);
 			WriteToLog("LateSetup", $"TotalPCU: {MyAPIGateway.Session.SessionSettings.TotalPCU}", LogType.General);
+
 			foreach (MyObjectBuilder_Checkpoint.ModItem mod in MyAPIGateway.Session.Mods)
 				WriteToLog("LateSetup", $"Mod: {mod}", LogType.General);
 			List<IMyIdentity> identityList = new List<IMyIdentity>();
