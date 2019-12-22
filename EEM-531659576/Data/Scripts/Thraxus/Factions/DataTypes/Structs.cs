@@ -29,6 +29,23 @@ namespace Eem.Thraxus.Factions.DataTypes
 	//	}
 	//}
 
+	public struct PendingWar
+	{
+		public readonly long IdentityId;
+		public readonly long Against;
+
+		public PendingWar(long identityId, long against)
+		{
+			IdentityId = identityId;
+			Against = against;
+		}
+
+		public override string ToString()
+		{
+			return $"{IdentityId} | {Against}";
+		}
+	}
+
 	[ProtoContract]
 	public struct SaveData
 	{
@@ -69,9 +86,9 @@ namespace Eem.Thraxus.Factions.DataTypes
 	public class IdentityRelationSave
 	{
 		[ProtoMember(1)] public readonly long FromIdentityId;
-		[ProtoMember(2)] public readonly Dictionary<long, int> ToFactionIds;
+		[ProtoMember(2)] public readonly HashSet<long> ToFactionIds;
 
-		public IdentityRelationSave(long fromIdentity, Dictionary<long, int> toFactions)
+		public IdentityRelationSave(long fromIdentity, HashSet<long> toFactions)
 		{
 			FromIdentityId = fromIdentity;
 			ToFactionIds = toFactions;

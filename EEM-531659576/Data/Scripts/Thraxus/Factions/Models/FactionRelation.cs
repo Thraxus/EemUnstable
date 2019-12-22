@@ -1,16 +1,14 @@
 ﻿using System.Collections.Generic;
-using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Debug;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Factions.DataTypes;
+using Eem.Thraxus.Factions.Interfaces;
 
 namespace Eem.Thraxus.Factions.Models
 {
-	public class FactionRelation : LogBaseEvent
+	public class FactionRelation : IRepControl
 	{
 		public readonly IMyFaction FromFaction;
 		public readonly IMyFaction ToFaction;
@@ -44,17 +42,41 @@ namespace Eem.Thraxus.Factions.Models
 			SetReputation(((Reputation * (FromFaction.Members.Count - 1)) + newRep) / FromFaction.Members.Count);
 		}
 		
-		public void ReputationDecay()
+		public bool RelationExists(long id)
+		{
+			return ToFaction.FactionId == id;
+		}
+
+		public int GetReputation(long id)
+		{
+			return Reputation;
+		}
+
+		public void SetReputation(long id, int rep)
+		{
+			SetReputation(rep);
+		}
+
+		public void DecayReputation()
 		{
 			int rep = Reputation;
 
 			if (rep > GeneralSettings.DefaultNeutralRep)
-				SetReputation(rep + GeneralSettings.RepDecay/2);
-			if(rep < GeneralSettings.DefaultNegativeRep)
+				SetReputation(rep + GeneralSettings.RepDecay / 2);
+			if (rep < GeneralSettings.DefaultNegativeRep)
 				SetReputation(rep + GeneralSettings.RepDecay);
-
-			WriteToLog($"ReputationDecay-{FromFaction.Tag} || {FromFaction.FactionId}",$"Successfully decayed rep with {ToFaction.Tag} || {ToFaction.FactionId}.  New rep is: {Reputation}", LogType.General);
 		}
+
+		public void TriggerWar(long against)
+		{
+			int rep = GetReputation(against);
+
+			if (rep > GeneralSettings.DefaultWarRep - GeneralSettings.AdditionalWarRepPenalty)
+				SetReputation(against, GeneralSettings.DefaultWarRep);
+			else
+				SetReputation(against, rep - GeneralSettings.AdditionalWarRepPenalty);
+		}
+		
 
 		public FactionRelationSave GetSaveState()
 		{   

@@ -38,6 +38,7 @@ namespace Eem.Thraxus.Bots.Modules
 			// TODO Timers for existing flavor emergency conditions (possibly scan for settings related to what this code controls now and remove it)
 			//		Example from Helios: [HELIOS|Tme] [Alert_On] Timer Alarm is the alert timer, trigger for on, trigger for off?  need to research.
 			// TODO Antenna for custom drone spawning for special conditions / alert if enemy seen within some range - may move this idea to a separate module though
+			// TODO MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid
 
 			_thisGrid = myCubeGrid;
 			_gridOwnerId = ownerId;

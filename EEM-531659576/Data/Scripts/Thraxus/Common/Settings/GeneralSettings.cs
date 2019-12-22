@@ -71,6 +71,16 @@ namespace Eem.Thraxus.Common.Settings
 		public const int DefaultNeutralRep = -500;
 
 		/// <summary>
+		/// Value all neutral relationships start out at
+		/// </summary>
+		public const int DefaultWarRep = -550;
+
+		/// <summary>
+		/// Value all neutral relationships start out at
+		/// </summary>
+		public const int AdditionalWarRepPenalty = 20;
+
+		/// <summary>
 		/// The amount of rep to change every minute from hostile -> neutral
 		/// From above neutral back to neutral should be some fraction of this; perhaps 1/2
 		/// If this doesn't work out, then will need to change rep war conditions

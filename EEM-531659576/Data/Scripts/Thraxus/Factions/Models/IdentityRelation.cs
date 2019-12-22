@@ -1,24 +1,21 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Factions.DataTypes;
+using Eem.Thraxus.Factions.Interfaces;
 using Sandbox.ModAPI;
-using VRage.Game;
 using VRage.Game.ModAPI;
 
 namespace Eem.Thraxus.Factions.Models
 {
-	public class IdentityRelation : LogBaseEvent
+	public class IdentityRelation : IRepControl
 	{
 		public readonly IMyIdentity FromIdentity;
-		public readonly Dictionary<long, int> ToFactions;
+		public readonly HashSet<long> ToFactions;
 
-		public IdentityRelation(IMyIdentity fromIdentity, Dictionary<long, int> toFactions)
+		public IdentityRelation(IMyIdentity fromIdentity, IEnumerable<long> toFactions)
 		{
 			FromIdentity = fromIdentity;
-			ToFactions = toFactions;
+			ToFactions = (HashSet<long>) toFactions;
 		}
 
 		public int GetReputation(long factionId)
@@ -26,36 +23,45 @@ namespace Eem.Thraxus.Factions.Models
 			return MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(FromIdentity.IdentityId, factionId);
 		}
 
+		public void SetReputation(long id, int rep)
+		{
+			if (!RelationExists(id)) return;
+			MyAPIGateway.Session.Factions.SetReputation(FromIdentity.IdentityId, id, rep);
+		}
+
+		public void DecayReputation()
+		{
+			foreach (long factionRelationship in ToFactions)
+			{   // This will loop past if the rep is default negative, since it's assumed at that point the relationship is either a pirate or un-salvageable
+				int rep = GetReputation(factionRelationship);
+				if (rep > GeneralSettings.DefaultNeutralRep)
+					SetReputation(factionRelationship, rep + GeneralSettings.RepDecay / 2);
+				if (rep < GeneralSettings.DefaultNegativeRep)
+					SetReputation(factionRelationship, rep + GeneralSettings.RepDecay);
+			}
+		}
+
 		public bool RelationExists(long factionId)
 		{
-			return ToFactions.ContainsKey(factionId);
+			return ToFactions.Contains(factionId);
 		}
 
-		public bool SetReputation(long factionId, int rep)
+		
+		public void AddNewFaction(long factionId, int? rep = null)
 		{
-			if (!RelationExists(factionId)) return false;
-			ToFactions[factionId] = rep;
-			MyAPIGateway.Session.Factions.SetReputation(FromIdentity.IdentityId, factionId, rep);
-			return true;
+			ToFactions.Add(factionId);
+			if (rep != null)
+				SetReputation(factionId, (int) rep);
 		}
 		
-		public void AddNewFaction(long factionId, bool hostile, int? rep = null)
+		public void TriggerWar(long againstFaction)
 		{
-			if (hostile)
-				ToFactions.Add(factionId, rep ?? GeneralSettings.DefaultNegativeRep);
-			else ToFactions.Add(factionId, rep ?? GeneralSettings.DefaultNeutralRep);
-		}
+			int rep = GetReputation(againstFaction);
 
-		public void ReputationDecay()
-		{
-			foreach (KeyValuePair<long, int> factionRelationship in ToFactions.Where(factionRelationship => factionRelationship.Value != GeneralSettings.DefaultNegativeRep))
-			{	// This will loop past if the rep is default negative, since it's assumed at that point the relationship is either a pirate or un-salvageable
-				if (factionRelationship.Value > GeneralSettings.DefaultNeutralRep)
-					SetReputation(factionRelationship.Key, factionRelationship.Value + GeneralSettings.RepDecay / 2);
-				if (factionRelationship.Value < GeneralSettings.DefaultNegativeRep)
-					SetReputation(factionRelationship.Key, factionRelationship.Value + GeneralSettings.RepDecay);
-				WriteToLog($"ReputationDecay-{FromIdentity.DisplayName} || {FromIdentity.IdentityId}", $"Successfully decayed rep with {factionRelationship.Key}.  New rep is: {GetReputation(factionRelationship.Key)}", LogType.General);
-			}
+			if (rep > GeneralSettings.DefaultWarRep - GeneralSettings.AdditionalWarRepPenalty)
+				SetReputation(againstFaction, GeneralSettings.DefaultWarRep);
+			else 
+				SetReputation(againstFaction, rep - GeneralSettings.AdditionalWarRepPenalty);
 		}
 
 		public IdentityRelationSave GetSaveState()
