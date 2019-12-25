@@ -60,14 +60,11 @@ namespace Eem.Thraxus.Factions.Models
 		private SaveData _saveData;
 
 		private bool _setupComplete;
-
-		private readonly Dialogue _dialogue;
 		
 		public RelationshipManager(SaveData save)
 		{
 			WriteToLog("RelationshipManager", $"Constructing!", LogType.General);
 			_saveData = save;
-			_dialogue = new Dialogue();
 			_playerFactionDictionary = new Dictionary<long, IMyFaction>();
 			_pirateFactionDictionary = new Dictionary<long, IMyFaction>();
 			_playerPirateFactionDictionary = new Dictionary<long, IMyFaction>();
@@ -120,7 +117,6 @@ namespace Eem.Thraxus.Factions.Models
 			_nonEemNpcFactionDictionary.Clear();
 			IdentityRelationships.Clear();
 			FactionRelationships.Clear();
-			_dialogue.Unload();
 			MyAPIGateway.Entities.OnEntityAdd -= PlayerNet;
 			WriteToLog("RelationshipManager.Close", $"Ready for a vacation!", LogType.General);
 		}
@@ -135,26 +131,26 @@ namespace Eem.Thraxus.Factions.Models
 
 		public SaveData GetSaveData()
 		{
-			List<FactionRelationSave> relationSaves = new List<FactionRelationSave>();
+			HashSet<RelationSave> factionRelations = new HashSet<RelationSave>();
 			foreach (KeyValuePair<long, FactionRelation> factionRelationship in FactionRelationships)
 			{
-				relationSaves.Add(factionRelationship.Value.GetSaveState());
+				factionRelations.Add(factionRelationship.Value.GetSaveState());
 			}
 
-			List<IdentityRelationSave> identitySaves = new List<IdentityRelationSave>();
+			HashSet<RelationSave> identityRelations = new HashSet<RelationSave>();
 			foreach (KeyValuePair<long, IdentityRelation> identityRelationship in IdentityRelationships)
 			{
-				identitySaves.Add(identityRelationship.Value.GetSaveState());
+				identityRelations.Add(identityRelationship.Value.GetSaveState());
 			}
 
-			return new SaveData(relationSaves, identitySaves);
+			return new SaveData(factionRelations, identityRelations);
 		}
 
 		private void LoadSaveData(SaveData saveData)
 		{
 			if(saveData.IsEmpty) FirstRunSetup();
 
-			foreach (FactionRelationSave factionRelation in saveData.RelationSave)
+			foreach (RelationSave factionRelation in saveData.RelationSave)
 			{
 				IMyFaction fromFaction = MyAPIGateway.Session.Factions.TryGetFactionById(factionRelation.FromFactionId);
 				IMyFaction toFaction = MyAPIGateway.Session.Factions.TryGetFactionById(factionRelation.ToFactionId);
@@ -165,9 +161,9 @@ namespace Eem.Thraxus.Factions.Models
 			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
 			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
 
-			foreach (IdentityRelationSave identityRelation in saveData.IdentitySave)
+			foreach (RelationSave identityRelation in saveData.IdentitySave)
 			{
-				IMyIdentity myIdentity = gameIdentities.Find(x => x.IdentityId == identityRelation.FromIdentityId);
+				IMyIdentity myIdentity = gameIdentities.Find(x => x.IdentityId == identityRelation.FromId);
 				if (myIdentity == null) continue; // This automatically parses out all stale identities
 				IdentityRelationships.Add(myIdentity.IdentityId, new IdentityRelation(myIdentity, identityRelation.ToFactionIds));
 				gameIdentities.Remove(myIdentity);

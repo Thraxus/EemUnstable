@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using ProtoBuf;
 using VRage.Game.ModAPI;
 
@@ -49,10 +50,10 @@ namespace Eem.Thraxus.Factions.DataTypes
 	[ProtoContract]
 	public struct SaveData
 	{
-		[ProtoMember(1)] public readonly List<FactionRelationSave> RelationSave;
-		[ProtoMember(2)] public readonly List<IdentityRelationSave> IdentitySave;
+		[ProtoMember(1)] public readonly HashSet<RelationSave> RelationSave;
+		[ProtoMember(2)] public readonly HashSet<RelationSave> IdentitySave;
 
-		public SaveData(List<FactionRelationSave> relationSave, List<IdentityRelationSave> identitySave)
+		public SaveData(HashSet<RelationSave> relationSave, HashSet<RelationSave> identitySave)
 		{
 			RelationSave = relationSave;
 			IdentitySave = identitySave;
@@ -62,58 +63,105 @@ namespace Eem.Thraxus.Factions.DataTypes
 	}
 
 	[ProtoContract]
-	public struct FullFactionRelationSave
+	public struct RelationSave
 	{
-		[ProtoMember(1)] public readonly List<FactionRelationSave> FactionRelationSaves;
+		[ProtoMember(1)] public readonly long FromId;
+		[ProtoMember(2)] public readonly HashSet<Relation> ToFactionRelations;
 
-		public FullFactionRelationSave(List<FactionRelationSave> factionRelationSaves)
+
+		public RelationSave(long fromId, HashSet<Relation> toFactionRelations)
 		{
-			FactionRelationSaves = factionRelationSaves;
+			FromId = fromId;
+			ToFactionRelations = toFactionRelations;
 		}
 
 		public override string ToString()
 		{
-			return $"FullFactionRelationSave Size: {FactionRelationSaves.Count}";
+			return $"FromId: {FromId} | ToFactionIds Count: {ToFactionRelations.Count}";
+		}
+
+		public string ToStringExtended()
+		{
+			StringBuilder returnString = new StringBuilder();
+			foreach (Relation relation in ToFactionRelations)
+			{
+				returnString.Append($"FromId: {FromId} | {relation}\n");
+			}
+			return returnString.ToString();
 		}
 	}
 
 	[ProtoContract]
-	public struct FactionRelationSave
+	public struct Relation
 	{
-		[ProtoMember(1)] public readonly long FromFactionId;
-		[ProtoMember(2)] public readonly long ToFactionId;
+		[ProtoMember(2)] public readonly long FactionId;
 		[ProtoMember(3)] public readonly int Rep;
 
-		public FactionRelationSave(long fromFactionId, long toFactionId, int rep)
+		public Relation(long factionId, int rep)
 		{
-			FromFactionId = fromFactionId;
-			ToFactionId = toFactionId;
+			FactionId = factionId;
 			Rep = rep;
-			ToFactionId = toFactionId;
 		}
 
 		public override string ToString()
 		{
-			return $"FromFactionId: {FromFactionId} | ToFactionId: {ToFactionId} | Rep: {Rep}";
+			return $"FactionId: {FactionId} | Rep: {Rep}";
 		}
 	}
 
-	[ProtoContract]
-	public class IdentityRelationSave
-	{
-		[ProtoMember(1)] public readonly long FromIdentityId;
-		[ProtoMember(2)] public readonly HashSet<long> ToFactionIds;
+	//[ProtoContract]
+	//public struct FullFactionRelationSave
+	//{
+	//	[ProtoMember(1)] public readonly List<FactionRelationSave> FactionRelationSaves;
 
-		public IdentityRelationSave(long fromIdentity, HashSet<long> toFactions)
-		{
-			FromIdentityId = fromIdentity;
-			ToFactionIds = toFactions;
-		}
+	//	public FullFactionRelationSave(List<FactionRelationSave> factionRelationSaves)
+	//	{
+	//		FactionRelationSaves = factionRelationSaves;
+	//	}
 
-		public override string ToString()
-		{
-			return $"FromIdentityId: {FromIdentityId} | ToFactionIds Count: {ToFactionIds.Count}";
-		}
-	}
+	//	public override string ToString()
+	//	{
+	//		return $"FullFactionRelationSave Size: {FactionRelationSaves.Count}";
+	//	}
+	//}
+
+	//[ProtoContract]
+	//public struct FactionRelationSave
+	//{
+	//	[ProtoMember(1)] public readonly long FromFactionId;
+	//	[ProtoMember(2)] public readonly long ToFactionId;
+	//	[ProtoMember(3)] public readonly int Rep;
+
+	//	public FactionRelationSave(long fromFactionId, long toFactionId, int rep)
+	//	{
+	//		FromFactionId = fromFactionId;
+	//		ToFactionId = toFactionId;
+	//		Rep = rep;
+	//		ToFactionId = toFactionId;
+	//	}
+
+	//	public override string ToString()
+	//	{
+	//		return $"FromFactionId: {FromFactionId} | ToFactionId: {ToFactionId} | Rep: {Rep}";
+	//	}
+	//}
+
+	//[ProtoContract]
+	//public class IdentityRelationSave
+	//{
+	//	[ProtoMember(1)] public readonly long FromIdentityId;
+	//	[ProtoMember(2)] public readonly HashSet<long> ToFactionIds;
+
+	//	public IdentityRelationSave(long fromIdentity, HashSet<long> toFactions)
+	//	{
+	//		FromIdentityId = fromIdentity;
+	//		ToFactionIds = toFactions;
+	//	}
+
+	//	public override string ToString()
+	//	{
+	//		return $"FromIdentityId: {FromIdentityId} | ToFactionIds Count: {ToFactionIds.Count}";
+	//	}
+	//}
 
 }

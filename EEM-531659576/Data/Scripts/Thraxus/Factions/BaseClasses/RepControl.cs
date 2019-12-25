@@ -1,31 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Eem.Thraxus.Common.Settings;
+using Eem.Thraxus.Common.Utilities.Tools.Networking;
 using Eem.Thraxus.Factions.DataTypes;
 using Eem.Thraxus.Factions.Models;
 using Sandbox.ModAPI;
+using VRage.Game;
 using VRage.Game.ModAPI;
 
 namespace Eem.Thraxus.Factions.BaseClasses
 {
 	public abstract class RepControl
 	{
+		public long FromRelationId;
+
 		public readonly HashSet<long> ToFactions = new HashSet<long>();
 
-		private readonly List<IMyPlayer> _players = new List<IMyPlayer>();
+		protected readonly List<IMyPlayer> Players = new List<IMyPlayer>();
 
-		private IEnumerable<IMyPlayer> Players
+		protected List<IMyPlayer> GetPlayers()
 		{
-			get
-			{
-				_players.Clear();
-				MyAPIGateway.Players.GetPlayers(_players);
-				return _players;
-			}
+			Players.Clear();
+			MyAPIGateway.Players.GetPlayers(Players);
+			return Players;
 		}
 		
-		public abstract void AddNewMember(long newId);
-
 		public void AddNewRelation(long id, int? rep = null)
 		{
 			if (!MyAPIGateway.Session.Factions.Factions.ContainsKey(id)) return;
@@ -39,7 +39,7 @@ namespace Eem.Thraxus.Factions.BaseClasses
 			return ToFactions.Contains(id);
 		}
 
-		public abstract int GetReputation(long id);
+		protected abstract int GetReputation(long id);
 
 		protected abstract void SetReputation(long id, int rep);
 
@@ -90,12 +90,34 @@ namespace Eem.Thraxus.Factions.BaseClasses
 				SendMessage(message.Invoke(), sender);
 		}
 
-		protected abstract void SendMessage(string message, string sender);
+		protected virtual void SendMessage(string message, string sender)
+		{
+			Messaging.SendMessageToPlayer($"{message}", sender, FromRelationId, MyFontEnum.DarkBlue);
+		}
 
-		public abstract List<T> GetSaveState<T>();
+		public RelationSave GetSaveState()
+		{
+			HashSet<Relation> relations = new HashSet<Relation>();
+			foreach (long toFaction in ToFactions)
+			{
+				relations.Add(new Relation(toFaction, GetReputation(toFaction)));
+			}
+			return new RelationSave(FromRelationId, relations);
+		}
 
-		public abstract override string ToString();
+		public override string ToString()
+		{
+			return $"FromId: {FromRelationId} | RelationCounts: {ToFactions.Count}";
+		}
 
-		public abstract string ToStringExtended();
+		public string ToStringExtended()
+		{
+			StringBuilder returnString = new StringBuilder();
+			foreach (long toFaction in ToFactions)
+			{
+				returnString.Append($"FromId: {FromRelationId} | ToFactionTag: {toFaction} | Reputation: {GetReputation(toFaction)}\n");
+			}
+			return returnString.ToString();
+		}
 	}
 }
