@@ -62,6 +62,22 @@ namespace Eem.Thraxus.Factions.DataTypes
 	}
 
 	[ProtoContract]
+	public struct FullFactionRelationSave
+	{
+		[ProtoMember(1)] public readonly List<FactionRelationSave> FactionRelationSaves;
+
+		public FullFactionRelationSave(List<FactionRelationSave> factionRelationSaves)
+		{
+			FactionRelationSaves = factionRelationSaves;
+		}
+
+		public override string ToString()
+		{
+			return $"FullFactionRelationSave Size: {FactionRelationSaves.Count}";
+		}
+	}
+
+	[ProtoContract]
 	public struct FactionRelationSave
 	{
 		[ProtoMember(1)] public readonly long FromFactionId;

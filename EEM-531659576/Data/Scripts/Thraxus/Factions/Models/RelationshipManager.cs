@@ -8,6 +8,7 @@ using Eem.Thraxus.Common.Utilities.StaticMethods;
 using Eem.Thraxus.Common.Utilities.Tools.Networking;
 using Eem.Thraxus.Factions.DataTypes;
 using Eem.Thraxus.Factions.Utilities;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game;
@@ -307,10 +308,22 @@ namespace Eem.Thraxus.Factions.Models
 				if (!IdentityRelationships.ContainsKey(pendingWar.IdentityId))
 					AddNewIdentity(pendingWar.IdentityId);
 				IdentityRelationships[pendingWar.IdentityId].TriggerWar(pendingWar.Against);
+				foreach (KeyValuePair<long, IMyFaction> enforcementFaction in _enforcementFactionDictionary)
+				{
+					if (pendingWar.Against == enforcementFaction.Key) continue;
+					IdentityRelationships[pendingWar.IdentityId].TriggerWar(enforcementFaction.Key);
+				}
 				return;
 			}
 			FactionRelationships[playerFaction.FactionId].TriggerWar(pendingWar.Against);
+			foreach (KeyValuePair<long, IMyFaction> enforcementFaction in _enforcementFactionDictionary)
+			{
+				if (pendingWar.Against == enforcementFaction.Key) continue;
+				FactionRelationships[playerFaction.FactionId].TriggerWar(enforcementFaction.Key);
+			}
 		}
+
+
 
 		public void DeclareWar(PendingWar pendingWar)
 		{	// Leaving this a queue for threading purposes; if not threaded, could easily go direct
@@ -518,6 +531,19 @@ namespace Eem.Thraxus.Factions.Models
 			SetupNewFactionRelationship(factionId, FactionType.Player); // I'm new man, just throw me a bone.
 		}
 
+		private void NewPlayerPirateFaction(IMyFaction faction)
+		{
+			_playerFactionDictionary.Add(faction.FactionId, faction);
+			if (!FactionRelationships.ContainsKey(faction.FactionId))
+			{
+				foreach (KeyValuePair<long, IMyFaction> npcFaction in _npcFactionDictionary)
+				{
+					
+				}
+				FactionRelationships.Add(faction.FactionId, new FactionRelation());
+			}
+		}
+
 		private void PeaceRequestSent(long fromFactionId, long toFactionId)
 		{   // So many reasons to clear peace...
 			// This is no longer a concept with EEM / new factions; leaving this method here for no reason at all.  
@@ -529,11 +555,11 @@ namespace Eem.Thraxus.Factions.Models
 
 		#region Dialogue triggers
 
-		private void RequestDialog(IMyFaction npcFaction, IMyFaction playerFaction, Dialogue.DialogType type)
+		private void RequestDialog(IMyFaction npcFaction, IMyFaction playerFaction, Enums.DialogType type)
 		{
 			try
 			{
-				Func<string> message = _dialogue.RequestDialog(npcFaction, type);
+				Func<string> message = _dialogue.RequestDialog(npcFaction, type);x
 				string npcFactionTag = npcFaction.Tag;
 				if (playerFaction == null || _newFactionDictionary.ContainsKey(playerFaction.FactionId)) return;
 				SendFactionMessageToAllFactionMembers(message.Invoke(), npcFactionTag, playerFaction.Members);
@@ -549,7 +575,7 @@ namespace Eem.Thraxus.Factions.Models
 			const string npcFactionTag = "The Lawful";
 			try
 			{
-				Func<string> message = _dialogue.RequestDialog(null, Dialogue.DialogType.CollectiveWelcome);
+				Func<string> message = _dialogue.RequestDialog(null, Enums.DialogType.CollectiveWelcome);
 				if (playerFactionId.GetFactionById() == null || !_newFactionDictionary.ContainsKey(playerFactionId)) return;
 				SendFactionMessageToAllFactionMembers(message.Invoke(), npcFactionTag, playerFactionId.GetFactionById().Members);
 				_newFactionDictionary.Remove(playerFactionId);
@@ -565,7 +591,7 @@ namespace Eem.Thraxus.Factions.Models
 			const string npcFactionTag = "The Lawful";
 			try
 			{
-				Func<string> message = _dialogue.RequestDialog(null, Dialogue.DialogType.CollectiveDisappointment);
+				Func<string> message = _dialogue.RequestDialog(null, Enums.DialogType.CollectiveDisappointment);
 				if (playerFactionId.GetFactionById() == null || !_newFactionDictionary.ContainsKey(playerFactionId)) return;
 				SendFactionMessageToAllFactionMembers(message.Invoke(), npcFactionTag, playerFactionId.GetFactionById().Members);
 				_newFactionDictionary.Remove(playerFactionId);
@@ -581,7 +607,7 @@ namespace Eem.Thraxus.Factions.Models
 			const string npcFactionTag = "The Lawful";
 			try
 			{
-				Func<string> message = _dialogue.RequestDialog(null, Dialogue.DialogType.CollectiveReprieve);
+				Func<string> message = _dialogue.RequestDialog(null, Enums.DialogType.CollectiveReprieve);
 				if (playerFactionId.GetFactionById() == null || !_newFactionDictionary.ContainsKey(playerFactionId)) return;
 				SendFactionMessageToAllFactionMembers(message.Invoke(), npcFactionTag, playerFactionId.GetFactionById().Members);
 				_newFactionDictionary.Remove(playerFactionId);
@@ -772,14 +798,6 @@ namespace Eem.Thraxus.Factions.Models
 		}
 
 		#endregion
-
-
-
-
-		// Checks and balances, internal and external, mostly static
-
-
-
 
 	}
 }

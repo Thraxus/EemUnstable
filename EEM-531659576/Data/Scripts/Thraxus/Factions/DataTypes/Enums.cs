@@ -1,6 +1,16 @@
 ﻿namespace Eem.Thraxus.Factions.DataTypes
 {
-	internal class Enums
+	public enum DialogType
 	{
+		CollectiveDisappointment,
+		CollectiveReprieve,
+		CollectiveWelcome,
+		FirstPeaceAccepted,
+		PeaceAccepted,
+		PeaceConsidered,
+		PeaceProposed,
+		PeaceRejected,
+		WarDeclared,
+		WarReceived
 	}
 }
