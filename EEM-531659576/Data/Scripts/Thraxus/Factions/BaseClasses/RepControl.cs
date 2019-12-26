@@ -15,6 +15,8 @@ namespace Eem.Thraxus.Factions.BaseClasses
 	{
 		public long FromRelationId;
 
+		public bool IsPirate { get; protected set; }
+
 		public readonly HashSet<long> ToFactions = new HashSet<long>();
 
 		protected readonly List<IMyPlayer> Players = new List<IMyPlayer>();
@@ -42,6 +44,18 @@ namespace Eem.Thraxus.Factions.BaseClasses
 		protected abstract int GetReputation(long id);
 
 		protected abstract void SetReputation(long id, int rep);
+
+		public void SetAsPirate()
+		{
+			IsPirate = true;
+			foreach (long toFaction in ToFactions)
+				SetReputation(toFaction, GeneralSettings.DefaultNegativeRep);
+		}
+
+		public void NoLongerPirate()
+		{
+			IsPirate = false;
+		}
 
 		public void DecayReputation()
 		{

@@ -5,13 +5,9 @@ using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.StaticMethods;
-using Eem.Thraxus.Common.Utilities.Tools.Networking;
 using Eem.Thraxus.Factions.DataTypes;
 using Eem.Thraxus.Factions.Utilities;
-using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
-using VRage.Collections;
-using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
@@ -20,60 +16,123 @@ namespace Eem.Thraxus.Factions.Models
 	public class RelationshipManager : LogBaseEvent
 	{
 
-		// https://steamcommunity.com/sharedfiles/filedetails/?id=1903401450 
+		// TODO: https://steamcommunity.com/sharedfiles/filedetails/?id=1903401450 
 		// Friendly faction for MES for once... probably should account for it...
 
-		// Normal rep controlled player factions
-		private readonly Dictionary<long, IMyFaction> _playerFactionDictionary;
+		// TODO: Add system for players to be able to pay off negative rep (credit to Lucas for the idea)
+		//			Added to this is the potential to pay up to +1500
+		//			Should carry the penalty of potential negative police / military if caught "bribing" officials
+		//				need to make it cost more per purchase too
+		//				based on current standings
+		//				so like, -550 to -500, not so expensive, but -1500 to -500, pretty damn expensive
+		//				even -1500 - -1400 also pretty damn expensive
+		//				or -500 to 0, also pretty expensive if they want to go up
 
-		// Players who have decided to opt out of the rep system (always hostile to NPCs)
-		private readonly Dictionary<long, IMyFaction> _playerPirateFactionDictionary;
 
-		// NPC factions who hate everyone
-		private readonly Dictionary<long, IMyFaction> _pirateFactionDictionary;
+		/// <summary>
+		/// Normal rep controlled player factions
+		/// </summary>
+		private readonly Dictionary<long, IMyFaction> _playerFactionDictionary = new Dictionary<long, IMyFaction>();
 
-		// NPC factions who hate people who hate other people
-		private readonly Dictionary<long, IMyFaction> _enforcementFactionDictionary;
+		/// <summary>
+		/// Players who have decided to opt out of the rep system (always hostile to NPCs)
+		/// </summary>
+		private readonly Dictionary<long, IMyFaction> _playerPirateFactionDictionary = new Dictionary<long, IMyFaction>();
 
-		// NPC factions who like to be nice to everyone
-		private readonly Dictionary<long, IMyFaction> _lawfulFactionDictionary;
+		/// <summary>
+		/// NPC factions who hate everyone
+		/// </summary>
+		private readonly Dictionary<long, IMyFaction> _pirateFactionDictionary = new Dictionary<long, IMyFaction>();
 
-		// All EEM NPC factions; doesn't discriminate if they are an asshole or angel
-		private readonly Dictionary<long, IMyFaction> _npcFactionDictionary;
+		/// <summary>
+		/// NPC factions who hate people who hate other people
+		/// </summary>
+		private readonly Dictionary<long, IMyFaction> _enforcementFactionDictionary = new Dictionary<long, IMyFaction>();
 
-		// All NPC factions that aren't controlled by EEM
-		private readonly Dictionary<long, IMyFaction> _nonEemNpcFactionDictionary;
+		/// <summary>
+		/// NPC factions who like to be nice to everyone
+		/// </summary>
+		private readonly Dictionary<long, IMyFaction> _lawfulFactionDictionary = new Dictionary<long, IMyFaction>();
+
+		/// <summary>
+		/// All EEM NPC factions; doesn't discriminate if they are an asshole or angel
+		/// </summary>
+		private readonly Dictionary<long, IMyFaction> _npcFactionDictionary = new Dictionary<long, IMyFaction>();
+
+		/// <summary>
+		/// All NPC factions that aren't controlled by EEM
+		/// </summary>
+		private readonly Dictionary<long, IMyFaction> _nonEemNpcFactionDictionary = new Dictionary<long, IMyFaction>();
 
 		#region Save Data
 
-		// Keeper of the keys to the castle, gatekeeper of old, holds all relationship information
-		public readonly Dictionary<long, FactionRelation> FactionRelationships;
+		/// <summary>
+		/// Keeper of the keys to the castle, gatekeeper of old, holds all relationship information
+		/// </summary>
+		public readonly Dictionary<long, FactionRelation> FactionRelationships = new Dictionary<long, FactionRelation>();
 
-		public readonly Dictionary<long, IdentityRelation> IdentityRelationships;
+		/// <summary>
+		/// Holds all identity based relationships
+		/// </summary>
+		public readonly Dictionary<long, IdentityRelation> IdentityRelationships = new Dictionary<long, IdentityRelation>();
 
+		/// <summary>
+		/// Responsible for managing external requests for reputation hits 
+		/// </summary>
 		private static readonly Queue<PendingWar> WarQueue = new Queue<PendingWar>();
 
 		#endregion
 
-		//private static readonly Queue<PendingRelation> WarQueue = new Queue<PendingRelation>();
+		/// <summary>
+		/// Used to keep the Identity List; avoids having to allocate a new list every time it's required
+		/// </summary>
+		protected readonly List<IMyIdentity> Identities = new List<IMyIdentity>();
 
+		/// <summary>
+		/// Populates the Identity list with a fresh set of identities
+		/// </summary>
+		/// <returns>All current known identities</returns>
+		protected List<IMyIdentity> GetIdentities()
+		{
+			Identities.Clear();
+			MyAPIGateway.Players.GetAllIdentites(Identities);
+			return Identities;
+		}
+
+		/// <summary>
+		/// Used to keep the Player List; avoids having to allocate a new list every time it's required
+		/// </summary>
+		protected readonly List<IMyPlayer> Players = new List<IMyPlayer>();
+
+		/// <summary>
+		/// Populates the player list with a fresh set of players
+		/// </summary>
+		/// <returns>All currently active players</returns>
+		protected List<IMyPlayer> GetPlayers()
+		{
+			Players.Clear();
+			MyAPIGateway.Players.GetPlayers(Players);
+			return Players;
+		}
+
+		/// <summary>
+		/// Holds the last known save game; only used to initialize factions when the game is loaded
+		/// </summary>
 		private SaveData _saveData;
 
+		/// <summary>
+		/// Ensures setup isn't run more than once for whatever reason
+		/// </summary>
 		private bool _setupComplete;
 		
+		/// <summary>
+		/// Ctor; sets up the class so it can do it's job
+		/// </summary>
+		/// <param name="save">The last save</param>
 		public RelationshipManager(SaveData save)
 		{
 			WriteToLog("RelationshipManager", $"Constructing!", LogType.General);
 			_saveData = save;
-			_playerFactionDictionary = new Dictionary<long, IMyFaction>();
-			_pirateFactionDictionary = new Dictionary<long, IMyFaction>();
-			_playerPirateFactionDictionary = new Dictionary<long, IMyFaction>();
-			_enforcementFactionDictionary = new Dictionary<long, IMyFaction>();
-			_lawfulFactionDictionary = new Dictionary<long, IMyFaction>();
-			_npcFactionDictionary = new Dictionary<long, IMyFaction>();
-			_nonEemNpcFactionDictionary = new Dictionary<long, IMyFaction>();
-			IdentityRelationships = new Dictionary<long, IdentityRelation>();
-			FactionRelationships = new Dictionary<long, FactionRelation>();
 
 			MyAPIGateway.Session.Factions.FactionStateChanged += FactionStateChanged;
 			MyAPIGateway.Session.Factions.FactionCreated += FactionCreated;
@@ -81,6 +140,9 @@ namespace Eem.Thraxus.Factions.Models
 			MyAPIGateway.Session.Factions.FactionAutoAcceptChanged += MonitorAutoAccept;
 		}
 
+		/// <summary>
+		/// After the class is created, this is run to setup all dictionaries and relationships
+		/// </summary>
 		public void Run()
 		{
 			WriteToLog("RelationshipManager.Run", $"Warming up!", LogType.General);
@@ -100,6 +162,9 @@ namespace Eem.Thraxus.Factions.Models
 			WriteToLog("RelationshipManager.Run", $"At a full Sprint!", LogType.General);
 		}
 
+		/// <summary>
+		/// Called when the game is unloading to ensure that all events are unregistered and collections cleared
+		/// </summary>
 		public void Close()
 		{
 			WriteToLog("RelationshipManager.Close", $"Cooling down...", LogType.General);
@@ -108,6 +173,8 @@ namespace Eem.Thraxus.Factions.Models
 			MyAPIGateway.Session.Factions.FactionEdited -= FactionEdited;
 			MyAPIGateway.Session.Factions.FactionAutoAcceptChanged -= MonitorAutoAccept;
 			WarQueue.Clear();
+			Players.Clear();
+			Identities.Clear();
 			_playerFactionDictionary.Clear();
 			_playerPirateFactionDictionary.Clear();
 			_pirateFactionDictionary.Clear();
@@ -121,6 +188,10 @@ namespace Eem.Thraxus.Factions.Models
 			WriteToLog("RelationshipManager.Close", $"Ready for a vacation!", LogType.General);
 		}
 
+		/// <summary>
+		/// Catches players as they join the game and/or are registered as identities (happens more than you think; such as leaving a cockpit)
+		/// </summary>
+		/// <param name="myEntity">The entity detected by the game</param>
 		private void PlayerNet(IMyEntity myEntity)
 		{	// Catches players joining the game / server.  GET IT?!
 			IMyPlayer player = MyAPIGateway.Players.GetPlayerById(myEntity.EntityId);
@@ -129,6 +200,22 @@ namespace Eem.Thraxus.Factions.Models
 			WriteToLog("Factions: OnEntityAdd", $"New Player: {player.DisplayName} - {player.IdentityId}", LogType.General);
 		}
 
+		/// <summary>
+		/// Checks to see whether the player is new or known.  If new, passes the player off to be added to the reputation system
+		/// </summary>
+		/// <param name="player">IMyPlayer of the new player</param>
+		private void PlayerJoined(IMyPlayer player)
+		{
+			IMyFaction playerFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(player.IdentityId);
+			if (playerFaction != null) return;  // If the player already has a faction then it can be assumed the players rep is being managed within that faction and they are not new to the game / server
+			if (IdentityRelationships.ContainsKey(player.IdentityId)) return;   // Identity is already being tracked, safe to ignore
+			AddNewIdentity(player.Identity);    // New blood! 
+		}
+
+		/// <summary>
+		/// This pulls save data from IdentityRelations and FactionRelations and passes it off to be processed
+		/// </summary>
+		/// <returns></returns>
 		public SaveData GetSaveData()
 		{
 			HashSet<RelationSave> factionRelations = new HashSet<RelationSave>();
@@ -146,83 +233,215 @@ namespace Eem.Thraxus.Factions.Models
 			return new SaveData(factionRelations, identityRelations);
 		}
 
+		/// <summary>
+		/// Parses out the save game and loads last known faction / identity reputations
+		/// </summary>
+		/// <param name="saveData"></param>
 		private void LoadSaveData(SaveData saveData)
 		{
 			if(saveData.IsEmpty) FirstRunSetup();
-
-			foreach (RelationSave factionRelation in saveData.RelationSave)
+			
+			foreach (RelationSave factionRelation in saveData.FactionSave)
 			{
-				IMyFaction fromFaction = MyAPIGateway.Session.Factions.TryGetFactionById(factionRelation.FromFactionId);
-				IMyFaction toFaction = MyAPIGateway.Session.Factions.TryGetFactionById(factionRelation.ToFactionId);
-				if (fromFaction == null || toFaction == null) continue; // This automatically parses out all stale factions
-				FactionRelationships.Add(factionRelation.ToFactionId, new FactionRelation(fromFaction, toFaction, factionRelation.Rep));
+				IMyFaction fromFaction = MyAPIGateway.Session.Factions.TryGetFactionById(factionRelation.FromId);
+				if (fromFaction == null) continue;
+				FactionRelationships.Add(fromFaction.FactionId, new FactionRelation(fromFaction));
+				foreach (Relation relation in factionRelation.ToFactionRelations)
+				{   //	TODO: This inner loop is the same in both faction and identity - perhaps extract to a common method instead?
+					IMyFaction toFaction = MyAPIGateway.Session.Factions.TryGetFactionById(relation.FactionId);
+					if (toFaction == null) // if the toFaction is null, this faction doesn't exist any longer.  Abandon ship! 
+						continue;
+					FactionRelationships[fromFaction.FactionId].AddNewRelation(relation.FactionId, relation.Rep);
+				}
 			}
 
-			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
-			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
+			List<IMyIdentity> gameIdentities = GetIdentities();
 
 			foreach (RelationSave identityRelation in saveData.IdentitySave)
 			{
-				IMyIdentity myIdentity = gameIdentities.Find(x => x.IdentityId == identityRelation.FromId);
-				if (myIdentity == null) continue; // This automatically parses out all stale identities
-				IdentityRelationships.Add(myIdentity.IdentityId, new IdentityRelation(myIdentity, identityRelation.ToFactionIds));
+				if (!Utilities.StaticMethods.ValidPlayer(identityRelation.FromId)) continue;  // This stops bots from making it into the dictionary
+				IMyIdentity myIdentity = GetIdentities().Find(x => x.IdentityId == identityRelation.FromId);
+				if (myIdentity == null) continue;					// This automatically parses out all stale identities
+				
+				IMyFaction myFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(myIdentity.IdentityId);
+				if (myFaction == null) continue;					// This player is in a faction.  Let the factions manage the relationships.
+				
+				IdentityRelationships.Add(myIdentity.IdentityId, new IdentityRelation(myIdentity));
 				gameIdentities.Remove(myIdentity);
-			}
 
-			CleanIdentityRelationships();
+				foreach (Relation relation in identityRelation.ToFactionRelations)
+				{	//	TODO: This inner loop is the same in both faction and identity - perhaps extract to a common method instead? 
+					IMyFaction toFaction = MyAPIGateway.Session.Factions.TryGetFactionById(relation.FactionId);
+					if (toFaction == null) // if the toFaction is null, this faction doesn't exist any longer.  Abandon ship! 
+						continue;
+					FactionRelationships[myIdentity.IdentityId].AddNewRelation(relation.FactionId, relation.Rep);
+				}
+			}
 
 			// at this point the only thing left in gameIdentities are new identities, so set them up as first run
 			foreach (IMyIdentity identity in gameIdentities)
 			{
 				AddNewIdentity(identity);
 			}
+
+			Identities.Clear();
 		}
-		
+
+		/// <summary>
+		/// When a player leaves a faction, this is called to make sure they are allocated to IdentityRelationships
+		/// </summary>
+		/// <param name="id">ID of the player who just left a faction</param>
+		private void FactionTraitor(long id)
+		{   // They abandoned their faction and are now loners.  Way to go, asshole.
+			if (!Utilities.StaticMethods.ValidPlayer(id)) return;  // This stops bots from making it into the dictionary
+			
+			IMyIdentity myIdentity = GetIdentities().Find(x => x.IdentityId == id);
+			if (myIdentity == null) return;                   // This automatically parses out all stale identities
+			IdentityRelationships.Add(myIdentity.IdentityId, new IdentityRelation(myIdentity));
+
+			foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
+			{	// These reps can carry over; no need to change.
+				IdentityRelationships[id].AddNewRelation(faction.Key);
+			}
+
+			foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
+			{	// Just making sure evil is still evil
+				IdentityRelationships[id].AddNewRelation(faction.Key, GeneralSettings.DefaultNegativeRep);
+			}
+			Identities.Clear();
+		}
+
+		/// <summary>
+		/// This is only used when a new player is detected who hasn't otherwise been managed by the RelationshipManager
+		/// Converts the long to an IMyIdentity and passes it to the proper method
+		/// </summary>
+		/// <param name="identity"></param>
 		private void AddNewIdentity(long identity)
 		{
-			if (!ValidPlayer(identity)) return;
+			if (!Utilities.StaticMethods.ValidPlayer(identity)) return;
 			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
 			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
 			AddNewIdentity(gameIdentities.Find(x => x.IdentityId == identity));
 		}
 
+		/// <summary>
+		/// This is only used when a new player is detected who hasn't otherwise been managed by the RelationshipManager
+		/// Adds a new player to IdentityRelationships
+		/// </summary>
+		/// <param name="identity"></param>
 		private void AddNewIdentity(IMyIdentity identity)
-		{
-			if (!ValidPlayer(identity.IdentityId)) return;
-
-			HashSet<long> factionsDictionary = new HashSet<long>();
+		{	
+			if (!Utilities.StaticMethods.ValidPlayer(identity.IdentityId)) return;
+			IdentityRelationships.Add(identity.IdentityId, new IdentityRelation(identity));
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
-				factionsDictionary.Add(faction.Key);
+			{
+				IdentityRelationships[identity.IdentityId].AddNewRelation(faction.Key, GeneralSettings.DefaultNeutralRep);
+			}
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
-				factionsDictionary.Add(faction.Key);
-
-			IdentityRelationships.Add(identity.IdentityId, new IdentityRelation(identity, factionsDictionary));
+			{
+				IdentityRelationships[identity.IdentityId].AddNewRelation(faction.Key, GeneralSettings.DefaultNegativeRep);
+			}
 		}
 
-		private void AddNewFaction(long factionId, bool hostile)
-		{
+		/// <summary>
+		/// Pulls IMyFaction from the Faction ID and passes it to the actual AddNewFaction method
+		/// </summary>
+		/// <param name="factionId">ID of the new faction</param>
+		/// <param name="hostile">Is this new faction hostile?</param>
+		private void AddNewFaction(long factionId, bool? hostile = null)
+		{	
 			IMyFaction faction = MyAPIGateway.Session.Factions.TryGetFactionById(factionId);
 			if (faction == null) return;
 			AddNewFaction(faction, hostile);
 		}
 
-		private void AddNewFaction(IMyFaction newFaction, bool hostile)
+		/// <summary>
+		/// Adds a new faction FactionRelationships
+		/// </summary>
+		/// <param name="newFaction">IMyFaction for the new faction</param>
+		/// <param name="hostile">Is this new faction hostile?</param>
+		private void AddNewFaction(IMyFaction newFaction, bool? hostile = null)
 		{
+			if (hostile == null)
+				hostile = GeneralSettings.PlayerFactionExclusionList.Contains(newFaction.Description);
+
+			FactionRelationships.Add(newFaction.FactionId, new FactionRelation(newFaction));
+
 			foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
 			{
 				if (newFaction.FactionId == faction.Key) continue;
-				FactionRelationships.Add(newFaction.FactionId, new FactionRelation(newFaction, faction.Value, hostile ? GeneralSettings.DefaultNegativeRep : GeneralSettings.DefaultNeutralRep));
+				FactionRelationships[newFaction.FactionId].AddNewRelation(faction.Key, (bool) hostile ? GeneralSettings.DefaultNegativeRep : GeneralSettings.DefaultNeutralRep);
 			}
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
 			{
 				if (newFaction.FactionId == faction.Key) continue;
-				FactionRelationships.Add(newFaction.FactionId, new FactionRelation(newFaction, faction.Value, GeneralSettings.DefaultNegativeRep));
+				FactionRelationships[newFaction.FactionId].AddNewRelation(faction.Key, GeneralSettings.DefaultNegativeRep);
 			}
 		}
 
+		/// <summary>
+		/// Makes sure the reputation of a faction is balanced for the new member
+		/// </summary>
+		/// <param name="id">ID of the new member</param>
+		private void NewFactionMember(long id)
+		{   // Idea here is to make sure that when someone joins a faction, the rep is rebalanced 
+			// there should always be a rep hit, but minor for like reps, but more major the greater the divergence 
+			IMyFaction tmp = MyAPIGateway.Session.Factions.TryGetPlayerFaction(id);
+			if (tmp == null)
+				return; // Trying to account for errant calls to this method
+			try
+			{
+				if(!FactionRelationships.ContainsKey(tmp.FactionId))
+				{
+					AddNewFaction(tmp);
+					return;
+				}
+				FactionRelationships[tmp.FactionId].AddNewMember(id);
+			}
+			catch (Exception e)
+			{
+				WriteToLog("NewFactionMember", $"Exception! Identity {id} or some faction lookup likely didn't exist: \t{e}", LogType.Exception);
+			}
+		}
+
+		private void NewPlayerPirateFaction(long id)
+		{
+			try
+			{
+				if (!FactionRelationships.ContainsKey(id))
+				{
+					AddNewFaction(id, true);
+				}
+				_playerPirateFactionDictionary.Remove(id);
+				_playerFactionDictionary.Add(id, id.GetFactionById());
+				FactionRelationships[id].SetAsPirate();
+			}
+			catch (Exception e)
+			{
+				WriteToLog("HandleFormerPlayerPirate", $"Exception!\t{e}", LogType.Exception);
+			}
+		}
+
+		private void FormerPlayerPirateFaction(long id)
+		{
+			try
+			{
+				_playerPirateFactionDictionary.Remove(id);
+				_playerFactionDictionary.Add(id, id.GetFactionById());
+				FactionRelationships[id].NoLongerPirate();
+			}
+			catch (Exception e)
+			{
+				WriteToLog("HandleFormerPlayerPirate", $"Exception!\t{e}", LogType.Exception);
+			}
+		}
+
+		/// <summary>
+		/// If no save game exists, this will set factions to their default / new values 
+		/// </summary>
 		private void FirstRunSetup()
 		{	// Should only ever run when no save exists
 			foreach (KeyValuePair<long, IMyFaction> faction in _playerFactionDictionary)
@@ -235,42 +454,20 @@ namespace Eem.Thraxus.Factions.Models
 				AddNewFaction(faction.Value, GeneralSettings.PlayerFactionExclusionList.Contains(faction.Value.Description));
 			}
 			
-			List<long> knownIdentities = new List<long>();
-			foreach (KeyValuePair<long, FactionRelation> faction in FactionRelationships)
-			{
-				knownIdentities.AddRange(faction.Value.MemberList);
-			}
-
 			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
 			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
 
-			foreach (IMyIdentity identity in gameIdentities.
-				Where(identity => !ValidPlayer(identity.IdentityId)).				// Exclude NPCs
-				Where(identity => !knownIdentities.Contains(identity.IdentityId)))	// Exclude known identities  
+			foreach (IMyIdentity identity in GetIdentities())
 			{
 				AddNewIdentity(identity);
 			}
-
+			Identities.Clear();
 			// TODO: After initial trial runs with EEM are successful, expand this to support other mods npc factions
 		}
 
 		/// <summary>
-		/// Removes all identities who are not players (aka, NPCs) and any player who is already in a faction
+		/// Responsible for calling the methods to decay reputation in all relations
 		/// </summary>
-		private void CleanIdentityRelationships()
-		{
-			List<long> knownIdentities = new List<long>();
-			foreach (KeyValuePair<long, FactionRelation> faction in FactionRelationships)
-			{
-				knownIdentities.AddRange(faction.Value.MemberList);
-			}
-
-			foreach (long identityId in (from identityRelationship in IdentityRelationships where !ValidPlayer(identityRelationship.Key) || knownIdentities.Contains(identityRelationship.Key) select identityRelationship.Key).ToList())
-			{
-				IdentityRelationships.Remove(identityId);
-			}
-		}
-
 		public void ReputationDecay()
 		{	// TODO: Call this on a schedule; once every 1 minute.  
 			// TODO: Check to see if updating rep is thread safe
@@ -284,18 +481,42 @@ namespace Eem.Thraxus.Factions.Models
 			{
 				relationship.Value.DecayReputation();
 			}
-
 		}
 
-		private void PlayerJoined(IMyPlayer player)
+		/// <summary>
+		/// Users for external access to the war reputation hit
+		/// </summary>
+		/// <param name="pendingWar"></param>
+		public void DeclareWar(PendingWar pendingWar)
+		{   // Leaving this a queue for threading purposes; if not threaded, could easily go direct
+			WarQueue.Enqueue(pendingWar);
+			ProcessWarQueue();
+		}
+
+		/// <summary>
+		/// Runs through the queue every call to ensure all war requests are met
+		/// </summary>
+		private void ProcessWarQueue()
 		{
-			IMyFaction playerFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(player.IdentityId);
-			if (playerFaction != null) return;	// If the player already has a faction then it can be assumed the players rep is being managed within that faction and they are not new to the game / server
-			if (IdentityRelationships.ContainsKey(player.IdentityId)) return;	// Identity is already being tracked, safe to ignore
-			AddNewIdentity(player.Identity);	// New blood! 
+			try
+			{
+				while (WarQueue.Count > 0)
+				{
+					PendingWar pendingWar = WarQueue.Dequeue();
+					TriggerWar(pendingWar);
+					WriteToLog("ProcessWarQueue", $"War Triggered! {pendingWar}", LogType.General);
+				}
+			}
+			catch (Exception e)
+			{
+				WriteToLog("ProcessWarQueue", $"Exception!\t{e}", LogType.Exception);
+			}
 		}
 
-
+		/// <summary>
+		/// Triggers rep hits for negative actions
+		/// </summary>
+		/// <param name="pendingWar"></param>
 		private void TriggerWar(PendingWar pendingWar)
 		{
 			IMyFaction playerFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(pendingWar.IdentityId);
@@ -320,99 +541,8 @@ namespace Eem.Thraxus.Factions.Models
 		}
 
 
-
-		public void DeclareWar(PendingWar pendingWar)
-		{	// Leaving this a queue for threading purposes; if not threaded, could easily go direct
-			WarQueue.Enqueue(pendingWar);
-			ProcessWarQueue();
-		}
-
-		private void ProcessWarQueue()
-		{
-			try
-			{
-				while (WarQueue.Count > 0)
-				{
-					PendingWar pendingWar = WarQueue.Dequeue();
-					TriggerWar(pendingWar);
-					WriteToLog("ProcessWarQueue", $"War Triggered! {pendingWar}", LogType.General);
-				}
-			}
-			catch (Exception e)
-			{
-				WriteToLog("ProcessWarQueue", $"Exception!\t{e}", LogType.Exception);
-			}
-		}
-
-
-		/// <summary>
-		/// Checks whether an identity is a bot or not
-		/// </summary>
-		/// <param name="identityId"></param>
-		/// <returns>Returns true if the identity is not a bot</returns>
-		private static bool ValidPlayer(long identityId)
-		{
-			return MyAPIGateway.Players.TryGetSteamId(identityId) == 0;
-		}
-
-		// TODO: Player Leaves Faction -> Add to IdentityRelationships with reps from the faction they just left
-
-		// TODO: Player Creates a Faction - Create the new FactionRelationships entry using existing player reputations, remove from IdentityRelationships
-
-		// TODO: War conditions to set rep to desired values (-550 first offense, -20 per next offense.  if > -530, set back to -550, otherwise add the -20 (so -525 = -550, and -540 = -560)
-		
 		// TODO: * Add SPID to the EEM protected faction list
 		// TODO:	- This needs to include kicking players from it on parsing
-
-		private void FactionMessage(int oldRep, int repChange, long leftFaction, long rightFaction)
-		{   // TODO Finish this! 
-			// If old rep is over default neutral and the rep change is positive, nothing to do
-			if (oldRep > GeneralSettings.DefaultNeutralRep && repChange > 0) return;
-
-			// If the old rep is less than default neutral rep and the rep change is also negative, nothing to do
-			if (oldRep < GeneralSettings.DefaultNeutralRep && repChange < 0) return;
-
-			// Now we need some simple math...
-			int newRep = oldRep + repChange;
-
-			// If the old rep is greater than or equal to the default neutral rep and the new rep is also greater than or equal to the default neutral rep, nothing to do
-			if (oldRep >= GeneralSettings.DefaultNeutralRep && newRep >= GeneralSettings.DefaultNeutralRep) return;
-
-			// If the old rep is less than the default neutral rep and the new rep is also less than the default neutral rep, nothing to do
-			if (oldRep < GeneralSettings.DefaultNeutralRep && newRep < GeneralSettings.DefaultNeutralRep) return;
-
-			// If the old rep is greater than or equal to the default neutral rep and the new rep is lower than the default neutral rep, war time baby!
-			if (oldRep >= GeneralSettings.DefaultNeutralRep && newRep < GeneralSettings.DefaultNeutralRep)
-			{
-
-			}
-
-			// If the old rep is less than the default neutral rep and the new rep is greater than or equal to the default neutral rep, shucks... peace time
-			if (oldRep > GeneralSettings.DefaultNeutralRep && newRep >= GeneralSettings.DefaultNeutralRep)
-			{
-
-			}
-
-		}
-
-
-
-		private void NewFactionMember(long id)
-		{   // Idea here is to make sure that when someone joins a faction, the rep is rebalanced 
-			// there should always be a rep hit, but minor for like reps, but more major the greater the divergence 
-			IMyFaction tmp = MyAPIGateway.Session.Factions.TryGetPlayerFaction(id);
-			if (tmp == null)
-				return; // Trying to account for errant calls to this method
-
-			try
-			{
-
-			}
-			catch (Exception e)
-			{
-				WriteToLog("NewFactionMember", $"Exception! Identity {id} or some faction lookup likely didn't exist: \t{e}", LogType.Exception);
-			}
-		}
 
 		#region Faction States / Events / Triggers
 
@@ -456,7 +586,8 @@ namespace Eem.Thraxus.Factions.Models
 					break;
 				case MyFactionStateChange.FactionMemberKick:
 					// TODO: Tie into faction system for a removed faction member - add to identity dictionary
-					AddFactionMember(fromFactionId.GetFactionById());
+					//FactionTraitor(AddFactionMember(fromFactionId.GetFactionById()));
+					// TODO: Need the FactionStateChange information (4x longs) for this event
 					break;
 				case MyFactionStateChange.FactionMemberPromote:
 					// Note: Unused
@@ -466,6 +597,8 @@ namespace Eem.Thraxus.Factions.Models
 					break;
 				case MyFactionStateChange.FactionMemberLeave:
 					// TODO: Tie into faction system for a removed faction member - add to identity dictionary
+					//FactionTraitor();
+					// TODO: Need the FactionStateChange information (4x longs) for this event
 					break;
 				case MyFactionStateChange.FactionMemberNotPossibleJoin:
 					// Note: Unused
@@ -514,124 +647,20 @@ namespace Eem.Thraxus.Factions.Models
 			if (playerFaction.IsPlayerPirate() && !_playerPirateFactionDictionary.ContainsKey(factionId)) // I'm a player pirate, but this is news to you...
 			{
 				_playerPirateFactionDictionary.Add(factionId, playerFaction);
-				DeclarePermanentFullNpcWar(factionId);
+				NewPlayerPirateFaction(factionId);
 				return;
 			}
 			if (!playerFaction.IsPlayerPirate() && _playerPirateFactionDictionary.ContainsKey(factionId)) // I was a player pirate, but uh, I changed... I swear... 
 			{
 				_playerPirateFactionDictionary.Remove(factionId);
-				HandleFormerPlayerPirate(factionId);
+				FormerPlayerPirateFaction(factionId);
 				return;
 			}
 			if (!newFaction) return;
-			SetupNewFactionRelationship(factionId, FactionType.Player); // I'm new man, just throw me a bone.
-		}
-
-		private void NewPlayerPirateFaction(IMyFaction faction)
-		{
-			_playerFactionDictionary.Add(faction.FactionId, faction);
-			if (!FactionRelationships.ContainsKey(faction.FactionId))
-			{
-				foreach (KeyValuePair<long, IMyFaction> npcFaction in _npcFactionDictionary)
-				{
-					
-				}
-				FactionRelationships.Add(faction.FactionId, new FactionRelation());
-			}
-		}
-
-		private void PeaceRequestSent(long fromFactionId, long toFactionId)
-		{   // So many reasons to clear peace...
-			// This is no longer a concept with EEM / new factions; leaving this method here for no reason at all.  
+			AddNewFaction(factionId); // I'm new man, just throw me a bone.
 		}
 
 		#endregion
-
-
-
-		#region Dialogue triggers
-
-		private void RequestDialog(IMyFaction npcFaction, IMyFaction playerFaction, Enums.DialogType type)
-		{
-			try
-			{
-				Func<string> message = _dialogue.RequestDialog(npcFaction, type);x
-				string npcFactionTag = npcFaction.Tag;
-				if (playerFaction == null || _newFactionDictionary.ContainsKey(playerFaction.FactionId)) return;
-				SendFactionMessageToAllFactionMembers(message.Invoke(), npcFactionTag, playerFaction.Members);
-			}
-			catch (Exception e)
-			{
-				WriteToLog("RequestDialog", $"npcFaction:\t{npcFaction.FactionId}\tplayerFaction:\t{playerFaction.FactionId}\tException!\t{e}", LogType.Exception);
-			}
-		}
-
-		private void RequestNewFactionDialog(long playerFactionId)
-		{
-			const string npcFactionTag = "The Lawful";
-			try
-			{
-				Func<string> message = _dialogue.RequestDialog(null, Enums.DialogType.CollectiveWelcome);
-				if (playerFactionId.GetFactionById() == null || !_newFactionDictionary.ContainsKey(playerFactionId)) return;
-				SendFactionMessageToAllFactionMembers(message.Invoke(), npcFactionTag, playerFactionId.GetFactionById().Members);
-				_newFactionDictionary.Remove(playerFactionId);
-			}
-			catch (Exception e)
-			{
-				WriteToLog("RequestNewFactionDialog", $"playerFaction:\t{playerFactionId}\tException!\t{e}", LogType.Exception);
-			}
-		}
-
-		private void RequestNewPirateDialog(long playerFactionId)
-		{
-			const string npcFactionTag = "The Lawful";
-			try
-			{
-				Func<string> message = _dialogue.RequestDialog(null, Enums.DialogType.CollectiveDisappointment);
-				if (playerFactionId.GetFactionById() == null || !_newFactionDictionary.ContainsKey(playerFactionId)) return;
-				SendFactionMessageToAllFactionMembers(message.Invoke(), npcFactionTag, playerFactionId.GetFactionById().Members);
-				_newFactionDictionary.Remove(playerFactionId);
-			}
-			catch (Exception e)
-			{
-				WriteToLog("RequestNewPirateDialog", $"playerFaction:\t{playerFactionId}\tException!\t{e}", LogType.Exception);
-			}
-		}
-
-		private void RequestFormerPirateDialog(long playerFactionId)
-		{
-			const string npcFactionTag = "The Lawful";
-			try
-			{
-				Func<string> message = _dialogue.RequestDialog(null, Enums.DialogType.CollectiveReprieve);
-				if (playerFactionId.GetFactionById() == null || !_newFactionDictionary.ContainsKey(playerFactionId)) return;
-				SendFactionMessageToAllFactionMembers(message.Invoke(), npcFactionTag, playerFactionId.GetFactionById().Members);
-				_newFactionDictionary.Remove(playerFactionId);
-			}
-			catch (Exception e)
-			{
-				WriteToLog("RequestFormerPirateDialog", $"playerFaction:\t{playerFactionId}\tException!\t{e}", LogType.Exception);
-			}
-		}
-
-		#endregion
-
-		private void SendFactionMessageToAllFactionMembers(string message, string messageSender, DictionaryReader<long, MyFactionMember> target, string color = MyFontEnum.Red)
-		{
-			try
-			{
-				foreach (KeyValuePair<long, MyFactionMember> factionMember in target)
-				{
-					if (factionMember.Value.IsFactionMemberOnline())
-						MyAPIGateway.Utilities.InvokeOnGameThread(() =>
-							Messaging.SendMessageToPlayer($"{message}", messageSender, factionMember.Key, color));
-				}
-			}
-			catch (Exception e)
-			{
-				WriteToLog("SendFactionMessageToAllFactionMembers", $"Exception!\t{e}", LogType.Exception);
-			}
-		}
 		
 		#region Faction Dictionaries Setup / Management
 
@@ -738,20 +767,7 @@ namespace Eem.Thraxus.Factions.Models
 				WriteToLog("ScrubDictionaries", $"Exception!\t{e}", LogType.Exception);
 			}
 		}
-
-		private void HandleFormerPlayerPirate(long playerFactionId)
-		{
-			try
-			{
-				_playerPirateFactionDictionary.Remove(playerFactionId);
-				_playerFactionDictionary.Add(playerFactionId, playerFactionId.GetFactionById());
-			}
-			catch (Exception e)
-			{
-				WriteToLog("HandleFormerPlayerPirate", $"Exception!\t{e}", LogType.Exception);
-			}
-		}
-
+		
 		#endregion
 
 		#region Faction Proection Measures

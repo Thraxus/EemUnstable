@@ -50,16 +50,16 @@ namespace Eem.Thraxus.Factions.DataTypes
 	[ProtoContract]
 	public struct SaveData
 	{
-		[ProtoMember(1)] public readonly HashSet<RelationSave> RelationSave;
+		[ProtoMember(1)] public readonly HashSet<RelationSave> FactionSave;
 		[ProtoMember(2)] public readonly HashSet<RelationSave> IdentitySave;
 
 		public SaveData(HashSet<RelationSave> relationSave, HashSet<RelationSave> identitySave)
 		{
-			RelationSave = relationSave;
+			FactionSave = relationSave;
 			IdentitySave = identitySave;
 		}
 
-		public bool IsEmpty => (RelationSave == null || IdentitySave == null);
+		public bool IsEmpty => (FactionSave == null || IdentitySave == null);
 	}
 
 	[ProtoContract]

@@ -73,11 +73,6 @@ namespace Eem.Thraxus.Factions
 			WriteToLog("FactionCore", $"Initialized... {UpdateOrder}", LogType.General);
 		}
 
-		public void NewIdentityDetected(IMyIdentity identity)
-		{	// Should be called form an entity tracker perhaps?  Or on schedule? We'll see...
-			_relationshipManager.AddNewIdentity(identity);
-		}
-		
 		/// <inheritdoc />
 		protected override void Unload()
 		{
@@ -103,10 +98,8 @@ namespace Eem.Thraxus.Factions
 		private void TickTimer()
 		{
 			_tickTimer++;
-			if (_tickTimer % GeneralSettings.FactionNegativeRelationshipAssessment == 0)
-				_relationshipManager.FactionTimer();
-			//if (_tickTimer % GeneralSettings.TicksPerMinute == 0)
-			//	_relationshipManager.SetRepDebug(GeneralSettings.Random.Next(-30,30));
+			if (_tickTimer % GeneralSettings.TicksPerMinute == 0)
+				_relationshipManager.ReputationDecay();
 		}
 	}
 }
