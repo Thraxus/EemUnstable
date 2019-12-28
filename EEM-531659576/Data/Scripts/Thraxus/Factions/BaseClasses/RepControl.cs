@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Eem.Thraxus.Common.Utilities.Tools.Networking;
 using Eem.Thraxus.Factions.DataTypes;
 using Eem.Thraxus.Factions.Models;
@@ -14,10 +16,13 @@ namespace Eem.Thraxus.Factions.BaseClasses
 	public abstract class RepControl
 	{
 		public long FromRelationId;
+		protected string RelationTag;
 
 		public bool IsPirate { get; protected set; }
 
 		public readonly HashSet<long> ToFactions = new HashSet<long>();
+		
+		// TODO: Must change the ToFactions list to include rep; probably need a custom class
 
 		protected readonly List<IMyPlayer> Players = new List<IMyPlayer>();
 
@@ -34,6 +39,13 @@ namespace Eem.Thraxus.Factions.BaseClasses
 			ToFactions.Add(id);
 			if (rep != null)
 				SetReputation(id, (int)rep);
+			StaticLog.WriteToLog("AddNewRelation", $"Type: {RelationTag} - Id: {id} - Rep: {rep.ToString()}", LogType.General);
+		}
+
+		public void RemoveRelation(long id)
+		{
+			if (RelationExists(id))
+				ToFactions.Remove(id);
 		}
 
 		public bool RelationExists(long id)
@@ -41,7 +53,12 @@ namespace Eem.Thraxus.Factions.BaseClasses
 			return ToFactions.Contains(id);
 		}
 
-		protected abstract int GetReputation(long id);
+		public int RelationCount()
+		{
+			return ToFactions.Count;
+		}
+
+		public abstract int GetReputation(long id);
 
 		protected abstract void SetReputation(long id, int rep);
 
@@ -51,6 +68,8 @@ namespace Eem.Thraxus.Factions.BaseClasses
 			foreach (long toFaction in ToFactions)
 				SetReputation(toFaction, GeneralSettings.DefaultNegativeRep);
 		}
+
+		public abstract void ResetReputation();
 
 		public void NoLongerPirate()
 		{
@@ -62,10 +81,17 @@ namespace Eem.Thraxus.Factions.BaseClasses
 			foreach (long toFaction in ToFactions)
 			{
 				int rep = GetReputation(toFaction);
+				//if (rep == GeneralSettings.DefaultNeutralRep || rep == GeneralSettings.DefaultNegativeRep)
+				//{
+				//	StaticLog.WriteToLog("DecayReputation", $"Type: {RelationTag} - Rep Decayed not required between {FromRelationId} and {toFaction} - Currently: {GetReputation(toFaction)}", LogType.General);
+				//	continue;
+				//}
 				if (rep > GeneralSettings.DefaultNeutralRep)
-					SetReputation(toFaction, rep + GeneralSettings.RepDecay / 2);
-				if (rep < GeneralSettings.DefaultNegativeRep)
+					SetReputation(toFaction, rep - GeneralSettings.RepDecay / 2);
+				//if (rep < GeneralSettings.DefaultNeutralRep && rep > GeneralSettings.DefaultNegativeRep)
+				if (rep < GeneralSettings.DefaultNeutralRep)
 					SetReputation(toFaction, rep + GeneralSettings.RepDecay);
+				StaticLog.WriteToLog("DecayReputation", $"Type: {RelationTag} - Rep Decayed for {FromRelationId} against {toFaction} - Original: {rep} | New: {GetReputation(toFaction)}", LogType.General);
 			}
 		}
 

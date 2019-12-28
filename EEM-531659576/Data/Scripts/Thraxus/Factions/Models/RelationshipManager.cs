@@ -8,6 +8,7 @@ using Eem.Thraxus.Common.Utilities.StaticMethods;
 using Eem.Thraxus.Factions.DataTypes;
 using Eem.Thraxus.Factions.Utilities;
 using Sandbox.ModAPI;
+using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
@@ -366,19 +367,57 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			if (hostile == null)
 				hostile = GeneralSettings.PlayerFactionExclusionList.Contains(newFaction.Description);
-
+			WriteToLog("AddNewFaction", $"Tag: {newFaction.Tag} | Hostile? {hostile.ToString()}", LogType.General);
 			FactionRelationships.Add(newFaction.FactionId, new FactionRelation(newFaction));
+
+			long factionFounder = newFaction.FounderId;
+			bool inIdentityRelationships = IdentityRelationships.ContainsKey(factionFounder);
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
 			{
+				WriteToLog("AddNewFaction", $"Looping lawful factions: {newFaction.Tag} -- {faction.Value.Tag}", LogType.General);
 				if (newFaction.FactionId == faction.Key) continue;
-				FactionRelationships[newFaction.FactionId].AddNewRelation(faction.Key, (bool) hostile ? GeneralSettings.DefaultNegativeRep : GeneralSettings.DefaultNeutralRep);
+				int? rep = null;
+				if (inIdentityRelationships)
+				{
+					rep = IdentityRelationships[factionFounder].GetReputation(faction.Key);
+					IdentityRelationships[factionFounder].RemoveRelation(faction.Key);
+				}
+				FactionRelationships[newFaction.FactionId].AddNewRelation(faction.Key, (bool)hostile ? GeneralSettings.DefaultNegativeRep : rep);
+				if (newFaction.Members.Count == 1) continue;
+				foreach (KeyValuePair<long, MyFactionMember> factionMember in newFaction.Members)
+				{
+					if (factionMember.Key == factionFounder) continue;
+					FactionRelationships[newFaction.FactionId].AddNewMember(factionMember.Key);
+					if (IdentityRelationships.ContainsKey(factionMember.Key))
+						IdentityRelationships[factionMember.Key].RemoveRelation(faction.Key);
+				}
 			}
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
 			{
+				WriteToLog("AddNewFaction", $"Looping pirate factions: {newFaction.Tag} -- {faction.Value.Tag}", LogType.General);
 				if (newFaction.FactionId == faction.Key) continue;
 				FactionRelationships[newFaction.FactionId].AddNewRelation(faction.Key, GeneralSettings.DefaultNegativeRep);
+				if (inIdentityRelationships)
+					IdentityRelationships[factionFounder].RemoveRelation(faction.Key);
+				if (newFaction.Members.Count == 1) continue;
+				foreach (KeyValuePair<long, MyFactionMember> factionMember in newFaction.Members)
+					FactionRelationships[newFaction.FactionId].AddNewMember(factionMember.Key);
+				if (newFaction.Members.Count == 1) continue;
+				foreach (KeyValuePair<long, MyFactionMember> factionMember in newFaction.Members)
+				{
+					if (factionMember.Key == factionFounder) continue;
+					FactionRelationships[newFaction.FactionId].AddNewMember(factionMember.Key);
+					if (IdentityRelationships.ContainsKey(factionMember.Key))
+						IdentityRelationships[factionMember.Key].RemoveRelation(faction.Key);
+				}
+			}
+
+			foreach (KeyValuePair<long, MyFactionMember> factionMember in newFaction.Members.Where(factionMember => IdentityRelationships.ContainsKey(factionMember.Key)))
+			{
+				WriteToLog("AddNewFaction", $"Removing Identity Relation: {factionMember.Key} with {IdentityRelationships[factionMember.Key].RelationCount()} relations left.", LogType.General);
+				IdentityRelationships.Remove(factionMember.Key);
 			}
 		}
 
@@ -571,7 +610,15 @@ namespace Eem.Thraxus.Factions.Models
 					break;
 				case MyFactionStateChange.DeclareWar:
 					// TODO: See if this actually works still.  Of so, how it a person vs faction handled?  I'm guessing... not well.
-					DeclareWar(new PendingWar(fromFactionId, toFactionId));
+					if (_npcFactionDictionary.ContainsKey(fromFactionId))
+					{
+						if (FactionRelationships.ContainsKey(toFactionId))
+						{
+
+							break;
+						}
+					}
+					//DeclareWar(new PendingWar(fromFactionId, toFactionId));
 					break;
 				case MyFactionStateChange.FactionMemberSendJoin:
 					// Note: Unused
@@ -587,6 +634,8 @@ namespace Eem.Thraxus.Factions.Models
 				case MyFactionStateChange.FactionMemberKick:
 					// TODO: Tie into faction system for a removed faction member - add to identity dictionary
 					//FactionTraitor(AddFactionMember(fromFactionId.GetFactionById()));
+					if (_npcFactionDictionary.ContainsKey(fromFactionId))
+						AddFactionMember(_npcFactionDictionary[fromFactionId]);
 					// TODO: Need the FactionStateChange information (4x longs) for this event
 					break;
 				case MyFactionStateChange.FactionMemberPromote:
@@ -793,10 +842,10 @@ namespace Eem.Thraxus.Factions.Models
 			foreach (KeyValuePair<long, IMyFaction> npcFaction in _npcFactionDictionary)
 			{
 				foreach (KeyValuePair<long, IMyFaction> playerFaction in _playerFactionDictionary)
-					MyAPIGateway.Session.Factions.ChangeAutoAccept(npcFaction.Key, playerFaction.Value.FounderId, false, false);
+					MyAPIGateway.Session.Factions.ChangeAutoAccept(npcFaction.Key, npcFaction.Value.FounderId, false, false);
 
 				foreach (KeyValuePair<long, IMyFaction> playerPirateFaction in _playerPirateFactionDictionary)
-					MyAPIGateway.Session.Factions.ChangeAutoAccept(npcFaction.Key, playerPirateFaction.Value.FounderId, false, false);
+					MyAPIGateway.Session.Factions.ChangeAutoAccept(npcFaction.Key, npcFaction.Value.FounderId, false, false);
 			}
 		}
 
@@ -805,8 +854,14 @@ namespace Eem.Thraxus.Factions.Models
 			if (!_setupComplete) return;
 			if (!acceptPeace && !acceptMember) return;
 			if (!_npcFactionDictionary.ContainsKey(factionId) && !_nonEemNpcFactionDictionary.ContainsKey(factionId)) return;
-			SetupAutoRelations();
-			WriteToLog("MonitorAutoAccept", $"NPC Faction bypass detected, resetting relationship controls.", LogType.General);
+
+			if (MyAPIGateway.Session.Factions.Factions[factionId].AutoAcceptMember ||
+			    MyAPIGateway.Session.Factions.Factions[factionId].AutoAcceptPeace)
+				foreach (IMyPlayer player in GetPlayers())
+					MyAPIGateway.Session.Factions.ChangeAutoAccept(factionId, player.IdentityId, false, false);
+			
+			//SetupAutoRelations();
+			WriteToLog("MonitorAutoAccept", $"NPC Faction bypass detected, resetting relationship controls. {factionId} | {acceptPeace} | {acceptMember}", LogType.General);
 		}
 
 		#endregion

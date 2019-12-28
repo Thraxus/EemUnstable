@@ -1,4 +1,6 @@
-﻿using Eem.Thraxus.Common.Utilities.Tools.Networking;
+﻿using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
+using Eem.Thraxus.Common.Utilities.Tools.Networking;
 using Eem.Thraxus.Factions.BaseClasses;
 using Sandbox.ModAPI;
 using VRage.Game;
@@ -14,17 +16,20 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			FromIdentity = fromIdentity;
 			FromRelationId = FromIdentity.IdentityId;
+			RelationTag = "Identity";
 		}
 
-		protected override int GetReputation(long factionId)
+		public override int GetReputation(long factionId)
 		{
 			return MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(FromIdentity.IdentityId, factionId);
 		}
 
 		protected override void SetReputation(long id, int rep)
 		{
+			StaticLog.WriteToLog("SetReputation", $"Checkpoint Entered...", LogType.General);
 			if (!RelationExists(id)) return;
-			MyAPIGateway.Session.Factions.SetReputation(FromIdentity.IdentityId, id, rep);
+			StaticLog.WriteToLog("SetReputation", $"Type: {RelationTag} - Rep changed between {FromRelationId} and {id} to {rep}", LogType.General);
+			MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(FromIdentity.IdentityId, id, rep);
 		}
 	}
 }

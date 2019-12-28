@@ -16,6 +16,7 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			FromFaction = fromFaction;
 			FromRelationId = fromFaction.FactionId;
+			RelationTag = "Faction";
 		}
 
 		public void AddNewMember(long newMemberId)
@@ -23,7 +24,7 @@ namespace Eem.Thraxus.Factions.Models
 			foreach (long toFaction in ToFactions)
 			{
 				int newRep = MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(newMemberId, toFaction);
-				if (newRep < GeneralSettings.DefaultNeutralRep)
+				if (newRep != GeneralSettings.DefaultNeutralRep)
 				{
 					SetReputation(toFaction, newRep);
 					return;
@@ -32,7 +33,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 		}
 
-		protected override int GetReputation(long id)
+		public override int GetReputation(long id)
 		{
 			return MyAPIGateway.Session.Factions.GetReputationBetweenFactions(FromFaction.FactionId, id);
 		}
@@ -43,7 +44,15 @@ namespace Eem.Thraxus.Factions.Models
 			foreach (KeyValuePair<long, MyFactionMember> member in FromFaction.Members)
 				MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(member.Key, id, rep);
 		}
-		
+
+		public override void ResetReputation()
+		{
+			foreach (long VARIABLE in ToFactions)
+			{
+				
+			}
+		}
+
 		protected override void SendMessage(string message, string sender)
 		{
 			foreach (IMyPlayer player in Players)

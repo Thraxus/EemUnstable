@@ -127,6 +127,8 @@ namespace Eem.Thraxus.Bots
 				EntityName = Entity.DisplayName;
 				EntityId = Entity.EntityId;
 
+				// TODO: Swap this check from physics to make sure preview and projector is false
+				// https://discordapp.com/channels/125011928711036928/126460115204308993/660173388031066133
 				if (Entity.Physics == null) return false;
 
 				_myShipControllers = new List<IMyShipController>();
