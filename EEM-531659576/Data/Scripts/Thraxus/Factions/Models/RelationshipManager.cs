@@ -5,6 +5,7 @@ using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.StaticMethods;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Eem.Thraxus.Factions.DataTypes;
 using Eem.Thraxus.Factions.Utilities;
 using Sandbox.ModAPI;
@@ -150,9 +151,7 @@ namespace Eem.Thraxus.Factions.Models
 
 			SetupFactionDictionaries();
 
-			if (_saveData.IsEmpty)
-				FirstRunSetup();
-			else LoadSaveData(_saveData);
+			LoadSaveData(_saveData);
 
 			SetupFactionDeletionProtection();
 			SetupAutoRelations();
@@ -223,12 +222,14 @@ namespace Eem.Thraxus.Factions.Models
 			foreach (KeyValuePair<long, FactionRelation> factionRelationship in FactionRelationships)
 			{
 				factionRelations.Add(factionRelationship.Value.GetSaveState());
+				WriteToLog("GetSaveState", $"Adding to FactionRelationships save: {factionRelationship.Value.GetSaveState().ToStringExtended()}", LogType.General);
 			}
 
 			HashSet<RelationSave> identityRelations = new HashSet<RelationSave>();
 			foreach (KeyValuePair<long, IdentityRelation> identityRelationship in IdentityRelationships)
 			{
 				identityRelations.Add(identityRelationship.Value.GetSaveState());
+				WriteToLog("GetSaveState", $"Adding to IdentityRelationships save: {identityRelationship.Value.GetSaveState().ToStringExtended()}", LogType.General);
 			}
 
 			return new SaveData(factionRelations, identityRelations);
@@ -240,52 +241,106 @@ namespace Eem.Thraxus.Factions.Models
 		/// <param name="saveData"></param>
 		private void LoadSaveData(SaveData saveData)
 		{
-			if(saveData.IsEmpty) FirstRunSetup();
+			if(saveData.IsEmpty)
+			{
+				FirstRunSetup();
+				return;
+			}
+
+			WriteToLog("LoadSaveData-Factions", $"Loading save: {saveData.IsEmpty} | {saveData.ToString()}", LogType.General);
 			
-			foreach (RelationSave factionRelation in saveData.FactionSave)
+			if (saveData.FactionSave != null)
 			{
-				IMyFaction fromFaction = MyAPIGateway.Session.Factions.TryGetFactionById(factionRelation.FromId);
-				if (fromFaction == null) continue;
-				FactionRelationships.Add(fromFaction.FactionId, new FactionRelation(fromFaction));
-				foreach (Relation relation in factionRelation.ToFactionRelations)
-				{   //	TODO: This inner loop is the same in both faction and identity - perhaps extract to a common method instead?
-					IMyFaction toFaction = MyAPIGateway.Session.Factions.TryGetFactionById(relation.FactionId);
-					if (toFaction == null) // if the toFaction is null, this faction doesn't exist any longer.  Abandon ship! 
-						continue;
-					FactionRelationships[fromFaction.FactionId].AddNewRelation(relation.FactionId, relation.Rep);
+				foreach (RelationSave factionRelation in saveData.FactionSave)
+				{
+					WriteToLog("LoadSaveData-factionRelation", $"Loading faction relation: {factionRelation.ToStringExtended()}", LogType.General);
+					IMyFaction fromFaction = MyAPIGateway.Session.Factions.TryGetFactionById(factionRelation.FromId);
+					if (fromFaction == null) continue;
+					FactionRelationships.Add(fromFaction.FactionId, new FactionRelation(fromFaction));
+					foreach (Relation relation in factionRelation.ToFactionRelations)
+					{
+						//	TODO: This inner loop is the same in both faction and identity - perhaps extract to a common method instead?
+						IMyFaction toFaction = MyAPIGateway.Session.Factions.TryGetFactionById(relation.FactionId);
+						if (toFaction == null) // if the toFaction is null, this faction doesn't exist any longer.  Abandon ship! 
+							continue;
+						FactionRelationships[fromFaction.FactionId].AddNewRelation(relation.FactionId, relation.Rep);
+					}
 				}
 			}
 
-			List<IMyIdentity> gameIdentities = GetIdentities();
-
-			foreach (RelationSave identityRelation in saveData.IdentitySave)
+			if (saveData.IdentitySave != null)
 			{
-				if (!Utilities.StaticMethods.ValidPlayer(identityRelation.FromId)) continue;  // This stops bots from making it into the dictionary
-				IMyIdentity myIdentity = GetIdentities().Find(x => x.IdentityId == identityRelation.FromId);
-				if (myIdentity == null) continue;					// This automatically parses out all stale identities
-				
-				IMyFaction myFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(myIdentity.IdentityId);
-				if (myFaction == null) continue;					// This player is in a faction.  Let the factions manage the relationships.
-				
-				IdentityRelationships.Add(myIdentity.IdentityId, new IdentityRelation(myIdentity));
-				gameIdentities.Remove(myIdentity);
+				foreach (RelationSave identityRelation in saveData.IdentitySave)
+				{
+					WriteToLog("LoadSaveData-identityRelation", $"Loading identity relation: {identityRelation.ToStringExtended()}", LogType.General);
 
-				foreach (Relation relation in identityRelation.ToFactionRelations)
-				{	//	TODO: This inner loop is the same in both faction and identity - perhaps extract to a common method instead? 
-					IMyFaction toFaction = MyAPIGateway.Session.Factions.TryGetFactionById(relation.FactionId);
-					if (toFaction == null) // if the toFaction is null, this faction doesn't exist any longer.  Abandon ship! 
-						continue;
-					FactionRelationships[myIdentity.IdentityId].AddNewRelation(relation.FactionId, relation.Rep);
+					// Possible default condition catch
+					if (identityRelation.FromId == 0) continue;
+
+					// This stops bots from making it into the dictionary
+					if (!Utilities.StaticMethods.ValidPlayer(identityRelation.FromId)) continue;
+
+					IMyIdentity myIdentity = GetIdentityFromId(identityRelation.FromId);
+
+					// if this happens, something is fishy, so let Godzilla eat it
+					if (myIdentity == null) continue;
+					IdentityRelationships.Add(identityRelation.FromId, new IdentityRelation(myIdentity));
+
+					foreach (Relation relation in identityRelation.ToFactionRelations)
+					{
+						//	TODO: This inner loop is the same in both faction and identity - perhaps extract to a common method instead? 
+						IMyFaction toFaction = MyAPIGateway.Session.Factions.TryGetFactionById(relation.FactionId);
+						if (toFaction == null
+						) // if the toFaction is null, this faction doesn't exist any longer.  Abandon ship! 
+							continue;
+						FactionRelationships[myIdentity.IdentityId].AddNewRelation(relation.FactionId, relation.Rep);
+					}
 				}
 			}
-
-			// at this point the only thing left in gameIdentities are new identities, so set them up as first run
-			foreach (IMyIdentity identity in gameIdentities)
+			
+			WriteToLog("LoadSaveData-gameIdentities", $"Adding new identities for the rest...", LogType.General);
+			foreach (IMyIdentity identity in GetIdentities().ToList())
 			{
 				AddNewIdentity(identity);
 			}
+		}
 
-			Identities.Clear();
+		private IMyIdentity GetIdentityFromId(long id)
+		{
+			return GetIdentities().Find(x => x.IdentityId == id);
+		}
+
+		private bool ValidIdentityRelationship(long id)
+		{
+			// Remove stale identities
+			if (GetIdentityFromId(id) == null)
+			{
+				WriteToLog("ValidIdentityRelationship", $"Identity {id} was stale, invalidating.", LogType.General);
+				return false;
+			}
+
+			// Remove bots
+			if (!Utilities.StaticMethods.ValidPlayer(id))
+			{
+				WriteToLog("ValidIdentityRelationship", $"Identity {id} was invalid, invalidating.", LogType.General);
+				return false;
+			}
+
+			// Remove players managed by factions
+			if (MyAPIGateway.Session.Factions.TryGetPlayerFaction(id) != null)
+			{
+				WriteToLog("ValidIdentityRelationship", $"Identity {id} was in a faction, invalidating.", LogType.General);
+				return false;
+			}
+
+			// Remove already managed identities
+			if (IdentityRelationships.ContainsKey(id))
+			{
+				WriteToLog("ValidIdentityRelationship", $"Identity {id} was already managed, invalidating.", LogType.General);
+				return false;
+			}
+
+			return true;
 		}
 
 		/// <summary>
@@ -369,8 +424,9 @@ namespace Eem.Thraxus.Factions.Models
 		/// </summary>
 		/// <param name="identity"></param>
 		private void AddNewIdentity(IMyIdentity identity)
-		{	
-			if (!Utilities.StaticMethods.ValidPlayer(identity.IdentityId)) return;
+		{
+			if (!ValidIdentityRelationship(identity.IdentityId)) return;
+			
 			IdentityRelationships.Add(identity.IdentityId, new IdentityRelation(identity));
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
@@ -539,7 +595,7 @@ namespace Eem.Thraxus.Factions.Models
 				AddNewFaction(faction.Value, GeneralSettings.PlayerFactionExclusionList.Contains(faction.Value.Description));
 			}
 			
-			foreach (IMyIdentity identity in GetIdentities())
+			foreach (IMyIdentity identity in GetIdentities().ToList())
 			{
 				WriteToLog("FirstRunSetup", $"Adding new identity to IdentityRelationships {identity.IdentityId}", LogType.General);
 				AddNewIdentity(identity);
@@ -663,7 +719,10 @@ namespace Eem.Thraxus.Factions.Models
 
 					// An EEM NPC declared war on a player -- unacceptable! 
 					if (_npcFactionDictionary.ContainsKey(fromFactionId) && FactionRelationships.ContainsKey(toFactionId))
+					{
 						FactionRelationships[toFactionId].ResetReputation();
+						break;
+					}
 
 					// A Player declared war on an EEM NPC... asshole.
 					if (_npcFactionDictionary.ContainsKey(toFactionId) && FactionRelationships.ContainsKey(fromFactionId))

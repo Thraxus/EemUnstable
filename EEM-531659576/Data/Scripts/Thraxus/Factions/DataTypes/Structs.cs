@@ -59,7 +59,12 @@ namespace Eem.Thraxus.Factions.DataTypes
 			IdentitySave = identitySave;
 		}
 
-		public bool IsEmpty => (FactionSave == null || IdentitySave == null);
+		public bool IsEmpty => (FactionSave == null && IdentitySave == null);
+
+		public override string ToString()
+		{
+			return $"FactionSave.Count: {FactionSave?.Count} | IdentitySave.Count: {IdentitySave?.Count}";
+		}
 	}
 
 	[ProtoContract]
@@ -83,6 +88,7 @@ namespace Eem.Thraxus.Factions.DataTypes
 		public string ToStringExtended()
 		{
 			StringBuilder returnString = new StringBuilder();
+			returnString.Append("\n");
 			foreach (Relation relation in ToFactionRelations)
 			{
 				returnString.Append($"FromId: {FromId} | {relation}\n");

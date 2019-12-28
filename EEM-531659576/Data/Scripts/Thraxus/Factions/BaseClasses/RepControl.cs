@@ -176,6 +176,7 @@ namespace Eem.Thraxus.Factions.BaseClasses
 		public string ToStringExtended()
 		{
 			StringBuilder returnString = new StringBuilder();
+			returnString.Append("\n");
 			foreach (KeyValuePair<long, int> toFaction in ToFactions)
 			{
 				returnString.Append($"FromId: {FromRelationId} | ToFactionTag: {toFaction} | Reputation: {GetReputation(toFaction.Key)}\n");
