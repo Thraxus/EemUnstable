@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using Eem.Thraxus.Common.DataTypes;
@@ -20,7 +21,7 @@ namespace Eem.Thraxus.Factions.BaseClasses
 
 		public bool IsPirate { get; protected set; }
 
-		public readonly HashSet<long> ToFactions = new HashSet<long>();
+		public readonly ConcurrentDictionary<long, int> ToFactions = new ConcurrentDictionary<long, int>();
 		
 		// TODO: Must change the ToFactions list to include rep; probably need a custom class
 
@@ -33,13 +34,20 @@ namespace Eem.Thraxus.Factions.BaseClasses
 			return Players;
 		}
 		
+		/// <summary>
+		/// Adds a new relationship.  If no value is passed to rep, default neutral rep will be used.
+		/// </summary>
+		/// <param name="id">ID of the new relationship</param>
+		/// <param name="rep">Reputation with the new relationship; nullable.</param>
 		public void AddNewRelation(long id, int? rep = null)
 		{
+			StaticLog.WriteToLog("AddNewRelation", $"Type: {RelationTag} - Attempting to add new relation between Id: {id} Rep Requested: {rep.ToString()}", LogType.General);
 			if (!MyAPIGateway.Session.Factions.Factions.ContainsKey(id)) return;
-			ToFactions.Add(id);
-			if (rep != null)
-				SetReputation(id, (int)rep);
-			StaticLog.WriteToLog("AddNewRelation", $"Type: {RelationTag} - Id: {id} - Rep: {rep.ToString()}", LogType.General);
+			if (rep == null)
+				rep = GeneralSettings.DefaultNeutralRep;
+			ToFactions.TryAdd(id, (int) rep);
+			SetReputation(id, (int) rep);
+			StaticLog.WriteToLog("AddNewRelation", $"Type: {RelationTag} - Id: {id} |[Rep]| Requested: {rep.ToString()} <> Actual: {GetReputation(id)}", LogType.General);
 		}
 
 		public void RemoveRelation(long id)
@@ -50,7 +58,7 @@ namespace Eem.Thraxus.Factions.BaseClasses
 
 		public bool RelationExists(long id)
 		{
-			return ToFactions.Contains(id);
+			return ToFactions.ContainsKey(id);
 		}
 
 		public int RelationCount()
@@ -58,18 +66,35 @@ namespace Eem.Thraxus.Factions.BaseClasses
 			return ToFactions.Count;
 		}
 
-		public abstract int GetReputation(long id);
+		public int GetReputation(long id)
+		{
+			return ToFactions.ContainsKey(id) ? ToFactions[id] : -5000;
+		}
 
-		protected abstract void SetReputation(long id, int rep);
+		public abstract int GetSeReputation(long id);
+
+		protected void SetReputation(long id, int rep)
+		{
+			StaticLog.WriteToLog("SetReputation", $"Type: {RelationTag} - Setting Rep between {FromRelationId} and {id} to {rep}", LogType.General);
+			if (!ToFactions.ContainsKey(id)) return;
+			ToFactions[id] = rep;
+			SetSeReputation(id, rep);
+		}
+
+		protected abstract void SetSeReputation(long id, int rep);
 
 		public void SetAsPirate()
 		{
 			IsPirate = true;
-			foreach (long toFaction in ToFactions)
-				SetReputation(toFaction, GeneralSettings.DefaultNegativeRep);
+			foreach (KeyValuePair<long, int> toFaction in ToFactions)
+				SetReputation(toFaction.Key, GeneralSettings.DefaultNegativeRep);
 		}
 
-		public abstract void ResetReputation();
+		public void ResetReputation()
+		{
+			foreach (KeyValuePair<long, int> toFaction in ToFactions)
+				SetSeReputation(toFaction.Key, toFaction.Value);
+		}
 
 		public void NoLongerPirate()
 		{
@@ -78,25 +103,23 @@ namespace Eem.Thraxus.Factions.BaseClasses
 
 		public void DecayReputation()
 		{
-			foreach (long toFaction in ToFactions)
+			StaticLog.WriteToLog("DecayReputation", $"Type: {RelationTag} - Decaying reputation...", LogType.General);
+			foreach (KeyValuePair<long, int> toFaction in ToFactions)
 			{
-				int rep = GetReputation(toFaction);
-				//if (rep == GeneralSettings.DefaultNeutralRep || rep == GeneralSettings.DefaultNegativeRep)
-				//{
-				//	StaticLog.WriteToLog("DecayReputation", $"Type: {RelationTag} - Rep Decayed not required between {FromRelationId} and {toFaction} - Currently: {GetReputation(toFaction)}", LogType.General);
-				//	continue;
-				//}
+				int rep = GetReputation(toFaction.Key);
 				if (rep > GeneralSettings.DefaultNeutralRep)
-					SetReputation(toFaction, rep - GeneralSettings.RepDecay / 2);
+					SetReputation(toFaction.Key, rep - GeneralSettings.RepDecay / 2);
+				// TODO: Decide if I want to lock rep if it ever hits -1500 and make the player buy their way back to good favor.  If yes, uncomment the below.
 				//if (rep < GeneralSettings.DefaultNeutralRep && rep > GeneralSettings.DefaultNegativeRep)
 				if (rep < GeneralSettings.DefaultNeutralRep)
-					SetReputation(toFaction, rep + GeneralSettings.RepDecay);
-				StaticLog.WriteToLog("DecayReputation", $"Type: {RelationTag} - Rep Decayed for {FromRelationId} against {toFaction} - Original: {rep} | New: {GetReputation(toFaction)}", LogType.General);
+					SetReputation(toFaction.Key, rep + GeneralSettings.RepDecay);
+				StaticLog.WriteToLog("DecayReputation", $"Type: {RelationTag} - Rep Decayed for {FromRelationId} against {toFaction.Key} - Original: {rep} | New: {GetReputation(toFaction.Key)} SE: {GetSeReputation(toFaction.Key)}", LogType.General);
 			}
 		}
 
 		public void TriggerWar(long against)
 		{
+			StaticLog.WriteToLog("TriggerWar", $"Type: {RelationTag} - War triggered between {FromRelationId} and {against}...", LogType.General);
 			int rep = GetReputation(against);
 
 			if (rep > GeneralSettings.DefaultWarRep - GeneralSettings.AdditionalWarRepPenalty)
@@ -138,9 +161,9 @@ namespace Eem.Thraxus.Factions.BaseClasses
 		public RelationSave GetSaveState()
 		{
 			HashSet<Relation> relations = new HashSet<Relation>();
-			foreach (long toFaction in ToFactions)
+			foreach (KeyValuePair<long, int> toFaction in ToFactions)
 			{
-				relations.Add(new Relation(toFaction, GetReputation(toFaction)));
+				relations.Add(new Relation(toFaction.Key, toFaction.Value));
 			}
 			return new RelationSave(FromRelationId, relations);
 		}
@@ -153,9 +176,9 @@ namespace Eem.Thraxus.Factions.BaseClasses
 		public string ToStringExtended()
 		{
 			StringBuilder returnString = new StringBuilder();
-			foreach (long toFaction in ToFactions)
+			foreach (KeyValuePair<long, int> toFaction in ToFactions)
 			{
-				returnString.Append($"FromId: {FromRelationId} | ToFactionTag: {toFaction} | Reputation: {GetReputation(toFaction)}\n");
+				returnString.Append($"FromId: {FromRelationId} | ToFactionTag: {toFaction} | Reputation: {GetReputation(toFaction.Key)}\n");
 			}
 			return returnString.ToString();
 		}

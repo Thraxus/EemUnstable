@@ -146,7 +146,7 @@ namespace Eem.Thraxus.Factions.Models
 		/// </summary>
 		public void Run()
 		{
-			WriteToLog("RelationshipManager.Run", $"Warming up!", LogType.General);
+			WriteToLog("RelationshipManager.Run", $"Warming up! Existing save: {!_saveData.IsEmpty}", LogType.General);
 
 			SetupFactionDictionaries();
 
@@ -291,25 +291,63 @@ namespace Eem.Thraxus.Factions.Models
 		/// <summary>
 		/// When a player leaves a faction, this is called to make sure they are allocated to IdentityRelationships
 		/// </summary>
-		/// <param name="id">ID of the player who just left a faction</param>
-		private void FactionTraitor(long id)
+		/// <param name="factionId">ID of the faction the player left</param>
+		/// <param name="playerId">ID of the player who just left or was kicked</param>
+		private void FactionTraitor(long factionId, long playerId)
 		{   // They abandoned their faction and are now loners.  Way to go, asshole.
-			if (!Utilities.StaticMethods.ValidPlayer(id)) return;  // This stops bots from making it into the dictionary
+
+			// This stops bots from making it into the dictionary
+			if (!Utilities.StaticMethods.ValidPlayer(playerId)) return;  
 			
-			IMyIdentity myIdentity = GetIdentities().Find(x => x.IdentityId == id);
-			if (myIdentity == null) return;                   // This automatically parses out all stale identities
+			IMyIdentity myIdentity = GetIdentities().Find(x => x.IdentityId == playerId);
+
+			// This automatically parses out all stale identities
+			if (myIdentity == null) return;                   
+
+			// Make sure the identity in IdentityRelationships is not stale
+			if (IdentityRelationships.ContainsKey(playerId)) IdentityRelationships.Remove(playerId);
 			IdentityRelationships.Add(myIdentity.IdentityId, new IdentityRelation(myIdentity));
 
-			foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
-			{	// These reps can carry over; no need to change.
-				IdentityRelationships[id].AddNewRelation(faction.Key);
+			// Carry over their past sins
+			if (FactionRelationships.ContainsKey(factionId))
+			{
+				foreach (KeyValuePair<long, int> relationship in FactionRelationships[factionId].ToFactions)
+				{	// Haha fucker, thought you could escape the law!!  I'LL SHOW YOU!
+					IdentityRelationships[playerId].AddNewRelation(relationship.Key, relationship.Value);
+				}
 			}
+			else
+			{	// I have no idea how this is possible, but figured I may as well protect for it
+				foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
+				{
+					// These reps can carry over; no need to change.
+					IdentityRelationships[playerId].AddNewRelation(faction.Key);
+				}
 
-			foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
-			{	// Just making sure evil is still evil
-				IdentityRelationships[id].AddNewRelation(faction.Key, GeneralSettings.DefaultNegativeRep);
+				foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
+				{
+					// Just making sure evil is still evil
+					IdentityRelationships[playerId].AddNewRelation(faction.Key, GeneralSettings.DefaultNegativeRep);
+				}
 			}
 			Identities.Clear();
+		}
+
+		/// <summary>
+		/// Called when a faction is dissolved - need to manually pull the ID from FactionRelationships and convert the members to IdentityRelationships
+		/// </summary>
+		/// <param name="factionId">ID of the now defunct faction</param>
+		/// <param name="playerId">ID of the player who dissolved it</param>
+		private void FactionDissolved(long factionId, long playerId)
+		{
+			WriteToLog("FactionDissolved", $"Faction {factionId} dissolved by {playerId}", LogType.General);
+			if (!FactionRelationships.ContainsKey(factionId)) return;
+			FactionTraitor(factionId, playerId);
+			FactionRelationships.Remove(factionId);
+			ScrubDictionaries(factionId);
+
+			// TODO: Evaluate the need to catch a case when the faction key didn't exist? Ensure the playerId exists?
+			// Kinda makes it so I acknowledge I wrote bad code somewhere though... 
 		}
 
 		/// <summary>
@@ -337,11 +375,13 @@ namespace Eem.Thraxus.Factions.Models
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
 			{
+				WriteToLog("AddNewIdentity", $"Adding Identity relationship: {identity.IdentityId} - ({faction.Value.Tag}) {faction.Key}", LogType.General);
 				IdentityRelationships[identity.IdentityId].AddNewRelation(faction.Key, GeneralSettings.DefaultNeutralRep);
 			}
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
 			{
+				WriteToLog("AddNewIdentity", $"Adding Identity relationship: {identity.IdentityId} - ({faction.Value.Tag}) {faction.Key}", LogType.General);
 				IdentityRelationships[identity.IdentityId].AddNewRelation(faction.Key, GeneralSettings.DefaultNegativeRep);
 			}
 		}
@@ -375,7 +415,7 @@ namespace Eem.Thraxus.Factions.Models
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _lawfulFactionDictionary)
 			{
-				WriteToLog("AddNewFaction", $"Looping lawful factions: {newFaction.Tag} -- {faction.Value.Tag}", LogType.General);
+				WriteToLog("AddNewFaction", $"Adding Faction relationship: ({newFaction.Tag}) {newFaction.FactionId} - ({faction.Value.Tag}) {faction.Key}", LogType.General);
 				if (newFaction.FactionId == faction.Key) continue;
 				int? rep = null;
 				if (inIdentityRelationships)
@@ -388,7 +428,8 @@ namespace Eem.Thraxus.Factions.Models
 				foreach (KeyValuePair<long, MyFactionMember> factionMember in newFaction.Members)
 				{
 					if (factionMember.Key == factionFounder) continue;
-					FactionRelationships[newFaction.FactionId].AddNewMember(factionMember.Key);
+					// TODO: Evaluate this for failure modes related to SE's rep system overriding my set values (affects all new relations)
+					FactionRelationships[newFaction.FactionId].AddNewFactionMember(factionMember.Key);
 					if (IdentityRelationships.ContainsKey(factionMember.Key))
 						IdentityRelationships[factionMember.Key].RemoveRelation(faction.Key);
 				}
@@ -396,19 +437,21 @@ namespace Eem.Thraxus.Factions.Models
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _pirateFactionDictionary)
 			{
-				WriteToLog("AddNewFaction", $"Looping pirate factions: {newFaction.Tag} -- {faction.Value.Tag}", LogType.General);
+				WriteToLog("AddNewFaction", $"Adding Faction relationship: ({newFaction.Tag}) {newFaction.FactionId} - ({faction.Value.Tag}) {faction.Key}", LogType.General);
 				if (newFaction.FactionId == faction.Key) continue;
 				FactionRelationships[newFaction.FactionId].AddNewRelation(faction.Key, GeneralSettings.DefaultNegativeRep);
 				if (inIdentityRelationships)
 					IdentityRelationships[factionFounder].RemoveRelation(faction.Key);
 				if (newFaction.Members.Count == 1) continue;
+				// TODO: Evaluate this for failure modes related to SE's rep system overriding my set values (affects all new relations)
 				foreach (KeyValuePair<long, MyFactionMember> factionMember in newFaction.Members)
-					FactionRelationships[newFaction.FactionId].AddNewMember(factionMember.Key);
+					FactionRelationships[newFaction.FactionId].AddNewFactionMember(factionMember.Key);
 				if (newFaction.Members.Count == 1) continue;
 				foreach (KeyValuePair<long, MyFactionMember> factionMember in newFaction.Members)
 				{
 					if (factionMember.Key == factionFounder) continue;
-					FactionRelationships[newFaction.FactionId].AddNewMember(factionMember.Key);
+					// TODO: Evaluate this for failure modes related to SE's rep system overriding my set values (affects all new relations)
+					FactionRelationships[newFaction.FactionId].AddNewFactionMember(factionMember.Key);
 					if (IdentityRelationships.ContainsKey(factionMember.Key))
 						IdentityRelationships[factionMember.Key].RemoveRelation(faction.Key);
 				}
@@ -438,7 +481,8 @@ namespace Eem.Thraxus.Factions.Models
 					AddNewFaction(tmp);
 					return;
 				}
-				FactionRelationships[tmp.FactionId].AddNewMember(id);
+				// TODO: Evaluate this for failure modes related to SE's rep system overriding my set values (affects all new relations)
+				FactionRelationships[tmp.FactionId].AddNewFactionMember(id);
 			}
 			catch (Exception e)
 			{
@@ -485,19 +529,19 @@ namespace Eem.Thraxus.Factions.Models
 		{	// Should only ever run when no save exists
 			foreach (KeyValuePair<long, IMyFaction> faction in _playerFactionDictionary)
 			{
+				WriteToLog("FirstRunSetup", $"Adding new faction to FactionRelationships [Standard] {faction.Key} - {faction.Value.Tag}", LogType.General);
 				AddNewFaction(faction.Value, GeneralSettings.PlayerFactionExclusionList.Contains(faction.Value.Description));
 			}
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _playerPirateFactionDictionary)
 			{
+				WriteToLog("FirstRunSetup", $"Adding new faction to FactionRelationships [Pirate] {faction.Key} - {faction.Value.Tag}", LogType.General);
 				AddNewFaction(faction.Value, GeneralSettings.PlayerFactionExclusionList.Contains(faction.Value.Description));
 			}
 			
-			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
-			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
-
 			foreach (IMyIdentity identity in GetIdentities())
 			{
+				WriteToLog("FirstRunSetup", $"Adding new identity to IdentityRelationships {identity.IdentityId}", LogType.General);
 				AddNewIdentity(identity);
 			}
 			Identities.Clear();
@@ -528,6 +572,7 @@ namespace Eem.Thraxus.Factions.Models
 		/// <param name="pendingWar"></param>
 		public void DeclareWar(PendingWar pendingWar)
 		{   // Leaving this a queue for threading purposes; if not threaded, could easily go direct
+			WriteToLog("DeclareWar", $"Pushing the war to the queue... {pendingWar}", LogType.General);
 			WarQueue.Enqueue(pendingWar);
 			ProcessWarQueue();
 		}
@@ -537,6 +582,7 @@ namespace Eem.Thraxus.Factions.Models
 		/// </summary>
 		private void ProcessWarQueue()
 		{
+			WriteToLog("ProcessWarQueue", $"Flushing the war queue! {WarQueue.Count}", LogType.General);
 			try
 			{
 				while (WarQueue.Count > 0)
@@ -558,11 +604,9 @@ namespace Eem.Thraxus.Factions.Models
 		/// <param name="pendingWar"></param>
 		private void TriggerWar(PendingWar pendingWar)
 		{
-			IMyFaction playerFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(pendingWar.IdentityId);
-			if (playerFaction == null)
+
+			if (IdentityRelationships.ContainsKey(pendingWar.IdentityId))
 			{
-				if (!IdentityRelationships.ContainsKey(pendingWar.IdentityId))
-					AddNewIdentity(pendingWar.IdentityId);
 				IdentityRelationships[pendingWar.IdentityId].TriggerWar(pendingWar.Against);
 				foreach (KeyValuePair<long, IMyFaction> enforcementFaction in _enforcementFactionDictionary)
 				{
@@ -571,14 +615,15 @@ namespace Eem.Thraxus.Factions.Models
 				}
 				return;
 			}
-			FactionRelationships[playerFaction.FactionId].TriggerWar(pendingWar.Against);
+			
+			if (!FactionRelationships.ContainsKey(pendingWar.IdentityId)) return;
+			FactionRelationships[pendingWar.IdentityId].TriggerWar(pendingWar.Against);
 			foreach (KeyValuePair<long, IMyFaction> enforcementFaction in _enforcementFactionDictionary)
 			{
 				if (pendingWar.Against == enforcementFaction.Key) continue;
-				FactionRelationships[playerFaction.FactionId].TriggerWar(enforcementFaction.Key);
+				FactionRelationships[pendingWar.IdentityId].TriggerWar(enforcementFaction.Key);
 			}
 		}
-
 
 		// TODO: * Add SPID to the EEM protected faction list
 		// TODO:	- This needs to include kicking players from it on parsing
@@ -597,28 +642,33 @@ namespace Eem.Thraxus.Factions.Models
 			{
 				case MyFactionStateChange.RemoveFaction:
 					// TODO: Make sure all identities from this faction are added to the identity dictionary; scrub the faction dictionary
-					FactionRemoved(fromFactionId);
+					FactionDissolved(fromFactionId, playerId);
 					break;
 				case MyFactionStateChange.SendPeaceRequest:
 					// Note: No such thing anymore as far as EEM is concerned.
+					if (_npcFactionDictionary.ContainsKey(fromFactionId) ||
+					    _npcFactionDictionary.ContainsKey(toFactionId))
+						ClearPeace(fromFactionId, toFactionId);
 					break;
 				case MyFactionStateChange.CancelPeaceRequest:
 					// Note: No such thing anymore as far as EEM is concerned.
 					break;
 				case MyFactionStateChange.AcceptPeace:
-					// Note: No such thing anymore as far as EEM is concerned.
+					// TODO: Validate this works properly -- KSH WAR likes to do it's own thing.
+					if (_npcFactionDictionary.ContainsKey(fromFactionId) && FactionRelationships.ContainsKey(toFactionId))
+						FactionRelationships[toFactionId].ResetReputation();
 					break;
 				case MyFactionStateChange.DeclareWar:
-					// TODO: See if this actually works still.  Of so, how it a person vs faction handled?  I'm guessing... not well.
-					if (_npcFactionDictionary.ContainsKey(fromFactionId))
-					{
-						if (FactionRelationships.ContainsKey(toFactionId))
-						{
+					// TODO: Validate this works properly -- KSH WAR likes to do it's own thing.
 
-							break;
-						}
-					}
-					//DeclareWar(new PendingWar(fromFactionId, toFactionId));
+					// An EEM NPC declared war on a player -- unacceptable! 
+					if (_npcFactionDictionary.ContainsKey(fromFactionId) && FactionRelationships.ContainsKey(toFactionId))
+						FactionRelationships[toFactionId].ResetReputation();
+
+					// A Player declared war on an EEM NPC... asshole.
+					if (_npcFactionDictionary.ContainsKey(toFactionId) && FactionRelationships.ContainsKey(fromFactionId))
+						DeclareWar(new PendingWar(fromFactionId, toFactionId));
+
 					break;
 				case MyFactionStateChange.FactionMemberSendJoin:
 					// Note: Unused
@@ -633,7 +683,8 @@ namespace Eem.Thraxus.Factions.Models
 					break;
 				case MyFactionStateChange.FactionMemberKick:
 					// TODO: Tie into faction system for a removed faction member - add to identity dictionary
-					//FactionTraitor(AddFactionMember(fromFactionId.GetFactionById()));
+					// Guessing: From/To faction is the faction who did the kicking, playerId is the person kicked, senderId is the FactionLeader
+					FactionTraitor(fromFactionId, playerId);
 					if (_npcFactionDictionary.ContainsKey(fromFactionId))
 						AddFactionMember(_npcFactionDictionary[fromFactionId]);
 					// TODO: Need the FactionStateChange information (4x longs) for this event
@@ -646,7 +697,8 @@ namespace Eem.Thraxus.Factions.Models
 					break;
 				case MyFactionStateChange.FactionMemberLeave:
 					// TODO: Tie into faction system for a removed faction member - add to identity dictionary
-					//FactionTraitor();
+					// Guessing: From/To faction is the faction who did the kicking, playerId is the person who left, senderId is the FactionLeader
+					FactionTraitor(fromFactionId, playerId);
 					// TODO: Need the FactionStateChange information (4x longs) for this event
 					break;
 				case MyFactionStateChange.FactionMemberNotPossibleJoin:
@@ -670,6 +722,12 @@ namespace Eem.Thraxus.Factions.Models
 			}
 		}
 
+		private static void ClearPeace(long fromFactionId, long toFactionId)
+		{   // Stops the flag from hanging out in the faction menu
+			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.CancelPeaceRequest(toFactionId, fromFactionId));
+			MyAPIGateway.Utilities.InvokeOnGameThread(() => MyAPIGateway.Session.Factions.CancelPeaceRequest(fromFactionId, toFactionId));
+		}
+
 		private void FactionCreated(long factionId)
 		{
 			WriteToLog("FactionCreated", $"factionId:\t{factionId}", LogType.General);
@@ -681,13 +739,7 @@ namespace Eem.Thraxus.Factions.Models
 			WriteToLog("FactionEdited", $"factionId:\t{factionId}", LogType.General);
 			FactionEditedOrCreated(factionId);
 		}
-
-		private void FactionRemoved(long factionId)
-		{
-			WriteToLog("FactionRemoved", $"factionId:\t{factionId}", LogType.General);
-			ScrubDictionaries(factionId);
-		}
-
+		
 		private void FactionEditedOrCreated(long factionId, bool newFaction = false)
 		{
 			IMyFaction playerFaction = factionId.GetFactionById();

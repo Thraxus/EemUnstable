@@ -19,12 +19,12 @@ namespace Eem.Thraxus.Factions.Models
 			RelationTag = "Identity";
 		}
 
-		public override int GetReputation(long factionId)
+		public override int GetSeReputation(long factionId)
 		{
 			return MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(FromIdentity.IdentityId, factionId);
 		}
 
-		protected override void SetReputation(long id, int rep)
+		protected override void SetSeReputation(long id, int rep)
 		{
 			StaticLog.WriteToLog("SetReputation", $"Checkpoint Entered...", LogType.General);
 			if (!RelationExists(id)) return;

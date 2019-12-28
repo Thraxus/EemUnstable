@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.ModAPI;
@@ -19,7 +20,7 @@ namespace Eem.Thraxus.Factions.Utilities
 			}
 			catch (Exception e)
 			{
-				//WriteToLog("CheckPiratePlayerOptIn", $"Exception! {e}", LogType.Exception);
+				StaticLog.WriteToLog("CheckPiratePlayerOptIn", $"Exception! {e}", LogType.Exception);
 				return false;
 			}
 		}
