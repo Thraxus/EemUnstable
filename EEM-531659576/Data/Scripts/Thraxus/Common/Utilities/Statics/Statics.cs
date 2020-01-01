@@ -12,10 +12,12 @@ using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRageMath;
 
-namespace Eem.Thraxus.Common.Utilities.StaticMethods
+namespace Eem.Thraxus.Common.Utilities.Statics
 {
-	public static class StaticMethods
+	public static class Statics
 	{
+		public static long GlobalTicks => MyAPIGateway.Session.ElapsedPlayTime.Ticks;
+
 		public static IEnumerable<MyEntity> DetectDynamicEntitiesInSphere(Vector3D detectionCenter, double range)
 		{
 			AddGpsLocation($"DetectDynamicEntitiesInSphere {range}", detectionCenter);

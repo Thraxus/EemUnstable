@@ -17,12 +17,20 @@ namespace Eem.Thraxus
 		private const string DebugLogName = "EemCoreDebug";
 		private const string SessionCompName = "EemCore";
 
+		public static long GlobalTickTimer;
+
 		public EemCore() : base(GeneralLogName, DebugLogName, SessionCompName) { } // Do nothing else
 
 		/// <inheritdoc />
 		protected override void EarlySetup()
 		{
 			base.EarlySetup();
+		}
+
+		public override void UpdateBeforeSimulation()
+		{
+			base.UpdateBeforeSimulation();
+			GlobalTickTimer++;
 		}
 
 		/// <inheritdoc />

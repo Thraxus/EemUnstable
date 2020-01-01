@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Eem.Thraxus.Common.DataTypes;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using Eem.Thraxus.Common.Settings;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Eem.Thraxus.Common.Utilities.Tools.Networking;
 using Eem.Thraxus.Factions.BaseClasses;
+using Eem.Thraxus.Factions.DataTypes;
 
 namespace Eem.Thraxus.Factions.Models
 {
@@ -16,7 +20,7 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			FromFaction = fromFaction;
 			FromRelationId = fromFaction.FactionId;
-			RelationTag = "Faction";
+			RelationType = RelationType.Faction;
 		}
 
 		/// <summary>
@@ -51,12 +55,9 @@ namespace Eem.Thraxus.Factions.Models
 
 		protected override void SendMessage(string message, string sender)
 		{
-			foreach (IMyPlayer player in Players)
-			{
-				if (!player.IsBot && FromFaction.Members.ContainsKey(player.IdentityId))
-					Messaging.SendMessageToPlayer($"{message}", sender, player.IdentityId, MyFontEnum.DarkBlue);
-			}
-			Players.Clear();
+			StaticLog.WriteToLog("SendMessage", $"From: {sender} | To: {FromRelationId} | Message: {message}", LogType.General);
+			foreach (IMyPlayer player in GetPlayers().ToList().Where(player => !player.IsBot && FromFaction.Members.ContainsKey(player.IdentityId)))
+				Messaging.SendMessageToPlayer($"{message}", sender, player.IdentityId, MyFontEnum.DarkBlue);
 		}
 	}
 }

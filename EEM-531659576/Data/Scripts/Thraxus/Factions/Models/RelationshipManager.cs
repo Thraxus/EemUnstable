@@ -4,7 +4,7 @@ using System.Linq;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
-using Eem.Thraxus.Common.Utilities.StaticMethods;
+using Eem.Thraxus.Common.Utilities.Statics;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Eem.Thraxus.Factions.DataTypes;
 using Eem.Thraxus.Factions.Utilities;
@@ -29,7 +29,6 @@ namespace Eem.Thraxus.Factions.Models
 		//				so like, -550 to -500, not so expensive, but -1500 to -500, pretty damn expensive
 		//				even -1500 - -1400 also pretty damn expensive
 		//				or -500 to 0, also pretty expensive if they want to go up
-
 
 		/// <summary>
 		/// Normal rep controlled player factions
@@ -78,12 +77,12 @@ namespace Eem.Thraxus.Factions.Models
 		/// </summary>
 		public readonly Dictionary<long, IdentityRelation> IdentityRelationships = new Dictionary<long, IdentityRelation>();
 
+		#endregion
+
 		/// <summary>
 		/// Responsible for managing external requests for reputation hits 
 		/// </summary>
 		private static readonly Queue<PendingWar> WarQueue = new Queue<PendingWar>();
-
-		#endregion
 
 		/// <summary>
 		/// Used to keep the Identity List; avoids having to allocate a new list every time it's required
@@ -135,7 +134,7 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			WriteToLog("RelationshipManager", $"Constructing!", LogType.General);
 			_saveData = save;
-
+			
 			MyAPIGateway.Session.Factions.FactionStateChanged += FactionStateChanged;
 			MyAPIGateway.Session.Factions.FactionCreated += FactionCreated;
 			MyAPIGateway.Session.Factions.FactionEdited += FactionEdited;
@@ -151,7 +150,7 @@ namespace Eem.Thraxus.Factions.Models
 
 			SetupFactionDictionaries();
 
-			LoadSaveData(_saveData);
+			LoadSaveData();
 
 			SetupFactionDeletionProtection();
 			SetupAutoRelations();
@@ -238,20 +237,19 @@ namespace Eem.Thraxus.Factions.Models
 		/// <summary>
 		/// Parses out the save game and loads last known faction / identity reputations
 		/// </summary>
-		/// <param name="saveData"></param>
-		private void LoadSaveData(SaveData saveData)
+		private void LoadSaveData()
 		{
-			if(saveData.IsEmpty)
+			if(_saveData.IsEmpty)
 			{
 				FirstRunSetup();
 				return;
 			}
 
-			WriteToLog("LoadSaveData-Factions", $"Loading save: {saveData.IsEmpty} | {saveData.ToString()}", LogType.General);
+			WriteToLog("LoadSaveData-Factions", $"Loading save: {_saveData.IsEmpty} | {_saveData.ToString()}", LogType.General);
 			
-			if (saveData.FactionSave != null)
+			if (_saveData.FactionSave != null)
 			{
-				foreach (RelationSave factionRelation in saveData.FactionSave)
+				foreach (RelationSave factionRelation in _saveData.FactionSave)
 				{
 					WriteToLog("LoadSaveData-factionRelation", $"Loading faction relation: {factionRelation.ToStringExtended()}", LogType.General);
 					IMyFaction fromFaction = MyAPIGateway.Session.Factions.TryGetFactionById(factionRelation.FromId);
@@ -268,9 +266,9 @@ namespace Eem.Thraxus.Factions.Models
 				}
 			}
 
-			if (saveData.IdentitySave != null)
+			if (_saveData.IdentitySave != null)
 			{
-				foreach (RelationSave identityRelation in saveData.IdentitySave)
+				foreach (RelationSave identityRelation in _saveData.IdentitySave)
 				{
 					WriteToLog("LoadSaveData-identityRelation", $"Loading identity relation: {identityRelation.ToStringExtended()}", LogType.General);
 
@@ -278,22 +276,14 @@ namespace Eem.Thraxus.Factions.Models
 					if (identityRelation.FromId == 0) continue;
 
 					// This stops bots from making it into the dictionary
-					if (!Utilities.StaticMethods.ValidPlayer(identityRelation.FromId)) continue;
+					if (!ValidIdentityRelationship(identityRelation.FromId)) continue;
 
-					IMyIdentity myIdentity = GetIdentityFromId(identityRelation.FromId);
-
-					// if this happens, something is fishy, so let Godzilla eat it
-					if (myIdentity == null) continue;
-					IdentityRelationships.Add(identityRelation.FromId, new IdentityRelation(myIdentity));
-
-					foreach (Relation relation in identityRelation.ToFactionRelations)
+					foreach (Relation relation in identityRelation.ToFactionRelations.Where(relation => MyAPIGateway.Session.Factions.TryGetFactionById(relation.FactionId) != null))
 					{
-						//	TODO: This inner loop is the same in both faction and identity - perhaps extract to a common method instead? 
-						IMyFaction toFaction = MyAPIGateway.Session.Factions.TryGetFactionById(relation.FactionId);
-						if (toFaction == null
-						) // if the toFaction is null, this faction doesn't exist any longer.  Abandon ship! 
-							continue;
-						FactionRelationships[myIdentity.IdentityId].AddNewRelation(relation.FactionId, relation.Rep);
+						WriteToLog("LoadSaveData-identityRelation", $"Loop for {relation.ToString()}", LogType.General);
+						if (!IdentityRelationships.ContainsKey(identityRelation.FromId))
+							IdentityRelationships.Add(identityRelation.FromId, new IdentityRelation(GetIdentityFromId(identityRelation.FromId)));
+						IdentityRelationships[identityRelation.FromId].AddNewRelation(relation.FactionId, relation.Rep);
 					}
 				}
 			}
@@ -334,13 +324,10 @@ namespace Eem.Thraxus.Factions.Models
 			}
 
 			// Remove already managed identities
-			if (IdentityRelationships.ContainsKey(id))
-			{
-				WriteToLog("ValidIdentityRelationship", $"Identity {id} was already managed, invalidating.", LogType.General);
-				return false;
-			}
+			if (!IdentityRelationships.ContainsKey(id)) return true;
+			WriteToLog("ValidIdentityRelationship", $"Identity {id} was already managed, invalidating.", LogType.General);
+			return false;
 
-			return true;
 		}
 
 		/// <summary>
@@ -620,6 +607,17 @@ namespace Eem.Thraxus.Factions.Models
 			{
 				relationship.Value.DecayReputation();
 			}
+		}
+
+
+		/// <summary>
+		/// Event register from Faction Core for war declarations
+		/// </summary>
+		/// <param name="from">The faction declaring war</param>
+		/// <param name="to">The identity or faction war was declared against</param>
+		private void DeclareWar(long from, long to)
+		{
+			DeclareWar(new PendingWar(to, from));
 		}
 
 		/// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Factions.Models;
@@ -24,6 +25,14 @@ namespace Eem.Thraxus.Factions
 
 		/// <inheritdoc />
 		public FactionCore() : base(GeneralLogName, DebugLogName, SessionCompName, false) { } // Do nothing else
+
+		// Events
+
+		public void RegisterWar(PendingWar pendingWar)
+		{
+			_relationshipManager.DeclareWar(pendingWar);
+			WriteToLog("RegisterWar", $"New war! {pendingWar}", LogType.General);
+		}
 
 		// Fields
 

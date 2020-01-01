@@ -2,6 +2,7 @@
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Eem.Thraxus.Common.Utilities.Tools.Networking;
 using Eem.Thraxus.Factions.BaseClasses;
+using Eem.Thraxus.Factions.DataTypes;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.ModAPI;
@@ -16,7 +17,7 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			FromIdentity = fromIdentity;
 			FromRelationId = FromIdentity.IdentityId;
-			RelationTag = "Identity";
+			RelationType = RelationType.Identity;
 		}
 
 		public override int GetSeReputation(long factionId)
@@ -28,7 +29,7 @@ namespace Eem.Thraxus.Factions.Models
 		{
 			StaticLog.WriteToLog("SetReputation", $"Checkpoint Entered...", LogType.General);
 			if (!RelationExists(id)) return;
-			StaticLog.WriteToLog("SetReputation", $"Type: {RelationTag} - Rep changed between {FromRelationId} and {id} to {rep}", LogType.General);
+			StaticLog.WriteToLog("SetReputation", $"Type: {RelationType} - Rep changed between {FromRelationId} and {id} to {rep}", LogType.General);
 			MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(FromIdentity.IdentityId, id, rep);
 		}
 	}

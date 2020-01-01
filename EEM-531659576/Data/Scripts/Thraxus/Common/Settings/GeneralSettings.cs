@@ -26,6 +26,8 @@ namespace Eem.Thraxus.Common.Settings
 		public const string AntennaAlert = "Alert";
 		public const string BackupAntennaAlert = "Alert_Backup";
 
+		public const int AlertCooldown = 1;
+
 		#endregion
 
 

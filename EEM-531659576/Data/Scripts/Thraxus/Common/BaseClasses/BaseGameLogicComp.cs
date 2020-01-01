@@ -8,6 +8,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 	{
 		protected string EntityName = "PlaceholderName";
 		protected long EntityId = 0L;
+		protected long Ticks;
 
 		public void WriteToLog(string caller, string message, LogType logType)
 		{
@@ -25,6 +26,18 @@ namespace Eem.Thraxus.Common.BaseClasses
 				default:
 					return;
 			}
+		}
+
+		public override void UpdateBeforeSimulation()
+		{
+			Ticks++;
+			TickTimer();
+			base.UpdateBeforeSimulation();
+		}
+
+		protected virtual void TickTimer()
+		{
+
 		}
 
 		private void GeneralLog(string caller, string message)

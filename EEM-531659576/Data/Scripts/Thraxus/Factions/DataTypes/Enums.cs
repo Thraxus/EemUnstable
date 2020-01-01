@@ -1,5 +1,11 @@
 ﻿namespace Eem.Thraxus.Factions.DataTypes
 {
+	public enum RelationType
+	{
+		Identity,
+		Faction
+	}
+
 	public enum DialogType
 	{
 		CollectiveDisappointment,

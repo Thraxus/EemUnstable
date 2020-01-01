@@ -2,7 +2,7 @@
 using System.Linq;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Common.Utilities.StaticMethods;
+using Eem.Thraxus.Common.Utilities.Statics;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
@@ -43,11 +43,11 @@ namespace Eem.Thraxus.EntityManager.Models
 				MyCubeGrid myCubeGrid = (MyCubeGrid)myEntity;
 				if (myCubeGrid.BigOwners.Count > 0)
 				{
-					IMyIdentity identityById = StaticMethods.GetIdentityById(myCubeGrid.BigOwners.FirstOrDefault());
-					string factiontag = MyAPIGateway.Session.Factions.TryGetPlayerFaction(identityById.IdentityId).Tag;
-					if (string.IsNullOrEmpty(factiontag))
-						factiontag = "NONE";
-					WriteToLog("PrintShipSpawn", $"ShipId:\t{myEntity.EntityId}\tShipDisplayName:\t{myEntity.DisplayName}\tOwningFaction:\t{factiontag}", LogType.General);
+					IMyIdentity identityById = Statics.GetIdentityById(myCubeGrid.BigOwners.FirstOrDefault());
+					string factionTag = MyAPIGateway.Session.Factions.TryGetPlayerFaction(identityById.IdentityId).Tag;
+					if (string.IsNullOrEmpty(factionTag))
+						factionTag = "NONE";
+					WriteToLog("PrintShipSpawn", $"ShipId:\t{myEntity.EntityId}\tShipDisplayName:\t{myEntity.DisplayName}\tOwningFaction:\t{factionTag}", LogType.General);
 					return;
 				}
 				WriteToLog("PrintShipSpawn", $"ShipId:\t{myEntity.EntityId}\tShipDisplayName:\t{myEntity.DisplayName}", LogType.General);

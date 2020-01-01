@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eem.Thraxus.Common.Utilities.StaticMethods;
+using Eem.Thraxus.Common.Utilities.Statics;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
@@ -24,7 +24,7 @@ namespace Eem.Thraxus.Bots.Modules.ModManagers
 
 		public static List<IMyEntity> DetectAllBars(Vector3D detectionCenter, double range)
 		{
-			StaticMethods.AddGpsLocation($"Detecting BaRS {range}", detectionCenter);
+			Statics.AddGpsLocation($"Detecting BaRS {range}", detectionCenter);
 
 			// Linq, but possibly slower.  Need to profile.
 			//return StaticMethods.DetectAllEntitiesInSphere(detectionCenter, range)
@@ -33,7 +33,7 @@ namespace Eem.Thraxus.Bots.Modules.ModManagers
 			//	.Cast<IMyEntity>().ToList();
 
 			List<IMyEntity> barsList = new List<IMyEntity>();
-			foreach (MyEntity ent in StaticMethods.DetectAllEntitiesInSphere(detectionCenter, range))
+			foreach (MyEntity ent in Statics.DetectAllEntitiesInSphere(detectionCenter, range))
 			{
 				MyCubeGrid myGrid = ent as MyCubeGrid;
 				if (myGrid == null) continue;// return barsList;

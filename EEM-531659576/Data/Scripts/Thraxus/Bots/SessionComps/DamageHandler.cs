@@ -6,7 +6,7 @@ using Eem.Thraxus.Bots.Modules.ModManagers;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
-using Eem.Thraxus.Common.Utilities.StaticMethods;
+using Eem.Thraxus.Common.Utilities.Statics;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Weapons;
@@ -79,10 +79,10 @@ namespace Eem.Thraxus.Bots.SessionComps
 			foreach (IMyEntity bars in detectedBars)
 			{
 				//BotMarshal.RegisterNewPriorityTarget(shipEntity.EntityId, new TargetEntity(bars, BaseTargetPriorities.Bars));
-				StaticMethods.AddGpsLocation("BaRS", bars.GetPosition());
+				Statics.AddGpsLocation("BaRS", bars.GetPosition());
 				//((IMyCubeBlock)bars).SlimBlock.DecreaseMountLevel(((IMyCubeBlock)bars).SlimBlock.Integrity - 10, null);
 				((IMyCubeBlock) bars).SlimBlock.DoDamage(((IMyCubeBlock)bars).SlimBlock.Integrity * 0.9f, EnergyShields.BypassKey, true, new MyHitInfo(), 0L);
-				StaticMethods.CreateFakeSmallExplosion(bars.GetPosition());
+				Statics.CreateFakeSmallExplosion(bars.GetPosition());
 				RegisterWarEvent(shipEntity.EntityId, ((IMyCubeBlock) bars).OwnerId);
 			}
 		}
@@ -254,7 +254,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 						}
 					}
 
-					List<MyEntity> detectEntitiesInSphere = (List<MyEntity>)StaticMethods.DetectPlayersInSphere(myCubeGrid.GetPosition(), BotSettings.UnownedGridDetectionRange);
+					List<MyEntity> detectEntitiesInSphere = (List<MyEntity>)Statics.DetectPlayersInSphere(myCubeGrid.GetPosition(), BotSettings.UnownedGridDetectionRange);
 					foreach (MyEntity myDetectedEntity in detectEntitiesInSphere)
 					{
 						myPlayer = MyAPIGateway.Players.GetPlayerById(BotMarshal.PlayerShipControllerHistory[myDetectedEntity.EntityId]);
@@ -265,7 +265,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 					return;
 				}
 
-				IMyIdentity myIdentity = StaticMethods.GetIdentityById(myCubeGrid.BigOwners.FirstOrDefault());
+				IMyIdentity myIdentity = Statics.GetIdentityById(myCubeGrid.BigOwners.FirstOrDefault());
 				if (myIdentity != null)
 				{
 					//_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via BigOwners: {myIdentity.DisplayName}", LogType.General);

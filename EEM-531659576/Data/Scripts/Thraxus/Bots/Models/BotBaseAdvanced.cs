@@ -1,9 +1,12 @@
 ﻿using System;
 using Eem.Thraxus.Bots.Modules;
+using Eem.Thraxus.Bots.Modules.Support;
 using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
+using Eem.Thraxus.Factions;
+using Eem.Thraxus.Factions.DataTypes;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Collections;
@@ -16,13 +19,16 @@ namespace Eem.Thraxus.Bots.Models
 	{
 		internal readonly IMyEntity ThisEntity;
 		internal readonly MyCubeGrid ThisCubeGrid;
+		private IMyFaction _myFaction;
 		private readonly IMyShipController _myShipController;
 		private readonly EemPrefabConfig _myConfig;
+
 		private long _ownerId;
 		private bool _sleeping;
-		private MyConcurrentDictionary<long, DateTime> _warDictionary;
-		private MyConcurrentDictionary<IMySlimBlock, float> _integrityDictionary;
-		private DateTime _lastAttacked;
+		private readonly MyConcurrentHashSet<long> _warHash = new MyConcurrentHashSet<long>();
+		private readonly MyConcurrentDictionary<IMySlimBlock, float> _integrityDictionary = new MyConcurrentDictionary<IMySlimBlock, float>();
+		private long _lastAttacked;
+		private long _ticks;
 		
 		public event ShutdownRequest BotShutdown;
 		public delegate void ShutdownRequest();
@@ -55,10 +61,10 @@ namespace Eem.Thraxus.Bots.Models
 		{
 			//WriteToLog("Run", $"{_myConfig.ToStringVerbose()}", LogType.General);
 			WriteToLog("BotCore", $"BotBaseAdvanced powering up.", LogType.General);
-			_lastAttacked = DateTime.Now;
-			_ownerId = _myConfig.Faction == "Nobody" ? 0 : MyAPIGateway.Session.Factions.TryGetFactionByTag(_myConfig.Faction).FounderId;
-			_warDictionary = new MyConcurrentDictionary<long, DateTime>();
-			_integrityDictionary = new MyConcurrentDictionary<IMySlimBlock, float>();
+			_myFaction = MyAPIGateway.Session.Factions.TryGetFactionByTag(_myConfig.Faction);
+			_ownerId = _myFaction?.FounderId ?? 0;
+			//_ownerId = _myConfig.Faction == "Nobody" ? 0 : MyAPIGateway.Session.Factions.TryGetFactionByTag(_myConfig.Faction).FounderId;
+
 			ThisCubeGrid.OnBlockAdded += OnBlockAdded;
 			ThisCubeGrid.OnBlockRemoved += OnBlockRemoved;
 			ThisCubeGrid.OnBlockOwnershipChanged += OnOnBlockOwnershipChanged;
@@ -90,8 +96,8 @@ namespace Eem.Thraxus.Bots.Models
 				ThisCubeGrid.OnBlockRemoved -= OnBlockRemoved;
 				ThisCubeGrid.OnBlockOwnershipChanged -= OnOnBlockOwnershipChanged;
 				ThisCubeGrid.OnBlockIntegrityChanged -= OnBlockIntegrityChanged;
-
-
+				_warHash.Clear();
+				_integrityDictionary.Clear();
 				// TODO Remove the below later to their proper bot type
 				_emergencyLockDownProtocol.OnWriteToLog -= WriteToLog;
 				//_regenerationProtocol.OnWriteToLog -= WriteToLog;
@@ -125,7 +131,7 @@ namespace Eem.Thraxus.Bots.Models
 			}
 		}
 
-		enum CheckType
+		private enum CheckType
 		{
 			Integrity, Ownership, Removed
 		}
@@ -133,8 +139,8 @@ namespace Eem.Thraxus.Bots.Models
 		private void HandleBars(IMySlimBlock block, CheckType check)
 		{
 			//if (!_barsActive) return;
-			TimeSpan timeSinceLastAttack = DateTime.Now - _lastAttacked;
-			if (timeSinceLastAttack.TotalMilliseconds < 500) return;
+			// TODO: Make sure this still works.  updated when i change away from timespan
+			if  ((_ticks - _lastAttacked) < (GeneralSettings.TicksPerSecond / 2)) return;
 			
 			switch (check)
 			{
@@ -168,41 +174,32 @@ namespace Eem.Thraxus.Bots.Models
 			DamageHandler.BarsSuspected(ThisEntity);
 		}
 
+		public void EvaluateAlerts(long ticks)
+		{
+			_ticks = ticks;
+			
+			if (_ticks - _lastAttacked > GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown)
+			{
+				_warHash.Clear();
+				_emergencyLockDownProtocol.Alert(AlertSetting.Peacetime);
+			}
+
+			_ticks = ticks;
+		}
+
 		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)
 		{
-			if (ThisEntity.EntityId == shipId)
-				TriggerAlertConditions(playerId);
+			if (ThisEntity.EntityId != shipId || _ownerId == 0 || playerId == _ownerId || playerId == _myFaction.FactionId) return;
 
-
+			_lastAttacked = _ticks;
+			if (_warHash.Contains(playerId))
+				return;
+			_warHash.Add(playerId);
+			FactionCore.FactionCoreStaticInstance.RegisterWar(new PendingWar(playerId, _myFaction.FactionId));
+			_emergencyLockDownProtocol.Alert(AlertSetting.Wartime);
+			BotWakeup?.Invoke();
 		}
-
-		private bool debugSwitch;
-		private void TriggerAlertConditions(long identityId)
-		{
-			try
-			{
-				WriteToLog("TriggerAlertConditions", $"Alert conditions triggered against {identityId}", LogType.General);
-				if (!_warDictionary.TryAdd(identityId, DateTime.Now))
-					_warDictionary[identityId] = DateTime.Now;
-				_lastAttacked = DateTime.Now;
-				// TODO Add alert conditions
-				if (debugSwitch)
-				{
-					_emergencyLockDownProtocol.DisableAlert();
-					debugSwitch = false;
-				}
-				else
-				{
-					_emergencyLockDownProtocol.EnableAlert();
-					debugSwitch = true;
-				}
-			}
-			catch (Exception e)
-			{
-				WriteToLog("TriggerAlertConditions", $"Exception! {e}", LogType.Exception);
-			}
-		}
-
+		
 		private void OnBlockAdded(IMySlimBlock addedBlock)
 		{   // Trigger alert, war, all the fun stuff against the player / faction that added the block
 			//WriteToLog("OnBlockAdded", $"Triggering alert to Damage Handler", LogType.General);

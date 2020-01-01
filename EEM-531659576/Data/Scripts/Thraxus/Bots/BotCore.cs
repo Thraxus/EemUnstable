@@ -154,6 +154,12 @@ namespace Eem.Thraxus.Bots
 			return false;
 		}
 
+		protected override void TickTimer()
+		{
+			base.TickTimer();
+			_bot?.EvaluateAlerts(Ticks);
+		}
+
 		/// <inheritdoc />
 		public override void Close()
 		{
