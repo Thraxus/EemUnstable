@@ -1,4 +1,5 @@
-﻿using Sandbox.ModAPI;
+﻿using Eem.Thraxus.Common.Utilities.Statics;
+using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support
 {
@@ -15,6 +16,7 @@ namespace Eem.Thraxus.Bots.Modules.Support
 			_ownerId = sensor.OwnerId;
 			_wartimeSettings = wartimeSettings;
 			_peacetimeSettings = peacetimeSettings;
+			//GpsMarker();
 		}
 
 
@@ -35,6 +37,11 @@ namespace Eem.Thraxus.Bots.Modules.Support
 				alertSetting == AlertSetting.Peacetime ? _peacetimeSettings : _wartimeSettings;
 
 			_sensor.Enabled = settings.Enabled;
+		}
+
+		private void GpsMarker()
+		{
+			Statics.AddGpsLocation($"{CubeType.Sensor.ToString()} {_sensor.CustomName}: {_sensor.Enabled}", _sensor.GetPosition());
 		}
 
 		public override string ToString()

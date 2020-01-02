@@ -146,7 +146,6 @@ namespace Eem.Thraxus.Bots.Modules
 							mySensor, (SensorSettings)_warTimeSettings[CubeType.Sensor], new SensorSettings(mySensor.Enabled)
 							));
 						sensors++;
-						//Statics.AddGpsLocation($"{CubeType.Timer.ToString()} {sensors}", mySensor.GetPosition());
 						continue;
 					}
 					
@@ -185,7 +184,7 @@ namespace Eem.Thraxus.Bots.Modules
 
 		public void Alert(AlertSetting alertSetting)
 		{
-			if (_alertEnabled) return;
+			if (_alertEnabled && alertSetting == AlertSetting.Wartime) return;
 			WriteToLog("Alert", $"Loading {alertSetting}...", LogType.General);
 
 			SetAirVentSettings(alertSetting);
@@ -196,8 +195,8 @@ namespace Eem.Thraxus.Bots.Modules
 			SetTurretSettings(alertSetting);
 			SetSensorSettings(alertSetting);
 			
-			WriteToLog("EnableAlert", $"Wartime Settings Loaded...", LogType.General);
-			_alertEnabled = true;
+			WriteToLog("EnableAlert", $"{alertSetting} settings Loaded...", LogType.General);
+			_alertEnabled = alertSetting != AlertSetting.Peacetime;
 		}
 
 		private void SetAirVentSettings(AlertSetting emergencySetting)

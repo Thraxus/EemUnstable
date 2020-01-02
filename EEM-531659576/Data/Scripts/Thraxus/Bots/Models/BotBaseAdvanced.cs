@@ -177,14 +177,12 @@ namespace Eem.Thraxus.Bots.Models
 		public void EvaluateAlerts(long ticks)
 		{
 			_ticks = ticks;
-			
-			if (_ticks - _lastAttacked > GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown)
-			{
-				_warHash.Clear();
-				_emergencyLockDownProtocol.Alert(AlertSetting.Peacetime);
-			}
-
-			_ticks = ticks;
+			if (_lastAttacked == 0) return;
+			if (_ticks - _lastAttacked <= GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown) return;
+			WriteToLog("EvaluateAlerts", $"{ticks} | {_lastAttacked} | {_ticks - _lastAttacked >= GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown}", LogType.General);
+			_warHash.Clear();
+			_lastAttacked = 0;
+			_emergencyLockDownProtocol.Alert(AlertSetting.Peacetime);
 		}
 
 		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)

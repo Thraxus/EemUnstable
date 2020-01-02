@@ -122,10 +122,10 @@ namespace Eem.Thraxus.Factions.BaseClasses
 			StaticLog.WriteToLog("TriggerWar", $"Type: {RelationType} - War triggered between {FromRelationId} and {against}...", LogType.General);
 			int rep = GetReputation(against);
 
-			if (rep > GeneralSettings.DefaultWarRep - GeneralSettings.AdditionalWarRepPenalty)
-				SetReputation(against, GeneralSettings.DefaultWarRep);
-			else
+			if (rep - GeneralSettings.AdditionalWarRepPenalty < GeneralSettings.DefaultWarRep)
 				SetReputation(against, rep - GeneralSettings.AdditionalWarRepPenalty);
+			else
+				SetReputation(against, GeneralSettings.DefaultWarRep);
 			IsDialogRequired(rep, against); // Dialog may be required.  However, dialog is not given if TriggerWar pushes rep further into the war zone
 		}
 

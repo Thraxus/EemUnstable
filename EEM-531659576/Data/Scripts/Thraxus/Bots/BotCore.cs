@@ -156,7 +156,6 @@ namespace Eem.Thraxus.Bots
 
 		protected override void TickTimer()
 		{
-			base.TickTimer();
 			_bot?.EvaluateAlerts(Ticks);
 		}
 

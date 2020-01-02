@@ -35,10 +35,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 			base.UpdateBeforeSimulation();
 		}
 
-		protected virtual void TickTimer()
-		{
-
-		}
+		protected abstract void TickTimer();
 
 		private void GeneralLog(string caller, string message)
 		{
