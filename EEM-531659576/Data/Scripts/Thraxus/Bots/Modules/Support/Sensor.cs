@@ -1,21 +1,37 @@
-﻿using Eem.Thraxus.Common.Utilities.Statics;
+﻿using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.Statics;
 using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support
 {
-	internal class Sensor
+	internal class Sensor : ISetAlert
 	{
 		private readonly IMySensorBlock _sensor;
 		private readonly long _ownerId;
 		private readonly SensorSettings _wartimeSettings;
 		private readonly SensorSettings _peacetimeSettings;
 
-		public Sensor(IMySensorBlock sensor, SensorSettings wartimeSettings, SensorSettings peacetimeSettings)
+		private struct SensorSettings
+		{
+			public readonly bool Enabled;
+
+			public SensorSettings(bool enabled)
+			{
+				Enabled = enabled;
+			}
+
+			public override string ToString()
+			{
+				return $"{Enabled}";
+			}
+		}
+
+		public Sensor(IMySensorBlock sensor)
 		{
 			_sensor = sensor;
 			_ownerId = sensor.OwnerId;
-			_wartimeSettings = wartimeSettings;
-			_peacetimeSettings = peacetimeSettings;
+			_peacetimeSettings = new SensorSettings(sensor.Enabled);
+			_wartimeSettings = new SensorSettings(false);
 			//GpsMarker();
 		}
 
@@ -41,7 +57,7 @@ namespace Eem.Thraxus.Bots.Modules.Support
 
 		private void GpsMarker()
 		{
-			Statics.AddGpsLocation($"{CubeType.Sensor.ToString()} {_sensor.CustomName}: {_sensor.Enabled}", _sensor.GetPosition());
+			Statics.AddGpsLocation($"Sensor: {_sensor.CustomName}: {_sensor.Enabled}", _sensor.GetPosition());
 		}
 
 		public override string ToString()
@@ -49,6 +65,4 @@ namespace Eem.Thraxus.Bots.Modules.Support
 			return $"{_wartimeSettings} | {_peacetimeSettings}";
 		}
 	}
-
-
 }

@@ -1,9 +1,10 @@
-﻿using Sandbox.ModAPI.Ingame;
+﻿using Eem.Thraxus.Common.DataTypes;
+using Sandbox.ModAPI.Ingame;
 using IMyDoor = Sandbox.ModAPI.IMyDoor;
 
 namespace Eem.Thraxus.Bots.Modules.Support
 {
-	internal class Door
+	internal class Door : ISetAlert
 	{
 		private readonly IMyDoor _door;
 		private readonly long _ownerId;
@@ -11,13 +12,31 @@ namespace Eem.Thraxus.Bots.Modules.Support
 		private readonly DoorSettings _peacetimeSettings;
 		private AlertSetting _alertSetting;
 
-		public Door(IMyDoor door, DoorSettings wartimeSettings, DoorSettings peacetimeSettings)
+		internal struct DoorSettings
+		{
+			public readonly bool Enabled;
+			public readonly bool Closed;
+
+			public DoorSettings(bool enabled, bool isClosed)
+			{
+				Enabled = enabled;
+				Closed = isClosed;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Enabled} {Closed}";
+			}
+		}
+
+		public Door(IMyDoor door)
 		{
 			_door = door;
 			_ownerId = door.OwnerId;
 			_door.OnDoorStateChanged += OnDoorStateChanged;
-			_wartimeSettings = wartimeSettings;
-			_peacetimeSettings = peacetimeSettings;
+			_peacetimeSettings = new DoorSettings(_door.Enabled, _door.Closed);
+			_wartimeSettings = new DoorSettings(false, true);
 			_alertSetting = AlertSetting.Peacetime;
 		}
 
@@ -52,7 +71,7 @@ namespace Eem.Thraxus.Bots.Modules.Support
 
 			_door.Enabled = settings.Enabled;
 
-			if (!settings.IsClosed && 
+			if (!settings.Closed && 
 			    (_door.Status == DoorStatus.Closed || _door.Status == DoorStatus.Closing))
 			{
 				_door.Enabled = true;

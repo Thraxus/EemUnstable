@@ -1,14 +1,13 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Eem.Thraxus.Bots.Modules.Support;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Common.Utilities.Statics;
+using Microsoft.Xml.Serialization.GeneratedAssembly;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
+using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 using VRageMath;
 using IMyDoor = Sandbox.ModAPI.IMyDoor;
@@ -26,13 +25,17 @@ namespace Eem.Thraxus.Bots.Modules
 		private readonly MyCubeGrid _thisGrid;
 
 		private readonly List<AirVent> _airVents = new List<AirVent>();
+		private readonly List<Antenna> _antennae = new List<Antenna>();
 		private readonly List<Door> _doors = new List<Door>();
 		private readonly List<GravityGenerator> _gravityGenerators = new List<GravityGenerator>();
 		private readonly List<Sensor> _sensors = new List<Sensor>();
 		private readonly List<SphericalGravityGenerator> _sphericalGravityGenerators = new List<SphericalGravityGenerator>();
 		private readonly List<Timer> _timers = new List<Timer>();
 		private readonly List<Turret> _turrets = new List<Turret>();
-		
+
+		private readonly List<ISetAlert> _setAlerts = new List<ISetAlert>();
+
+		private readonly Dictionary<Type, Action<ISetAlert>> _listManager;
 
 		public AlertConditions(MyCubeGrid myCubeGrid, long ownerId)
 		{
@@ -47,11 +50,23 @@ namespace Eem.Thraxus.Bots.Modules
 
 			_thisGrid = myCubeGrid;
 			_gridOwnerId = ownerId;
+			_listManager = new Dictionary<Type, Action<ISetAlert>>()
+			{
+				{ typeof(AirVent), x => _airVents.Remove(x as AirVent) },
+				{ typeof(Antenna), x => _antennae.Remove(x as Antenna) },
+				{ typeof(Door), x => _doors.Remove(x as Door) },
+				{ typeof(GravityGenerator), x => _gravityGenerators.Remove(x as GravityGenerator) },
+				{ typeof(Sensor), x => _sensors.Remove(x as Sensor) },
+				{ typeof(SphericalGravityGenerator), x => _sphericalGravityGenerators.Remove(x as SphericalGravityGenerator) },
+				{ typeof(Timer), x => _timers.Remove(x as Timer) },
+				{ typeof(Turret), x => _turrets.Remove(x as Turret) },
+			};
 		}
 		
 		public void Init()
 		{
 			int airVents = 0;
+			int antennae = 0;
 			int doors = 0;
 			int gravityGenerators = 0;
 			int sphericalGravityGenerators = 0;
@@ -64,215 +79,112 @@ namespace Eem.Thraxus.Bots.Modules
 				WriteToLog("EmergencyLockDownProtocol", $"Setting up for the long haul! {_thisGrid.GridSizeEnum} {_thisGrid.CubeBlocks.Count} | {_thisGrid.GetFatBlocks().Count}", LogType.General);
 				foreach (MyCubeBlock myCubeBlock in _thisGrid.GetFatBlocks())
 				{
-					IMyLargeTurretBase largeTurretBase = myCubeBlock as IMyLargeTurretBase;
-					if (largeTurretBase != null)
+					IMyRadioAntenna radioAntenna = myCubeBlock as IMyRadioAntenna;
+					if (radioAntenna != null && radioAntenna.OwnerId == _gridOwnerId)
 					{
-						MyObjectBuilder_TurretBase myTurretBase = (MyObjectBuilder_TurretBase)largeTurretBase.GetObjectBuilderCubeBlock();
+						Antenna x = new Antenna(radioAntenna);
+						_antennae.Add(x);
+						_setAlerts.Add(x);
+						antennae++;
+						continue;
+					}
 
-						TurretSettings archiveSettings = new TurretSettings(
-							largeTurretBase.Enabled,
-							largeTurretBase.EnableIdleRotation,
-							myTurretBase.TargetCharacters,
-							myTurretBase.TargetLargeGrids,
-							myTurretBase.TargetMeteors,
-							myTurretBase.TargetMissiles,
-							myTurretBase.TargetNeutrals,
-							myTurretBase.TargetSmallGrids, 
-							myTurretBase.TargetStations, 
-							myTurretBase.Range
-							);
-						_turrets.Add(new Turret(largeTurretBase, (TurretSettings)_warTimeSettings[CubeType.Turret], archiveSettings));
+					IMyLargeTurretBase largeTurretBase = myCubeBlock as IMyLargeTurretBase;
+					if (largeTurretBase != null && largeTurretBase.OwnerId == _gridOwnerId)
+					{
+						Turret x = new Turret(largeTurretBase);
+						_turrets.Add(x);
+						_setAlerts.Add(x);
 						turrets++;
-						//Statics.AddGpsLocation($"{CubeType.Turret.ToString()} {turrets}", largeTurretBase.GetPosition());
 						continue;
 					}
 
 
 					IMyDoor door = myCubeBlock as IMyDoor;
-					if (door != null)
+					if (door != null && door.OwnerId == _gridOwnerId)
 					{
-						_doors.Add(new Door(door, 
-								(DoorSettings)_warTimeSettings[CubeType.Door],
-								new DoorSettings(door.Enabled, door.IsFullyClosed)
-								)
-							);
+						Door x = new Door(door);
+						_doors.Add(x);
+						_setAlerts.Add(x);
 						doors++;
-						//Statics.AddGpsLocation($"{CubeType.Door.ToString()} {doors}", door.GetPosition());
 						continue;
 					}
 
 					IMyGravityGenerator generator = myCubeBlock as IMyGravityGenerator;
-					if (generator != null)
+					if (generator != null && generator.OwnerId == _gridOwnerId)
 					{
-						_gravityGenerators.Add(
-							new GravityGenerator(
-								generator,
-								(GravityGeneratorSettings)_warTimeSettings[CubeType.GravityGenerator],
-								new GravityGeneratorSettings(
-									generator.Enabled,
-									generator.FieldSize,
-									generator.GravityAcceleration
-								)
-							));
-
+						GravityGenerator x = new GravityGenerator(generator);
+						_gravityGenerators.Add(x);
+						_setAlerts.Add(x);
 						gravityGenerators++;
-						//Statics.AddGpsLocation($"{CubeType.GravityGenerator.ToString()} {gravityGenerators}", generator.GetPosition());
 						continue;
 					}
 
 					IMyGravityGeneratorSphere generatorSphere = myCubeBlock as IMyGravityGeneratorSphere;
-					if (generatorSphere != null)
+					if (generatorSphere != null && generatorSphere.OwnerId == _gridOwnerId)
 					{
-						_sphericalGravityGenerators.Add(
-							new SphericalGravityGenerator (
-								generatorSphere,
-								(SphericalGravityGeneratorSettings)_warTimeSettings[CubeType.SphericalGravityGenerator],
-								new SphericalGravityGeneratorSettings(
-									generatorSphere.Enabled,
-									generatorSphere.Radius,
-									generatorSphere.GravityAcceleration
-								)
-							));
-
+						SphericalGravityGenerator x = new SphericalGravityGenerator(generatorSphere);
+						_sphericalGravityGenerators.Add(x);
+						_setAlerts.Add(x);
 						sphericalGravityGenerators++;
-						//Statics.AddGpsLocation($"{CubeType.SphericalGravityGenerator.ToString()} {sphericalGravityGenerators}", generatorSphere.GetPosition());
 						continue;
 					}
 
 					IMySensorBlock mySensor = myCubeBlock as IMySensorBlock;
-					if (mySensor != null)
+					if (mySensor != null && mySensor.OwnerId == _gridOwnerId)
 					{
-						_sensors.Add(new Sensor(
-							mySensor, (SensorSettings)_warTimeSettings[CubeType.Sensor], new SensorSettings(mySensor.Enabled)
-							));
+						Sensor x = new Sensor(mySensor);
+						_sensors.Add(x);
+						_setAlerts.Add(x);
 						sensors++;
 						continue;
 					}
 					
 					IMyTimerBlock myTimer = myCubeBlock as IMyTimerBlock;
-					if (myTimer != null)
+					if (myTimer != null && myTimer.OwnerId == _gridOwnerId)
 					{
-						_timers.Add(new Timer(
-							myTimer, (TimerSettings)_warTimeSettings[CubeType.Timer],new TimerSettings(myTimer.Enabled)
-							));
+						Timer x = new Timer(myTimer);
+						_timers.Add(x);
+						_setAlerts.Add(x);
 						timers++;
-						//Statics.AddGpsLocation($"{CubeType.Timer.ToString()} {timers}", myTimer.GetPosition());
 						continue;
 					}
 					
 					IMyAirVent vent = myCubeBlock as IMyAirVent;
-					if (vent == null) continue;
-					
-					AirVentSettings archivedSettings = new AirVentSettings(
-						vent.Enabled,
-						vent.Depressurize
-					);
-
-					_airVents.Add(new AirVent(vent, (AirVentSettings)_warTimeSettings[CubeType.AirVent], archivedSettings));
-
-					airVents++;
-					//Statics.AddGpsLocation($"{CubeType.AirVent.ToString()} {airVents}", vent.GetPosition());
+					if (vent != null && vent.OwnerId == _gridOwnerId)
+					{
+						AirVent x = new AirVent(vent);
+						_airVents.Add(x);
+						_setAlerts.Add(x);
+						airVents++;
+						continue;
+					}
 				}
 				
-				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Air Vents: {airVents} | Doors: {doors} | Gravity Generators: {gravityGenerators} | Sensors: {sensors} |  Spherical Gravity Generators: {sphericalGravityGenerators} | Timers: {timers} | Turrets: {turrets} ", LogType.General);
+				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Air Vents: {airVents} | Antennas: {antennae} | Doors: {doors} | Gravity Generators: {gravityGenerators} | Sensors: {sensors} |  Spherical Gravity Generators: {sphericalGravityGenerators} | Timers: {timers} | Turrets: {turrets} ", LogType.General);
 			}
 			catch (Exception e)
 			{
 				WriteToLog("EmergencyLockDownProtocol", $"Exception! {e}", LogType.Exception);
 			}
 		}
-
+		
 		public void Alert(AlertSetting alertSetting)
 		{
 			if (_alertEnabled && alertSetting == AlertSetting.Wartime) return;
 			WriteToLog("Alert", $"Loading {alertSetting}...", LogType.General);
 
-			SetAirVentSettings(alertSetting);
-			SetDoorSettings(alertSetting);
-			SetGravityGeneratorSettings(alertSetting);
-			SetSphericalGravityGeneratorSettings(alertSetting);
-			SetTimerSettings(alertSetting);
-			SetTurretSettings(alertSetting);
-			SetSensorSettings(alertSetting);
-			
-			WriteToLog("EnableAlert", $"{alertSetting} settings Loaded...", LogType.General);
+			for (int i = _setAlerts.Count - 1; i >= 0; i--)
+			{
+				if (_setAlerts[i].SetAlert(alertSetting)) continue;
+				Action<ISetAlert> action;
+				_listManager.TryGetValue(typeof(AirVent), out action);
+				action?.Invoke(_setAlerts[i]);
+				_setAlerts.RemoveAtFast(i);
+			}
+
 			_alertEnabled = alertSetting != AlertSetting.Peacetime;
+			WriteToLog("EnableAlert", $"{alertSetting} settings Loaded...", LogType.General);
 		}
-
-		private void SetAirVentSettings(AlertSetting emergencySetting)
-		{
-			for (int i = _airVents.Count - 1; i >= 0; i--)
-			{
-				if (!_airVents[i].SetAlert(emergencySetting))
-					_airVents.RemoveAtFast(i);
-			}
-		}
-
-		private void SetDoorSettings(AlertSetting emergencySetting)
-		{
-			for (int i = _doors.Count - 1; i >= 0; i--)
-			{
-				if (_doors[i].SetAlert(emergencySetting)) continue;
-				_doors[i].Close();
-				_doors.RemoveAtFast(i);
-			}
-		}
-
-		private void SetGravityGeneratorSettings(AlertSetting emergencySetting)
-		{
-			for (int i = _gravityGenerators.Count - 1; i >= 0; i--)
-			{
-				if (!_gravityGenerators[i].SetAlert(emergencySetting))
-					_gravityGenerators.RemoveAtFast(i);
-			}
-		}
-
-		private void SetSensorSettings(AlertSetting emergencySetting)
-		{
-			for (int i = _sensors.Count - 1; i >= 0; i--)
-			{
-				if (!_sensors[i].SetAlert(emergencySetting))
-					_sensors.RemoveAtFast(i);
-			}
-		}
-
-		private void SetSphericalGravityGeneratorSettings(AlertSetting emergencySetting)
-		{
-			for (int i = _sphericalGravityGenerators.Count - 1; i >= 0; i--)
-			{
-				if (!_sphericalGravityGenerators[i].SetAlert(emergencySetting))
-					_sphericalGravityGenerators.RemoveAtFast(i);
-			}
-		}
-
-		private void SetTimerSettings(AlertSetting emergencySetting)
-		{
-			for (int i = _timers.Count - 1; i >= 0; i--)
-			{
-				if (!_timers[i].SetAlert(emergencySetting))
-					_timers.RemoveAtFast(i);
-			}
-		}
-
-		private void SetTurretSettings(AlertSetting emergencySetting)
-		{
-			for (int i = _turrets.Count - 1; i >= 0; i--)
-			{
-				if (!_turrets[i].SetAlert(emergencySetting))
-					_turrets.RemoveAtFast(i);
-			}
-		}
-
-
-		private readonly Dictionary<CubeType, object> _warTimeSettings = new Dictionary<CubeType, object>
-		{
-			{CubeType.AirVent, new AirVentSettings(true, true) },
-			{CubeType.Door, new DoorSettings(false, true) },
-			{CubeType.GravityGenerator, new GravityGeneratorSettings(true, new Vector3(150, 150, 150), 9.81f ) },
-			{CubeType.SphericalGravityGenerator,  new SphericalGravityGeneratorSettings(true, 450f, 9.81f )},
-			{CubeType.Sensor, new SensorSettings(false) },
-			{CubeType.Timer, new TimerSettings(true) },
-			{CubeType.Turret, new TurretSettings(true, true, true, true, false, true, false, true, true, 800) }
-		};
 	}
 }

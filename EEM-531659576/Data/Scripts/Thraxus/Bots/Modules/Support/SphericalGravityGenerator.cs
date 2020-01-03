@@ -1,21 +1,41 @@
-﻿using SpaceEngineers.Game.ModAPI;
+﻿using Eem.Thraxus.Common.DataTypes;
+using SpaceEngineers.Game.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support
 {
-	internal class SphericalGravityGenerator
+	internal class SphericalGravityGenerator : ISetAlert
 	{
 		private readonly IMyGravityGeneratorSphere _gravityGeneratorSphere;
 		private readonly long _ownerId;
 		private readonly SphericalGravityGeneratorSettings _wartimeSettings;
 		private readonly SphericalGravityGeneratorSettings _peacetimeSettings;
 
-		public SphericalGravityGenerator(IMyGravityGeneratorSphere gravityGeneratorSphere,
-			SphericalGravityGeneratorSettings wartimeSettings, SphericalGravityGeneratorSettings peacetimeSettings)
+		private struct SphericalGravityGeneratorSettings
+		{
+			public readonly bool Enabled;
+			public readonly float Radius;
+			public readonly float FieldStrength;
+
+			public SphericalGravityGeneratorSettings(bool enabled, float radius, float fieldStrength)
+			{
+				Enabled = enabled;
+				Radius = radius;
+				FieldStrength = fieldStrength;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Enabled} | {Radius} | {FieldStrength}";
+			}
+		}
+
+		public SphericalGravityGenerator(IMyGravityGeneratorSphere gravityGeneratorSphere)
 		{
 			_gravityGeneratorSphere = gravityGeneratorSphere;
 			_ownerId = gravityGeneratorSphere.OwnerId;
-			_wartimeSettings = wartimeSettings;
-			_peacetimeSettings = peacetimeSettings;
+			_peacetimeSettings = new SphericalGravityGeneratorSettings(_gravityGeneratorSphere.Enabled, _gravityGeneratorSphere.Radius, _gravityGeneratorSphere.GravityAcceleration);
+			_wartimeSettings = new SphericalGravityGeneratorSettings(true, 450f, 9.81f);
 		}
 
 		public bool SetAlert(AlertSetting alertSetting)
@@ -35,7 +55,7 @@ namespace Eem.Thraxus.Bots.Modules.Support
 				alertSetting == AlertSetting.Peacetime ? _peacetimeSettings : _wartimeSettings;
 
 			_gravityGeneratorSphere.Enabled = settings.Enabled;
-			_gravityGeneratorSphere.Radius = settings.FieldSize;
+			_gravityGeneratorSphere.Radius = settings.Radius;
 			_gravityGeneratorSphere.GravityAcceleration = settings.FieldStrength;
 		}
 

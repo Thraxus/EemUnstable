@@ -1,22 +1,44 @@
-﻿using Sandbox.Game.Entities;
+﻿using Eem.Thraxus.Common.DataTypes;
+using Sandbox.Game.Entities;
 using SpaceEngineers.Game.ModAPI;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRageMath;
 
 namespace Eem.Thraxus.Bots.Modules.Support
 {
-	internal class GravityGenerator
+	internal class GravityGenerator : ISetAlert
 	{
 		private readonly IMyGravityGenerator _gravityGenerator;
 		private readonly long _ownerId;
 		private readonly GravityGeneratorSettings _wartimeSettings;
 		private readonly GravityGeneratorSettings _peacetimeSettings;
 
-		public GravityGenerator(IMyGravityGenerator gravityGenerator, GravityGeneratorSettings wartimeSettings, GravityGeneratorSettings peacetimeSettings)
+		private struct GravityGeneratorSettings
+		{
+			public readonly bool Enabled;
+			public readonly Vector3 FieldSize;
+			public readonly float FieldStrength;
+
+			public GravityGeneratorSettings(bool enabled, Vector3 fieldSize, float fieldStrength)
+			{
+				Enabled = enabled;
+				FieldSize = fieldSize;
+				FieldStrength = fieldStrength;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{Enabled} | {FieldSize} | {FieldStrength}";
+			}
+		}
+
+		public GravityGenerator(IMyGravityGenerator gravityGenerator)
 		{
 			_gravityGenerator = gravityGenerator;
 			_ownerId = gravityGenerator.OwnerId;
-			_wartimeSettings = wartimeSettings;
-			_peacetimeSettings = peacetimeSettings;
+			_peacetimeSettings = new GravityGeneratorSettings(_gravityGenerator.Enabled, _gravityGenerator.FieldSize, _gravityGenerator.GravityAcceleration);
+			_wartimeSettings = new GravityGeneratorSettings(true, new Vector3(150, 150, 150), 9.81f);
 		}
 
 		public bool SetAlert(AlertSetting alertSetting)
