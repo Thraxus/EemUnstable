@@ -16,14 +16,10 @@ namespace Eem.Thraxus.Bots.Modules
 	public class AlertConditions : LogBaseEvent
 	{
 		private bool _alertEnabled;
-
 		private readonly long _gridOwnerId;
-
 		private readonly MyCubeGrid _thisGrid;
-
 		private readonly List<ISetAlert> _setAlerts = new List<ISetAlert>();
-
-
+		
 		public AlertConditions(MyCubeGrid myCubeGrid, long ownerId)
 		{
 			// TODO 08.28.2019: Feature complete at this point as far as functionality.  Need to add in custom data scanning to make sure all items are parsed properly.				
@@ -138,6 +134,7 @@ namespace Eem.Thraxus.Bots.Modules
 			for (int i = _setAlerts.Count - 1; i >= 0; i--)
 			{
 				if (_setAlerts[i].SetAlert(alertSetting)) continue;
+				_setAlerts[i].Close();
 				_setAlerts.RemoveAtFast(i);
 			}
 

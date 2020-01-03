@@ -47,6 +47,11 @@ namespace Eem.Thraxus.Bots.Modules.Support
 			return true;
 		}
 
+		public void Close()
+		{
+
+		}
+
 		private void Execute(AlertSetting alertSetting)
 		{
 
