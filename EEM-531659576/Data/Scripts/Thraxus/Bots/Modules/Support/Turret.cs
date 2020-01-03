@@ -1,4 +1,5 @@
 ﻿using System;
+using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Common.DataTypes;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;

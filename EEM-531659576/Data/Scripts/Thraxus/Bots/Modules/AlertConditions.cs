@@ -1,15 +1,12 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
+using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
-using Microsoft.Xml.Serialization.GeneratedAssembly;
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
-using VRageMath;
 using IMyDoor = Sandbox.ModAPI.IMyDoor;
 using IMyLargeTurretBase = Sandbox.ModAPI.IMyLargeTurretBase;
 using IMySensorBlock = Sandbox.ModAPI.IMySensorBlock;
@@ -24,18 +21,8 @@ namespace Eem.Thraxus.Bots.Modules
 
 		private readonly MyCubeGrid _thisGrid;
 
-		private readonly List<AirVent> _airVents = new List<AirVent>();
-		private readonly List<Antenna> _antennae = new List<Antenna>();
-		private readonly List<Door> _doors = new List<Door>();
-		private readonly List<GravityGenerator> _gravityGenerators = new List<GravityGenerator>();
-		private readonly List<Sensor> _sensors = new List<Sensor>();
-		private readonly List<SphericalGravityGenerator> _sphericalGravityGenerators = new List<SphericalGravityGenerator>();
-		private readonly List<Timer> _timers = new List<Timer>();
-		private readonly List<Turret> _turrets = new List<Turret>();
-
 		private readonly List<ISetAlert> _setAlerts = new List<ISetAlert>();
 
-		private readonly Dictionary<Type, Action<ISetAlert>> _listManager;
 
 		public AlertConditions(MyCubeGrid myCubeGrid, long ownerId)
 		{
@@ -50,17 +37,6 @@ namespace Eem.Thraxus.Bots.Modules
 
 			_thisGrid = myCubeGrid;
 			_gridOwnerId = ownerId;
-			_listManager = new Dictionary<Type, Action<ISetAlert>>()
-			{
-				{ typeof(AirVent), x => _airVents.Remove(x as AirVent) },
-				{ typeof(Antenna), x => _antennae.Remove(x as Antenna) },
-				{ typeof(Door), x => _doors.Remove(x as Door) },
-				{ typeof(GravityGenerator), x => _gravityGenerators.Remove(x as GravityGenerator) },
-				{ typeof(Sensor), x => _sensors.Remove(x as Sensor) },
-				{ typeof(SphericalGravityGenerator), x => _sphericalGravityGenerators.Remove(x as SphericalGravityGenerator) },
-				{ typeof(Timer), x => _timers.Remove(x as Timer) },
-				{ typeof(Turret), x => _turrets.Remove(x as Turret) },
-			};
 		}
 		
 		public void Init()
@@ -82,9 +58,7 @@ namespace Eem.Thraxus.Bots.Modules
 					IMyRadioAntenna radioAntenna = myCubeBlock as IMyRadioAntenna;
 					if (radioAntenna != null && radioAntenna.OwnerId == _gridOwnerId)
 					{
-						Antenna x = new Antenna(radioAntenna);
-						_antennae.Add(x);
-						_setAlerts.Add(x);
+						_setAlerts.Add(new Antenna(radioAntenna));
 						antennae++;
 						continue;
 					}
@@ -92,9 +66,7 @@ namespace Eem.Thraxus.Bots.Modules
 					IMyLargeTurretBase largeTurretBase = myCubeBlock as IMyLargeTurretBase;
 					if (largeTurretBase != null && largeTurretBase.OwnerId == _gridOwnerId)
 					{
-						Turret x = new Turret(largeTurretBase);
-						_turrets.Add(x);
-						_setAlerts.Add(x);
+						_setAlerts.Add(new Turret(largeTurretBase));
 						turrets++;
 						continue;
 					}
@@ -104,7 +76,6 @@ namespace Eem.Thraxus.Bots.Modules
 					if (door != null && door.OwnerId == _gridOwnerId)
 					{
 						Door x = new Door(door);
-						_doors.Add(x);
 						_setAlerts.Add(x);
 						doors++;
 						continue;
@@ -113,9 +84,7 @@ namespace Eem.Thraxus.Bots.Modules
 					IMyGravityGenerator generator = myCubeBlock as IMyGravityGenerator;
 					if (generator != null && generator.OwnerId == _gridOwnerId)
 					{
-						GravityGenerator x = new GravityGenerator(generator);
-						_gravityGenerators.Add(x);
-						_setAlerts.Add(x);
+						_setAlerts.Add(new GravityGenerator(generator));
 						gravityGenerators++;
 						continue;
 					}
@@ -123,9 +92,7 @@ namespace Eem.Thraxus.Bots.Modules
 					IMyGravityGeneratorSphere generatorSphere = myCubeBlock as IMyGravityGeneratorSphere;
 					if (generatorSphere != null && generatorSphere.OwnerId == _gridOwnerId)
 					{
-						SphericalGravityGenerator x = new SphericalGravityGenerator(generatorSphere);
-						_sphericalGravityGenerators.Add(x);
-						_setAlerts.Add(x);
+						_setAlerts.Add(new SphericalGravityGenerator(generatorSphere));
 						sphericalGravityGenerators++;
 						continue;
 					}
@@ -133,9 +100,7 @@ namespace Eem.Thraxus.Bots.Modules
 					IMySensorBlock mySensor = myCubeBlock as IMySensorBlock;
 					if (mySensor != null && mySensor.OwnerId == _gridOwnerId)
 					{
-						Sensor x = new Sensor(mySensor);
-						_sensors.Add(x);
-						_setAlerts.Add(x);
+						_setAlerts.Add(new Sensor(mySensor));
 						sensors++;
 						continue;
 					}
@@ -143,9 +108,7 @@ namespace Eem.Thraxus.Bots.Modules
 					IMyTimerBlock myTimer = myCubeBlock as IMyTimerBlock;
 					if (myTimer != null && myTimer.OwnerId == _gridOwnerId)
 					{
-						Timer x = new Timer(myTimer);
-						_timers.Add(x);
-						_setAlerts.Add(x);
+						_setAlerts.Add(new Timer(myTimer));
 						timers++;
 						continue;
 					}
@@ -153,9 +116,7 @@ namespace Eem.Thraxus.Bots.Modules
 					IMyAirVent vent = myCubeBlock as IMyAirVent;
 					if (vent != null && vent.OwnerId == _gridOwnerId)
 					{
-						AirVent x = new AirVent(vent);
-						_airVents.Add(x);
-						_setAlerts.Add(x);
+						_setAlerts.Add(new AirVent(vent));
 						airVents++;
 						continue;
 					}
@@ -177,9 +138,6 @@ namespace Eem.Thraxus.Bots.Modules
 			for (int i = _setAlerts.Count - 1; i >= 0; i--)
 			{
 				if (_setAlerts[i].SetAlert(alertSetting)) continue;
-				Action<ISetAlert> action;
-				_listManager.TryGetValue(typeof(AirVent), out action);
-				action?.Invoke(_setAlerts[i]);
 				_setAlerts.RemoveAtFast(i);
 			}
 

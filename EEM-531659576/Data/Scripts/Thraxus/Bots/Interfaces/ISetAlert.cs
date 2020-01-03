@@ -1,6 +1,6 @@
 ﻿using Eem.Thraxus.Common.DataTypes;
 
-namespace Eem.Thraxus.Bots.Modules.Support
+namespace Eem.Thraxus.Bots.Interfaces
 {
 	internal interface ISetAlert
 	{

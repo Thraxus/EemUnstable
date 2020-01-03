@@ -1,4 +1,5 @@
-﻿using Eem.Thraxus.Common.DataTypes;
+﻿using Eem.Thraxus.Bots.Interfaces;
+using Eem.Thraxus.Common.DataTypes;
 using SpaceEngineers.Game.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support

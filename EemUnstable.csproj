@@ -636,6 +636,7 @@
     <None Include="EEM-531659576\VoxelMaps\wi_reno.vx2" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Interfaces\ISetAlert.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\AlertConditions.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\FightOrFlight.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ModManagers\BuildAndRepairSystem.cs" />
@@ -649,7 +650,6 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Antenna.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Door.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\GravityGenerator.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Interfaces.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Sensor.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\SphericalGravityGenerator.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Timer.cs" />

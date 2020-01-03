@@ -1,4 +1,5 @@
-﻿using Eem.Thraxus.Common.DataTypes;
+﻿using Eem.Thraxus.Bots.Interfaces;
+using Eem.Thraxus.Common.DataTypes;
 using Sandbox.Game.Entities;
 using SpaceEngineers.Game.ModAPI;
 using VRage.Game.ObjectBuilders.ComponentSystem;
