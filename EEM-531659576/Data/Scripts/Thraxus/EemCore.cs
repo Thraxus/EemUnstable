@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Debug;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
@@ -52,6 +53,8 @@ namespace Eem.Thraxus
 			MyAPIGateway.Players.GetAllIdentites(identityList);
 			foreach (IMyIdentity identity in identityList)
 				WriteToLog("LateSetup", $"Identity: {identity.IdentityId} | {identity.DisplayName} | {identity.IsDead}", LogType.General);
+
+			//InformationExporter.Run();	
 		}
 
 		/// <inheritdoc />

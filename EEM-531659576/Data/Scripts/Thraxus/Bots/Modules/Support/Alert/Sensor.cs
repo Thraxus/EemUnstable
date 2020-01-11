@@ -3,7 +3,7 @@ using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Utilities.Statics;
 using Sandbox.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules.Support
+namespace Eem.Thraxus.Bots.Modules.Support.Alert
 {
 	internal class Sensor : ISetAlert
 	{

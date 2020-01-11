@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support;
+using Eem.Thraxus.Bots.Modules.Support.Alert;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Sandbox.Game.Entities;
+using Sandbox.Game.GameSystems;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;
 using IMyDoor = Sandbox.ModAPI.IMyDoor;
@@ -41,6 +43,7 @@ namespace Eem.Thraxus.Bots.Modules
 			int antennae = 0;
 			int doors = 0;
 			int gravityGenerators = 0;
+			int lights = 0;
 			int sphericalGravityGenerators = 0;
 			int sensors = 0;
 			int timers = 0;
@@ -85,6 +88,14 @@ namespace Eem.Thraxus.Bots.Modules
 						continue;
 					}
 
+					IMyInteriorLight light = myCubeBlock as IMyInteriorLight;
+					if (light != null)
+					{
+						_setAlerts.Add(new Light(light));
+						lights++;
+						continue;
+					}
+
 					IMyGravityGeneratorSphere generatorSphere = myCubeBlock as IMyGravityGeneratorSphere;
 					if (generatorSphere != null && generatorSphere.OwnerId == _gridOwnerId)
 					{
@@ -118,7 +129,7 @@ namespace Eem.Thraxus.Bots.Modules
 					}
 				}
 				
-				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Air Vents: {airVents} | Antennas: {antennae} | Doors: {doors} | Gravity Generators: {gravityGenerators} | Sensors: {sensors} |  Spherical Gravity Generators: {sphericalGravityGenerators} | Timers: {timers} | Turrets: {turrets} ", LogType.General);
+				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Air Vents: {airVents} | Antennas: {antennae} | Doors: {doors} | Gravity Generators: {gravityGenerators} | Lights: {lights} | Sensors: {sensors} |  Spherical Gravity Generators: {sphericalGravityGenerators} | Timers: {timers} | Turrets: {turrets} ", LogType.General);
 			}
 			catch (Exception e)
 			{

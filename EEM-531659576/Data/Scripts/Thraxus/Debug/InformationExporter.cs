@@ -25,8 +25,7 @@ namespace Eem.Thraxus.Debug
 			MyAPIGateway.Parallel.Start(delegate
 			{
 				Log allDefinitions = new Log("All_Definitions");
-				DictionaryValuesReader<MyDefinitionId, MyDefinitionBase> dictionaryValuesReader = MyDefinitionManager.Static.GetAllDefinitions();
-				foreach (MyDefinitionBase definition in dictionaryValuesReader)
+				foreach (MyDefinitionBase definition in MyDefinitionManager.Static.GetAllDefinitions())
 				{
 					allDefinitions.WriteToLog("Settings", $"{definition.Id}\t{definition.Id.SubtypeName}\t{definition.Id.SubtypeId}\t{definition.Id.TypeId}\t{definition.Context.ModName}\t{definition.Public}");
 				}

@@ -2,7 +2,7 @@
 using Eem.Thraxus.Common.DataTypes;
 using SpaceEngineers.Game.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules.Support
+namespace Eem.Thraxus.Bots.Modules.Support.Alert
 {
 	internal class SphericalGravityGenerator : ISetAlert
 	{

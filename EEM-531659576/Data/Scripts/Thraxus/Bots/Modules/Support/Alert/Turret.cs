@@ -1,11 +1,10 @@
-﻿using System;
-using Eem.Thraxus.Bots.Interfaces;
+﻿using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Common.DataTypes;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 
-namespace Eem.Thraxus.Bots.Modules.Support
+namespace Eem.Thraxus.Bots.Modules.Support.Alert
 {
 	internal class Turret : ISetAlert
 	{

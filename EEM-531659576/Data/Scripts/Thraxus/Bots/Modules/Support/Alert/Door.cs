@@ -3,7 +3,7 @@ using Eem.Thraxus.Common.DataTypes;
 using Sandbox.ModAPI.Ingame;
 using IMyDoor = Sandbox.ModAPI.IMyDoor;
 
-namespace Eem.Thraxus.Bots.Modules.Support
+namespace Eem.Thraxus.Bots.Modules.Support.Alert
 {
 	internal class Door : ISetAlert
 	{
@@ -16,18 +16,18 @@ namespace Eem.Thraxus.Bots.Modules.Support
 		internal struct DoorSettings
 		{
 			public readonly bool Enabled;
-			public readonly bool Closed;
+			public readonly DoorStatus DoorStatus;
 
-			public DoorSettings(bool enabled, bool isClosed)
+			public DoorSettings(bool enabled, DoorStatus doorStatus)
 			{
 				Enabled = enabled;
-				Closed = isClosed;
+				DoorStatus = doorStatus;
 			}
 
 			/// <inheritdoc />
 			public override string ToString()
 			{
-				return $"{Enabled} {Closed}";
+				return $"{Enabled} {DoorStatus}";
 			}
 		}
 
@@ -36,8 +36,8 @@ namespace Eem.Thraxus.Bots.Modules.Support
 			_door = door;
 			_ownerId = door.OwnerId;
 			_door.OnDoorStateChanged += OnDoorStateChanged;
-			_peacetimeSettings = new DoorSettings(_door.Enabled, _door.Closed);
-			_wartimeSettings = new DoorSettings(false, true);
+			_peacetimeSettings = new DoorSettings(_door.Enabled, _door.Status);
+			_wartimeSettings = new DoorSettings(false, DoorStatus.Closed);
 			_alertSetting = AlertSetting.Peacetime;
 		}
 
@@ -66,27 +66,23 @@ namespace Eem.Thraxus.Bots.Modules.Support
 
 		private void Execute()
 		{
-
 			DoorSettings settings =
 				_alertSetting == AlertSetting.Peacetime ? _peacetimeSettings : _wartimeSettings;
 
 			_door.Enabled = settings.Enabled;
 
-			if (!settings.Closed && 
-			    (_door.Status == DoorStatus.Closed || _door.Status == DoorStatus.Closing))
+			if (_alertSetting == AlertSetting.Peacetime)
 			{
-				_door.Enabled = true;
+				if (settings.DoorStatus == DoorStatus.Closed || 
+				    settings.DoorStatus == DoorStatus.Closing) return;
 				_door.OpenDoor();
 				return;
 			}
-			
-			if (!_door.IsFullyClosed)
-			{
-				_door.Enabled = true;
-				_door.CloseDoor();
-				return;
-			}
-			_door.Enabled = settings.Enabled;
+
+			if (_alertSetting != AlertSetting.Wartime) return;
+			if (_door.IsFullyClosed) return;
+			_door.Enabled = true;
+			_door.CloseDoor();
 		}
 
 		public override string ToString()

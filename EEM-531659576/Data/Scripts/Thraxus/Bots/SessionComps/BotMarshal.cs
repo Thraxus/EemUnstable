@@ -67,6 +67,10 @@ namespace Eem.Thraxus.Bots.SessionComps
 		
 		private void ControlAcquired(IMyControllableEntity player, IMyControllableEntity controlled)
 		{
+			// TODO: This needs to be moved to a session component and synced to server. 
+			//	The event is local player only :(    may be a server version though; need to investigate
+			//		or make simple game logic comps for relevant controllers.
+			//	Could also try a game logic comp on a player directly... that may be handy in many places?
 			try
 			{
 				if (player == null || controlled == null) return;

@@ -44,6 +44,7 @@ namespace Eem.Thraxus.Bots.Models
 		// TODO Remove the below later to their proper bot type
 		//private RegenerationProtocol _regenerationProtocol;
 		private AlertConditions _emergencyLockDownProtocol;
+		private StructuralIntegrity _structuralIntegrity;
 
 		public BotBaseAdvanced(IMyEntity passedEntity, IMyShipController controller, bool isMultipart = false)
 		{
@@ -81,6 +82,8 @@ namespace Eem.Thraxus.Bots.Models
 			_emergencyLockDownProtocol = new AlertConditions(ThisCubeGrid, _ownerId);
 			_emergencyLockDownProtocol.OnWriteToLog += WriteToLog;
 			_emergencyLockDownProtocol.Init();
+
+			_structuralIntegrity = new StructuralIntegrity(ThisCubeGrid);
 
 			WriteToLog("BotCore", $"BotBaseAdvanced ready to rock!", LogType.General);
 		}
@@ -187,7 +190,9 @@ namespace Eem.Thraxus.Bots.Models
 
 		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)
 		{
-			if (ThisEntity.EntityId != shipId || _ownerId == 0 || playerId == _ownerId || playerId == _myFaction.FactionId) return;
+			if (ThisEntity.EntityId != shipId) return;
+			_structuralIntegrity.IntegrityChanged();
+			if ( _ownerId == 0 || playerId == _ownerId || playerId == _myFaction.FactionId) return;
 
 			_lastAttacked = _ticks;
 			if (_warHash.Contains(playerId))
@@ -219,6 +224,7 @@ namespace Eem.Thraxus.Bots.Models
 
 		private void OnBlockIntegrityChanged(IMySlimBlock block)
 		{   // Trigger alert, war, all the fun stuff against the entity owner that triggered the integrity change (probably negative only)
+
 			if (_barsActive)
 				HandleBars(block, CheckType.Integrity);
 			//WriteToLog("OnBlockIntegrityChanged", $"Block integrity changed for block {block} {_lastAttacked.AddSeconds(1) < DateTime.Now} {_lastAttacked.AddSeconds(1)} {DateTime.Now}", LogType.General);

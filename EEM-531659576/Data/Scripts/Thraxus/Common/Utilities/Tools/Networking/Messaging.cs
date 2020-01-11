@@ -39,7 +39,7 @@ namespace Eem.Thraxus.Common.Utilities.Tools.Networking
 		// ReSharper disable once RedundantAssignment
 		private static void ChatMessageHandler(string message, ref bool sendToOthers)
 		{
-			if (!message.StartsWith(ChatHandler.ChatCommandPrefix))
+			if (!message.ToLower().StartsWith(ChatHandler.ChatCommandPrefix.ToLower()))
 			{
 				sendToOthers = true;
 				return;

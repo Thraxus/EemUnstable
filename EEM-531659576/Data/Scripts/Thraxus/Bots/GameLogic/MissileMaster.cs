@@ -29,11 +29,10 @@ namespace Eem.Thraxus.Bots.GameLogic
 		/// <inheritdoc />
 		public override void OnRemovedFromScene()
 		{
-			base.OnRemovedFromScene();
-			MyObjectBuilder_Missile missile = (MyObjectBuilder_Missile) Entity.GetObjectBuilder();
 			try
 			{
 				if (!GeneralSettings.IsServer) return;
+				MyObjectBuilder_Missile missile = (MyObjectBuilder_Missile)Entity.GetObjectBuilder();
 				DamageHandler.RegisterUnownedMissileImpact(new 
 					MissileHistory(
 						missile.OriginEntity,
@@ -47,6 +46,7 @@ namespace Eem.Thraxus.Bots.GameLogic
 				StaticLog.WriteToLog("MissileMaster", 
 					$"OnRemovedFromScene Exception! {e}", LogType.Exception);
 			}
+			base.OnRemovedFromScene();
 		}
 	}
 }

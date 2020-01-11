@@ -298,7 +298,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 
 		public static void RegisterUnownedMissileImpact(MissileHistory missileInfo)
 		{
-			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"Remove: {missileInfo.LauncherId} -- {missileInfo.OwnerId}", "", missileInfo.Location, true));
+			//MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"Remove: {missileInfo.LauncherId} -- {missileInfo.OwnerId}", "", missileInfo.Location, true));
 			//if (missileInfo.OwnerId != 0) return;
 			_unownedMissiles.Add(missileInfo);
 			//_instance.WriteToLog("RegisterUnownedMissileImpact", $"Missile {missileInfo.LauncherId} added to registry.", LogType.General);
