@@ -636,6 +636,8 @@
     <None Include="EEM-531659576\VoxelMaps\wi_reno.vx2" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Interfaces\INeedUpdates.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Interfaces\IReportDamage.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Interfaces\ISetAlert.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\AlertConditions.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\FightOrFlight.cs" />
@@ -646,7 +648,6 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Regeneration.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Reinforcements.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Retreat.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\StructuralIntegrity.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Suicide.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\AirVent.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\Antenna.cs" />
@@ -657,11 +658,20 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\SphericalGravityGenerator.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\Timer.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\Turret.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Integrity\Battery.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Integrity\Gyro.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Integrity\LargeTurretBase.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Integrity\Reactor.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Integrity\Thruster.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Integrity\CustomFunctionalBlock.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\BaseClasses\MainSystemBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Support\Enums.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\Battery.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\Gyro.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\LargeTurretBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\Reactor.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\Thruster.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ShipSystems.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\StructuralIntegrity.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Navigation.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Power.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Propulsion.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Weapons.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\TargetIdentification.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ThreatAssessment.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseClientSessionComp.cs" />
@@ -687,6 +697,7 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\MessageBase.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\Messages\ExampleMessage.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\Messaging.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\OnScreenDisplay\QuestScreen.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Tools\Profiler.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\UserConfiguration\Load.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\UserConfiguration\SaveConfig.cs" />

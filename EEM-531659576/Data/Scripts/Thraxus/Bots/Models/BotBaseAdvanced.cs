@@ -1,6 +1,5 @@
 ﻿using System;
 using Eem.Thraxus.Bots.Modules;
-using Eem.Thraxus.Bots.Modules.Support;
 using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
@@ -44,13 +43,14 @@ namespace Eem.Thraxus.Bots.Models
 		// TODO Remove the below later to their proper bot type
 		//private RegenerationProtocol _regenerationProtocol;
 		private AlertConditions _emergencyLockDownProtocol;
-		private StructuralIntegrity _structuralIntegrity;
+		private ShipSystems _shipSystems;
 
 		public BotBaseAdvanced(IMyEntity passedEntity, IMyShipController controller, bool isMultipart = false)
 		{
 			ThisEntity = passedEntity;
-			ThisCubeGrid = ((MyCubeGrid)ThisEntity);
+			ThisCubeGrid = ((MyCubeGrid) ThisEntity);
 			_myShipController = controller;
+			controller.IsMainCockpit = true;
 			_myConfig = !isMultipart ? new EemPrefabConfig(controller.CustomData) : BotMarshal.BotOrphans[passedEntity.EntityId].MyLegacyConfig;
 
 			// TODO Remove the below later to their proper bot type
@@ -83,7 +83,7 @@ namespace Eem.Thraxus.Bots.Models
 			_emergencyLockDownProtocol.OnWriteToLog += WriteToLog;
 			_emergencyLockDownProtocol.Init();
 
-			_structuralIntegrity = new StructuralIntegrity(ThisCubeGrid);
+			_shipSystems = new ShipSystems(ThisCubeGrid, _myShipController);
 
 			WriteToLog("BotCore", $"BotBaseAdvanced ready to rock!", LogType.General);
 		}
@@ -101,6 +101,7 @@ namespace Eem.Thraxus.Bots.Models
 				ThisCubeGrid.OnBlockIntegrityChanged -= OnBlockIntegrityChanged;
 				_warHash.Clear();
 				_integrityDictionary.Clear();
+				_shipSystems.Close();
 				// TODO Remove the below later to their proper bot type
 				_emergencyLockDownProtocol.OnWriteToLog -= WriteToLog;
 				//_regenerationProtocol.OnWriteToLog -= WriteToLog;
@@ -191,7 +192,7 @@ namespace Eem.Thraxus.Bots.Models
 		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)
 		{
 			if (ThisEntity.EntityId != shipId) return;
-			_structuralIntegrity.IntegrityChanged();
+			_shipSystems.UpdateIntegrity();
 			if ( _ownerId == 0 || playerId == _ownerId || playerId == _myFaction.FactionId) return;
 
 			_lastAttacked = _ticks;
@@ -214,7 +215,7 @@ namespace Eem.Thraxus.Bots.Models
 			// TODO Remove the below later to their proper bot type
 			//_regenerationProtocol.ReportBlockState();
 
-
+			_shipSystems.UpdateIntegrity();
 			if (_barsActive)
 				HandleBars(removedBlock, CheckType.Removed);
 			if (removedBlock.FatBlock != _myShipController) return;

@@ -27,9 +27,9 @@ namespace Eem.Thraxus.Factions.Models
 
 		protected override void SetSeReputation(long id, int rep)
 		{
-			StaticLog.WriteToLog("SetReputation", $"Checkpoint Entered...", LogType.General);
+			//StaticLog.WriteToLog("SetReputation", $"Checkpoint Entered...", LogType.General);
 			if (!RelationExists(id)) return;
-			StaticLog.WriteToLog("SetReputation", $"Type: {RelationType} - Rep changed between {FromRelationId} and {id} to {rep}", LogType.General);
+			//StaticLog.WriteToLog("SetReputation", $"Type: {RelationType} - Rep changed between {FromRelationId} and {id} to {rep}", LogType.General);
 			MyAPIGateway.Session.Factions.SetReputationBetweenPlayerAndFaction(FromIdentity.IdentityId, id, rep);
 		}
 	}

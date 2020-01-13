@@ -41,13 +41,13 @@ namespace Eem.Thraxus.Factions.BaseClasses
 		/// <param name="rep">Reputation with the new relationship; nullable.</param>
 		public void AddNewRelation(long id, int? rep = null)
 		{
-			StaticLog.WriteToLog("AddNewRelation", $"Type: {RelationType} - Attempting to add new relation between Id: {id} Rep Requested: {rep.ToString()}", LogType.General);
+			//StaticLog.WriteToLog("AddNewRelation", $"Type: {RelationType} - Attempting to add new relation between Id: {id} Rep Requested: {rep.ToString()}", LogType.General);
 			if (!MyAPIGateway.Session.Factions.Factions.ContainsKey(id)) return;
 			if (rep == null)
 				rep = GeneralSettings.DefaultNeutralRep;
 			ToFactions.TryAdd(id, (int) rep);
 			SetReputation(id, (int) rep);
-			StaticLog.WriteToLog("AddNewRelation", $"Type: {RelationType} - Id: {id} |[Rep]| Requested: {rep.ToString()} <> Actual: {GetReputation(id)}", LogType.General);
+			//StaticLog.WriteToLog("AddNewRelation", $"Type: {RelationType} - Id: {id} |[Rep]| Requested: {rep.ToString()} <> Actual: {GetReputation(id)}", LogType.General);
 		}
 
 		public void RemoveRelation(long id)
@@ -75,7 +75,7 @@ namespace Eem.Thraxus.Factions.BaseClasses
 
 		protected void SetReputation(long id, int rep)
 		{
-			StaticLog.WriteToLog("SetReputation", $"Type: {RelationType} - Setting Rep between {FromRelationId} and {id} to {rep}", LogType.General);
+			//StaticLog.WriteToLog("SetReputation", $"Type: {RelationType} - Setting Rep between {FromRelationId} and {id} to {rep}", LogType.General);
 			if (!ToFactions.ContainsKey(id)) return;
 			ToFactions[id] = rep;
 			SetSeReputation(id, rep);
@@ -132,7 +132,7 @@ namespace Eem.Thraxus.Factions.BaseClasses
 		private void IsDialogRequired(int oldRep, long against)
 		{
 			int newRep = GetReputation(against);
-			StaticLog.WriteToLog("IsDialogRequired", $"Old: {oldRep} | New: {newRep}", LogType.General);
+			//StaticLog.WriteToLog("IsDialogRequired", $"Old: {oldRep} | New: {newRep}", LogType.General);
 			if (oldRep >= GeneralSettings.DefaultNeutralRep && newRep < GeneralSettings.DefaultNeutralRep)
 			{   // Was neutral, is hostile
 				DialogRequest(DialogType.WarDeclared, MyAPIGateway.Session.Factions.Factions[against].Tag);
@@ -148,14 +148,14 @@ namespace Eem.Thraxus.Factions.BaseClasses
 		private void DialogRequest(DialogType dialog, string sender)
 		{
 			Func<string> message = Dialogue.RequestDialog(sender, dialog);
-			StaticLog.WriteToLog("DialogRequest", $"Type: {dialog} | Sender: {sender} | Message: {message != null}", LogType.General);
+			//StaticLog.WriteToLog("DialogRequest", $"Type: {dialog} | Sender: {sender} | Message: {message != null}", LogType.General);
 			if (message != null)
 				SendMessage(message.Invoke(), sender);
 		}
 
 		protected virtual void SendMessage(string message, string sender)
 		{
-			StaticLog.WriteToLog("SendMessage", $"From: {sender} | To: {FromRelationId} | Message: {message}", LogType.General);
+			//StaticLog.WriteToLog("SendMessage", $"From: {sender} | To: {FromRelationId} | Message: {message}", LogType.General);
 			Messaging.SendMessageToPlayer($"{message}", sender, FromRelationId, MyFontEnum.DarkBlue);
 		}
 

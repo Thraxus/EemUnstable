@@ -55,7 +55,7 @@ namespace Eem.Thraxus.Factions.Models
 
 		protected override void SendMessage(string message, string sender)
 		{
-			StaticLog.WriteToLog("SendMessage", $"From: {sender} | To: {FromRelationId} | Message: {message}", LogType.General);
+			//StaticLog.WriteToLog("SendMessage", $"From: {sender} | To: {FromRelationId} | Message: {message}", LogType.General);
 			foreach (IMyPlayer player in GetPlayers().ToList().Where(player => !player.IsBot && FromFaction.Members.ContainsKey(player.IdentityId)))
 				Messaging.SendMessageToPlayer($"{message}", sender, player.IdentityId, MyFontEnum.DarkBlue);
 		}
