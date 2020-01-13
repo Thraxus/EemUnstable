@@ -7,6 +7,9 @@
 		LeftPropulsion,
 		RightPropulsion,
 		UpPropulsion,
-		DownPropulsion
+		DownPropulsion,
+		PowerProducer,
+		Gyro, 
+		Turret
 	}
 }

@@ -26,19 +26,43 @@ namespace Eem.Thraxus.Bots.Modules
 			foreach (MyCubeBlock block in _thisGrid.GetFatBlocks())
 			{
 				IMyThrust myThrust = block as IMyThrust;
-				if (myThrust == null) continue;
-				if (controller.WorldMatrix.Forward * -1 == myThrust.WorldMatrix.Forward)
-					_propulsion.AddBlock(myThrust, Vector3I.Forward);
-				if (controller.WorldMatrix.Backward * -1 == myThrust.WorldMatrix.Forward)
-					_propulsion.AddBlock(myThrust, Vector3I.Backward);
-				if (controller.WorldMatrix.Left * -1 == myThrust.WorldMatrix.Forward)
-					_propulsion.AddBlock(myThrust, Vector3I.Left);
-				if (controller.WorldMatrix.Right * -1 == myThrust.WorldMatrix.Forward)
-					_propulsion.AddBlock(myThrust, Vector3I.Right);
-				if (controller.WorldMatrix.Up * -1 == myThrust.WorldMatrix.Forward)
-					_propulsion.AddBlock(myThrust, Vector3I.Up);
-				if (controller.WorldMatrix.Down * -1 == myThrust.WorldMatrix.Forward)
-					_propulsion.AddBlock(myThrust, Vector3I.Down);
+				if (myThrust != null) 
+				{
+					if (controller.WorldMatrix.Forward * -1 == myThrust.WorldMatrix.Forward)
+						_propulsion.AddBlock(myThrust, Vector3I.Forward);
+					if (controller.WorldMatrix.Backward * -1 == myThrust.WorldMatrix.Forward)
+						_propulsion.AddBlock(myThrust, Vector3I.Backward);
+					if (controller.WorldMatrix.Left * -1 == myThrust.WorldMatrix.Forward)
+						_propulsion.AddBlock(myThrust, Vector3I.Left);
+					if (controller.WorldMatrix.Right * -1 == myThrust.WorldMatrix.Forward)
+						_propulsion.AddBlock(myThrust, Vector3I.Right);
+					if (controller.WorldMatrix.Up * -1 == myThrust.WorldMatrix.Forward)
+						_propulsion.AddBlock(myThrust, Vector3I.Up);
+					if (controller.WorldMatrix.Down * -1 == myThrust.WorldMatrix.Forward)
+						_propulsion.AddBlock(myThrust, Vector3I.Down);
+					continue;
+				}
+
+				IMyGyro myGyro = block as IMyGyro;
+				if (myGyro != null)
+				{
+
+					continue;
+				}
+				
+				IMyPowerProducer myPower = block as IMyPowerProducer;
+				if (myPower != null)
+				{
+
+					continue;
+				}
+				
+				IMyLargeTurretBase myLargeTurretBase = block as IMyLargeTurretBase;
+				if (myLargeTurretBase != null)
+				{
+
+					continue;
+				}
 			}
 		}
 
