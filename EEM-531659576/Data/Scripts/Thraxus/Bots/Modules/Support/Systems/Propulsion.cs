@@ -22,104 +22,111 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 		private readonly Thruster _upThrusters;
 		private readonly Thruster _downThrusters;
 
+		//private Dictionary<SystemType, QuestLogDetail> questLogDetails = new Dictionary<SystemType, QuestLogDetail>();
+
 		private readonly QuestScreen _questScreen;
-		private StringBuilder _lastForwardQuest;
-		private StringBuilder _lastBackwardsQuest;
-		private StringBuilder _lastLeftQuest;
-		private StringBuilder _lastRightQuest;
-		private StringBuilder _lastUpQuest;
-		private StringBuilder _lastDownQuest;
-
-		private void UpdateQuest(SystemType system, float remainingFunctionalIntegrityRatio)
-		{
-			StringBuilder newQuest = new StringBuilder($"{system} Integrity: {remainingFunctionalIntegrityRatio * 100}%");
-			switch (system)
-			{
-				case SystemType.ForwardPropulsion:
-					_questScreen.UpdateQuest(_lastForwardQuest.ToString(), newQuest.ToString());
-					_lastForwardQuest = newQuest;
-					break;
-				case SystemType.ReversePropulsion:
-					_questScreen.UpdateQuest(_lastBackwardsQuest.ToString(), newQuest.ToString());
-					_lastBackwardsQuest = newQuest;
-					break;
-				case SystemType.LeftPropulsion:
-					_questScreen.UpdateQuest(_lastLeftQuest.ToString(), newQuest.ToString());
-					_lastLeftQuest = newQuest;
-					break;
-				case SystemType.RightPropulsion:
-					_questScreen.UpdateQuest(_lastRightQuest.ToString(), newQuest.ToString());
-					_lastRightQuest = newQuest;
-					break;
-				case SystemType.UpPropulsion:
-					_questScreen.UpdateQuest(_lastUpQuest.ToString(), newQuest.ToString());
-					_lastUpQuest = newQuest;
-					break;
-				case SystemType.DownPropulsion:
-					_questScreen.UpdateQuest(_lastDownQuest.ToString(), newQuest.ToString());
-					_lastDownQuest = newQuest;
-					break;
-				default:
-					return;
-			}
-		}
-
-		private void AddQuest(SystemType system, float remainingFunctionalIntegrityRatio)
-		{
-			StringBuilder newQuest = new StringBuilder($"{system} Integrity: {remainingFunctionalIntegrityRatio * 100}%");
-			_questScreen.NewQuest(newQuest.ToString());
-			switch (system)
-			{
-				case SystemType.ForwardPropulsion:
-					_lastForwardQuest = newQuest;
-					return;
-				case SystemType.ReversePropulsion:
-					_lastBackwardsQuest = newQuest;
-					return;
-				case SystemType.LeftPropulsion:
-					_lastLeftQuest = newQuest;
-					return;
-				case SystemType.RightPropulsion:
-					_lastRightQuest = newQuest;
-					return;
-				case SystemType.UpPropulsion:
-					_lastUpQuest = newQuest;
-					return;
-				case SystemType.DownPropulsion:
-					_lastDownQuest = newQuest;
-					return;
-				default:
-					return;
-			}
-		}
+		private QuestLogDetail _forwardDetail;
+		private QuestLogDetail _reverseDetail;
+		private QuestLogDetail _leftDetail;
+		private QuestLogDetail _rightDetail;
+		private QuestLogDetail _upDetail;
+		private QuestLogDetail _downDetail;
 		
+		private void UpdateQuest(SystemType system, float integrityRatio)
+		{
+			StringBuilder newQuest = new StringBuilder($"{system} Integrity: {integrityRatio * 100}%");
+			switch (system)
+			{
+				case SystemType.ForwardPropulsion:
+					_forwardDetail.UpdateQuest(newQuest);
+					_questScreen.UpdateQuest(_forwardDetail);
+					break;
+				case SystemType.ReversePropulsion:
+					_reverseDetail.UpdateQuest(newQuest);
+					_questScreen.UpdateQuest(_reverseDetail);
+					break;
+				case SystemType.LeftPropulsion:
+					_leftDetail.UpdateQuest(newQuest);
+					_questScreen.UpdateQuest(_leftDetail);
+					break;
+				case SystemType.RightPropulsion:
+					_rightDetail.UpdateQuest(newQuest);
+					_questScreen.UpdateQuest(_rightDetail);
+					break;
+				case SystemType.UpPropulsion:
+					_upDetail.UpdateQuest(newQuest);
+					_questScreen.UpdateQuest(_upDetail);
+					break;
+				case SystemType.DownPropulsion:
+					_downDetail.UpdateQuest(newQuest);
+					_questScreen.UpdateQuest(_downDetail);
+					break;
+				default:
+					return;
+			}
+		}
+
+		private void NewQuest(SystemType system, float integrityRatio)
+		{
+			StringBuilder newQuest = new StringBuilder($"{system} Integrity: {integrityRatio * 100}%");
+			switch (system)
+			{
+				case SystemType.ForwardPropulsion:
+					_forwardDetail = new QuestLogDetail(newQuest);
+					_questScreen.NewQuest(_forwardDetail);
+					break;
+				case SystemType.ReversePropulsion:
+					_reverseDetail = new QuestLogDetail(newQuest);
+					_questScreen.NewQuest(_reverseDetail);
+					break;
+				case SystemType.LeftPropulsion:
+					_leftDetail = new QuestLogDetail(newQuest);
+					_questScreen.NewQuest(_leftDetail);
+					break;
+				case SystemType.RightPropulsion:
+					_rightDetail = new QuestLogDetail(newQuest);
+					_questScreen.NewQuest(_rightDetail);
+					break;
+				case SystemType.UpPropulsion:
+					_upDetail = new QuestLogDetail(newQuest);
+					_questScreen.NewQuest(_upDetail);
+					break;
+				case SystemType.DownPropulsion:
+					_downDetail = new QuestLogDetail(newQuest);
+					_questScreen.NewQuest(_downDetail);
+					break;
+				default:
+					return;
+			}
+		}
+
 		public Propulsion()
 		{
 			_questScreen = new QuestScreen("Propulsion");
 			
 			_forwardThrusters = new Thruster(SystemType.ForwardPropulsion);
 			_forwardThrusters.SystemDamaged += UpdateQuest;
-			AddQuest(SystemType.ForwardPropulsion, _forwardThrusters.RemainingFunctionalIntegrityRatio);
+			NewQuest(SystemType.ForwardPropulsion, _forwardThrusters.RemainingFunctionalIntegrityRatio);
 
 			_reverseThrusters = new Thruster(SystemType.ReversePropulsion);
 			_reverseThrusters.SystemDamaged += UpdateQuest;
-			AddQuest(SystemType.ReversePropulsion, _reverseThrusters.RemainingFunctionalIntegrityRatio);
+			NewQuest(SystemType.ReversePropulsion, _reverseThrusters.RemainingFunctionalIntegrityRatio);
 
 			_leftThrusters = new Thruster(SystemType.LeftPropulsion);
 			_leftThrusters.SystemDamaged += UpdateQuest;
-			AddQuest(SystemType.LeftPropulsion, _leftThrusters.RemainingFunctionalIntegrityRatio);
+			NewQuest(SystemType.LeftPropulsion, _leftThrusters.RemainingFunctionalIntegrityRatio);
 
 			_rightThrusters = new Thruster(SystemType.RightPropulsion);
 			_rightThrusters.SystemDamaged += UpdateQuest;
-			AddQuest(SystemType.RightPropulsion, _rightThrusters.RemainingFunctionalIntegrityRatio);
+			NewQuest(SystemType.RightPropulsion, _rightThrusters.RemainingFunctionalIntegrityRatio);
 
 			_upThrusters = new Thruster(SystemType.UpPropulsion);
 			_upThrusters.SystemDamaged += UpdateQuest;
-			AddQuest(SystemType.UpPropulsion, _upThrusters.RemainingFunctionalIntegrityRatio);
+			NewQuest(SystemType.UpPropulsion, _upThrusters.RemainingFunctionalIntegrityRatio);
 
 			_downThrusters = new Thruster(SystemType.DownPropulsion);
 			_downThrusters.SystemDamaged += UpdateQuest;
-			AddQuest(SystemType.DownPropulsion, _downThrusters.RemainingFunctionalIntegrityRatio);
+			NewQuest(SystemType.DownPropulsion, _downThrusters.RemainingFunctionalIntegrityRatio);
 		}
 
 		public void AddBlock(IMyThrust thruster, Vector3I vector)

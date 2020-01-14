@@ -34,14 +34,14 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 		public void AddBlock(IMyFunctionalBlock block)
 		{
 			StaticLog.WriteToLog($"MainSystemBase - {_type} - AddBlock", $"{block.EntityId}", LogType.General);
-			CustomFunctionalBlock newBlock = new CustomFunctionalBlock(block);
+			CustomFunctionalBlock newBlock = new CustomFunctionalBlock(_type, block);
 			newBlock.SystemDamaged += OnSystemDamaged;
 			TrackedBlocks.Add(newBlock);
 			UpdateMaxFunctionalIntegrity();
 			UpdateRemainingFunctionalIntegrity();
 		}
 
-		protected void OnSystemDamaged(float unused)
+		protected void OnSystemDamaged(SystemType type, float unused)
 		{
 			UpdateRemainingFunctionalIntegrity();
 		}
@@ -59,6 +59,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 			float x = 0;
 			foreach (IReportDamage reporter in TrackedBlocks)
 				x += reporter.RemainingFunctionalIntegrity;
+			if (Math.Abs(x - RemainingFunctionalIntegrity) < 0.001) return;
 			RemainingFunctionalIntegrity = x;
 			SystemDamaged?.Invoke(_type, RemainingFunctionalIntegrityRatio);
 		}

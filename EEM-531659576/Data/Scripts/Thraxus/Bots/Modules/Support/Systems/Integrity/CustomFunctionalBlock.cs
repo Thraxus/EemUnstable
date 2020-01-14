@@ -1,5 +1,6 @@
 ﻿using System;
 using Eem.Thraxus.Bots.Interfaces;
+using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
@@ -8,7 +9,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 {
 	internal class CustomFunctionalBlock : IReportDamage
 	{
-		public event Action<float> SystemDamaged;
+		public event Action<SystemType, float> SystemDamaged;
 
 		private IMyFunctionalBlock _myFunctionalBlock;
 
@@ -16,9 +17,12 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 
 		private IMySlimBlock _mySlimBlock;
 
-		public CustomFunctionalBlock(IMyFunctionalBlock block)
+		private readonly SystemType _type;
+
+		public CustomFunctionalBlock(SystemType type, IMyFunctionalBlock block)
 		{
 			_myFunctionalBlock = block;
+			_type = type;
 			_myCubeBlock = (MyCubeBlock)_myFunctionalBlock;
 			_mySlimBlock = _myFunctionalBlock.SlimBlock;
 			MaxIntegrity = _mySlimBlock.MaxIntegrity;
@@ -47,7 +51,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 		public void RunUpdate()
 		{
 			if (!(Math.Abs(CurrentIntegrity - LastUpdatedIntegrity) > 0.01)) return;
-			SystemDamaged?.Invoke(RemainingIntegrityRatio);
+			SystemDamaged?.Invoke(_type, RemainingIntegrityRatio);
 			LastUpdatedIntegrity = CurrentIntegrity;
 		}
 

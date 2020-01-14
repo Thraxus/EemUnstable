@@ -46,7 +46,7 @@ namespace Eem.Thraxus.Bots.Modules
 				IMyGyro myGyro = block as IMyGyro;
 				if (myGyro != null)
 				{
-
+					
 					continue;
 				}
 				

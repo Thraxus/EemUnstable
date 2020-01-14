@@ -1,10 +1,11 @@
 ﻿using System;
+using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
 
 namespace Eem.Thraxus.Bots.Interfaces
 {
 	internal interface IReportDamage : INeedUpdates
 	{
-		event Action<float> SystemDamaged;
+		event Action<SystemType, float> SystemDamaged;
 		
 		bool IsFunctional { get; }
 		
