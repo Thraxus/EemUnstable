@@ -225,7 +225,7 @@ namespace Eem.Thraxus.Bots.Models
 
 		private void OnBlockIntegrityChanged(IMySlimBlock block)
 		{   // Trigger alert, war, all the fun stuff against the entity owner that triggered the integrity change (probably negative only)
-
+			_shipSystems.UpdateIntegrity();
 			if (_barsActive)
 				HandleBars(block, CheckType.Integrity);
 			//WriteToLog("OnBlockIntegrityChanged", $"Block integrity changed for block {block} {_lastAttacked.AddSeconds(1) < DateTime.Now} {_lastAttacked.AddSeconds(1)} {DateTime.Now}", LogType.General);

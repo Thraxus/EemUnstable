@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Eem.Thraxus.Bots.Interfaces;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Types;
+using Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
@@ -13,137 +13,51 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 {
 	internal class Propulsion : INeedUpdates
 	{
-
-
-		private readonly Thruster _forwardThrusters;
-		private readonly Thruster _reverseThrusters;
-		private readonly Thruster _leftThrusters;
-		private readonly Thruster _rightThrusters;
-		private readonly Thruster _upThrusters;
-		private readonly Thruster _downThrusters;
-
-		//private Dictionary<SystemType, QuestLogDetail> questLogDetails = new Dictionary<SystemType, QuestLogDetail>();
-
+		private readonly Dictionary<SystemType, QuestLogDetail> _questLogDetails = new Dictionary<SystemType, QuestLogDetail>();
+		private readonly Dictionary<SystemType, MainSystemBase> _shipSystems = new Dictionary<SystemType, MainSystemBase>();
 		private readonly QuestScreen _questScreen;
-		private QuestLogDetail _forwardDetail;
-		private QuestLogDetail _reverseDetail;
-		private QuestLogDetail _leftDetail;
-		private QuestLogDetail _rightDetail;
-		private QuestLogDetail _upDetail;
-		private QuestLogDetail _downDetail;
 		
 		private void UpdateQuest(SystemType system, float integrityRatio)
 		{
+			if (!_questLogDetails.ContainsKey(system)) return;
 			StringBuilder newQuest = new StringBuilder($"{system} Integrity: {integrityRatio * 100}%");
-			switch (system)
-			{
-				case SystemType.ForwardPropulsion:
-					_forwardDetail.UpdateQuest(newQuest);
-					_questScreen.UpdateQuest(_forwardDetail);
-					break;
-				case SystemType.ReversePropulsion:
-					_reverseDetail.UpdateQuest(newQuest);
-					_questScreen.UpdateQuest(_reverseDetail);
-					break;
-				case SystemType.LeftPropulsion:
-					_leftDetail.UpdateQuest(newQuest);
-					_questScreen.UpdateQuest(_leftDetail);
-					break;
-				case SystemType.RightPropulsion:
-					_rightDetail.UpdateQuest(newQuest);
-					_questScreen.UpdateQuest(_rightDetail);
-					break;
-				case SystemType.UpPropulsion:
-					_upDetail.UpdateQuest(newQuest);
-					_questScreen.UpdateQuest(_upDetail);
-					break;
-				case SystemType.DownPropulsion:
-					_downDetail.UpdateQuest(newQuest);
-					_questScreen.UpdateQuest(_downDetail);
-					break;
-				default:
-					return;
-			}
+			_questLogDetails[system].UpdateQuest(newQuest);
+			_questScreen.UpdateQuest(_questLogDetails[system]);
 		}
 
 		private void NewQuest(SystemType system, float integrityRatio)
 		{
+			if (_questLogDetails.ContainsKey(system)) return;
 			StringBuilder newQuest = new StringBuilder($"{system} Integrity: {integrityRatio * 100}%");
-			switch (system)
-			{
-				case SystemType.ForwardPropulsion:
-					_forwardDetail = new QuestLogDetail(newQuest);
-					_questScreen.NewQuest(_forwardDetail);
-					break;
-				case SystemType.ReversePropulsion:
-					_reverseDetail = new QuestLogDetail(newQuest);
-					_questScreen.NewQuest(_reverseDetail);
-					break;
-				case SystemType.LeftPropulsion:
-					_leftDetail = new QuestLogDetail(newQuest);
-					_questScreen.NewQuest(_leftDetail);
-					break;
-				case SystemType.RightPropulsion:
-					_rightDetail = new QuestLogDetail(newQuest);
-					_questScreen.NewQuest(_rightDetail);
-					break;
-				case SystemType.UpPropulsion:
-					_upDetail = new QuestLogDetail(newQuest);
-					_questScreen.NewQuest(_upDetail);
-					break;
-				case SystemType.DownPropulsion:
-					_downDetail = new QuestLogDetail(newQuest);
-					_questScreen.NewQuest(_downDetail);
-					break;
-				default:
-					return;
-			}
+			_questLogDetails.Add(system, new QuestLogDetail(newQuest));
+			_questScreen.NewQuest(_questLogDetails[system]);
+		}
+
+		private void NewSystem(SystemType type)
+		{
+			if (_shipSystems.ContainsKey(type)) return;
+			MainSystemBase main = new MainSystemBase(type);
+			main.SystemDamaged += UpdateQuest;
+			NewQuest(type, main.RemainingFunctionalIntegrityRatio);
+			_shipSystems.Add(type, main);
 		}
 
 		public Propulsion()
 		{
 			_questScreen = new QuestScreen("Propulsion");
-			
-			_forwardThrusters = new Thruster(SystemType.ForwardPropulsion);
-			_forwardThrusters.SystemDamaged += UpdateQuest;
-			NewQuest(SystemType.ForwardPropulsion, _forwardThrusters.RemainingFunctionalIntegrityRatio);
-
-			_reverseThrusters = new Thruster(SystemType.ReversePropulsion);
-			_reverseThrusters.SystemDamaged += UpdateQuest;
-			NewQuest(SystemType.ReversePropulsion, _reverseThrusters.RemainingFunctionalIntegrityRatio);
-
-			_leftThrusters = new Thruster(SystemType.LeftPropulsion);
-			_leftThrusters.SystemDamaged += UpdateQuest;
-			NewQuest(SystemType.LeftPropulsion, _leftThrusters.RemainingFunctionalIntegrityRatio);
-
-			_rightThrusters = new Thruster(SystemType.RightPropulsion);
-			_rightThrusters.SystemDamaged += UpdateQuest;
-			NewQuest(SystemType.RightPropulsion, _rightThrusters.RemainingFunctionalIntegrityRatio);
-
-			_upThrusters = new Thruster(SystemType.UpPropulsion);
-			_upThrusters.SystemDamaged += UpdateQuest;
-			NewQuest(SystemType.UpPropulsion, _upThrusters.RemainingFunctionalIntegrityRatio);
-
-			_downThrusters = new Thruster(SystemType.DownPropulsion);
-			_downThrusters.SystemDamaged += UpdateQuest;
-			NewQuest(SystemType.DownPropulsion, _downThrusters.RemainingFunctionalIntegrityRatio);
+			NewSystem(SystemType.ForwardPropulsion);
+			NewSystem(SystemType.ReversePropulsion);
+			NewSystem(SystemType.LeftPropulsion);
+			NewSystem(SystemType.RightPropulsion);
+			NewSystem(SystemType.UpPropulsion);
+			NewSystem(SystemType.DownPropulsion);
 		}
 
-		public void AddBlock(IMyThrust thruster, Vector3I vector)
+		public void AddBlock(IMyThrust thruster, SystemType type)
 		{
-			StaticLog.WriteToLog("Propulsion: AddBlock", $"{thruster.EntityId} | {thruster.GridThrustDirection} | {vector}", LogType.General);
-			if (vector == Vector3I.Forward)
-				_forwardThrusters.AddBlock(thruster);
-			if (vector == Vector3I.Backward)
-				_reverseThrusters.AddBlock(thruster);
-			if (vector == Vector3I.Left)
-				_leftThrusters.AddBlock(thruster);
-			if (vector == Vector3I.Right)
-				_rightThrusters.AddBlock(thruster);
-			if (vector == Vector3I.Up)
-				_upThrusters.AddBlock(thruster);
-			if (vector == Vector3I.Down)
-				_downThrusters.AddBlock(thruster);
+			StaticLog.WriteToLog("Propulsion: AddBlock", $"{thruster.EntityId} | {thruster.GridThrustDirection} | {type}", LogType.General);
+			if (_shipSystems.ContainsKey(type))
+				_shipSystems[type].AddBlock(thruster);
 		}
 
 		public bool IsClosed { get; private set; }
@@ -151,30 +65,19 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 
 		public void RunUpdate()
 		{
-			_forwardThrusters.RunUpdate();
-			_reverseThrusters.RunUpdate();
-			_leftThrusters.RunUpdate();
-			_rightThrusters.RunUpdate();
-			_upThrusters.RunUpdate();
-			_downThrusters.RunUpdate();
+			foreach (KeyValuePair<SystemType, MainSystemBase> system in _shipSystems)
+				system.Value.RunUpdate();
 		}
 
 		public void Close()
 		{
 			if (IsClosed) return;
-			_forwardThrusters.Close();
-			_reverseThrusters.Close();
-			_leftThrusters.Close();
-			_rightThrusters.Close();
-			_upThrusters.Close();
-			_downThrusters.Close();
 
-			_forwardThrusters.SystemDamaged -= UpdateQuest;
-			_reverseThrusters.SystemDamaged -= UpdateQuest;
-			_leftThrusters.SystemDamaged -= UpdateQuest;
-			_rightThrusters.SystemDamaged -= UpdateQuest;
-			_upThrusters.SystemDamaged -= UpdateQuest;
-			_downThrusters.SystemDamaged -= UpdateQuest;
+			foreach (KeyValuePair<SystemType, MainSystemBase> system in _shipSystems)
+			{
+				system.Value.SystemDamaged -= UpdateQuest;
+				system.Value.Close();
+			}
 			IsClosed = true;
 		}
 	}

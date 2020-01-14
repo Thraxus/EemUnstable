@@ -61,9 +61,6 @@ namespace Eem.Thraxus.Bots.Modules.Support.Alert
 
 			GravityGeneratorSettings settings =
 				alertSetting == AlertSetting.Peacetime ? _peacetimeSettings : _wartimeSettings;
-
-			StaticLog.WriteToLog("GravityGeneratorSettings", $"{alertSetting} - {_gravityGenerator.EntityId} - {_gravityGenerator.Enabled} - {settings}", LogType.General);
-
 			_gravityGenerator.Enabled = settings.Enabled;
 			_gravityGenerator.FieldSize = settings.FieldSize;
 			_gravityGenerator.GravityAcceleration = settings.FieldStrength;

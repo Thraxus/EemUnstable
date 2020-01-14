@@ -1,4 +1,5 @@
 ﻿using Eem.Thraxus.Bots.Modules.Support.Systems;
+using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRageMath;
@@ -29,17 +30,17 @@ namespace Eem.Thraxus.Bots.Modules
 				if (myThrust != null) 
 				{
 					if (controller.WorldMatrix.Forward * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, Vector3I.Forward);
+						_propulsion.AddBlock(myThrust, SystemType.ForwardPropulsion);
 					if (controller.WorldMatrix.Backward * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, Vector3I.Backward);
+						_propulsion.AddBlock(myThrust, SystemType.ReversePropulsion);
 					if (controller.WorldMatrix.Left * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, Vector3I.Left);
+						_propulsion.AddBlock(myThrust, SystemType.LeftPropulsion);
 					if (controller.WorldMatrix.Right * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, Vector3I.Right);
+						_propulsion.AddBlock(myThrust, SystemType.RightPropulsion);
 					if (controller.WorldMatrix.Up * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, Vector3I.Up);
+						_propulsion.AddBlock(myThrust, SystemType.UpPropulsion);
 					if (controller.WorldMatrix.Down * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, Vector3I.Down);
+						_propulsion.AddBlock(myThrust, SystemType.DownPropulsion);
 					continue;
 				}
 
