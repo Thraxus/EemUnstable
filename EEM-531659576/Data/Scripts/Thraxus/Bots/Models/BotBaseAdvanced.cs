@@ -4,9 +4,11 @@ using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Eem.Thraxus.Factions;
 using Eem.Thraxus.Factions.DataTypes;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game.ModAPI;
@@ -18,6 +20,8 @@ namespace Eem.Thraxus.Bots.Models
 	{
 		internal readonly IMyEntity ThisEntity;
 		internal readonly MyCubeGrid ThisCubeGrid;
+		internal readonly IMyCubeGrid ThisMyCubeGrid;
+
 		private IMyFaction _myFaction;
 		private readonly IMyShipController _myShipController;
 		private readonly EemPrefabConfig _myConfig;
@@ -49,9 +53,11 @@ namespace Eem.Thraxus.Bots.Models
 		{
 			ThisEntity = passedEntity;
 			ThisCubeGrid = ((MyCubeGrid) ThisEntity);
+			ThisMyCubeGrid = (IMyCubeGrid) ThisEntity;
 			_myShipController = controller;
 			controller.IsMainCockpit = true;
 			_myConfig = !isMultipart ? new EemPrefabConfig(controller.CustomData) : BotMarshal.BotOrphans[passedEntity.EntityId].MyLegacyConfig;
+
 
 			// TODO Remove the below later to their proper bot type
 			//_regenerationProtocol = new RegenerationProtocol(passedEntity);
@@ -72,6 +78,7 @@ namespace Eem.Thraxus.Bots.Models
 			ThisCubeGrid.OnBlockIntegrityChanged += OnBlockIntegrityChanged;
 			BotMarshal.RegisterNewEntity(ThisEntity.EntityId);
 			DamageHandler.TriggerAlert += DamageHandlerOnTriggerAlert;
+			DamageHandler.TriggerIntegrityCheck += DamageHandlerOnTriggerIntegrityCheck;
 			BotMarshal.ModDictionary.TryGetValue(BotSettings.BarsModId, out _barsActive);
 			SetupBot();
 
@@ -87,7 +94,7 @@ namespace Eem.Thraxus.Bots.Models
 
 			WriteToLog("BotCore", $"BotBaseAdvanced ready to rock!", LogType.General);
 		}
-
+		
 		public void Unload()
 		{
 			try
@@ -95,6 +102,7 @@ namespace Eem.Thraxus.Bots.Models
 				WriteToLog("BotCore", $"Shutting down.", LogType.General);
 				BotMarshal.RemoveDeadEntity(ThisEntity.EntityId);
 				DamageHandler.TriggerAlert -= DamageHandlerOnTriggerAlert;
+				DamageHandler.TriggerIntegrityCheck -= DamageHandlerOnTriggerIntegrityCheck;
 				ThisCubeGrid.OnBlockAdded -= OnBlockAdded;
 				ThisCubeGrid.OnBlockRemoved -= OnBlockRemoved;
 				ThisCubeGrid.OnBlockOwnershipChanged -= OnOnBlockOwnershipChanged;
@@ -111,6 +119,26 @@ namespace Eem.Thraxus.Bots.Models
 			{
 				WriteToLog("Unload", $"Exception! {e}", LogType.Exception);
 			}
+		}
+
+		private void DamageHandlerOnTriggerIntegrityCheck(long shipId)
+		{
+			if (ThisEntity.EntityId != shipId) return;
+			//WriteToLog("DamageHandlerOnTriggerIntegrityCheck", $"Block Integrity Changed.", LogType.General);
+			IntegrityNeedsUpdate = true;
+		}
+
+		private bool IntegrityNeedsUpdate { get; set; }
+
+		private void UpdateShipIntegrity()
+		{
+			// TODO: Non-threaded this can tank sim.  Need to investigate areas for improvement
+			if (!IntegrityNeedsUpdate) return;
+			MyAPIGateway.Parallel.StartBackground(() =>
+			_shipSystems.UpdateIntegrity()
+			);
+			WriteToLog($"UpdateShipIntegrity", $"UpdateCalled", LogType.General);
+			IntegrityNeedsUpdate = false;
 		}
 
 		internal void SetupBot()
@@ -181,6 +209,7 @@ namespace Eem.Thraxus.Bots.Models
 		public void EvaluateAlerts(long ticks)
 		{
 			_ticks = ticks;
+			UpdateShipIntegrity();
 			if (_lastAttacked == 0) return;
 			if (_ticks - _lastAttacked <= GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown) return;
 			WriteToLog("EvaluateAlerts", $"{ticks} | {_lastAttacked} | {_ticks - _lastAttacked >= GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown}", LogType.General);
@@ -192,7 +221,7 @@ namespace Eem.Thraxus.Bots.Models
 		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)
 		{
 			if (ThisEntity.EntityId != shipId) return;
-			_shipSystems.UpdateIntegrity();
+			//_shipSystems.UpdateIntegrity();
 			if ( _ownerId == 0 || playerId == _ownerId || playerId == _myFaction.FactionId) return;
 
 			_lastAttacked = _ticks;
@@ -208,14 +237,14 @@ namespace Eem.Thraxus.Bots.Models
 		{   // Trigger alert, war, all the fun stuff against the player / faction that added the block
 			//WriteToLog("OnBlockAdded", $"Triggering alert to Damage Handler", LogType.General);
 			DamageHandler.ErrantBlockPlaced(ThisEntity.EntityId, addedBlock);
+			WriteToLog("OnBlockAdded", $"Block added.", LogType.General);
 		}
 
 		private void OnBlockRemoved(IMySlimBlock removedBlock)
 		{   // Trigger alert, war, all the fun stuff against the player / faction that removed the block; also scan for main RC removal and shut down bot if Single Part
 			// TODO Remove the below later to their proper bot type
 			//_regenerationProtocol.ReportBlockState();
-
-			_shipSystems.UpdateIntegrity();
+			IntegrityNeedsUpdate = true;
 			if (_barsActive)
 				HandleBars(removedBlock, CheckType.Removed);
 			if (removedBlock.FatBlock != _myShipController) return;
@@ -225,7 +254,7 @@ namespace Eem.Thraxus.Bots.Models
 
 		private void OnBlockIntegrityChanged(IMySlimBlock block)
 		{   // Trigger alert, war, all the fun stuff against the entity owner that triggered the integrity change (probably negative only)
-			_shipSystems.UpdateIntegrity();
+			IntegrityNeedsUpdate = true;
 			if (_barsActive)
 				HandleBars(block, CheckType.Integrity);
 			//WriteToLog("OnBlockIntegrityChanged", $"Block integrity changed for block {block} {_lastAttacked.AddSeconds(1) < DateTime.Now} {_lastAttacked.AddSeconds(1)} {DateTime.Now}", LogType.General);

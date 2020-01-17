@@ -71,7 +71,7 @@ namespace Eem.Thraxus.Bots
 			if (!GeneralSettings.IsServer) return;
 			if (!_setupComplete) Setup();
 		}
-
+		
 		private void Setup()
 		{
 			_setupComplete = true;

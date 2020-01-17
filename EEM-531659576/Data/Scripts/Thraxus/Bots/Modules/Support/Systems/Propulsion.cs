@@ -3,11 +3,8 @@ using System.Text;
 using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
-using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Eem.Thraxus.Common.Utilities.Tools.OnScreenDisplay;
 using Sandbox.ModAPI;
-using VRageMath;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Systems
 {
@@ -55,7 +52,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 
 		public void AddBlock(IMyThrust thruster, SystemType type)
 		{
-			StaticLog.WriteToLog("Propulsion: AddBlock", $"{thruster.EntityId} | {thruster.GridThrustDirection} | {type}", LogType.General);
+			//StaticLog.WriteToLog("Propulsion: AddBlock", $"{thruster.EntityId} | {thruster.GridThrustDirection} | {type}", LogType.General);
 			if (_shipSystems.ContainsKey(type))
 				_shipSystems[type].AddBlock(thruster);
 		}

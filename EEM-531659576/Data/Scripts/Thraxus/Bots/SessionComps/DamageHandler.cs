@@ -35,6 +35,8 @@ namespace Eem.Thraxus.Bots.SessionComps
 		public static event TriggerAlertRequest TriggerAlert;
 		public delegate void TriggerAlertRequest(long shipId, long playerId);
 
+		public static event Action<long> TriggerIntegrityCheck;
+
 		/// <inheritdoc />
 		protected override void EarlySetup()
 		{
@@ -43,6 +45,8 @@ namespace Eem.Thraxus.Bots.SessionComps
 			_unownedMissiles = new List<MissileHistory>();
 			_thrusterDamageTrackers = new ConcurrentDictionary<long, ThrusterDamageTracker>();
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(Priority, BeforeDamageHandler);
+			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(Priority, AfterDamageHandler);
+			MyAPIGateway.Session.DamageSystem.RegisterDestroyHandler(Priority, AfterDamageHandler);
 		}
 
 		/// <inheritdoc />
@@ -91,6 +95,15 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{   // Triggers alert to errant block placement on an EEM grid
 			//_instance.WriteToLog("ErrantBlockPlaced", $"Triggered by: {shipId} with block {addedBlock} belonging to {addedBlock.GetObjectBuilder().BuiltBy}", LogType.General);
 			RegisterWarEvent(shipId, addedBlock.GetObjectBuilder().BuiltBy);
+		}
+
+		private static void AfterDamageHandler(object target, MyDamageInformation info)
+		{
+			if (info.IsDeformation) return;
+			IMySlimBlock block = target as IMySlimBlock;
+			if (block == null) return;
+			TriggerIntegrityCheck?.Invoke(block.CubeGrid.EntityId);
+
 		}
 
 		private static void BeforeDamageHandler(object target, ref MyDamageInformation info)

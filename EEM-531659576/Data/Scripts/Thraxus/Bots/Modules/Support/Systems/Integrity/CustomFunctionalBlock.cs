@@ -1,9 +1,12 @@
 ﻿using System;
 using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
+using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
+using VRage.Utils;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 {
@@ -28,6 +31,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 			MaxIntegrity = _mySlimBlock.MaxIntegrity;
 			FunctionalIntegrity = MaxIntegrity * (1f - _myCubeBlock.BlockDefinition.CriticalIntegrityRatio);
 			LastUpdatedIntegrity = CurrentIntegrity;
+			//LastUpdatedIntegrity = RemainingFunctionalIntegrity;
 		}
 
 		public bool IsFunctional => _myFunctionalBlock.IsFunctional;
@@ -35,6 +39,8 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 		public bool IsDestroyed => !_myFunctionalBlock.InScene;
 
 		public float MaxIntegrity { get; }
+
+		public float AccumulatedDamage => _mySlimBlock.AccumulatedDamage;
 
 		public float FunctionalIntegrity { get; }
 
@@ -50,6 +56,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 
 		public void RunUpdate()
 		{
+			//if (!MyUtils.IsZero(CurrentIntegrity, LastUpdatedIntegrity)) return;
 			if (!(Math.Abs(CurrentIntegrity - LastUpdatedIntegrity) > 0.01)) return;
 			SystemDamaged?.Invoke(_type, RemainingIntegrityRatio);
 			LastUpdatedIntegrity = CurrentIntegrity;

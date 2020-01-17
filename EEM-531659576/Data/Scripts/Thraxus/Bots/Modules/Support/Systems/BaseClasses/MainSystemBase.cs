@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Integrity;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
-using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
@@ -59,14 +57,13 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 			float x = 0;
 			foreach (IReportDamage reporter in TrackedBlocks)
 				x += reporter.RemainingFunctionalIntegrity;
-			StaticLog.WriteToLog($"UpdateRemainingFunctionalIntegrity - {_type}", $"{x} | {RemainingFunctionalIntegrity} | {RemainingFunctionalIntegrityRatio}", LogType.General);
-			if (Math.Abs(x - RemainingFunctionalIntegrity) < 0.0000001) return;
 			RemainingFunctionalIntegrity = x;
 			SystemDamaged?.Invoke(_type, RemainingFunctionalIntegrityRatio);
 		}
 
 		public void RunUpdate()
 		{
+			//StaticLog.WriteToLog($"RunUpdate {_type}", $"UpdateCalled", LogType.General);
 			foreach (IReportDamage reporter in TrackedBlocks)
 				reporter.RunUpdate();
 		}
