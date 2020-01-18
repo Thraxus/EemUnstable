@@ -124,8 +124,9 @@ namespace Eem.Thraxus.Bots.Models
 		private void DamageHandlerOnTriggerIntegrityCheck(long shipId)
 		{
 			if (ThisEntity.EntityId != shipId) return;
+			UpdateShipIntegrity();
 			//WriteToLog("DamageHandlerOnTriggerIntegrityCheck", $"Block Integrity Changed.", LogType.General);
-			IntegrityNeedsUpdate = true;
+			//IntegrityNeedsUpdate = true;
 		}
 
 		private bool IntegrityNeedsUpdate { get; set; }
@@ -133,12 +134,13 @@ namespace Eem.Thraxus.Bots.Models
 		private void UpdateShipIntegrity()
 		{
 			// TODO: Non-threaded this can tank sim.  Need to investigate areas for improvement
-			if (!IntegrityNeedsUpdate) return;
-			MyAPIGateway.Parallel.StartBackground(() =>
+			//if (!IntegrityNeedsUpdate) return;
+			//MyAPIGateway.Parallel.StartBackground(() =>
 			_shipSystems.UpdateIntegrity()
-			);
-			WriteToLog($"UpdateShipIntegrity", $"UpdateCalled", LogType.General);
-			IntegrityNeedsUpdate = false;
+			//)
+			;
+			//WriteToLog($"UpdateShipIntegrity", $"UpdateCalled", LogType.General);
+			//IntegrityNeedsUpdate = false;
 		}
 
 		internal void SetupBot()
@@ -209,7 +211,7 @@ namespace Eem.Thraxus.Bots.Models
 		public void EvaluateAlerts(long ticks)
 		{
 			_ticks = ticks;
-			UpdateShipIntegrity();
+			//UpdateShipIntegrity();
 			if (_lastAttacked == 0) return;
 			if (_ticks - _lastAttacked <= GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown) return;
 			WriteToLog("EvaluateAlerts", $"{ticks} | {_lastAttacked} | {_ticks - _lastAttacked >= GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown}", LogType.General);

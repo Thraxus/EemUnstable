@@ -30,17 +30,17 @@ namespace Eem.Thraxus.Bots.Modules
 				if (myThrust != null) 
 				{
 					if (controller.WorldMatrix.Forward * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, SystemType.ForwardPropulsion);
+						_propulsion.AddBlock(SystemType.ForwardPropulsion, myThrust);
 					if (controller.WorldMatrix.Backward * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, SystemType.ReversePropulsion);
+						_propulsion.AddBlock(SystemType.ReversePropulsion, myThrust);
 					if (controller.WorldMatrix.Left * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, SystemType.LeftPropulsion);
+						_propulsion.AddBlock(SystemType.LeftPropulsion, myThrust);
 					if (controller.WorldMatrix.Right * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, SystemType.RightPropulsion);
+						_propulsion.AddBlock(SystemType.RightPropulsion, myThrust);
 					if (controller.WorldMatrix.Up * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, SystemType.UpPropulsion);
+						_propulsion.AddBlock(SystemType.UpPropulsion, myThrust);
 					if (controller.WorldMatrix.Down * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(myThrust, SystemType.DownPropulsion);
+						_propulsion.AddBlock(SystemType.DownPropulsion, myThrust);
 					continue;
 				}
 
@@ -69,7 +69,7 @@ namespace Eem.Thraxus.Bots.Modules
 
 		public void UpdateIntegrity()
 		{
-			_propulsion.RunUpdate();
+			_propulsion.RunMassUpdate();
 		}
 
 		public void Close()

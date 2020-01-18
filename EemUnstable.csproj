@@ -636,6 +636,7 @@
     <None Include="EEM-531659576\VoxelMaps\wi_reno.vx2" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Interfaces\IReportIntegrity.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Interfaces\INeedUpdates.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Interfaces\IReportDamage.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Interfaces\ISetAlert.cs" />
@@ -660,6 +661,8 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\Turret.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Integrity\CustomFunctionalBlock.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\BaseClasses\MainSystemBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Integrity\EemFunctionalBlock.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Integrity\EemFunctionalBlockCollection.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Support\Enums.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\Gyro.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\LargeTurretBase.cs" />

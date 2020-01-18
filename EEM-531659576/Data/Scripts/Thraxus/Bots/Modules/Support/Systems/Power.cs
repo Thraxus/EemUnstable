@@ -30,9 +30,9 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 
 		public bool IsClosed { get; private set; }
 
-		public void RunUpdate()
+		public void RunMassUpdate()
 		{
-			_powerProducers.RunUpdate();
+			_powerProducers.RunMassUpdate();
 		}
 
 		public void Close()

@@ -61,11 +61,11 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 			SystemDamaged?.Invoke(_type, RemainingFunctionalIntegrityRatio);
 		}
 
-		public void RunUpdate()
+		public void RunMassUpdate()
 		{
 			//StaticLog.WriteToLog($"RunUpdate {_type}", $"UpdateCalled", LogType.General);
 			foreach (IReportDamage reporter in TrackedBlocks)
-				reporter.RunUpdate();
+				reporter.RunMassUpdate();
 		}
 
 		public void Close()

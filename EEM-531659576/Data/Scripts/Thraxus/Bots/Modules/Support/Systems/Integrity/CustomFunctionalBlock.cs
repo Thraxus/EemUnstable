@@ -54,7 +54,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 
 		public bool IsClosed { get; private set; }
 
-		public void RunUpdate()
+		public void RunMassUpdate()
 		{
 			//if (!MyUtils.IsZero(CurrentIntegrity, LastUpdatedIntegrity)) return;
 			if (!(Math.Abs(CurrentIntegrity - LastUpdatedIntegrity) > 0.01)) return;

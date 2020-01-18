@@ -4,7 +4,7 @@
 	{
 		bool IsClosed { get; }
 		
-		void RunUpdate();
+		void RunMassUpdate();
 
 		void Close();
 	}

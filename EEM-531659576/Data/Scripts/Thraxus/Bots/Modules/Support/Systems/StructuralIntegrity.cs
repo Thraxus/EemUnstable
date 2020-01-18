@@ -6,7 +6,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 	{
 		public bool IsClosed { get; set; }
 
-		public void RunUpdate()
+		public void RunMassUpdate()
 		{
 			
 		}
