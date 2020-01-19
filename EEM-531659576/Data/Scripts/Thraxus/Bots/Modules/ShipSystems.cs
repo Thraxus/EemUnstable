@@ -8,15 +8,15 @@ namespace Eem.Thraxus.Bots.Modules
 {
 	internal class ShipSystems
 	{
-		private readonly Navigation _navigation = new Navigation();
+		//private readonly Navigation _navigation = new Navigation();
 
-		private readonly Power _power = new Power();
+		//private readonly Power _power = new Power();
 
 		private readonly Propulsion _propulsion = new Propulsion();
 
 		private  readonly StructuralIntegrity _structuralIntegrity = new StructuralIntegrity();
 
-		private readonly Weapons _weapons = new Weapons();
+		//private readonly Weapons _weapons = new Weapons();
 
 		private readonly MyCubeGrid _thisGrid;
 
@@ -44,26 +44,26 @@ namespace Eem.Thraxus.Bots.Modules
 					continue;
 				}
 
-				IMyGyro myGyro = block as IMyGyro;
-				if (myGyro != null)
-				{
+				//IMyGyro myGyro = block as IMyGyro;
+				//if (myGyro != null)
+				//{
 					
-					continue;
-				}
+				//	continue;
+				//}
 				
-				IMyPowerProducer myPower = block as IMyPowerProducer;
-				if (myPower != null)
-				{
+				//IMyPowerProducer myPower = block as IMyPowerProducer;
+				//if (myPower != null)
+				//{
 
-					continue;
-				}
+				//	continue;
+				//}
 				
-				IMyLargeTurretBase myLargeTurretBase = block as IMyLargeTurretBase;
-				if (myLargeTurretBase != null)
-				{
+				//IMyLargeTurretBase myLargeTurretBase = block as IMyLargeTurretBase;
+				//if (myLargeTurretBase != null)
+				//{
 
-					continue;
-				}
+				//	continue;
+				//}
 			}
 		}
 

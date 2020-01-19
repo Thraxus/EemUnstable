@@ -7,6 +7,7 @@ using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.Statics;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Weapons;
@@ -14,6 +15,7 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
 namespace Eem.Thraxus.Bots.SessionComps
@@ -99,12 +101,20 @@ namespace Eem.Thraxus.Bots.SessionComps
 
 		private static void AfterDamageHandler(object target, MyDamageInformation info)
 		{
-			if (info.IsDeformation) return;
+			if (info.IsDeformation || info.Amount <= 0f) return;
+			if (info.Type == MyStringHash.GetOrCompute("Deformation")) return;
 			IMySlimBlock block = target as IMySlimBlock;
 			if (block == null) return;
 			TriggerIntegrityCheck?.Invoke(block.CubeGrid.EntityId);
-
+			//StaticLog.WriteToLog($"AfterDamageHandler", $"{info.Amount} | {info.AttackerId} | {info.Type}", LogType.General);
 		}
+
+		// TODO: Add a filter to fire damage check event calls to after simulation.  filter both before, after, and destroyed to this call
+		//			This may allow me to get away from using after damage given i'm only using it to trigger damage with accumulated numbers
+
+		private static long _lastAttacker;
+		private static long _lastAttackedGrid;
+		private static long _lastAttackedTick;
 
 		private static void BeforeDamageHandler(object target, ref MyDamageInformation info)
 		{   // Important one, should show all damage events, even instant destruction
@@ -115,7 +125,15 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (info.IsDeformation) return;
 			IMySlimBlock block = target as IMySlimBlock;
 			if (block == null) return;
-			IdentifyDamageDealer(block.CubeGrid.EntityId, info);
+			if (info.AttackerId == _lastAttacker &&
+			    block.CubeGrid.EntityId == _lastAttackedGrid &&
+			    MyAPIGateway.Session.ElapsedPlayTime.Ticks - _lastAttackedTick < 60) return;
+			_lastAttacker = info.AttackerId;
+			_lastAttackedGrid = block.CubeGrid.EntityId;
+			_lastAttackedTick = MyAPIGateway.Session.ElapsedPlayTime.Ticks;
+			IdentifyDamageDealer(_lastAttackedGrid, info);
+			if (info.Type == MyStringHash.GetOrCompute("Explosion")) TriggerIntegrityCheck?.Invoke(_lastAttackedGrid);
+			//StaticLog.WriteToLog($"BeforeDamageHandler", $"{info.Amount} | {info.AttackerId} | {info.Type}", LogType.General);
 		}
 		
 		private static void IdentifyDamageDealer(long damagedEntity, MyDamageInformation damageInfo)

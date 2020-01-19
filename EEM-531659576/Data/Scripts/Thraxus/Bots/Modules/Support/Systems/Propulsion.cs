@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Eem.Thraxus.Bots.Interfaces;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Integrity;
+using Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses;
+using Eem.Thraxus.Bots.Modules.Support.Systems.Collections;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
 using Eem.Thraxus.Common.Utilities.Tools.OnScreenDisplay;
 using Sandbox.ModAPI;
@@ -57,7 +58,8 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 		private void NewSystem(SystemType type)
 		{
 			if (_shipSystems.ContainsKey(type)) return;
-			EemFunctionalBlockCollection collection = new EemFunctionalBlockCollection(type);
+			ThrusterCollection collection = new ThrusterCollection(type);
+			//EemFunctionalBlockCollection collection = new EemFunctionalBlockCollection(type);
 			NewQuest(type, collection.LastReportedIntegrityRatio);
 			_shipSystems.Add(type, collection);
 		}

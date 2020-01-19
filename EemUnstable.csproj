@@ -659,10 +659,9 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\SphericalGravityGenerator.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\Timer.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\Turret.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Integrity\CustomFunctionalBlock.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\BaseClasses\MainSystemBase.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Integrity\EemFunctionalBlock.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Integrity\EemFunctionalBlockCollection.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\BaseClasses\EemFunctionalBlock.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\BaseClasses\EemFunctionalBlockCollection.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Collections\ThrusterCollection.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Support\Enums.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\Gyro.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\LargeTurretBase.cs" />
@@ -750,6 +749,7 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\EntityManager\EntityManagerCore.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Integrity\" />
     <Folder Include="EEM-531659576\Data\Scripts\Thraxus\Common\SessionComps\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

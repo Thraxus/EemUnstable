@@ -1,12 +1,15 @@
-﻿using Eem.Thraxus.Bots.Interfaces;
+﻿using System.Text;
+using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
+using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
+namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 {
-	internal class EemFunctionalBlock : IReportIntegrity
+	internal abstract class EemFunctionalBlock : IReportIntegrity
 	{
 		private IMyFunctionalBlock _myFunctionalBlock;
 
@@ -18,7 +21,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 
 		public bool IsClosed { get; private set; }
 
-		private bool IsFunctional => _myFunctionalBlock.IsFunctional;
+		protected bool IsFunctional => _myFunctionalBlock.IsFunctional;
 
 		private float MaxIntegrity { get; }
 
@@ -30,25 +33,26 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 
 		private float CurrentFunctionalIntegrity()
 		{
-			if (IsClosed) return 0;
-			if (IsDestroyed()) return 0;
-			if (!IsFunctional) return 0;
 			return (MaxFunctionalIntegrity - (MaxIntegrity - CurrentIntegrity) - AccumulatedDamage);
 		}
 
 		public int CurrentFunctionalIntegrityRatio()
 		{
+			if (IsClosed) return 0;
+			if (IsDestroyed()) return 0;
+			if (!IsFunctional) return 0;
+			StaticLog.WriteToLog("CurrentFunctionalIntegrityRatio", $"{IsFunctional} | {IsClosed} | {CurrentFunctionalIntegrity()}", LogType.General);
 			return (int) ((CurrentFunctionalIntegrity() / MaxFunctionalIntegrity)* 100);
 		}
 
-		private bool IsDestroyed()
+		protected bool IsDestroyed()
 		{
-			if (_myFunctionalBlock.InScene) return false;
+			if (_myFunctionalBlock.InScene || _myFunctionalBlock.MarkedForClose) return false;
 			Close();
 			return true;
 		}
 
-		public EemFunctionalBlock(SystemType type, IMyFunctionalBlock myFunctionalBlock)
+		protected EemFunctionalBlock(SystemType type, IMyFunctionalBlock myFunctionalBlock)
 		{
 			Type = type;
 			_myFunctionalBlock = myFunctionalBlock;
@@ -58,18 +62,18 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Integrity
 			MaxFunctionalIntegrity = MaxIntegrity * (1f - _myCubeBlock.BlockDefinition.CriticalIntegrityRatio);
 		}
 
-		public void Close()
+		public virtual void Close()
 		{
 			if (IsClosed) return;
+			IsClosed = true;
 			_myFunctionalBlock = null;
 			_myCubeBlock = null;
 			_mySlimBlock = null;
-			IsClosed = true;
 		}
 
 		public override string ToString()
 		{
-			return $"{_myFunctionalBlock.EntityId} | {MaxFunctionalIntegrity} | {CurrentFunctionalIntegrity()} | {CurrentFunctionalIntegrityRatio()}%";
+			return new StringBuilder($"{_myFunctionalBlock.EntityId} | {MaxFunctionalIntegrity} | {CurrentFunctionalIntegrity()} | {CurrentFunctionalIntegrityRatio()}%").ToString();
 		}
 	}
 }

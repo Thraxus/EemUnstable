@@ -7,40 +7,40 @@ using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Systems
 {
-	internal class Power : INeedUpdates
-	{
-		private readonly PowerProducer _powerProducers;
+	//internal class Power : INeedUpdates
+	//{
+	//	private readonly PowerProducer _powerProducers;
 
-		public Power()
-		{
-			_powerProducers = new PowerProducer(SystemType.PowerProducer);
-			_powerProducers.SystemDamaged += SystemDamaged;
-		}
+	//	public Power()
+	//	{
+	//		_powerProducers = new PowerProducer(SystemType.PowerProducer);
+	//		_powerProducers.SystemDamaged += SystemDamaged;
+	//	}
 
-		private void SystemDamaged(SystemType type, float remainingFunctionalIntegrityRatio)
-		{
-			StaticLog.WriteToLog("SystemDamaged", $"{type} | {remainingFunctionalIntegrityRatio}", LogType.General);
-		}
+	//	private void SystemDamaged(SystemType type, float remainingFunctionalIntegrityRatio)
+	//	{
+	//		StaticLog.WriteToLog("SystemDamaged", $"{type} | {remainingFunctionalIntegrityRatio}", LogType.General);
+	//	}
 
-		public void AddBlock(IMyPowerProducer producer)
-		{
-			if (IsClosed) return;
-			_powerProducers.AddBlock((IMyFunctionalBlock) producer);
-		}
+	//	public void AddBlock(IMyPowerProducer producer)
+	//	{
+	//		if (IsClosed) return;
+	//		_powerProducers.AddBlock((IMyFunctionalBlock) producer);
+	//	}
 
-		public bool IsClosed { get; private set; }
+	//	public bool IsClosed { get; private set; }
 
-		public void RunMassUpdate()
-		{
-			_powerProducers.RunMassUpdate();
-		}
+	//	public void RunMassUpdate()
+	//	{
+	//		_powerProducers.RunMassUpdate();
+	//	}
 
-		public void Close()
-		{
-			if (IsClosed) return;
-			_powerProducers.Close();
-			_powerProducers.SystemDamaged -= SystemDamaged;
-			IsClosed = true;
-		}
-	}
+	//	public void Close()
+	//	{
+	//		if (IsClosed) return;
+	//		_powerProducers.Close();
+	//		_powerProducers.SystemDamaged -= SystemDamaged;
+	//		IsClosed = true;
+	//	}
+	//}
 }

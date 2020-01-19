@@ -39,15 +39,15 @@ namespace Eem.Thraxus.Bots.Modules
 		
 		public void Init()
 		{
-			int airVents = 0;
-			int antennae = 0;
-			int doors = 0;
-			int gravityGenerators = 0;
-			int lights = 0;
-			int sphericalGravityGenerators = 0;
-			int sensors = 0;
-			int timers = 0;
-			int turrets = 0;
+			//int airVents = 0;
+			//int antennae = 0;
+			//int doors = 0;
+			//int gravityGenerators = 0;
+			//int lights = 0;
+			//int sphericalGravityGenerators = 0;
+			//int sensors = 0;
+			//int timers = 0;
+			//int turrets = 0;
 
 			try
 			{
@@ -58,7 +58,7 @@ namespace Eem.Thraxus.Bots.Modules
 					if (radioAntenna != null && radioAntenna.OwnerId == _gridOwnerId)
 					{
 						_setAlerts.Add(new Antenna(radioAntenna));
-						antennae++;
+						//antennae++;
 						continue;
 					}
 
@@ -66,7 +66,7 @@ namespace Eem.Thraxus.Bots.Modules
 					if (largeTurretBase != null && largeTurretBase.OwnerId == _gridOwnerId)
 					{
 						_setAlerts.Add(new Turret(largeTurretBase));
-						turrets++;
+						//turrets++;
 						continue;
 					}
 
@@ -76,7 +76,7 @@ namespace Eem.Thraxus.Bots.Modules
 					{
 						Door x = new Door(door);
 						_setAlerts.Add(x);
-						doors++;
+						//doors++;
 						continue;
 					}
 
@@ -84,7 +84,7 @@ namespace Eem.Thraxus.Bots.Modules
 					if (generator != null && generator.OwnerId == _gridOwnerId)
 					{
 						_setAlerts.Add(new GravityGenerator(generator));
-						gravityGenerators++;
+						//gravityGenerators++;
 						continue;
 					}
 
@@ -92,7 +92,7 @@ namespace Eem.Thraxus.Bots.Modules
 					if (light != null)
 					{
 						_setAlerts.Add(new Light(light));
-						lights++;
+						//lights++;
 						continue;
 					}
 
@@ -100,7 +100,7 @@ namespace Eem.Thraxus.Bots.Modules
 					if (generatorSphere != null && generatorSphere.OwnerId == _gridOwnerId)
 					{
 						_setAlerts.Add(new SphericalGravityGenerator(generatorSphere));
-						sphericalGravityGenerators++;
+						//sphericalGravityGenerators++;
 						continue;
 					}
 
@@ -108,7 +108,7 @@ namespace Eem.Thraxus.Bots.Modules
 					if (mySensor != null && mySensor.OwnerId == _gridOwnerId)
 					{
 						_setAlerts.Add(new Sensor(mySensor));
-						sensors++;
+						//sensors++;
 						continue;
 					}
 					
@@ -116,7 +116,7 @@ namespace Eem.Thraxus.Bots.Modules
 					if (myTimer != null && myTimer.OwnerId == _gridOwnerId)
 					{
 						_setAlerts.Add(new Timer(myTimer));
-						timers++;
+						//timers++;
 						continue;
 					}
 					
@@ -124,12 +124,12 @@ namespace Eem.Thraxus.Bots.Modules
 					if (vent != null && vent.OwnerId == _gridOwnerId)
 					{
 						_setAlerts.Add(new AirVent(vent));
-						airVents++;
+						//airVents++;
 						continue;
 					}
 				}
 				
-				WriteToLog("EmergencyLockDownProtocol", $"Total Found - Air Vents: {airVents} | Antennas: {antennae} | Doors: {doors} | Gravity Generators: {gravityGenerators} | Lights: {lights} | Sensors: {sensors} |  Spherical Gravity Generators: {sphericalGravityGenerators} | Timers: {timers} | Turrets: {turrets} ", LogType.General);
+				//WriteToLog("EmergencyLockDownProtocol", $"Total Found - Air Vents: {airVents} | Antennas: {antennae} | Doors: {doors} | Gravity Generators: {gravityGenerators} | Lights: {lights} | Sensors: {sensors} |  Spherical Gravity Generators: {sphericalGravityGenerators} | Timers: {timers} | Turrets: {turrets} ", LogType.General);
 			}
 			catch (Exception e)
 			{
@@ -140,7 +140,7 @@ namespace Eem.Thraxus.Bots.Modules
 		public void Alert(AlertSetting alertSetting)
 		{
 			if (_alertEnabled && alertSetting == AlertSetting.Wartime) return;
-			WriteToLog("Alert", $"Loading {alertSetting}...", LogType.General);
+			//WriteToLog("Alert", $"Loading {alertSetting}...", LogType.General);
 
 			for (int i = _setAlerts.Count - 1; i >= 0; i--)
 			{

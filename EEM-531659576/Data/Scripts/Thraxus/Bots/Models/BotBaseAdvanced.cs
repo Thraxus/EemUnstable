@@ -129,10 +129,13 @@ namespace Eem.Thraxus.Bots.Models
 			//IntegrityNeedsUpdate = true;
 		}
 
-		private bool IntegrityNeedsUpdate { get; set; }
+		private long LastShipIntegrityUpdate = 0;
+
 
 		private void UpdateShipIntegrity()
 		{
+			if (_ticks - LastShipIntegrityUpdate < 2) return;
+			LastShipIntegrityUpdate = _ticks;
 			// TODO: Non-threaded this can tank sim.  Need to investigate areas for improvement
 			//if (!IntegrityNeedsUpdate) return;
 			//MyAPIGateway.Parallel.StartBackground(() =>
@@ -246,7 +249,7 @@ namespace Eem.Thraxus.Bots.Models
 		{   // Trigger alert, war, all the fun stuff against the player / faction that removed the block; also scan for main RC removal and shut down bot if Single Part
 			// TODO Remove the below later to their proper bot type
 			//_regenerationProtocol.ReportBlockState();
-			IntegrityNeedsUpdate = true;
+			
 			if (_barsActive)
 				HandleBars(removedBlock, CheckType.Removed);
 			if (removedBlock.FatBlock != _myShipController) return;
@@ -256,7 +259,7 @@ namespace Eem.Thraxus.Bots.Models
 
 		private void OnBlockIntegrityChanged(IMySlimBlock block)
 		{   // Trigger alert, war, all the fun stuff against the entity owner that triggered the integrity change (probably negative only)
-			IntegrityNeedsUpdate = true;
+			UpdateShipIntegrity();
 			if (_barsActive)
 				HandleBars(block, CheckType.Integrity);
 			//WriteToLog("OnBlockIntegrityChanged", $"Block integrity changed for block {block} {_lastAttacked.AddSeconds(1) < DateTime.Now} {_lastAttacked.AddSeconds(1)} {DateTime.Now}", LogType.General);

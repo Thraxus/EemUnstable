@@ -7,41 +7,41 @@ using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Systems
 {
-	internal class Weapons : INeedUpdates
-	{
-		private readonly LargeTurretBase _turrets;
+	//internal class Weapons : INeedUpdates
+	//{
+	//	private readonly LargeTurretBase _turrets;
 
-		public Weapons()
-		{
-			_turrets = new LargeTurretBase(SystemType.Gyro);
-			_turrets.SystemDamaged += SystemDamaged;
-		}
+	//	public Weapons()
+	//	{
+	//		_turrets = new LargeTurretBase(SystemType.Gyro);
+	//		_turrets.SystemDamaged += SystemDamaged;
+	//	}
 
-		private void SystemDamaged(SystemType type, float remainingFunctionalIntegrityRatio)
-		{
-			StaticLog.WriteToLog("SystemDamaged", $"{type} | {remainingFunctionalIntegrityRatio}", LogType.General);
-		}
+	//	private void SystemDamaged(SystemType type, float remainingFunctionalIntegrityRatio)
+	//	{
+	//		StaticLog.WriteToLog("SystemDamaged", $"{type} | {remainingFunctionalIntegrityRatio}", LogType.General);
+	//	}
 
-		public void AddBlock(IMyLargeTurretBase gyro)
-		{
-			if (IsClosed) return;
-			_turrets.AddBlock(gyro);
-		}
+	//	public void AddBlock(IMyLargeTurretBase gyro)
+	//	{
+	//		if (IsClosed) return;
+	//		_turrets.AddBlock(gyro);
+	//	}
 
 
-		public bool IsClosed { get; private set; }
+	//	public bool IsClosed { get; private set; }
 
-		public void RunMassUpdate()
-		{
-			_turrets.RunMassUpdate();
-		}
+	//	public void RunMassUpdate()
+	//	{
+	//		_turrets.RunMassUpdate();
+	//	}
 
-		public void Close()
-		{
-			if (IsClosed) return;
-			_turrets.Close();
-			_turrets.SystemDamaged -= SystemDamaged;
-			IsClosed = true;
-		}
-	}
+	//	public void Close()
+	//	{
+	//		if (IsClosed) return;
+	//		_turrets.Close();
+	//		_turrets.SystemDamaged -= SystemDamaged;
+	//		IsClosed = true;
+	//	}
+	//}
 }
