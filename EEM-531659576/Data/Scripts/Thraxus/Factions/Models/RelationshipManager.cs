@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Eem.Thraxus.Common.BaseClasses;
@@ -82,7 +83,7 @@ namespace Eem.Thraxus.Factions.Models
 		/// <summary>
 		/// Responsible for managing external requests for reputation hits 
 		/// </summary>
-		private static readonly Queue<PendingWar> WarQueue = new Queue<PendingWar>();
+		private static readonly ConcurrentQueue<PendingWar> WarQueue = new ConcurrentQueue<PendingWar>();
 
 		/// <summary>
 		/// Used to keep the Identity List; avoids having to allocate a new list every time it's required
@@ -171,7 +172,7 @@ namespace Eem.Thraxus.Factions.Models
 			MyAPIGateway.Session.Factions.FactionCreated -= FactionCreated;
 			MyAPIGateway.Session.Factions.FactionEdited -= FactionEdited;
 			MyAPIGateway.Session.Factions.FactionAutoAcceptChanged -= MonitorAutoAccept;
-			WarQueue.Clear();
+			//WarQueue. .Clear();
 			Players.Clear();
 			Identities.Clear();
 			_playerFactionDictionary.Clear();
@@ -641,7 +642,8 @@ namespace Eem.Thraxus.Factions.Models
 			{
 				while (WarQueue.Count > 0)
 				{
-					PendingWar pendingWar = WarQueue.Dequeue();
+					PendingWar pendingWar;
+					if (!WarQueue.TryDequeue(out pendingWar)) break;
 					TriggerWar(pendingWar);
 					WriteToLog("ProcessWarQueue", $"War Triggered! {pendingWar}", LogType.General);
 				}

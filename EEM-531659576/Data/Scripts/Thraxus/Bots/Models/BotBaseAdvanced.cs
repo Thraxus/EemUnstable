@@ -77,8 +77,8 @@ namespace Eem.Thraxus.Bots.Models
 			ThisCubeGrid.OnBlockOwnershipChanged += OnOnBlockOwnershipChanged;
 			ThisCubeGrid.OnBlockIntegrityChanged += OnBlockIntegrityChanged;
 			BotMarshal.RegisterNewEntity(ThisEntity.EntityId);
-			DamageHandler.TriggerAlert += DamageHandlerOnTriggerAlert;
-			DamageHandler.TriggerIntegrityCheck += DamageHandlerOnTriggerIntegrityCheck;
+			Damage.TriggerAlert += DamageHandlerOnTriggerAlert;
+			//DamageHandler.TriggerIntegrityCheck += DamageHandlerOnTriggerIntegrityCheck;
 			BotMarshal.ModDictionary.TryGetValue(BotSettings.BarsModId, out _barsActive);
 			SetupBot();
 
@@ -101,8 +101,8 @@ namespace Eem.Thraxus.Bots.Models
 			{
 				WriteToLog("BotCore", $"Shutting down.", LogType.General);
 				BotMarshal.RemoveDeadEntity(ThisEntity.EntityId);
-				DamageHandler.TriggerAlert -= DamageHandlerOnTriggerAlert;
-				DamageHandler.TriggerIntegrityCheck -= DamageHandlerOnTriggerIntegrityCheck;
+				Damage.TriggerAlert -= DamageHandlerOnTriggerAlert;
+				//DamageHandler.TriggerIntegrityCheck -= DamageHandlerOnTriggerIntegrityCheck;
 				ThisCubeGrid.OnBlockAdded -= OnBlockAdded;
 				ThisCubeGrid.OnBlockRemoved -= OnBlockRemoved;
 				ThisCubeGrid.OnBlockOwnershipChanged -= OnOnBlockOwnershipChanged;
@@ -121,21 +121,21 @@ namespace Eem.Thraxus.Bots.Models
 			}
 		}
 
-		private void DamageHandlerOnTriggerIntegrityCheck(long shipId)
-		{
-			if (ThisEntity.EntityId != shipId) return;
-			UpdateShipIntegrity();
-			//WriteToLog("DamageHandlerOnTriggerIntegrityCheck", $"Block Integrity Changed.", LogType.General);
-			//IntegrityNeedsUpdate = true;
-		}
+		//private void DamageHandlerOnTriggerIntegrityCheck(long shipId)
+		//{
+		//	if (ThisEntity.EntityId != shipId) return;
+		//	UpdateShipIntegrity();
+		//	//WriteToLog("DamageHandlerOnTriggerIntegrityCheck", $"Block Integrity Changed.", LogType.General);
+		//	//IntegrityNeedsUpdate = true;
+		//}
 
-		private long LastShipIntegrityUpdate = 0;
+		private long _lastShipIntegrityUpdate;
 
 
 		private void UpdateShipIntegrity()
 		{
-			if (_ticks - LastShipIntegrityUpdate < 2) return;
-			LastShipIntegrityUpdate = _ticks;
+			if (_ticks - _lastShipIntegrityUpdate < 2) return;
+			_lastShipIntegrityUpdate = _ticks;
 			// TODO: Non-threaded this can tank sim.  Need to investigate areas for improvement
 			//if (!IntegrityNeedsUpdate) return;
 			//MyAPIGateway.Parallel.StartBackground(() =>
@@ -177,14 +177,16 @@ namespace Eem.Thraxus.Bots.Models
 		{
 			//if (!_barsActive) return;
 			// TODO: Make sure this still works.  updated when i change away from timespan
-			if  ((_ticks - _lastAttacked) < (GeneralSettings.TicksPerSecond / 2)) return;
+			// TODO: Restore BaRS Protection; disabled with the new damage handler
+			if ((_ticks - _lastAttacked) < (GeneralSettings.TicksPerSecond / 2)) return;
 			
 			switch (check)
 			{
 				case CheckType.Removed:
 				case CheckType.Ownership:
 					//WriteToLog("HandleBars", $"Block removed or owner changed, alerting the damage handler... {inMs}", LogType.General);
-					DamageHandler.BarsSuspected(ThisEntity);
+					
+					//DamageHandler.BarsSuspected(ThisEntity);
 					break;
 				case CheckType.Integrity:
 					{
@@ -199,7 +201,7 @@ namespace Eem.Thraxus.Bots.Models
 						}
 
 						//WriteToLog("HandleBars", $"Block integrity lowered, alerting the damage handler... {inMs}", LogType.General);
-						DamageHandler.BarsSuspected(ThisEntity);
+						//DamageHandler.BarsSuspected(ThisEntity);
 
 						break;
 					}
@@ -208,13 +210,12 @@ namespace Eem.Thraxus.Bots.Models
 			}
 
 			//WriteToLog("HandleBars", $"Bars Suspected... {_lastAttacked} -- {DateTime.Now}", LogType.General);
-			DamageHandler.BarsSuspected(ThisEntity);
+			//DamageHandler.BarsSuspected(ThisEntity);
 		}
 
 		public void EvaluateAlerts(long ticks)
 		{
 			_ticks = ticks;
-			//UpdateShipIntegrity();
 			if (_lastAttacked == 0) return;
 			if (_ticks - _lastAttacked <= GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown) return;
 			WriteToLog("EvaluateAlerts", $"{ticks} | {_lastAttacked} | {_ticks - _lastAttacked >= GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown}", LogType.General);
@@ -226,7 +227,7 @@ namespace Eem.Thraxus.Bots.Models
 		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)
 		{
 			if (ThisEntity.EntityId != shipId) return;
-			//_shipSystems.UpdateIntegrity();
+			UpdateShipIntegrity();
 			if ( _ownerId == 0 || playerId == _ownerId || playerId == _myFaction.FactionId) return;
 
 			_lastAttacked = _ticks;
@@ -241,7 +242,8 @@ namespace Eem.Thraxus.Bots.Models
 		private void OnBlockAdded(IMySlimBlock addedBlock)
 		{   // Trigger alert, war, all the fun stuff against the player / faction that added the block
 			//WriteToLog("OnBlockAdded", $"Triggering alert to Damage Handler", LogType.General);
-			DamageHandler.ErrantBlockPlaced(ThisEntity.EntityId, addedBlock);
+			DamageHandlerOnTriggerAlert(ThisEntity.EntityId, addedBlock.GetObjectBuilder().BuiltBy);
+			//DamageHandler.ErrantBlockPlaced(ThisEntity.EntityId, addedBlock);
 			WriteToLog("OnBlockAdded", $"Block added.", LogType.General);
 		}
 

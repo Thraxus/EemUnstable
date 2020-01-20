@@ -41,7 +41,6 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 			if (IsClosed) return 0;
 			if (IsDestroyed()) return 0;
 			if (!IsFunctional) return 0;
-			StaticLog.WriteToLog("CurrentFunctionalIntegrityRatio", $"{IsFunctional} | {IsClosed} | {CurrentFunctionalIntegrity()}", LogType.General);
 			return (int) ((CurrentFunctionalIntegrity() / MaxFunctionalIntegrity)* 100);
 		}
 

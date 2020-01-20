@@ -53,7 +53,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 		protected override void EarlySetup()
 		{
 			base.EarlySetup();
-			DamageHandler.TriggerAlert += RegisterNewWar;
+			Damage.TriggerAlert += RegisterNewWar;
 		}
 		
 		/// <inheritdoc />
@@ -88,7 +88,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 
 		protected override void Unload()
 		{
-			DamageHandler.TriggerAlert -= RegisterNewWar;
+			Damage.TriggerAlert -= RegisterNewWar;
 			MyAPIGateway.Session.Player.Controller.ControlledEntityChanged -= ControlAcquired;
 			//ActiveShipRegistry?.ClearList();
 			//PlayerShipControllerHistory?.Clear();

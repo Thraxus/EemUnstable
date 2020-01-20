@@ -2,15 +2,14 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Eem.Thraxus.Bots.Modules.ModManagers;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.Statics;
-using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Weapons;
+using VRage.Collections;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
@@ -20,135 +19,182 @@ using VRageMath;
 
 namespace Eem.Thraxus.Bots.SessionComps
 {
-	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue + 1)]
-	public class DamageHandler : BaseServerSessionComp
+	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, 1000)]
+	public class Damage : BaseServerSessionComp
 	{
-		private const string GeneralLogName = "DamageHandlerGeneral";
-		private const string DebugLogName = "DamageHandlerDebug";
-		private const string SessionCompName = "DamageHandler";
+		private const string GeneralLogName = "DamageGeneral";
+		private const string DebugLogName = "DamageDebug";
+		private const string SessionCompName = "Damage";
 
-		public DamageHandler() : base(GeneralLogName, DebugLogName, SessionCompName) { } // Do nothing else
+		public Damage() : base(GeneralLogName, DebugLogName, SessionCompName, false) { } // Do nothing else
 
-		private static DamageHandler _instance;
+		// Static Fields
+		private static readonly List<MissileHistory> UnownedMissiles = new List<MissileHistory>();
 
-		private static List<MissileHistory> _unownedMissiles;
-		private static ConcurrentDictionary<long, ThrusterDamageTracker> _thrusterDamageTrackers;
+		// Fields
 
-		public static event TriggerAlertRequest TriggerAlert;
-		public delegate void TriggerAlertRequest(long shipId, long playerId);
+		// Collections
+		private readonly ConcurrentDictionary<long, ThrusterDamageTracker> _thrusterDamageTrackers = new ConcurrentDictionary<long, ThrusterDamageTracker>();
+		private readonly ConcurrentCachingList<DamageEvent> _damageEventList = new ConcurrentCachingList<DamageEvent>();
+		private readonly ConcurrentCachingList<DamageEvent> _preDamageEvents = new ConcurrentCachingList<DamageEvent>();
 
-		public static event Action<long> TriggerIntegrityCheck;
+		// Structs
+		private struct DamageEvent
+		{
+			public readonly long ShipId;
+			public readonly long PlayerId;
+			public readonly long Tick;
 
-		/// <inheritdoc />
+			public DamageEvent(long shipId, long playerId, long tick)
+			{
+				ShipId = shipId;
+				PlayerId = playerId;
+				Tick = tick;
+			}
+
+			private bool Equals(DamageEvent other)
+			{
+				return ShipId == other.ShipId && PlayerId == other.PlayerId && Tick + 2 >= other.Tick;
+			}
+
+			public override bool Equals(object obj)
+			{
+				if (ReferenceEquals(null, obj)) return false;
+				return obj is DamageEvent && Equals((DamageEvent) obj);
+			}
+
+			public override int GetHashCode()
+			{
+				unchecked
+				{
+					int hashCode = ShipId.GetHashCode();
+					hashCode = (hashCode * 397) ^ PlayerId.GetHashCode();
+					hashCode = (hashCode * 397) ^ Tick.GetHashCode();
+					return hashCode;
+				}
+			}
+
+			public override string ToString()
+			{
+				return $"{ShipId} | {PlayerId} | {Tick}";
+			}
+		}
+
+		// Events
+		public static event Action<long, long> TriggerAlert;
+
+		// Setup
 		protected override void EarlySetup()
 		{
 			base.EarlySetup();
-			_instance = this;
-			_unownedMissiles = new List<MissileHistory>();
-			_thrusterDamageTrackers = new ConcurrentDictionary<long, ThrusterDamageTracker>();
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(Priority, BeforeDamageHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(Priority, AfterDamageHandler);
 			MyAPIGateway.Session.DamageSystem.RegisterDestroyHandler(Priority, AfterDamageHandler);
 		}
-
-		/// <inheritdoc />
-		protected override void LateSetup()
-		{
-			base.LateSetup();
-		}
-
-		/// <inheritdoc />
+		
+		// Close
 		protected override void Unload()
 		{
-			_unownedMissiles?.Clear();
+			UnownedMissiles?.Clear();
 			_thrusterDamageTrackers.Clear();
-			_instance = null;
 			base.Unload();
 		}
-		
-		private static void OnTriggerAlert(long shipId, long playerId)
+
+		// Session Methods
+
+		protected override void RunBeforeSimUpdate()
 		{
-			TriggerAlert?.Invoke(shipId, playerId);
+			base.RunBeforeSimUpdate();
+			ProcessDamageQueue();
+			CleanPreDamageEvents();
 		}
 
-		private static void RegisterWarEvent(long shipId, long playerId)
+		// Damage Queue
+
+		private void AddToDamageQueue(long shipId, long playerId)
 		{
-			if (shipId != 0 && playerId != 0)
-				OnTriggerAlert(shipId, playerId);
+			AddToDamageQueue(new DamageEvent(shipId, playerId, TickCounter));
 		}
 
-		public static void BarsSuspected(IMyEntity shipEntity)
-		{   // Takes the ship id for the grid suspected of being under attack by BARS and casts spells to see if its true or not
-			_instance.WriteToLog("BarsSuspected",$"Triggered by: {shipEntity.DisplayName}", LogType.General);
-			List<IMyEntity> detectedBars = BuildAndRepairSystem.DetectAllBars(shipEntity.GetPosition(), BotSettings.UnownedGridDetectionRange);
-			if (detectedBars.Count == 0) return;
-			foreach (IMyEntity bars in detectedBars)
+		private void AddToDamageQueue(DamageEvent damage)
+		{
+			if (DamageAlreadyInQueue(damage)) return;
+			_damageEventList.Add(damage);
+			_damageEventList.ApplyAdditions();
+			WriteToLog("AddToDamageQueue", $"{damage}", LogType.General);
+		}
+
+		private void ProcessDamageQueue()
+		{
+			foreach (DamageEvent damageEvent in _damageEventList)
 			{
-				//BotMarshal.RegisterNewPriorityTarget(shipEntity.EntityId, new TargetEntity(bars, BaseTargetPriorities.Bars));
-				Statics.AddGpsLocation("BaRS", bars.GetPosition());
-				//((IMyCubeBlock)bars).SlimBlock.DecreaseMountLevel(((IMyCubeBlock)bars).SlimBlock.Integrity - 10, null);
-				((IMyCubeBlock) bars).SlimBlock.DoDamage(((IMyCubeBlock)bars).SlimBlock.Integrity * 0.9f, EnergyShields.BypassKey, true, new MyHitInfo(), 0L);
-				Statics.CreateFakeSmallExplosion(bars.GetPosition());
-				RegisterWarEvent(shipEntity.EntityId, ((IMyCubeBlock) bars).OwnerId);
+				TriggerAlert?.Invoke(damageEvent.ShipId, damageEvent.PlayerId);
+				_damageEventList.Remove(damageEvent);
 			}
+			_damageEventList.ApplyRemovals();
 		}
 
-		public static void ErrantBlockPlaced(long shipId, IMySlimBlock addedBlock)
-		{   // Triggers alert to errant block placement on an EEM grid
-			//_instance.WriteToLog("ErrantBlockPlaced", $"Triggered by: {shipId} with block {addedBlock} belonging to {addedBlock.GetObjectBuilder().BuiltBy}", LogType.General);
-			RegisterWarEvent(shipId, addedBlock.GetObjectBuilder().BuiltBy);
-		}
-
-		private static void AfterDamageHandler(object target, MyDamageInformation info)
+		private bool DamageAlreadyInQueue(DamageEvent damage)
 		{
-			if (info.IsDeformation || info.Amount <= 0f) return;
-			if (info.Type == MyStringHash.GetOrCompute("Deformation")) return;
-			IMySlimBlock block = target as IMySlimBlock;
-			if (block == null) return;
-			TriggerIntegrityCheck?.Invoke(block.CubeGrid.EntityId);
-			//StaticLog.WriteToLog($"AfterDamageHandler", $"{info.Amount} | {info.AttackerId} | {info.Type}", LogType.General);
+			return _damageEventList.Contains(damage);
 		}
 
-		// TODO: Add a filter to fire damage check event calls to after simulation.  filter both before, after, and destroyed to this call
-		//			This may allow me to get away from using after damage given i'm only using it to trigger damage with accumulated numbers
+		// Damage Handlers
 
-		private static long _lastAttacker;
-		private static long _lastAttackedGrid;
-		private static long _lastAttackedTick;
+		private void AfterDamageHandler(object target, MyDamageInformation info)
+		{
+			//if (info.IsDeformation || info.Amount <= 0f) return;
+			//if (info.Type == MyStringHash.GetOrCompute("Deformation")) return;
+			//IMySlimBlock block = target as IMySlimBlock;
+			//if (block == null) return;
+			//AddToDamageQueue(new DamageEvent(block.CubeGrid.EntityId, 0L, TickCounter));
+		}
 
-		private static void BeforeDamageHandler(object target, ref MyDamageInformation info)
-		{   // Important one, should show all damage events, even instant destruction
-			// Testing shows meteors don't do damage, just remove blocks and do deformation, so not bothering to track that for now... 
-			// BaRS doesn't show up here at all, will need to make a special case processed on the grid to account for BaRS damage using integrity lowering with no matching damage case
-			//	idea there is basically to declare war on any BaRS system owner within 250m of the grid to account for fly by block grinding
-
+		private void BeforeDamageHandler(object target, ref MyDamageInformation info)
+		{
+			//WriteToLog("BeforeDamageHandler", $"{info.AttackerId} | {info.Amount} | {info.Type}", LogType.General);
 			if (info.IsDeformation) return;
 			IMySlimBlock block = target as IMySlimBlock;
 			if (block == null) return;
-			if (info.AttackerId == _lastAttacker &&
-			    block.CubeGrid.EntityId == _lastAttackedGrid &&
-			    MyAPIGateway.Session.ElapsedPlayTime.Ticks - _lastAttackedTick < 60) return;
-			_lastAttacker = info.AttackerId;
-			_lastAttackedGrid = block.CubeGrid.EntityId;
-			_lastAttackedTick = MyAPIGateway.Session.ElapsedPlayTime.Ticks;
-			IdentifyDamageDealer(_lastAttackedGrid, info);
-			if (info.Type == MyStringHash.GetOrCompute("Explosion")) TriggerIntegrityCheck?.Invoke(_lastAttackedGrid);
-			//StaticLog.WriteToLog($"BeforeDamageHandler", $"{info.Amount} | {info.AttackerId} | {info.Type}", LogType.General);
+			ProcessPreDamageReporting(new DamageEvent(block.CubeGrid.EntityId, info.AttackerId, TickCounter), info);
 		}
-		
-		private static void IdentifyDamageDealer(long damagedEntity, MyDamageInformation damageInfo)
+
+		private void ProcessPreDamageReporting(DamageEvent damage, MyDamageInformation info)
+		{
+			if (_preDamageEvents.Contains(damage)) return;
+			_preDamageEvents.Add(damage);
+			_preDamageEvents.ApplyAdditions();
+			IdentifyDamageDealer(damage.ShipId, info);
+			WriteToLog("ProcessPreDamageReporting", $"{damage} | {info.AttackerId} | {info.Amount} | {info.Type}", LogType.General);
+		}
+
+		private void CleanPreDamageEvents()
+		{
+			foreach (DamageEvent damageEvent in _preDamageEvents)
+			{
+				if (damageEvent.Tick + 1 < TickCounter)
+				{
+					_preDamageEvents.Remove(damageEvent);
+					WriteToLog("CleanPreDamageEvents", $"Removed: {damageEvent} | {TickCounter}", LogType.General);
+				}
+			}
+			_preDamageEvents.ApplyRemovals();
+		}
+
+		// Supporting Methods
+		private void IdentifyDamageDealer(long damagedEntity, MyDamageInformation damageInfo)
 		{
 			// Deformation damage must be allowed here since it handles grid collision damage
 			// One idea may be scan loaded mods and grab their damage types for their ammo as well?  We'll see... 
 			// Missiles from vanilla launchers track their damage id back to the player, so if unowned or npc owned, they will have no owner - need to entity track missiles, woo! (on entity add)
-			
+
 			try
 			{
 				IMyEntity attackingEntity;
 				if (damageInfo.AttackerId == 0)
 				{   // possible instance of a missile getting through to here, need to account for it here or dismiss the damage outright if  no owner can be found
 					//_instance.WriteToLog("IdentifyDamageDealer", $"AttackedId was 0!: {damageInfo.Type.String} - {damageInfo.Amount} - {damageInfo.IsDeformation} - {damageInfo.AttackerId}", LogType.General);
-					CheckForUnownedMissileDamage(damagedEntity, damageInfo);
+					CheckForUnownedMissileDamage(damagedEntity);
 					return;
 				}
 
@@ -162,7 +208,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 		}
 
-		private static void FindTheAsshole(long damagedEntity, IMyEntity attacker, MyDamageInformation damageInfo)
+		private void FindTheAsshole(long damagedEntity, IMyEntity attacker, MyDamageInformation damageInfo)
 		{
 			if (attacker.GetType() == typeof(MyCubeGrid))
 			{
@@ -185,7 +231,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (myCharacter != null)
 			{
 				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as a Character! War against: {MyAPIGateway.Entities.GetEntityById(myCharacter.EntityId).DisplayName}", LogType.General);
-				RegisterWarEvent(damagedEntity, myCharacter.EntityId);
+				AddToDamageQueue(damagedEntity, myCharacter.EntityId);
 				return;
 			}
 
@@ -193,7 +239,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (myAutomaticRifle != null)
 			{
 				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Rifle! War against: {MyAPIGateway.Players.GetPlayerById(myAutomaticRifle.OwnerIdentityId).DisplayName}", LogType.General);
-				RegisterWarEvent(damagedEntity, myAutomaticRifle.OwnerIdentityId);
+				AddToDamageQueue(damagedEntity, myAutomaticRifle.OwnerIdentityId);
 				return;
 			}
 
@@ -201,7 +247,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (myAngleGrinder != null)
 			{
 				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Grinder! War against: {MyAPIGateway.Players.GetPlayerById(myAngleGrinder.OwnerIdentityId).DisplayName}", LogType.General);
-				RegisterWarEvent(damagedEntity, myAngleGrinder.OwnerIdentityId);
+				AddToDamageQueue(damagedEntity, myAngleGrinder.OwnerIdentityId);
 				return;
 			}
 
@@ -209,7 +255,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (myHandDrill != null)
 			{
 				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Drill! War against: {MyAPIGateway.Players.GetPlayerById(myHandDrill.OwnerIdentityId).DisplayName}", LogType.General);
-				RegisterWarEvent(damagedEntity, myHandDrill.OwnerIdentityId);
+				AddToDamageQueue(damagedEntity, myHandDrill.OwnerIdentityId);
 				return;
 			}
 
@@ -227,34 +273,32 @@ namespace Eem.Thraxus.Bots.SessionComps
 				return;
 			}
 
-			_instance.WriteToLog("FindTheAsshole", $"Asshole not identified!!!  It was a: {attacker.GetType()}", LogType.General);
+			WriteToLog("FindTheAsshole", $"Asshole not identified!!!  It was a: {attacker.GetType()}", LogType.General);
 		}
 
-		private static void CheckForUnownedMissileDamage(long damagedEntity, MyDamageInformation damageInfo)
+		private void CheckForUnownedMissileDamage(long damagedEntity)
 		{
 			try
 			{
 				//_instance.WriteToLog("CheckForUnownedMissileDamage", $"Debug 1 - ActiveShipRegistry Count: {BotMarshal.ActiveShipRegistry.Count} | unownedMissiles: {_unownedMissiles.Count}", LogType.General);
-				for (int i = _unownedMissiles.Count - 1; i >= 0; i--)
+				for (int i = UnownedMissiles.Count - 1; i >= 0; i--)
 				{
-					TimeSpan timeSinceLastAttack = DateTime.Now - _unownedMissiles[i].TimeStamp;
-					//double inSec = timeSinceLastAttack.TotalSeconds;
+					TimeSpan timeSinceLastAttack = DateTime.Now - UnownedMissiles[i].TimeStamp;
 					if (timeSinceLastAttack.TotalSeconds > 5f)
 					{
-						_unownedMissiles.RemoveAtFast(i);
+						UnownedMissiles.RemoveAtFast(i);
 						continue;
 					}
 					bool identified = false;
 					for (int index = BotMarshal.ActiveShipRegistry.Count - 1; index >= 0; index--)
 					{
-						//_instance.WriteToLog("CheckForUnownedMissileDamage", $"Debug 2 - {CheckForImpactedEntity(BotMarshal.ActiveShipRegistry[index],  _unownedMissiles[i].Location)} | {_unownedMissiles[i]} | {index}", LogType.General);
-						if (!CheckForImpactedEntity(BotMarshal.ActiveShipRegistry[index], _unownedMissiles[i].Location)) continue;
-						IdentifyOffendingIdentityFromEntity(damagedEntity, MyAPIGateway.Entities.GetEntityById(_unownedMissiles[i].LauncherId));
+						if (!CheckForImpactedEntity(BotMarshal.ActiveShipRegistry[index], UnownedMissiles[i].Location)) continue;
+						IdentifyOffendingIdentityFromEntity(damagedEntity, MyAPIGateway.Entities.GetEntityById(UnownedMissiles[i].LauncherId));
 						identified = true;
 					}
 
 					if (identified)
-						_unownedMissiles.RemoveAtFast(i);
+						UnownedMissiles.RemoveAtFast(i);
 				}
 			}
 			catch (Exception e)
@@ -263,7 +307,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 		}
 
-		private static void IdentifyOffendingIdentityFromEntity(long damagedEntity, IMyEntity offendingEntity)
+		private void IdentifyOffendingIdentityFromEntity(long damagedEntity, IMyEntity offendingEntity)
 		{
 			try
 			{
@@ -271,16 +315,16 @@ namespace Eem.Thraxus.Bots.SessionComps
 				IMyCubeGrid myCubeGrid = offendingEntity?.GetTopMostParent() as IMyCubeGrid;
 				if (myCubeGrid == null) return;
 				if (myCubeGrid.BigOwners.Count == 0)
-				{	// This should only trigger when a player is being a cheeky fucker
+				{   // This should only trigger when a player is being a cheeky fucker
 					IMyPlayer myPlayer;
 					long tmpId;
 					if (BotMarshal.PlayerShipControllerHistory.TryGetValue(myCubeGrid.EntityId, out tmpId))
-					{ 
-					  myPlayer = MyAPIGateway.Players.GetPlayerById(tmpId);
+					{
+						myPlayer = MyAPIGateway.Players.GetPlayerById(tmpId);
 						if (myPlayer != null && !myPlayer.IsBot)
 						{
 							//_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via PlayerShipControllerHistory: {myPlayer.DisplayName}", LogType.General);
-							RegisterWarEvent(damagedEntity, myPlayer.IdentityId);
+							AddToDamageQueue(damagedEntity, myPlayer.IdentityId);
 							return;
 						}
 					}
@@ -291,7 +335,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 						myPlayer = MyAPIGateway.Players.GetPlayerById(BotMarshal.PlayerShipControllerHistory[myDetectedEntity.EntityId]);
 						if (myPlayer == null || myPlayer.IsBot) continue;
 						//_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via Detection: {myPlayer.DisplayName}", LogType.General);
-						RegisterWarEvent(damagedEntity, myPlayer.IdentityId);
+						AddToDamageQueue(damagedEntity, myPlayer.IdentityId);
 					}
 					return;
 				}
@@ -300,11 +344,11 @@ namespace Eem.Thraxus.Bots.SessionComps
 				if (myIdentity != null)
 				{
 					//_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via BigOwners: {myIdentity.DisplayName}", LogType.General);
-					RegisterWarEvent(damagedEntity, myIdentity.IdentityId);
+					AddToDamageQueue(damagedEntity, myIdentity.IdentityId);
 					return;
 				}
-				
-				_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target is an elusive shithead! {myCubeGrid.BigOwners.FirstOrDefault()}", LogType.General);
+
+				WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target is an elusive shithead! {myCubeGrid.BigOwners.FirstOrDefault()}", LogType.General);
 			}
 			catch (Exception e)
 			{
@@ -327,12 +371,26 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 		}
 
+		//public static void BarsSuspected(IMyEntity shipEntity)
+		//{   // Takes the ship id for the grid suspected of being under attack by BARS and casts spells to see if its true or not
+		//	WriteToLog("BarsSuspected", $"Triggered by: {shipEntity.DisplayName}", LogType.General);
+		//	List<IMyEntity> detectedBars = BuildAndRepairSystem.DetectAllBars(shipEntity.GetPosition(), BotSettings.UnownedGridDetectionRange);
+		//	if (detectedBars.Count == 0) return;
+		//	foreach (IMyEntity bars in detectedBars)
+		//	{
+		//		//BotMarshal.RegisterNewPriorityTarget(shipEntity.EntityId, new TargetEntity(bars, BaseTargetPriorities.Bars));
+		//		Statics.AddGpsLocation("BaRS", bars.GetPosition());
+		//		//((IMyCubeBlock)bars).SlimBlock.DecreaseMountLevel(((IMyCubeBlock)bars).SlimBlock.Integrity - 10, null);
+		//		((IMyCubeBlock)bars).SlimBlock.DoDamage(((IMyCubeBlock)bars).SlimBlock.Integrity * 0.9f, EnergyShields.BypassKey, true, new MyHitInfo(), 0L);
+		//		Statics.CreateFakeSmallExplosion(bars.GetPosition());
+		//		AddToDamageQueue(shipEntity.EntityId, ((IMyCubeBlock)bars).OwnerId);
+		//	}
+		//}
+
 		public static void RegisterUnownedMissileImpact(MissileHistory missileInfo)
 		{
-			//MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create($"Remove: {missileInfo.LauncherId} -- {missileInfo.OwnerId}", "", missileInfo.Location, true));
-			//if (missileInfo.OwnerId != 0) return;
-			_unownedMissiles.Add(missileInfo);
-			//_instance.WriteToLog("RegisterUnownedMissileImpact", $"Missile {missileInfo.LauncherId} added to registry.", LogType.General);
+			UnownedMissiles.Add(missileInfo);
 		}
+
 	}
 }

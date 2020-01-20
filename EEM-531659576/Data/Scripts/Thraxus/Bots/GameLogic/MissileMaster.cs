@@ -33,7 +33,7 @@ namespace Eem.Thraxus.Bots.GameLogic
 			{
 				if (!GeneralSettings.IsServer) return;
 				MyObjectBuilder_Missile missile = (MyObjectBuilder_Missile)Entity.GetObjectBuilder();
-				DamageHandler.RegisterUnownedMissileImpact(new 
+				Damage.RegisterUnownedMissileImpact(new 
 					MissileHistory(
 						missile.OriginEntity,
 						missile.LauncherId, 

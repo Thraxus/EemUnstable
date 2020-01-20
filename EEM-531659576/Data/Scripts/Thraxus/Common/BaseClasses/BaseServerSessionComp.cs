@@ -14,6 +14,8 @@ namespace Eem.Thraxus.Common.BaseClasses
 
 		private readonly bool _noUpdate;
 
+		internal long TickCounter;
+
 		private Log _generalLog;
 		private Log _debugLog;
 
@@ -80,6 +82,12 @@ namespace Eem.Thraxus.Common.BaseClasses
 			if (!Settings.GeneralSettings.IsServer) return;
 			base.UpdateBeforeSimulation();
 			if (!_lateSetupComplete) LateSetup();
+			RunBeforeSimUpdate();
+		}
+
+		protected virtual void RunBeforeSimUpdate()
+		{
+			TickCounter++;
 		}
 
 		protected virtual void LateSetup()
