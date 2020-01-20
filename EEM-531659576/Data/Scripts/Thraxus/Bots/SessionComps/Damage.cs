@@ -88,14 +88,14 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			base.EarlySetup();
 			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(Priority, BeforeDamageHandler);
-			MyAPIGateway.Session.DamageSystem.RegisterAfterDamageHandler(Priority, AfterDamageHandler);
-			MyAPIGateway.Session.DamageSystem.RegisterDestroyHandler(Priority, AfterDamageHandler);
 		}
 		
 		// Close
 		protected override void Unload()
 		{
 			UnownedMissiles?.Clear();
+			_damageEventList?.ClearList();
+			_preDamageEvents?.ClearList();
 			_thrusterDamageTrackers.Clear();
 			base.Unload();
 		}
@@ -140,15 +140,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 		}
 
 		// Damage Handlers
-
-		private void AfterDamageHandler(object target, MyDamageInformation info)
-		{
-			//if (info.IsDeformation || info.Amount <= 0f) return;
-			//if (info.Type == MyStringHash.GetOrCompute("Deformation")) return;
-			//IMySlimBlock block = target as IMySlimBlock;
-			//if (block == null) return;
-			//AddToDamageQueue(new DamageEvent(block.CubeGrid.EntityId, 0L, TickCounter));
-		}
 
 		private void BeforeDamageHandler(object target, ref MyDamageInformation info)
 		{
