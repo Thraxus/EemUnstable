@@ -15,6 +15,8 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 
 		private IMySlimBlock _mySlimBlock;
 
+		private readonly long _originalOwner;
+
 		public SystemType Type { get; }
 
 		public bool IsClosed { get; private set; }
@@ -36,6 +38,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 		{
 			if (IsClosed) return 0;
 			if (IsDestroyed()) return 0;
+			if (IsDetached()) return 0;
 			if (!IsFunctional) return 0;
 			return (int) ((CurrentFunctionalIntegrity() / MaxFunctionalIntegrity)* 100);
 		}
@@ -47,12 +50,20 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 			return true;
 		}
 
+		protected bool IsDetached()
+		{
+			if (_myCubeBlock.CubeGrid.EntityId == _originalOwner) return false;
+			Close();
+			return true;
+		}
+
 		protected EemFunctionalBlock(SystemType type, IMyFunctionalBlock myFunctionalBlock)
 		{
 			Type = type;
 			_myFunctionalBlock = myFunctionalBlock;
 			_myCubeBlock = (MyCubeBlock)_myFunctionalBlock;
 			_mySlimBlock = _myFunctionalBlock.SlimBlock;
+			_originalOwner = _myCubeBlock.CubeGrid.EntityId;
 			MaxIntegrity = _mySlimBlock.MaxIntegrity;
 			MaxFunctionalIntegrity = MaxIntegrity * (1f - _myCubeBlock.BlockDefinition.CriticalIntegrityRatio);
 		}

@@ -1,6 +1,9 @@
-﻿using Eem.Thraxus.Bots.Modules.Support;
+﻿using System.Collections.Generic;
+using Eem.Thraxus.Bots.Interfaces;
+using Eem.Thraxus.Bots.Modules.Support;
 using Eem.Thraxus.Bots.Modules.Support.Systems;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
+using Eem.Thraxus.Bots.Modules.Support.Systems.Types;
 using Eem.Thraxus.Common.Utilities.Tools.OnScreenDisplay;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
@@ -10,27 +13,25 @@ namespace Eem.Thraxus.Bots.Modules
 {
 	internal class ShipSystems
 	{
-		//private readonly Navigation _navigation = new Navigation();
-
-		//private readonly Power _power = new Power();
-
-		private readonly Propulsion _propulsion;
+		private readonly MyCubeGrid _thisGrid;
 
 		private  readonly StructuralIntegrity _structuralIntegrity = new StructuralIntegrity();
 
-		private readonly BotSystemsQuestLog _questScreen;
-
-		//private readonly Weapons _weapons = new Weapons();
-
-		private readonly MyCubeGrid _thisGrid;
+		private readonly List<INeedUpdates> _shipSystems = new List<INeedUpdates>();
 
 		public ShipSystems(MyCubeGrid thisGrid, IMyShipController controller)
 		{
 			_thisGrid = thisGrid;
 
-			_questScreen = new BotSystemsQuestLog(_thisGrid.DisplayName);
+			BotSystemsQuestLog questScreen = new BotSystemsQuestLog(_thisGrid.DisplayName);
 
-			_propulsion = new Propulsion(_questScreen);
+			Propulsion propulsion = new Propulsion(questScreen);
+
+			Navigation navigation = new Navigation(questScreen);
+
+			Power power = new Power(questScreen);
+
+			Weapons weapons = new Weapons(questScreen);
 
 			foreach (MyCubeBlock block in _thisGrid.GetFatBlocks())
 			{
@@ -38,51 +39,63 @@ namespace Eem.Thraxus.Bots.Modules
 				if (myThrust != null) 
 				{
 					if (controller.WorldMatrix.Forward * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(SystemType.ForwardPropulsion, myThrust);
+						propulsion.AddBlock(SystemType.ForwardPropulsion, myThrust);
 					if (controller.WorldMatrix.Backward * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(SystemType.ReversePropulsion, myThrust);
+						propulsion.AddBlock(SystemType.ReversePropulsion, myThrust);
 					if (controller.WorldMatrix.Left * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(SystemType.LeftPropulsion, myThrust);
+						propulsion.AddBlock(SystemType.LeftPropulsion, myThrust);
 					if (controller.WorldMatrix.Right * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(SystemType.RightPropulsion, myThrust);
+						propulsion.AddBlock(SystemType.RightPropulsion, myThrust);
 					if (controller.WorldMatrix.Up * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(SystemType.UpPropulsion, myThrust);
+						propulsion.AddBlock(SystemType.UpPropulsion, myThrust);
 					if (controller.WorldMatrix.Down * -1 == myThrust.WorldMatrix.Forward)
-						_propulsion.AddBlock(SystemType.DownPropulsion, myThrust);
+						propulsion.AddBlock(SystemType.DownPropulsion, myThrust);
 					continue;
 				}
 
-				//IMyGyro myGyro = block as IMyGyro;
-				//if (myGyro != null)
-				//{
-					
-				//	continue;
-				//}
-				
-				//IMyPowerProducer myPower = block as IMyPowerProducer;
-				//if (myPower != null)
-				//{
+				IMyGyro myGyro = block as IMyGyro;
+				if (myGyro != null)
+				{
+					navigation.AddBlock(SystemType.Navigation, myGyro);
+					continue;
+				}
 
-				//	continue;
-				//}
-				
-				//IMyLargeTurretBase myLargeTurretBase = block as IMyLargeTurretBase;
-				//if (myLargeTurretBase != null)
-				//{
+				IMyPowerProducer myPower = block as IMyPowerProducer;
+				if (myPower != null)
+				{
+					power.AddBlock(SystemType.PowerProducer, (IMyFunctionalBlock) myPower);
+					continue;
+				}
 
-				//	continue;
-				//}
+				IMyLargeTurretBase myLargeTurretBase = block as IMyLargeTurretBase;
+				if (myLargeTurretBase != null)
+				{
+					weapons.AddBlock(SystemType.Weapon, myLargeTurretBase);
+					continue;
+				}
 			}
+
+			_shipSystems.Add(propulsion);
+			_shipSystems.Add(navigation);
+			_shipSystems.Add(power);
+			_shipSystems.Add(weapons);
 		}
 
 		public void UpdateIntegrity()
 		{
-			_propulsion.RunMassUpdate();
+			foreach (INeedUpdates needUpdate in _shipSystems)
+			{
+				needUpdate.RunMassUpdate();
+			}
+			//_propulsion.RunMassUpdate();
 		}
 
 		public void Close()
 		{
-			_propulsion.Close();
+			foreach (INeedUpdates needUpdate in _shipSystems)
+			{
+				needUpdate.Close();
+			}
 		}
 
 	}

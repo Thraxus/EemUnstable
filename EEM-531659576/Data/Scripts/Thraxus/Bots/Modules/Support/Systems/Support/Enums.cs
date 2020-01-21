@@ -9,7 +9,7 @@
 		UpPropulsion,
 		DownPropulsion,
 		PowerProducer,
-		Gyro, 
-		Turret
+		Navigation, 
+		Weapon
 	}
 }

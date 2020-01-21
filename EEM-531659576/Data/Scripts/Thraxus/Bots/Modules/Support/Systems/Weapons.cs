@@ -1,47 +1,22 @@
-﻿using Eem.Thraxus.Bots.Interfaces;
+﻿using Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses;
+using Eem.Thraxus.Bots.Modules.Support.Systems.Collections;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Types;
-using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Common.Utilities.Tools.Logging;
-using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Systems
 {
-	//internal class Weapons : INeedUpdates
-	//{
-	//	private readonly LargeTurretBase _turrets;
+	internal class Weapons : ShipSystemBase
+	{
+		public Weapons(BotSystemsQuestLog questScreen) : base(questScreen)
+		{
+			NewSystem(SystemType.Weapon);
+		}
 
-	//	public Weapons()
-	//	{
-	//		_turrets = new LargeTurretBase(SystemType.Gyro);
-	//		_turrets.SystemDamaged += SystemDamaged;
-	//	}
-
-	//	private void SystemDamaged(SystemType type, float remainingFunctionalIntegrityRatio)
-	//	{
-	//		StaticLog.WriteToLog("SystemDamaged", $"{type} | {remainingFunctionalIntegrityRatio}", LogType.General);
-	//	}
-
-	//	public void AddBlock(IMyLargeTurretBase gyro)
-	//	{
-	//		if (IsClosed) return;
-	//		_turrets.AddBlock(gyro);
-	//	}
-
-
-	//	public bool IsClosed { get; private set; }
-
-	//	public void RunMassUpdate()
-	//	{
-	//		_turrets.RunMassUpdate();
-	//	}
-
-	//	public void Close()
-	//	{
-	//		if (IsClosed) return;
-	//		_turrets.Close();
-	//		_turrets.SystemDamaged -= SystemDamaged;
-	//		IsClosed = true;
-	//	}
-	//}
+		protected sealed override void NewSystem(SystemType type)
+		{
+			if (_shipSystems.ContainsKey(type)) return;
+			WeaponCollection collection = new WeaponCollection(type);
+			NewQuest(type, collection.LastReportedIntegrityRatio);
+			_shipSystems.Add(type, collection);
+		}
+	}
 }

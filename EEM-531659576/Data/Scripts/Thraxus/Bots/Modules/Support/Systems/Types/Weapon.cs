@@ -4,8 +4,8 @@ using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Systems.Types
 {
-	internal class Gyro : EemFunctionalBlock
+	internal class Weapon : EemFunctionalBlock
 	{
-		public Gyro(SystemType type, IMyFunctionalBlock block) : base(type, block) { }
+		public Weapon(SystemType type, IMyFunctionalBlock block) : base(type, block) { }
 	}
 }
