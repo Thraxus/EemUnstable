@@ -1,25 +1,22 @@
 ﻿using System.Collections.Generic;
-using System.Text;
 using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Collections;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
-using Eem.Thraxus.Common.Utilities.Tools.OnScreenDisplay;
 using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Systems
 {
 	internal class Propulsion : INeedUpdates
 	{
-		private readonly Dictionary<SystemType, QuestLogDetail> _questLogDetails = new Dictionary<SystemType, QuestLogDetail>();
 		private readonly Dictionary<SystemType, EemFunctionalBlockCollection> _shipSystems = new Dictionary<SystemType, EemFunctionalBlockCollection>();
-		private readonly QuestScreen _questScreen;
+		private readonly BotSystemsQuestLog _questScreen;
 
 		public bool IsClosed { get; private set; }
 
-		public Propulsion()
+		public Propulsion(BotSystemsQuestLog questScreen)
 		{
-			_questScreen = new QuestScreen("Propulsion");
+			_questScreen = questScreen;
 			NewSystem(SystemType.ForwardPropulsion);
 			NewSystem(SystemType.ReversePropulsion);
 			NewSystem(SystemType.LeftPropulsion);
@@ -41,25 +38,18 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 
 		private void UpdateQuest(SystemType system, int currentFunctionalIntegrityRatio)
 		{
-			if (!_questLogDetails.ContainsKey(system)) return;
-			StringBuilder newQuest = new StringBuilder($"{system} Integrity: {currentFunctionalIntegrityRatio}%");
-			_questLogDetails[system].UpdateQuest(newQuest);
-			_questScreen.UpdateQuest(_questLogDetails[system]);
+			_questScreen.UpdateQuest(system, currentFunctionalIntegrityRatio);
 		}
 
-		private void NewQuest(SystemType system, float integrityRatio)
+		private void NewQuest(SystemType system, int integrityRatio)
 		{
-			if (_questLogDetails.ContainsKey(system)) return;
-			StringBuilder newQuest = new StringBuilder($"{system} Integrity: {integrityRatio}%");
-			_questLogDetails.Add(system, new QuestLogDetail(newQuest));
-			_questScreen.NewQuest(_questLogDetails[system]);
+			_questScreen.NewQuest(system, integrityRatio);
 		}
 
 		private void NewSystem(SystemType type)
 		{
 			if (_shipSystems.ContainsKey(type)) return;
 			ThrusterCollection collection = new ThrusterCollection(type);
-			//EemFunctionalBlockCollection collection = new EemFunctionalBlockCollection(type);
 			NewQuest(type, collection.LastReportedIntegrityRatio);
 			_shipSystems.Add(type, collection);
 		}

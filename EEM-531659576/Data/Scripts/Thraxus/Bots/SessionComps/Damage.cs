@@ -156,7 +156,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 			_preDamageEvents.Add(damage);
 			_preDamageEvents.ApplyAdditions();
 			IdentifyDamageDealer(damage.ShipId, info);
-			WriteToLog("ProcessPreDamageReporting", $"{damage} | {info.AttackerId} | {info.Amount} | {info.Type}", LogType.General);
 		}
 
 		private void CleanPreDamageEvents()
@@ -166,7 +165,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 				if (damageEvent.Tick + 1 < TickCounter)
 				{
 					_preDamageEvents.Remove(damageEvent);
-					WriteToLog("CleanPreDamageEvents", $"Removed: {damageEvent} | {TickCounter}", LogType.General);
 				}
 			}
 			_preDamageEvents.ApplyRemovals();
@@ -184,13 +182,11 @@ namespace Eem.Thraxus.Bots.SessionComps
 				IMyEntity attackingEntity;
 				if (damageInfo.AttackerId == 0)
 				{   // possible instance of a missile getting through to here, need to account for it here or dismiss the damage outright if  no owner can be found
-					//_instance.WriteToLog("IdentifyDamageDealer", $"AttackedId was 0!: {damageInfo.Type.String} - {damageInfo.Amount} - {damageInfo.IsDeformation} - {damageInfo.AttackerId}", LogType.General);
 					CheckForUnownedMissileDamage(damagedEntity);
 					return;
 				}
 
 				if (!MyAPIGateway.Entities.TryGetEntityById(damageInfo.AttackerId, out attackingEntity)) return;
-				//_instance.WriteToLog("IdentifyDamageDealer", $"All the info: {damageInfo.Type.String} - {damageInfo.Amount} - {damageInfo.IsDeformation} - {damageInfo.AttackerId} - {attackingEntity.EntityId} - {attackingEntity.GetType()}", LogType.General);
 				FindTheAsshole(damagedEntity, attackingEntity, damageInfo);
 			}
 			catch (Exception e)
@@ -203,7 +199,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			if (attacker.GetType() == typeof(MyCubeGrid))
 			{
-				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as a CubeGrid!", LogType.General);
 				IdentifyOffendingIdentityFromEntity(damagedEntity, attacker);
 				return;
 			}
@@ -212,8 +207,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 
 			if (attacker is IMyLargeTurretBase)
 			{
-				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as a Grid Weapon!", LogType.General);
-				//RegisterWarEvent(damagedEntity, attacker.EntityId);
 				IdentifyOffendingIdentityFromEntity(damagedEntity, attacker);
 				return;
 			}
@@ -221,7 +214,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 			IMyCharacter myCharacter = attacker as IMyCharacter;
 			if (myCharacter != null)
 			{
-				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as a Character! War against: {MyAPIGateway.Entities.GetEntityById(myCharacter.EntityId).DisplayName}", LogType.General);
 				AddToDamageQueue(damagedEntity, myCharacter.EntityId);
 				return;
 			}
@@ -229,7 +221,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 			IMyAutomaticRifleGun myAutomaticRifle = attacker as IMyAutomaticRifleGun;
 			if (myAutomaticRifle != null)
 			{
-				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Rifle! War against: {MyAPIGateway.Players.GetPlayerById(myAutomaticRifle.OwnerIdentityId).DisplayName}", LogType.General);
 				AddToDamageQueue(damagedEntity, myAutomaticRifle.OwnerIdentityId);
 				return;
 			}
@@ -237,7 +228,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 			IMyAngleGrinder myAngleGrinder = attacker as IMyAngleGrinder;
 			if (myAngleGrinder != null)
 			{
-				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Grinder! War against: {MyAPIGateway.Players.GetPlayerById(myAngleGrinder.OwnerIdentityId).DisplayName}", LogType.General);
 				AddToDamageQueue(damagedEntity, myAngleGrinder.OwnerIdentityId);
 				return;
 			}
@@ -245,7 +235,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 			IMyHandDrill myHandDrill = attacker as IMyHandDrill;
 			if (myHandDrill != null)
 			{
-				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as an Engineer Drill! War against: {MyAPIGateway.Players.GetPlayerById(myHandDrill.OwnerIdentityId).DisplayName}", LogType.General);
 				AddToDamageQueue(damagedEntity, myHandDrill.OwnerIdentityId);
 				return;
 			}
@@ -259,7 +248,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 				if (!_thrusterDamageTrackers.TryAdd(damagedTopMost, new ThrusterDamageTracker(attacker.EntityId, damageInfo.Amount)))
 					_thrusterDamageTrackers[damagedTopMost].DamageTaken += damageInfo.Amount;
 				if (!_thrusterDamageTrackers[damagedTopMost].ThresholdReached) return;
-				//_instance.WriteToLog("FindTheAsshole", $"Asshole Identified as a Thruster!", LogType.General);
 				IdentifyOffendingIdentityFromEntity(damagedEntity, attacker);
 				return;
 			}
@@ -271,7 +259,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			try
 			{
-				//_instance.WriteToLog("CheckForUnownedMissileDamage", $"Debug 1 - ActiveShipRegistry Count: {BotMarshal.ActiveShipRegistry.Count} | unownedMissiles: {_unownedMissiles.Count}", LogType.General);
 				for (int i = UnownedMissiles.Count - 1; i >= 0; i--)
 				{
 					TimeSpan timeSinceLastAttack = DateTime.Now - UnownedMissiles[i].TimeStamp;
@@ -302,7 +289,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			try
 			{
-				//_instance.WriteToLog("IdentifyOffendingIdentityFromEntity", $"Identifying this: {damagedEntity} | {offendingEntity?.EntityId}", LogType.General);
 				IMyCubeGrid myCubeGrid = offendingEntity?.GetTopMostParent() as IMyCubeGrid;
 				if (myCubeGrid == null) return;
 				if (myCubeGrid.BigOwners.Count == 0)
@@ -314,7 +300,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 						myPlayer = MyAPIGateway.Players.GetPlayerById(tmpId);
 						if (myPlayer != null && !myPlayer.IsBot)
 						{
-							//_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via PlayerShipControllerHistory: {myPlayer.DisplayName}", LogType.General);
 							AddToDamageQueue(damagedEntity, myPlayer.IdentityId);
 							return;
 						}
@@ -334,7 +319,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 				IMyIdentity myIdentity = Statics.GetIdentityById(myCubeGrid.BigOwners.FirstOrDefault());
 				if (myIdentity != null)
 				{
-					//_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via BigOwners: {myIdentity.DisplayName}", LogType.General);
 					AddToDamageQueue(damagedEntity, myIdentity.IdentityId);
 					return;
 				}

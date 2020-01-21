@@ -1,8 +1,6 @@
 ﻿using System.Text;
 using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
-using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
@@ -26,14 +24,12 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 		private float MaxIntegrity { get; }
 
 		private float CurrentIntegrity => _mySlimBlock.Integrity;
-
-		private float AccumulatedDamage => _mySlimBlock.AccumulatedDamage;
-
+		
 		private float MaxFunctionalIntegrity { get; }
 
 		private float CurrentFunctionalIntegrity()
 		{
-			return (MaxFunctionalIntegrity - (MaxIntegrity - CurrentIntegrity) - AccumulatedDamage);
+			return (MaxFunctionalIntegrity - (MaxIntegrity - CurrentIntegrity));
 		}
 
 		public int CurrentFunctionalIntegrityRatio()

@@ -22,8 +22,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 		}
 
 		public abstract void AddBlock(IMyFunctionalBlock block);
-		//_shipSystems.Add(new EemFunctionalBlock(Type, block));
-		
+
 		public virtual void UpdateCurrentFunctionalIntegrityRatio()
 		{
 			if (ShipSystems.Count == 0)

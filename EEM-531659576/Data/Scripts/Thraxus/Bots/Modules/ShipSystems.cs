@@ -1,5 +1,7 @@
-﻿using Eem.Thraxus.Bots.Modules.Support.Systems;
+﻿using Eem.Thraxus.Bots.Modules.Support;
+using Eem.Thraxus.Bots.Modules.Support.Systems;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
+using Eem.Thraxus.Common.Utilities.Tools.OnScreenDisplay;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRageMath;
@@ -12,9 +14,11 @@ namespace Eem.Thraxus.Bots.Modules
 
 		//private readonly Power _power = new Power();
 
-		private readonly Propulsion _propulsion = new Propulsion();
+		private readonly Propulsion _propulsion;
 
 		private  readonly StructuralIntegrity _structuralIntegrity = new StructuralIntegrity();
+
+		private readonly BotSystemsQuestLog _questScreen;
 
 		//private readonly Weapons _weapons = new Weapons();
 
@@ -23,6 +27,10 @@ namespace Eem.Thraxus.Bots.Modules
 		public ShipSystems(MyCubeGrid thisGrid, IMyShipController controller)
 		{
 			_thisGrid = thisGrid;
+
+			_questScreen = new BotSystemsQuestLog(_thisGrid.DisplayName);
+
+			_propulsion = new Propulsion(_questScreen);
 
 			foreach (MyCubeBlock block in _thisGrid.GetFatBlocks())
 			{

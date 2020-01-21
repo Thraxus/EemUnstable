@@ -25,7 +25,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 	//	public void AddBlock(IMyPowerProducer producer)
 	//	{
 	//		if (IsClosed) return;
-	//		_powerProducers.AddBlock((IMyFunctionalBlock) producer);
+	//		_powerProducers.AddBlock((IMyFunctionalBlock)producer);
 	//	}
 
 	//	public bool IsClosed { get; private set; }

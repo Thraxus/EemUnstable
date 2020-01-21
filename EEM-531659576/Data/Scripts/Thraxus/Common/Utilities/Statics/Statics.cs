@@ -48,6 +48,16 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			return pruneList;
 		}
 
+		public static IEnumerable<MyEntity> DetectTopMostEntitiesInSphere(Vector3D detectionCenter, double range)
+		{
+			AddGpsLocation($"DetectAllEntitiesInSphere {range}", detectionCenter);
+
+			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
+			List<MyEntity> pruneList = new List<MyEntity>();
+			MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref pruneSphere, pruneList);
+			return pruneList;
+		}
+
 		public static IEnumerable<MyEntity> DetectPlayersInSphere(Vector3D detectionCenter, double range)
 		{
 			AddGpsLocation($"DetectPlayersInSphere {range}", detectionCenter);
