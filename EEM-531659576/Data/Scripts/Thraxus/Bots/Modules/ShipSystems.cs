@@ -3,19 +3,18 @@ using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support;
 using Eem.Thraxus.Bots.Modules.Support.Systems;
 using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Types;
-using Eem.Thraxus.Common.Utilities.Tools.OnScreenDisplay;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
-using VRageMath;
 
 namespace Eem.Thraxus.Bots.Modules
 {
 	internal class ShipSystems
 	{
-		private readonly MyCubeGrid _thisGrid;
+		private MyCubeGrid _thisGrid;
 
-		private  readonly StructuralIntegrity _structuralIntegrity = new StructuralIntegrity();
+		private readonly BotSystemsQuestLog _botSystemsQuestLog;
+
+		//private  readonly StructuralIntegrity _structuralIntegrity = new StructuralIntegrity();
 
 		private readonly List<INeedUpdates> _shipSystems = new List<INeedUpdates>();
 
@@ -23,15 +22,15 @@ namespace Eem.Thraxus.Bots.Modules
 		{
 			_thisGrid = thisGrid;
 
-			BotSystemsQuestLog questScreen = new BotSystemsQuestLog(_thisGrid.DisplayName);
+			_botSystemsQuestLog = new BotSystemsQuestLog(_thisGrid.DisplayName);
 
-			Propulsion propulsion = new Propulsion(questScreen);
+			Propulsion propulsion = new Propulsion(_botSystemsQuestLog);
 
-			Navigation navigation = new Navigation(questScreen);
+			Navigation navigation = new Navigation(_botSystemsQuestLog);
 
-			Power power = new Power(questScreen);
+			Power power = new Power(_botSystemsQuestLog);
 
-			Weapons weapons = new Weapons(questScreen);
+			Weapons weapons = new Weapons(_botSystemsQuestLog);
 
 			foreach (MyCubeBlock block in _thisGrid.GetFatBlocks())
 			{
@@ -87,7 +86,6 @@ namespace Eem.Thraxus.Bots.Modules
 			{
 				needUpdate.RunMassUpdate();
 			}
-			//_propulsion.RunMassUpdate();
 		}
 
 		public void Close()
@@ -96,6 +94,8 @@ namespace Eem.Thraxus.Bots.Modules
 			{
 				needUpdate.Close();
 			}
+			_botSystemsQuestLog.Close();
+			_thisGrid = null;
 		}
 
 	}

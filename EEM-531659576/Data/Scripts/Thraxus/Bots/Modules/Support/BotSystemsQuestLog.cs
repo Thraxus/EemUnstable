@@ -30,5 +30,11 @@ namespace Eem.Thraxus.Bots.Modules.Support
 			_questLogDetails.Add(system, new QuestLogDetail(newQuest));
 			_questScreen.NewQuest(_questLogDetails[system]);
 		}
+
+		public void Close()
+		{
+			_questLogDetails.Clear();
+			_questScreen.Close();
+		}
 	}
 }
