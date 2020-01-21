@@ -6,6 +6,10 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 {
 	internal class Power : ShipSystemBase
 	{
+		// TODO: Power needs to be expanded to cover % produced by whatever object is considered a power producer
+		//			Problem right now is if you have 20 solar panels and 1 large reactor, hp numbers are identical
+		//			Expected outcome is HP numbers are weighted for the reactor since it's output far exceeds 20 solar panels
+
 		public Power(BotSystemsQuestLog questScreen) : base(questScreen)
 		{
 			NewSystem(SystemType.PowerProducer);

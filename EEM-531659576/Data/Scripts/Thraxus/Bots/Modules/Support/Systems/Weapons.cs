@@ -6,6 +6,9 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems
 {
 	internal class Weapons : ShipSystemBase
 	{
+		// TODO: Weapons needs to be expanded to include fixed point (rocket launchers, gatling guns)
+		//			Ideally they also need to be expanded to cover internal (position agnostic) vs external positional
+
 		public Weapons(BotSystemsQuestLog questScreen) : base(questScreen)
 		{
 			NewSystem(SystemType.Weapon);
