@@ -1,9 +1,9 @@
-﻿using Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Types;
+﻿using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses;
+using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
+using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Types;
 using Sandbox.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules.Support.Systems.Collections
+namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Collections
 {
 	internal class ThrusterCollection : EemFunctionalBlockCollection
 	{
@@ -15,7 +15,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Collections
 		
 		public override void AddBlock(IMyFunctionalBlock block)
 		{
-			ShipSystems.Add(new Thruster(Type, (IMyThrust) block));
+			ThisSystem.Add(new Thruster(Type, (IMyThrust) block));
 		}
 
 		public override void UpdateCurrentFunctionalIntegrityRatio()
@@ -23,8 +23,8 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.Collections
 			base.UpdateCurrentFunctionalIntegrityRatio();
 			LastReportedMaxEffectiveThrust = 0;
 			LastReportedMaxThrust = 0;
-			if (ShipSystems.Count == 0) return;
-			foreach (EemFunctionalBlock system in ShipSystems)
+			if (ThisSystem.Count == 0) return;
+			foreach (EemFunctionalBlock system in ThisSystem)
 			{
 				LastReportedMaxEffectiveThrust += ((Thruster)system).GetMaxEffectiveThrust();
 				LastReportedMaxThrust += ((Thruster)system).GetMaxThrust();

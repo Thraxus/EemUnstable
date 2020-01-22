@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using Eem.Thraxus.Bots.Interfaces;
-using Eem.Thraxus.Bots.Modules.Support;
-using Eem.Thraxus.Bots.Modules.Support.Systems;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
+using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems;
+using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules
+namespace Eem.Thraxus.Bots.Modules.Support.Reporting
 {
 	internal class ShipSystems
 	{

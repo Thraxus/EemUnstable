@@ -1,4 +1,4 @@
-﻿using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
+﻿using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
 
 namespace Eem.Thraxus.Bots.Interfaces
 {

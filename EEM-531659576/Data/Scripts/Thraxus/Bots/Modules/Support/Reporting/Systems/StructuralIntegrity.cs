@@ -1,6 +1,6 @@
 ﻿using Eem.Thraxus.Bots.Interfaces;
 
-namespace Eem.Thraxus.Bots.Modules.Support.Systems
+namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems
 {
 	internal class StructuralIntegrity : INeedUpdates
 	{

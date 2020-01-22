@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
+using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
 using Sandbox.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
+namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 {
 	internal abstract class EemFunctionalBlockCollection
 	{
-		protected readonly HashSet<EemFunctionalBlock> ShipSystems = new HashSet<EemFunctionalBlock>();
+		protected readonly HashSet<EemFunctionalBlock> ThisSystem = new HashSet<EemFunctionalBlock>();
 
 		public int LastReportedIntegrityRatio { get; private set; }
 
@@ -25,7 +25,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 
 		public virtual void UpdateCurrentFunctionalIntegrityRatio()
 		{
-			if (ShipSystems.Count == 0)
+			if (ThisSystem.Count == 0)
 			{
 				if (LastReportedIntegrityRatio > 0)
 					LastReportedIntegrityRatio = 0;
@@ -33,15 +33,15 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 			}
 
 			int x = 0;
-			foreach (EemFunctionalBlock system in ShipSystems)
+			foreach (EemFunctionalBlock system in ThisSystem)
 			 	x += system.CurrentFunctionalIntegrityRatio();
-			LastReportedIntegrityRatio = (x / ShipSystems.Count);
+			LastReportedIntegrityRatio = (x / ThisSystem.Count);
 		}
 		
 		public void Close()
 		{
 			if (IsClosed) return;
-			foreach (EemFunctionalBlock system in ShipSystems)
+			foreach (EemFunctionalBlock system in ThisSystem)
 				system.Close();
 			IsClosed = true;
 		}
@@ -50,7 +50,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
 		{
 			StringBuilder rtn = new StringBuilder();
 			rtn.AppendLine($"{Type} Collection");
-			foreach (EemFunctionalBlock system in ShipSystems)
+			foreach (EemFunctionalBlock system in ThisSystem)
 				rtn.AppendLine(system.ToString());
 			rtn.AppendLine();
 			return rtn.ToString();

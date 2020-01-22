@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Eem.Thraxus.Bots.Interfaces;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
+using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
 using Sandbox.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses
+namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 {
 	internal abstract class ShipSystemBase : INeedUpdates
 	{

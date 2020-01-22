@@ -659,25 +659,25 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\SphericalGravityGenerator.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\Timer.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Alert\Turret.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\BotSystemsQuestLog.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\BaseClasses\EemFunctionalBlock.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\BaseClasses\EemFunctionalBlockCollection.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\BaseClasses\ShipSystemBase.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Collections\NavigationCollection.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Collections\PowerProducerCollection.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Collections\ThrusterCollection.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Collections\WeaponCollection.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Support\Enums.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\Navigator.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\Weapon.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\PowerProducer.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Types\Thruster.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ShipSystems.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\StructuralIntegrity.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Navigation.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Power.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Propulsion.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Weapons.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Support\BotSystemsQuestLog.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\BaseClasses\EemFunctionalBlock.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\BaseClasses\EemFunctionalBlockCollection.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\BaseClasses\ShipSystemBase.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Collections\NavigationCollection.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Collections\PowerProducerCollection.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Collections\ThrusterCollection.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Collections\WeaponCollection.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Support\SystemType.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Types\Navigator.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Types\Weapon.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Types\PowerProducer.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Types\Thruster.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\ShipSystems.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\StructuralIntegrity.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Navigation.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Power.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Propulsion.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Weapons.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\TargetIdentification.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ThreatAssessment.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Damage.cs" />
@@ -754,7 +754,6 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\EntityManager\EntityManagerCore.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Systems\Integrity\" />
     <Folder Include="EEM-531659576\Data\Scripts\Thraxus\Common\SessionComps\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

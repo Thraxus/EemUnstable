@@ -1,8 +1,8 @@
-﻿using Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Collections;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
+﻿using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses;
+using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Collections;
+using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
 
-namespace Eem.Thraxus.Bots.Modules.Support.Systems
+namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems
 {
 	internal class Propulsion : ShipSystemBase
 	{

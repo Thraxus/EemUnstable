@@ -1,9 +1,9 @@
 ﻿using System.Text;
-using Eem.Thraxus.Bots.Modules.Support.Systems.BaseClasses;
-using Eem.Thraxus.Bots.Modules.Support.Systems.Support;
+using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses;
+using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
 using Sandbox.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules.Support.Systems.Types
+namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Types
 {
 	internal class Thruster : EemFunctionalBlock
 	{

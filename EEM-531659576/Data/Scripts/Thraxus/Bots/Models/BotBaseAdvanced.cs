@@ -1,5 +1,6 @@
 ﻿using System;
 using Eem.Thraxus.Bots.Modules;
+using Eem.Thraxus.Bots.Modules.Support.Reporting;
 using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;

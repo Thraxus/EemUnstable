@@ -1,4 +1,4 @@
-﻿namespace Eem.Thraxus.Bots.Modules.Support.Systems.Support
+﻿namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support
 {
 	internal enum SystemType
 	{
