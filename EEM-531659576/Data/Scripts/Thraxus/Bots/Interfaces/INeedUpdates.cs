@@ -4,7 +4,7 @@
 	{
 		bool IsClosed { get; }
 		
-		void RunMassUpdate();
+		void RunMassUpdate(long blockId);
 
 		void Close();
 	}

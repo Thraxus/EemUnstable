@@ -17,6 +17,8 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 
 		private readonly long _originalOwner;
 
+		public readonly long _myId;
+
 		public SystemType Type { get; }
 
 		public bool IsClosed { get; private set; }
@@ -64,6 +66,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 			_myCubeBlock = (MyCubeBlock)_myFunctionalBlock;
 			_mySlimBlock = _myFunctionalBlock.SlimBlock;
 			_originalOwner = _myCubeBlock.CubeGrid.EntityId;
+			_myId = myFunctionalBlock.EntityId;
 			MaxIntegrity = _mySlimBlock.MaxIntegrity;
 			MaxFunctionalIntegrity = MaxIntegrity * (1f - _myCubeBlock.BlockDefinition.CriticalIntegrityRatio);
 		}

@@ -12,6 +12,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Collections
 		public override void AddBlock(IMyFunctionalBlock block)
 		{
 			ThisSystem.Add(new PowerProducer(Type, block));
+			base.AddBlock(block);
 		}
 	}
 }

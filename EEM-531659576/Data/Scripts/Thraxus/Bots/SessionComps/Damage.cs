@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
@@ -42,19 +43,21 @@ namespace Eem.Thraxus.Bots.SessionComps
 		private struct DamageEvent
 		{
 			public readonly long ShipId;
+			public readonly long BlockId;
 			public readonly long PlayerId;
 			public readonly long Tick;
 
-			public DamageEvent(long shipId, long playerId, long tick)
+			public DamageEvent(long shipId, long blockId, long playerId, long tick)
 			{
 				ShipId = shipId;
+				BlockId = blockId;
 				PlayerId = playerId;
 				Tick = tick;
 			}
 
 			private bool Equals(DamageEvent other)
 			{
-				return ShipId == other.ShipId && PlayerId == other.PlayerId && Tick + 2 >= other.Tick;
+				return ShipId == other.ShipId && BlockId == other.BlockId && PlayerId == other.PlayerId && Tick + 2 >= other.Tick;
 			}
 
 			public override bool Equals(object obj)
@@ -68,6 +71,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 				unchecked
 				{
 					int hashCode = ShipId.GetHashCode();
+					hashCode = (hashCode * 397) ^ BlockId.GetHashCode();
 					hashCode = (hashCode * 397) ^ PlayerId.GetHashCode();
 					hashCode = (hashCode * 397) ^ Tick.GetHashCode();
 					return hashCode;
@@ -76,12 +80,12 @@ namespace Eem.Thraxus.Bots.SessionComps
 
 			public override string ToString()
 			{
-				return $"{ShipId} | {PlayerId} | {Tick}";
+				return $"{ShipId} | {BlockId} | {PlayerId} | {Tick}";
 			}
 		}
 
 		// Events
-		public static event Action<long, long> TriggerAlert;
+		public static event Action<long, long, long> TriggerAlert;
 
 		// Setup
 		protected override void EarlySetup()
@@ -111,9 +115,9 @@ namespace Eem.Thraxus.Bots.SessionComps
 
 		// Damage Queue
 
-		private void AddToDamageQueue(long shipId, long playerId)
+		private void AddToDamageQueue(long shipId, long blockId, long playerId)
 		{
-			AddToDamageQueue(new DamageEvent(shipId, playerId, TickCounter));
+			AddToDamageQueue(new DamageEvent(shipId, blockId, playerId, TickCounter));
 		}
 
 		private void AddToDamageQueue(DamageEvent damage)
@@ -128,7 +132,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			foreach (DamageEvent damageEvent in _damageEventList)
 			{
-				TriggerAlert?.Invoke(damageEvent.ShipId, damageEvent.PlayerId);
+				TriggerAlert?.Invoke(damageEvent.ShipId, damageEvent.BlockId, damageEvent.PlayerId);
 				_damageEventList.Remove(damageEvent);
 			}
 			_damageEventList.ApplyRemovals();
@@ -147,7 +151,10 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (info.IsDeformation) return;
 			IMySlimBlock block = target as IMySlimBlock;
 			if (block == null) return;
-			ProcessPreDamageReporting(new DamageEvent(block.CubeGrid.EntityId, info.AttackerId, TickCounter), info);
+			long blockId = 0;
+			IMyCubeBlock fatBlock = block.FatBlock;
+			if (fatBlock != null) blockId = fatBlock.EntityId;
+			ProcessPreDamageReporting(new DamageEvent(block.CubeGrid.EntityId, blockId, info.AttackerId, TickCounter), info);
 		}
 
 		private void ProcessPreDamageReporting(DamageEvent damage, MyDamageInformation info)
@@ -155,7 +162,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (_preDamageEvents.Contains(damage)) return;
 			_preDamageEvents.Add(damage);
 			_preDamageEvents.ApplyAdditions();
-			IdentifyDamageDealer(damage.ShipId, info);
+			IdentifyDamageDealer(damage.ShipId, damage.BlockId, info);
 		}
 
 		private void CleanPreDamageEvents()
@@ -171,7 +178,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 		}
 
 		// Supporting Methods
-		private void IdentifyDamageDealer(long damagedEntity, MyDamageInformation damageInfo)
+		private void IdentifyDamageDealer(long damagedEntity, long damagedBlock, MyDamageInformation damageInfo)
 		{
 			// Deformation damage must be allowed here since it handles grid collision damage
 			// One idea may be scan loaded mods and grab their damage types for their ammo as well?  We'll see... 
@@ -182,12 +189,12 @@ namespace Eem.Thraxus.Bots.SessionComps
 				IMyEntity attackingEntity;
 				if (damageInfo.AttackerId == 0)
 				{   // possible instance of a missile getting through to here, need to account for it here or dismiss the damage outright if  no owner can be found
-					CheckForUnownedMissileDamage(damagedEntity);
+					CheckForUnownedMissileDamage(damagedEntity, damagedBlock);
 					return;
 				}
 
 				if (!MyAPIGateway.Entities.TryGetEntityById(damageInfo.AttackerId, out attackingEntity)) return;
-				FindTheAsshole(damagedEntity, attackingEntity, damageInfo);
+				FindTheAsshole(damagedEntity, damagedBlock, attackingEntity, damageInfo);
 			}
 			catch (Exception e)
 			{
@@ -195,11 +202,11 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 		}
 
-		private void FindTheAsshole(long damagedEntity, IMyEntity attacker, MyDamageInformation damageInfo)
+		private void FindTheAsshole(long damagedEntity, long damagedBlock, IMyEntity attacker, MyDamageInformation damageInfo)
 		{
 			if (attacker.GetType() == typeof(MyCubeGrid))
 			{
-				IdentifyOffendingIdentityFromEntity(damagedEntity, attacker);
+				IdentifyOffendingIdentityFromEntity(damagedEntity, damagedBlock, attacker);
 				return;
 			}
 
@@ -207,35 +214,35 @@ namespace Eem.Thraxus.Bots.SessionComps
 
 			if (attacker is IMyLargeTurretBase)
 			{
-				IdentifyOffendingIdentityFromEntity(damagedEntity, attacker);
+				IdentifyOffendingIdentityFromEntity(damagedEntity, damagedBlock, attacker);
 				return;
 			}
 
 			IMyCharacter myCharacter = attacker as IMyCharacter;
 			if (myCharacter != null)
 			{
-				AddToDamageQueue(damagedEntity, myCharacter.EntityId);
+				AddToDamageQueue(damagedEntity, damagedBlock, myCharacter.EntityId);
 				return;
 			}
 
 			IMyAutomaticRifleGun myAutomaticRifle = attacker as IMyAutomaticRifleGun;
 			if (myAutomaticRifle != null)
 			{
-				AddToDamageQueue(damagedEntity, myAutomaticRifle.OwnerIdentityId);
+				AddToDamageQueue(damagedEntity, damagedBlock, myAutomaticRifle.OwnerIdentityId);
 				return;
 			}
 
 			IMyAngleGrinder myAngleGrinder = attacker as IMyAngleGrinder;
 			if (myAngleGrinder != null)
 			{
-				AddToDamageQueue(damagedEntity, myAngleGrinder.OwnerIdentityId);
+				AddToDamageQueue(damagedEntity, damagedBlock, myAngleGrinder.OwnerIdentityId);
 				return;
 			}
 
 			IMyHandDrill myHandDrill = attacker as IMyHandDrill;
 			if (myHandDrill != null)
 			{
-				AddToDamageQueue(damagedEntity, myHandDrill.OwnerIdentityId);
+				AddToDamageQueue(damagedEntity, damagedBlock, myHandDrill.OwnerIdentityId);
 				return;
 			}
 
@@ -248,14 +255,14 @@ namespace Eem.Thraxus.Bots.SessionComps
 				if (!_thrusterDamageTrackers.TryAdd(damagedTopMost, new ThrusterDamageTracker(attacker.EntityId, damageInfo.Amount)))
 					_thrusterDamageTrackers[damagedTopMost].DamageTaken += damageInfo.Amount;
 				if (!_thrusterDamageTrackers[damagedTopMost].ThresholdReached) return;
-				IdentifyOffendingIdentityFromEntity(damagedEntity, attacker);
+				IdentifyOffendingIdentityFromEntity(damagedEntity, damagedBlock, attacker);
 				return;
 			}
 
 			WriteToLog("FindTheAsshole", $"Asshole not identified!!!  It was a: {attacker.GetType()}", LogType.General);
 		}
 
-		private void CheckForUnownedMissileDamage(long damagedEntity)
+		private void CheckForUnownedMissileDamage(long damagedEntity, long damagedBlock)
 		{
 			try
 			{
@@ -271,7 +278,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 					for (int index = BotMarshal.ActiveShipRegistry.Count - 1; index >= 0; index--)
 					{
 						if (!CheckForImpactedEntity(BotMarshal.ActiveShipRegistry[index], UnownedMissiles[i].Location)) continue;
-						IdentifyOffendingIdentityFromEntity(damagedEntity, MyAPIGateway.Entities.GetEntityById(UnownedMissiles[i].LauncherId));
+						IdentifyOffendingIdentityFromEntity(damagedEntity, damagedBlock, MyAPIGateway.Entities.GetEntityById(UnownedMissiles[i].LauncherId));
 						identified = true;
 					}
 
@@ -285,7 +292,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 		}
 
-		private void IdentifyOffendingIdentityFromEntity(long damagedEntity, IMyEntity offendingEntity)
+		private void IdentifyOffendingIdentityFromEntity(long damagedEntity, long damagedBlock, IMyEntity offendingEntity)
 		{
 			try
 			{
@@ -300,7 +307,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 						myPlayer = MyAPIGateway.Players.GetPlayerById(tmpId);
 						if (myPlayer != null && !myPlayer.IsBot)
 						{
-							AddToDamageQueue(damagedEntity, myPlayer.IdentityId);
+							AddToDamageQueue(damagedEntity, damagedBlock, myPlayer.IdentityId);
 							return;
 						}
 					}
@@ -311,7 +318,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 						myPlayer = MyAPIGateway.Players.GetPlayerById(BotMarshal.PlayerShipControllerHistory[myDetectedEntity.EntityId]);
 						if (myPlayer == null || myPlayer.IsBot) continue;
 						//_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via Detection: {myPlayer.DisplayName}", LogType.General);
-						AddToDamageQueue(damagedEntity, myPlayer.IdentityId);
+						AddToDamageQueue(damagedEntity, damagedBlock, myPlayer.IdentityId);
 					}
 					return;
 				}
@@ -319,7 +326,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 				IMyIdentity myIdentity = Statics.GetIdentityById(myCubeGrid.BigOwners.FirstOrDefault());
 				if (myIdentity != null)
 				{
-					AddToDamageQueue(damagedEntity, myIdentity.IdentityId);
+					AddToDamageQueue(damagedEntity, damagedBlock, myIdentity.IdentityId);
 					return;
 				}
 

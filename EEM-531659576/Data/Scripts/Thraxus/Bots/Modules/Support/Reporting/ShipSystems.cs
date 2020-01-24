@@ -79,11 +79,11 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting
 			_shipSystems.Add(weapons);
 		}
 
-		public void UpdateIntegrity()
+		public void UpdateIntegrity(long blockId)
 		{
 			foreach (INeedUpdates needUpdate in _shipSystems)
 			{
-				needUpdate.RunMassUpdate();
+				needUpdate.RunMassUpdate(blockId);
 			}
 		}
 

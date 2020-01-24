@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
+using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.ModAPI;
+using VRage.Game;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 {
@@ -9,9 +12,13 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 	{
 		protected readonly HashSet<EemFunctionalBlock> ThisSystem = new HashSet<EemFunctionalBlock>();
 
+		protected readonly Dictionary<long, int> ThisSystemsLastReport = new Dictionary<long, int>();
+
 		public int LastReportedIntegrityRatio { get; private set; }
 
 		public bool IsClosed { get; private set; }
+
+		private bool _reportedClosed;
 
 		public SystemType Type { get; }
 
@@ -21,21 +28,45 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 			LastReportedIntegrityRatio = 0;
 		}
 
-		public abstract void AddBlock(IMyFunctionalBlock block);
-
-		public virtual void UpdateCurrentFunctionalIntegrityRatio()
+		public virtual void AddBlock(IMyFunctionalBlock block)
 		{
+			if (!ThisSystemsLastReport.ContainsKey(block.EntityId))
+				ThisSystemsLastReport.Add(block.EntityId, 0);
+		}
+
+		public virtual bool UpdateCurrentFunctionalIntegrityRatio(long blockId)
+		{
+			bool updated = false;
 			if (ThisSystem.Count == 0)
 			{
+				if (_reportedClosed) return false;
 				if (LastReportedIntegrityRatio > 0)
 					LastReportedIntegrityRatio = 0;
-				return;
+				_reportedClosed = true;
+				return true;
+			}
+			
+			foreach (EemFunctionalBlock system in ThisSystem)
+			{
+				if (system._myId == blockId)
+				{
+					ThisSystemsLastReport[system._myId] = system.CurrentFunctionalIntegrityRatio();
+					updated = true;
+				}
 			}
 
-			int x = 0;
-			foreach (EemFunctionalBlock system in ThisSystem)
-			 	x += system.CurrentFunctionalIntegrityRatio();
-			LastReportedIntegrityRatio = (x / ThisSystem.Count);
+			if(updated)
+			{
+				int x = 0;
+				foreach (KeyValuePair<long, int> system in ThisSystemsLastReport)
+				{
+					x += system.Value;
+				}
+
+				LastReportedIntegrityRatio = (x / ThisSystemsLastReport.Count);
+			}
+
+			return updated;
 		}
 		
 		public void Close()

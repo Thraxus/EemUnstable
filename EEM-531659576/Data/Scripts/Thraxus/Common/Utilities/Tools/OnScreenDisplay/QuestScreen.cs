@@ -32,7 +32,9 @@ namespace Eem.Thraxus.Common.Utilities.Tools.OnScreenDisplay
 			if (!_questLog.TryGetValue(quest.OldQuest.ToString(), out old)) return;
 			_questLog.Remove(quest.OldQuest.ToString());
 			_questLog.Add(quest.NewQuest.ToString(), old);
-			MyVisualScriptLogicProvider.ReplaceQuestlogDetail(old, quest.NewQuest.ToString(), false, _sendTo);
+			MyAPIGateway.Utilities.InvokeOnGameThread(() =>
+				MyVisualScriptLogicProvider.ReplaceQuestlogDetail(old, quest.NewQuest.ToString(), false, _sendTo)
+			);
 		}
 
 		public void Close()

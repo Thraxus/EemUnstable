@@ -16,19 +16,21 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Collections
 		public override void AddBlock(IMyFunctionalBlock block)
 		{
 			ThisSystem.Add(new Thruster(Type, (IMyThrust) block));
+			base.AddBlock(block);
 		}
 
-		public override void UpdateCurrentFunctionalIntegrityRatio()
+		public override bool UpdateCurrentFunctionalIntegrityRatio(long blockId)
 		{
-			base.UpdateCurrentFunctionalIntegrityRatio();
+			if(!base.UpdateCurrentFunctionalIntegrityRatio(blockId)) return false;
 			LastReportedMaxEffectiveThrust = 0;
 			LastReportedMaxThrust = 0;
-			if (ThisSystem.Count == 0) return;
+			if (ThisSystem.Count == 0) return false;
 			foreach (EemFunctionalBlock system in ThisSystem)
 			{
 				LastReportedMaxEffectiveThrust += ((Thruster)system).GetMaxEffectiveThrust();
 				LastReportedMaxThrust += ((Thruster)system).GetMaxThrust();
 			}
+			return true;
 		}
 	}
 }

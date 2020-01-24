@@ -30,7 +30,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Alert
 			_wartimeSettings = new LightSettings(
 				true, 
 				2.5f,
-				15f,
+				20f,
 				0f,
 				Color.Red,
 				5f,

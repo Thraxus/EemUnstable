@@ -125,7 +125,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			}
 		}
 
-		public static void RegisterNewWar(long entityId, long playerId)
+		public static void RegisterNewWar(long entityId, long unused, long playerId)
 		{ // Use this to trigger Factions; all war filters through here.
 			try
 			{

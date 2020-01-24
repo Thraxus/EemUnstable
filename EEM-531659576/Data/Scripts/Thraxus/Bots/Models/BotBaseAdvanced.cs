@@ -1,5 +1,6 @@
 ﻿using System;
 using Eem.Thraxus.Bots.Modules;
+using Eem.Thraxus.Bots.Modules.Support.Maneuvering;
 using Eem.Thraxus.Bots.Modules.Support.Reporting;
 using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.BaseClasses;
@@ -12,6 +13,7 @@ using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRageMath;
 
 namespace Eem.Thraxus.Bots.Models
 {
@@ -47,6 +49,8 @@ namespace Eem.Thraxus.Bots.Models
 		//private RegenerationProtocol _regenerationProtocol;
 		private AlertConditions _emergencyLockDownProtocol;
 		private ShipSystems _shipSystems;
+		private ShipControl _shipControl;
+
 
 		public BotBaseAdvanced(IMyEntity passedEntity, IMyShipController controller, bool isMultipart = false)
 		{
@@ -90,6 +94,7 @@ namespace Eem.Thraxus.Bots.Models
 			_emergencyLockDownProtocol.Init();
 
 			_shipSystems = new ShipSystems(ThisCubeGrid, _myShipController);
+			_shipControl = new ShipControl(_myShipController);
 
 			WriteToLog("BotCore", $"BotBaseAdvanced ready to rock!", LogType.General);
 		}
@@ -109,6 +114,7 @@ namespace Eem.Thraxus.Bots.Models
 				_warHash.Clear();
 				_integrityDictionary.Clear();
 				_shipSystems.Close();
+				_shipControl.Close();
 				// TODO Remove the below later to their proper bot type
 				_emergencyLockDownProtocol.OnWriteToLog -= WriteToLog;
 				//_regenerationProtocol.OnWriteToLog -= WriteToLog;
@@ -131,16 +137,20 @@ namespace Eem.Thraxus.Bots.Models
 		private long _lastShipIntegrityUpdate;
 
 
-		private void UpdateShipIntegrity()
+		private void UpdateCollections(long blockId)
 		{
-			if (_ticks - _lastShipIntegrityUpdate < 2) return;
-			_lastShipIntegrityUpdate = _ticks;
+			//if (_ticks - _lastShipIntegrityUpdate < 10) return;
+			//_lastShipIntegrityUpdate = _ticks;
 			// TODO: Non-threaded this can tank sim.  Need to investigate areas for improvement
+			// TODO: Still an issue...
 			//if (!IntegrityNeedsUpdate) return;
 			//MyAPIGateway.Parallel.StartBackground(() =>
-			_shipSystems.UpdateIntegrity()
-			//)
-			;
+			_shipSystems.UpdateIntegrity(blockId);
+			//);
+
+			//MyAPIGateway.Parallel.StartBackground(() =>
+			_shipControl.UpdateBlocks();
+			//);
 			//WriteToLog($"UpdateShipIntegrity", $"UpdateCalled", LogType.General);
 			//IntegrityNeedsUpdate = false;
 		}
@@ -223,16 +233,23 @@ namespace Eem.Thraxus.Bots.Models
 			_emergencyLockDownProtocol.Alert(AlertSetting.Peacetime);
 		}
 
-		private void DamageHandlerOnTriggerAlert(long shipId, long playerId)
+		private void DamageHandlerOnTriggerAlert(long shipId, long blockId, long playerId)
 		{
 			if (ThisEntity.EntityId != shipId) return;
-			UpdateShipIntegrity();
+			UpdateCollections(blockId);
 			if ( _ownerId == 0 || playerId == _ownerId || playerId == _myFaction.FactionId) return;
 
 			_lastAttacked = _ticks;
 			if (_warHash.Contains(playerId))
 				return;
 			_warHash.Add(playerId);
+
+			//_myShipController.IsMainCockpit = true;
+			//_myShipController.MoveAndRotate(new Vector3(50, 50, 120), new Vector2(60, 120), 90f);
+
+			//_shipControl.ActivateManeuvering();
+			//_shipControl.DebugRotate();
+
 			FactionCore.FactionCoreStaticInstance.RegisterWar(new PendingWar(playerId, _myFaction.FactionId));
 			_emergencyLockDownProtocol.Alert(AlertSetting.Wartime);
 			BotWakeup?.Invoke();
@@ -241,7 +258,7 @@ namespace Eem.Thraxus.Bots.Models
 		private void OnBlockAdded(IMySlimBlock addedBlock)
 		{   // Trigger alert, war, all the fun stuff against the player / faction that added the block
 			//WriteToLog("OnBlockAdded", $"Triggering alert to Damage Handler", LogType.General);
-			DamageHandlerOnTriggerAlert(ThisEntity.EntityId, addedBlock.GetObjectBuilder().BuiltBy);
+			DamageHandlerOnTriggerAlert(ThisEntity.EntityId, 0, addedBlock.GetObjectBuilder().BuiltBy);
 			//DamageHandler.ErrantBlockPlaced(ThisEntity.EntityId, addedBlock);
 			WriteToLog("OnBlockAdded", $"Block added.", LogType.General);
 		}
@@ -260,7 +277,10 @@ namespace Eem.Thraxus.Bots.Models
 
 		private void OnBlockIntegrityChanged(IMySlimBlock block)
 		{   // Trigger alert, war, all the fun stuff against the entity owner that triggered the integrity change (probably negative only)
-			UpdateShipIntegrity();
+			IMyCubeBlock x = block.FatBlock;
+			if (x != null)
+				UpdateCollections(x.EntityId);
+
 			if (_barsActive)
 				HandleBars(block, CheckType.Integrity);
 			//WriteToLog("OnBlockIntegrityChanged", $"Block integrity changed for block {block} {_lastAttacked.AddSeconds(1) < DateTime.Now} {_lastAttacked.AddSeconds(1)} {DateTime.Now}", LogType.General);

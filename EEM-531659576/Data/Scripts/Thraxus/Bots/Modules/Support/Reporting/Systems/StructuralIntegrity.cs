@@ -6,7 +6,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems
 	{
 		public bool IsClosed { get; set; }
 
-		public void RunMassUpdate()
+		public void RunMassUpdate(long blockId)
 		{
 			
 		}
