@@ -7,10 +7,16 @@ using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
+using Sandbox.ModAPI.Weapons;
+using SpaceEngineers.Game.ModAPI;
+using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
-using VRage.ModAPI;
+using VRage.Game.ModAPI.Ingame;
 using VRageMath;
+using IMyCubeGrid = VRage.Game.ModAPI.IMyCubeGrid;
+using IMyEntity = VRage.ModAPI.IMyEntity;
+using IMyInventory = VRage.Game.ModAPI.IMyInventory;
 
 namespace Eem.Thraxus.Common.Utilities.Statics
 {
@@ -18,9 +24,9 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 	{
 		public static long GlobalTicks => MyAPIGateway.Session.ElapsedPlayTime.Ticks;
 
-		public static IEnumerable<MyEntity> DetectDynamicEntitiesInSphere(Vector3D detectionCenter, double range)
+		public static IEnumerable<MyEntity> DetectDynamicEntitiesInSphere(Vector3D detectionCenter, double range, bool reportOrigin = false)
 		{
-			AddGpsLocation($"DetectDynamicEntitiesInSphere {range}", detectionCenter);
+			if (reportOrigin) AddGpsLocation($"DetectDynamicEntitiesInSphere {range}", detectionCenter);
 
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
@@ -28,9 +34,9 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			return pruneList;
 		}
 
-		public static IEnumerable<MyEntity> DetectStaticEntitiesInSphere(Vector3D detectionCenter, double range)
+		public static IEnumerable<MyEntity> DetectStaticEntitiesInSphere(Vector3D detectionCenter, double range, bool reportOrigin = false)
 		{
-			AddGpsLocation($"DetectStaticEntitiesInSphere {range}", detectionCenter);
+			if (reportOrigin) AddGpsLocation($"DetectStaticEntitiesInSphere {range}", detectionCenter);
 
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
@@ -38,9 +44,9 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			return pruneList;
 		}
 
-		public static IEnumerable<MyEntity> DetectAllEntitiesInSphere(Vector3D detectionCenter, double range)
+		public static IEnumerable<MyEntity> DetectAllEntitiesInSphere(Vector3D detectionCenter, double range, bool reportOrigin = false)
 		{
-			AddGpsLocation($"DetectAllEntitiesInSphere {range}", detectionCenter);
+			if (reportOrigin) AddGpsLocation($"DetectAllEntitiesInSphere {range}", detectionCenter);
 
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
@@ -48,9 +54,9 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			return pruneList;
 		}
 
-		public static IEnumerable<MyEntity> DetectTopMostEntitiesInSphere(Vector3D detectionCenter, double range)
+		public static IEnumerable<MyEntity> DetectTopMostEntitiesInSphere(Vector3D detectionCenter, double range, bool reportOrigin = false)
 		{
-			AddGpsLocation($"DetectAllEntitiesInSphere {range}", detectionCenter);
+			if (reportOrigin) AddGpsLocation($"DetectTopMostEntitiesInSphere {range}", detectionCenter);
 
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
@@ -58,9 +64,9 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			return pruneList;
 		}
 
-		public static IEnumerable<MyEntity> DetectPlayersInSphere(Vector3D detectionCenter, double range)
+		public static IEnumerable<MyEntity> DetectPlayersInSphere(Vector3D detectionCenter, double range, bool reportOrigin = false)
 		{
-			AddGpsLocation($"DetectPlayersInSphere {range}", detectionCenter);
+			if (reportOrigin) AddGpsLocation($"DetectPlayersInSphere {range}", detectionCenter);
 
 			BoundingSphereD pruneSphere = new BoundingSphereD(detectionCenter, range);
 			List<MyEntity> pruneList = new List<MyEntity>();
@@ -85,11 +91,6 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			return identityList.FirstOrDefault(x => x.IdentityId == playerId);
 		}
 
-		public static void AddGpsLocation(string message, Vector3D location)
-		{
-			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create(message, "", location, true));
-		}
-
 		public static void CreateFakeSmallExplosion(Vector3D position)
 		{
 			MyExplosionInfo explosionInfo = new MyExplosionInfo()
@@ -109,6 +110,107 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 				ObjectsRemoveDelayInMiliseconds = 0
 			};
 			MyExplosions.AddExplosion(ref explosionInfo);
+		}
+
+		public static int CalculateGridThreat(MyCubeGrid grid)
+		{
+			float threat = 0;
+
+			foreach (MyCubeBlock block in grid.GetFatBlocks())
+			{
+				if (!block.IsFunctional) continue;
+				if (block is IMyLargeMissileTurret)
+				{
+					threat += 750;
+					continue;
+				}
+				if (block is IMyLargeGatlingTurret)
+				{
+					threat += 750;
+					continue;
+				}
+				if (block is IMySmallMissileLauncher)
+				{
+					threat += 300;
+					continue;
+				}
+				if (block is IMySmallGatlingGun)
+				{
+					threat += 300;
+					continue;
+				}
+				if (block is IMyLargeInteriorTurret)
+				{
+					threat += 200;
+					continue;
+				}
+			}
+
+			if (grid.IsStatic || grid.IsUnsupportedStation)
+				threat /= 2;
+
+			return grid.GridSizeEnum == MyCubeSize.Large ? (int) threat * 3 : (int) threat;
+		}
+
+		public static int CalculatePlayerThreat(IMyCharacter character, Vector3D requesterPosition)
+		{
+			if (character.IsDead) return 0;
+			float threat = 0;
+			float distance = (float) Vector3D.Distance(requesterPosition, character.GetPosition());
+			threat += distance < 175 ? distance < 125 ? distance < 75 ? 5000 : 2500 : 1500 : 500;
+			IMyInventory myInventory = character.GetInventory();
+			List<MyInventoryItem> items = new List<MyInventoryItem>();
+			myInventory.GetItems(items);
+			foreach (MyInventoryItem item in items)
+			{
+				if (item.Type == MyItemType.MakeTool("AngleGrinder4Item"))
+				{
+					threat += 1000;
+					continue;
+				}
+				if (item.Type == MyItemType.MakeTool("AngleGrinder3Item"))
+				{
+					threat += 750;
+					continue;
+				}
+				if (item.Type == MyItemType.MakeTool("AngleGrinder2Item"))
+				{
+					threat += 500;
+					continue;
+				}
+				if (item.Type == MyItemType.MakeTool("AngleGrinderItem"))
+				{
+					threat += 250;
+					continue;
+				}
+				if (item.Type == MyItemType.MakeTool("UltimateAutomaticRifleItem"))
+				{
+					threat += 100;
+					continue;
+				}
+				if (item.Type == MyItemType.MakeTool("RapidFireAutomaticRifleItem"))
+				{
+					threat += 80;
+					continue;
+				}
+				if (item.Type == MyItemType.MakeTool("PreciseAutomaticRifleItem"))
+				{
+					threat += 60;
+					continue;
+				}
+				if (item.Type == MyItemType.MakeTool("AutomaticRifleItem"))
+				{
+					threat += 40;
+					continue;
+				}
+				if (item.Type == MyItemType.MakeAmmo("NATO_5p56x45mm"))
+				{
+					threat += 20;
+					continue;
+				}
+			}
+
+			return (int)threat;
 		}
 
 		//Relative velocity proportional navigation
@@ -166,6 +268,11 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			{
 				StaticLog.WriteToLog("PrintTerminalActions", $"Actions: {terminalAction.Id} | {terminalAction.Name}", LogType.General);
 			}
+		}
+
+		public static void AddGpsLocation(string message, Vector3D location)
+		{
+			MyAPIGateway.Session.GPS.AddGps(MyAPIGateway.Session.LocalHumanPlayer.IdentityId, MyAPIGateway.Session.GPS.Create(message, "", location, true));
 		}
 
 		#endregion

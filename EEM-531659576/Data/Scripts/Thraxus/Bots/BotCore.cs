@@ -156,7 +156,7 @@ namespace Eem.Thraxus.Bots
 
 		protected override void TickTimer()
 		{
-			_bot?.EvaluateAlerts(Ticks);
+			_bot?.ScheduledUpdates(Ticks);
 		}
 
 		/// <inheritdoc />

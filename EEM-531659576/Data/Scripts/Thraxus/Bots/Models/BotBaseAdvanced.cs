@@ -6,6 +6,7 @@ using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
+using Eem.Thraxus.Debug;
 using Eem.Thraxus.Factions;
 using Eem.Thraxus.Factions.DataTypes;
 using Sandbox.Game.Entities;
@@ -26,6 +27,8 @@ namespace Eem.Thraxus.Bots.Models
 		private IMyFaction _myFaction;
 		private readonly IMyShipController _myShipController;
 		private readonly EemPrefabConfig _myConfig;
+
+		private AlertSetting _alertStatus;
 
 		private long _ownerId;
 		private bool _sleeping;
@@ -50,6 +53,7 @@ namespace Eem.Thraxus.Bots.Models
 		private AlertConditions _emergencyLockDownProtocol;
 		private ShipSystems _shipSystems;
 		private ShipControl _shipControl;
+		private TargetIdentification _targetIdentification;
 
 
 		public BotBaseAdvanced(IMyEntity passedEntity, IMyShipController controller, bool isMultipart = false)
@@ -60,8 +64,7 @@ namespace Eem.Thraxus.Bots.Models
 			_myShipController = controller;
 			controller.IsMainCockpit = true;
 			_myConfig = !isMultipart ? new EemPrefabConfig(controller.CustomData) : BotMarshal.BotOrphans[passedEntity.EntityId].MyLegacyConfig;
-
-
+			
 			// TODO Remove the below later to their proper bot type
 			//_regenerationProtocol = new RegenerationProtocol(passedEntity);
 			//_regenerationProtocol.OnWriteToLog += WriteToLog;
@@ -95,6 +98,8 @@ namespace Eem.Thraxus.Bots.Models
 
 			_shipSystems = new ShipSystems(ThisCubeGrid, _myShipController);
 			_shipControl = new ShipControl(_myShipController);
+			_targetIdentification = new TargetIdentification(ThisCubeGrid, _ownerId);
+			_targetIdentification.OnWriteToLog += WriteToLog;
 
 			WriteToLog("BotCore", $"BotBaseAdvanced ready to rock!", LogType.General);
 		}
@@ -106,7 +111,6 @@ namespace Eem.Thraxus.Bots.Models
 				WriteToLog("BotCore", $"Shutting down.", LogType.General);
 				BotMarshal.RemoveDeadEntity(ThisEntity.EntityId);
 				Damage.TriggerAlert -= DamageHandlerOnTriggerAlert;
-				//DamageHandler.TriggerIntegrityCheck -= DamageHandlerOnTriggerIntegrityCheck;
 				ThisCubeGrid.OnBlockAdded -= OnBlockAdded;
 				ThisCubeGrid.OnBlockRemoved -= OnBlockRemoved;
 				ThisCubeGrid.OnBlockOwnershipChanged -= OnOnBlockOwnershipChanged;
@@ -115,6 +119,8 @@ namespace Eem.Thraxus.Bots.Models
 				_integrityDictionary.Clear();
 				_shipSystems.Close();
 				_shipControl.Close();
+				_targetIdentification.Close();
+				_targetIdentification.OnWriteToLog -= WriteToLog;
 				// TODO Remove the below later to their proper bot type
 				_emergencyLockDownProtocol.OnWriteToLog -= WriteToLog;
 				//_regenerationProtocol.OnWriteToLog -= WriteToLog;
@@ -125,17 +131,6 @@ namespace Eem.Thraxus.Bots.Models
 				WriteToLog("Unload", $"Exception! {e}", LogType.Exception);
 			}
 		}
-
-		//private void DamageHandlerOnTriggerIntegrityCheck(long shipId)
-		//{
-		//	if (ThisEntity.EntityId != shipId) return;
-		//	UpdateShipIntegrity();
-		//	//WriteToLog("DamageHandlerOnTriggerIntegrityCheck", $"Block Integrity Changed.", LogType.General);
-		//	//IntegrityNeedsUpdate = true;
-		//}
-
-		private long _lastShipIntegrityUpdate;
-
 
 		private void UpdateCollections(long blockId)
 		{
@@ -222,15 +217,27 @@ namespace Eem.Thraxus.Bots.Models
 			//DamageHandler.BarsSuspected(ThisEntity);
 		}
 
-		public void EvaluateAlerts(long ticks)
+		public void ScheduledUpdates(long ticks)
 		{
 			_ticks = ticks;
+
+			if (_alertStatus == AlertSetting.Wartime && _ticks % GeneralSettings.TicksPerSecond == 0)
+			{	
+				_targetIdentification.GetAllEnemiesInRange();
+			}
+
 			if (_lastAttacked == 0) return;
 			if (_ticks - _lastAttacked <= GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown) return;
 			WriteToLog("EvaluateAlerts", $"{ticks} | {_lastAttacked} | {_ticks - _lastAttacked >= GeneralSettings.TicksPerMinute * GeneralSettings.AlertCooldown}", LogType.General);
 			_warHash.Clear();
 			_lastAttacked = 0;
-			_emergencyLockDownProtocol.Alert(AlertSetting.Peacetime);
+			SetAlertStatus(AlertSetting.Peacetime);
+		}
+
+		private void SetAlertStatus(AlertSetting alert)
+		{
+			_alertStatus = alert;
+			_emergencyLockDownProtocol.Alert(alert);
 		}
 
 		private void DamageHandlerOnTriggerAlert(long shipId, long blockId, long playerId)
@@ -251,7 +258,7 @@ namespace Eem.Thraxus.Bots.Models
 			//_shipControl.DebugRotate();
 
 			FactionCore.FactionCoreStaticInstance.RegisterWar(new PendingWar(playerId, _myFaction.FactionId));
-			_emergencyLockDownProtocol.Alert(AlertSetting.Wartime);
+			SetAlertStatus(AlertSetting.Wartime);
 			BotWakeup?.Invoke();
 		}
 		
