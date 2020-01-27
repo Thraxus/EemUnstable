@@ -3,12 +3,14 @@ using System.Linq;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Utilities.Statics;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRageRender;
 
 namespace Eem.Thraxus.Bots.Modules
 {
@@ -56,9 +58,10 @@ namespace Eem.Thraxus.Bots.Modules
 					Statics.AddGpsLocation($"PotentialTarget-Player - {Statics.CalculatePlayerThreat(targetCharacter, _thisCubeGrid.GetPosition())}", potentialTarget.GetPosition());
 					continue;
 				}
-
+				
 				//WriteToLog("GetAllEnemiesInRange", $"Filters failed to detect: {potentialTarget.EntityId} | {potentialTarget.GetType()}", LogType.General);
 			}
+			// Notes: Check grid for fat blocks to rule out garbage grids
 		}
 
 		public void Close()

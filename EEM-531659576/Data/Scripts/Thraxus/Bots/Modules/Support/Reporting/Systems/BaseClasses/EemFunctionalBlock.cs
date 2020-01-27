@@ -1,9 +1,12 @@
 ﻿using System.Text;
 using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
+using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
+using VRage.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 {
@@ -17,7 +20,9 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 
 		private readonly long _originalOwner;
 
-		public readonly long _myId;
+		public readonly long MyId; 
+
+		private bool _isDisabled;
 
 		public SystemType Type { get; }
 
@@ -39,6 +44,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 		public int CurrentFunctionalIntegrityRatio()
 		{
 			if (IsClosed) return 0;
+			if (_isDisabled) return 0;
 			if (IsDestroyed()) return 0;
 			if (IsDetached()) return 0;
 			if (!IsFunctional) return 0;
@@ -66,15 +72,43 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 			_myCubeBlock = (MyCubeBlock)_myFunctionalBlock;
 			_mySlimBlock = _myFunctionalBlock.SlimBlock;
 			_originalOwner = _myCubeBlock.CubeGrid.EntityId;
-			_myId = myFunctionalBlock.EntityId;
+			MyId = myFunctionalBlock.EntityId;
 			MaxIntegrity = _mySlimBlock.MaxIntegrity;
 			MaxFunctionalIntegrity = MaxIntegrity * (1f - _myCubeBlock.BlockDefinition.CriticalIntegrityRatio);
+			_myFunctionalBlock.IsWorkingChanged += WorkingChanged;
+			_myFunctionalBlock.OnMarkForClose += MarkedForClose;
+			_myFunctionalBlock.OwnershipChanged += OwnershipChanged;
+		}
+
+		private void OwnershipChanged(IMyTerminalBlock thisBlock)
+		{
+			if (thisBlock.EntityId != MyId) return;
+			StaticLog.WriteToLog("OwnershipChanged", $"{Type} | {MyId}", LogType.General);
+			Close();
+		}
+
+		private void MarkedForClose(IMyEntity thisBlock)
+		{
+			if (thisBlock.EntityId != MyId) return;
+			StaticLog.WriteToLog("MarkedForClose", $"{Type} | {MyId}", LogType.General);
+			Close();
+		}
+
+		private void WorkingChanged(IMyCubeBlock thisBlock)
+		{
+			if (thisBlock.EntityId != MyId) return;
+			_isDisabled = !thisBlock.IsWorking;
+			StaticLog.WriteToLog("WorkingChanged", $"{Type} | {MyId} | {_isDisabled}", LogType.General);
 		}
 
 		public virtual void Close()
 		{
 			if (IsClosed) return;
 			IsClosed = true;
+			StaticLog.WriteToLog("Close", $"{Type} | {MyId}", LogType.General);
+			_myFunctionalBlock.IsWorkingChanged -= WorkingChanged;
+			_myFunctionalBlock.OnMarkForClose -= MarkedForClose;
+			_myFunctionalBlock.OwnershipChanged -= OwnershipChanged;
 			_myFunctionalBlock = null;
 			_myCubeBlock = null;
 			_mySlimBlock = null;

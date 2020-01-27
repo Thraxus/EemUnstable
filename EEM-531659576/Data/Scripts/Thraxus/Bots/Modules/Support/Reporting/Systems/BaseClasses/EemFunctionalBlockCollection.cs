@@ -48,9 +48,9 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses
 			
 			foreach (EemFunctionalBlock system in ThisSystem)
 			{
-				if (system._myId == blockId)
+				if (system.MyId == blockId)
 				{
-					ThisSystemsLastReport[system._myId] = system.CurrentFunctionalIntegrityRatio();
+					ThisSystemsLastReport[system.MyId] = system.CurrentFunctionalIntegrityRatio();
 					updated = true;
 				}
 			}
