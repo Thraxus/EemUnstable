@@ -4,8 +4,8 @@ using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Types
 {
-	internal class Thruster : EemFunctionalBlock
+	internal class FixedWeapon : EemFunctionalBlock
 	{
-		public Thruster(SystemType type, IMyThrust thruster) : base(type, thruster) { }
+		public FixedWeapon(SystemType type, IMyFunctionalBlock block) : base(type, block) { }
 	}
 }

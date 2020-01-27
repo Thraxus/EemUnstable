@@ -4,6 +4,7 @@ using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems;
 using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
+using IMyUserControllableGun = Sandbox.ModAPI.Ingame.IMyUserControllableGun;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Reporting
 {
@@ -29,7 +30,9 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting
 
 			Power power = new Power(_botSystemsQuestLog);
 
-			Weapons weapons = new Weapons(_botSystemsQuestLog);
+			Turrets turrets = new Turrets(_botSystemsQuestLog);
+
+			FixedWeapons fixedWeapons = new FixedWeapons(_botSystemsQuestLog);
 
 			foreach (MyCubeBlock block in _thisGrid.GetFatBlocks())
 			{
@@ -68,15 +71,22 @@ namespace Eem.Thraxus.Bots.Modules.Support.Reporting
 				IMyLargeTurretBase myLargeTurretBase = block as IMyLargeTurretBase;
 				if (myLargeTurretBase != null)
 				{
-					weapons.AddBlock(SystemType.Weapon, myLargeTurretBase);
+					turrets.AddBlock(SystemType.Turret, myLargeTurretBase);
 					continue;
 				}
+
+				if (block is IMyUserControllableGun)
+				{
+					fixedWeapons.AddBlock(SystemType.FixedWeapon, (IMyFunctionalBlock) block);
+				}
+
 			}
 
 			_shipSystems.Add(propulsion);
 			_shipSystems.Add(navigation);
 			_shipSystems.Add(power);
-			_shipSystems.Add(weapons);
+			_shipSystems.Add(turrets);
+			_shipSystems.Add(fixedWeapons);
 		}
 
 		public void UpdateIntegrity(long blockId)

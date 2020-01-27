@@ -5,13 +5,13 @@ using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Collections
 {
-	internal class WeaponCollection : EemFunctionalBlockCollection
+	internal class FixedWeaponCollection : EemFunctionalBlockCollection
 	{
-		public WeaponCollection(SystemType type) : base(type) { }
+		public FixedWeaponCollection(SystemType type) : base(type) { }
 
 		public override void AddBlock(IMyFunctionalBlock block)
 		{
-			ThisSystem.Add(new Weapon(Type, block));
+			ThisSystem.Add(new Turret(Type, block));
 			base.AddBlock(block);
 		}
 	}

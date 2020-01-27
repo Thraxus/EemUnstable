@@ -10,6 +10,7 @@
 		DownPropulsion,
 		PowerProducer,
 		Navigation, 
-		Weapon
+		Turret, 
+		FixedWeapon
 	}
 }

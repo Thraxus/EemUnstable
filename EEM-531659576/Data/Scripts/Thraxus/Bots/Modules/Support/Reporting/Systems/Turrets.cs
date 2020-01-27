@@ -4,20 +4,19 @@ using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems
 {
-	internal class Weapons : ShipSystemBase
+	internal class Turrets : ShipSystemBase
 	{
-		// TODO: Weapons needs to be expanded to include fixed point (rocket launchers, gatling guns)
-		//			Ideally they also need to be expanded to cover internal (position agnostic) vs external positional
+		// TODO: Ideally they also need to be expanded to cover internal (position agnostic) vs external positional
 
-		public Weapons(BotSystemsQuestLog questScreen) : base(questScreen)
+		public Turrets(BotSystemsQuestLog questScreen) : base(questScreen)
 		{
-			NewSystem(SystemType.Weapon);
+			NewSystem(SystemType.Turret);
 		}
 
 		protected sealed override void NewSystem(SystemType type)
 		{
 			if (_shipSystems.ContainsKey(type)) return;
-			WeaponCollection collection = new WeaponCollection(type);
+			TurretCollection collection = new TurretCollection(type);
 			NewQuest(type, collection.LastReportedIntegrityRatio);
 			_shipSystems.Add(type, collection);
 		}

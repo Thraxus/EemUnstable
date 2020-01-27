@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Support;
-using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.BaseClasses

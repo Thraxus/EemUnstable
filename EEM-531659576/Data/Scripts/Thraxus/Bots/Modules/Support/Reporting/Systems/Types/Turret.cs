@@ -4,8 +4,8 @@ using Sandbox.ModAPI;
 
 namespace Eem.Thraxus.Bots.Modules.Support.Reporting.Systems.Types
 {
-	internal class Weapon : EemFunctionalBlock
+	internal class Turret : EemFunctionalBlock
 	{
-		public Weapon(SystemType type, IMyFunctionalBlock block) : base(type, block) { }
+		public Turret(SystemType type, IMyFunctionalBlock block) : base(type, block) { }
 	}
 }

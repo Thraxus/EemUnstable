@@ -662,6 +662,8 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Maneuvering\ShipControl.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Maneuvering\Systems\BaseClasses\GyroManeuversBase.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Maneuvering\Systems\EemGyro.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Collections\FixedWeaponCollection.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\FixedWeapons.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Support\BotSystemsQuestLog.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\BaseClasses\EemFunctionalBlock.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\BaseClasses\EemFunctionalBlockCollection.cs" />
@@ -669,10 +671,11 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Collections\NavigationCollection.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Collections\PowerProducerCollection.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Collections\ThrusterCollection.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Collections\WeaponCollection.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Collections\TurretCollection.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Support\SystemType.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Types\FixedWeapon.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Types\Navigator.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Types\Weapon.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Types\Turret.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Types\PowerProducer.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Types\Thruster.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\ShipSystems.cs" />
@@ -680,7 +683,7 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Navigation.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Power.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Propulsion.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Weapons.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Support\Reporting\Systems\Turrets.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\TargetIdentification.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\ThreatAssessment.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Damage.cs" />
