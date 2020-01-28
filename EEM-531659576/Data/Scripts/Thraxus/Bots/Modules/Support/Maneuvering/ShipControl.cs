@@ -3,6 +3,7 @@ using System.Linq;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage.Collections;
+using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRageMath;
 
@@ -22,14 +23,23 @@ namespace Eem.Thraxus.Bots.Modules.Support.Maneuvering
 
 		private readonly ConcurrentCachingList<IMyGyro> _shipGyros = new ConcurrentCachingList<IMyGyro>();
 
+		internal readonly IMyEntity ThisEntity;
+		internal readonly MyCubeGrid ThisCubeGrid;
+		internal readonly IMyCubeGrid ThisMyCubeGrid;
+
 		private IMyShipController _shipController;
 
 		private IMyEntity _target;
 
-		public ShipControl(IMyShipController shipController)
+		private bool ManeuveringActive;
+
+		public ShipControl(IMyShipController shipController, MyCubeGrid thisGrid, IMyCubeGrid thisMyCubeGrid, IMyEntity thisEntity)
 		{
 			_shipController = shipController;
-			foreach (MyCubeBlock block in ((MyCubeGrid)_shipController.CubeGrid).GetFatBlocks())
+			ThisCubeGrid = thisGrid;
+			ThisMyCubeGrid = thisMyCubeGrid;
+			ThisEntity = thisEntity;
+			foreach (MyCubeBlock block in ThisCubeGrid.GetFatBlocks())
 			{
 				IMyGyro myGyro = block as IMyGyro;
 				if (myGyro != null)
@@ -38,6 +48,8 @@ namespace Eem.Thraxus.Bots.Modules.Support.Maneuvering
 				}
 			}
 			_shipGyros.ApplyAdditions();
+
+			//ThisCubeGrid.GridSystems.WeaponSystem.
 		}
 
 		public void AddGyro(IMyGyro gyro)
@@ -54,6 +66,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Maneuvering
 
 		public void ActivateManeuvering()
 		{
+			ManeuveringActive = true;
 			foreach (IMyGyro gyro in _shipGyros)
 			{
 				gyro.GyroOverride = true;
@@ -67,6 +80,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Maneuvering
 
 		public void DeactivateManeuvering()
 		{
+			ManeuveringActive = false;
 			foreach (IMyGyro gyro in _shipGyros)
 			{
 				gyro.GyroOverride = false;
@@ -85,6 +99,7 @@ namespace Eem.Thraxus.Bots.Modules.Support.Maneuvering
 
 		private void ApplyGyroOverride(double pitchSpeed, double yawSpeed, double rollSpeed)
 		{
+			if (!ManeuveringActive) ActivateManeuvering();
 			Vector3D rotationVec = new Vector3D(pitchSpeed, yawSpeed, rollSpeed); 
 			MatrixD shipMatrix = _shipController.WorldMatrix;
 			Vector3D relativeRotationVec = Vector3D.TransformNormal(rotationVec, shipMatrix);

@@ -14,4 +14,10 @@
 	{
 		Peacetime, Wartime
 	}
+
+	public enum FactionRelationships
+	{
+		Friends, 
+		Enemies
+	}
 }

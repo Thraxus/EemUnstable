@@ -158,6 +158,7 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			float threat = 0;
 			float distance = (float) Vector3D.Distance(requesterPosition, character.GetPosition());
 			threat += distance < 175 ? distance < 125 ? distance < 75 ? 5000 : 2500 : 1500 : 500;
+			if (character.EquippedTool is IMyAngleGrinder) threat *= 5;
 			IMyInventory myInventory = character.GetInventory();
 			List<MyInventoryItem> items = new List<MyInventoryItem>();
 			myInventory.GetItems(items);
@@ -211,6 +212,22 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			}
 
 			return (int)threat;
+		}
+
+		public static FactionRelationships GetRelationBetweenGrids(IMyCubeGrid npcGrid, IMyCubeGrid otherGrid)
+		{
+			long npcGridOwner = npcGrid.BigOwners.FirstOrDefault();
+			long otherGridOwner = otherGrid.BigOwners.FirstOrDefault();
+			if (npcGridOwner == 0 || otherGridOwner == 0) return FactionRelationships.Enemies;
+			IMyFaction npcFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(npcGridOwner);
+			return MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(otherGridOwner, npcFaction.FactionId) >= -500 ? FactionRelationships.Friends : FactionRelationships.Enemies;
+		}
+
+		public static FactionRelationships GetRelationBetweenGridAndCharacter(IMyCubeGrid npcGrid, IMyCharacter character)
+		{
+			long npcGridOwner = npcGrid.BigOwners.FirstOrDefault();
+			IMyFaction npcFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(npcGridOwner);
+			return MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(character.EntityId, npcFaction.FactionId) >= -500 ? FactionRelationships.Friends : FactionRelationships.Enemies;
 		}
 
 		//Relative velocity proportional navigation

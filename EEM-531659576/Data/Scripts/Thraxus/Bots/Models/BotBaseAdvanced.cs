@@ -32,8 +32,11 @@ namespace Eem.Thraxus.Bots.Models
 
 		private long _ownerId;
 		private bool _sleeping;
+		
 		private readonly MyConcurrentHashSet<long> _warHash = new MyConcurrentHashSet<long>();
 		private readonly MyConcurrentDictionary<IMySlimBlock, float> _integrityDictionary = new MyConcurrentDictionary<IMySlimBlock, float>();
+		private readonly ConcurrentCachingList<ValidTarget> _validTargets = new ConcurrentCachingList<ValidTarget>();
+
 		private long _lastAttacked;
 		private long _ticks;
 		
@@ -97,8 +100,8 @@ namespace Eem.Thraxus.Bots.Models
 			_emergencyLockDownProtocol.Init();
 
 			_shipSystems = new ShipSystems(ThisCubeGrid, _myShipController);
-			_shipControl = new ShipControl(_myShipController);
-			_targetIdentification = new TargetIdentification(ThisCubeGrid, _ownerId);
+			_shipControl = new ShipControl(_myShipController, ThisCubeGrid, ThisMyCubeGrid, ThisEntity);
+			_targetIdentification = new TargetIdentification(ThisCubeGrid, _ownerId, _validTargets);
 			_targetIdentification.OnWriteToLog += WriteToLog;
 
 			WriteToLog("BotCore", $"BotBaseAdvanced ready to rock!", LogType.General);
@@ -119,6 +122,8 @@ namespace Eem.Thraxus.Bots.Models
 				_integrityDictionary.Clear();
 				_shipSystems.Close();
 				_shipControl.Close();
+				_validTargets.ClearList();
+				_validTargets.ApplyChanges();
 				_targetIdentification.Close();
 				_targetIdentification.OnWriteToLog -= WriteToLog;
 				// TODO Remove the below later to their proper bot type

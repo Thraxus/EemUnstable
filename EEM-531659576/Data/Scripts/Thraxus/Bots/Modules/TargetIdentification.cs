@@ -30,17 +30,19 @@ namespace Eem.Thraxus.Bots.Modules
 
 		private const float PassiveScanningRange = 15000;
 
-		private readonly ConcurrentCachingList<MyEntity> _allTargets = new ConcurrentCachingList<MyEntity>();
+		private readonly ConcurrentCachingList<ValidTarget> _validTargets;
 
-		public TargetIdentification(MyCubeGrid myCubeGrid, long ownerId)
+		public TargetIdentification(MyCubeGrid myCubeGrid, long ownerId, ConcurrentCachingList<ValidTarget> validTargets)
 		{
 			_thisGrid = myCubeGrid;
 			_thisCubeGrid = myCubeGrid;
 			_gridOwnerId = ownerId;
+			_validTargets = validTargets;
 		}
 
 		public void GetAllEnemiesInRange()
 		{
+			// TODO: Need to make this list self-pruning, or need to somehow figure out how to remove duplicate ID's
 			foreach (IMyEntity potentialTarget in Statics.DetectTopMostEntitiesInSphere(_thisCubeGrid.GetPosition(), ActiveTargetingRange))
 			{
 				IMyCubeGrid targetGrid = potentialTarget as IMyCubeGrid;
@@ -48,19 +50,31 @@ namespace Eem.Thraxus.Bots.Modules
 				{
 					if (targetGrid == _thisCubeGrid) continue;
 					if (targetGrid.BigOwners.Contains(_gridOwnerId)) continue;
-					Statics.AddGpsLocation($"PotentialTarget-Grid - {Statics.CalculateGridThreat((MyCubeGrid) targetGrid)}", potentialTarget.GetPosition());
+					if (Statics.GetRelationBetweenGrids(_thisCubeGrid, targetGrid) == FactionRelationships.Friends) continue;
+					ValidTarget newTarget = new ValidTarget(Statics.CalculateGridThreat((MyCubeGrid)targetGrid), targetGrid, null);
+					if (_validTargets.Contains(newTarget)) continue;
+					_validTargets.Add(newTarget);
+					_validTargets.ApplyAdditions();
+					Statics.AddGpsLocation($"PotentialTarget-Grid - {newTarget.Threat}", potentialTarget.GetPosition());
 					continue;
 				}
 				
 				IMyCharacter targetCharacter = potentialTarget as IMyCharacter;
 				if (targetCharacter != null)
 				{
-					Statics.AddGpsLocation($"PotentialTarget-Player - {Statics.CalculatePlayerThreat(targetCharacter, _thisCubeGrid.GetPosition())}", potentialTarget.GetPosition());
+					if (Statics.GetRelationBetweenGridAndCharacter(_thisCubeGrid, targetCharacter) == FactionRelationships.Friends) continue;
+					ValidTarget newTarget = new ValidTarget(Statics.CalculatePlayerThreat(targetCharacter, _thisCubeGrid.GetPosition()), null, targetCharacter);
+					if (_validTargets.Contains(newTarget)) continue;
+					_validTargets.Add(newTarget);
+					_validTargets.ApplyAdditions();
+					//_validTargets.Sort();
+					Statics.AddGpsLocation($"PotentialTarget-Player - {newTarget.Threat}", potentialTarget.GetPosition());
 					continue;
 				}
 				
 				//WriteToLog("GetAllEnemiesInRange", $"Filters failed to detect: {potentialTarget.EntityId} | {potentialTarget.GetType()}", LogType.General);
 			}
+
 			// Notes: Check grid for fat blocks to rule out garbage grids
 		}
 
@@ -68,8 +82,6 @@ namespace Eem.Thraxus.Bots.Modules
 		{
 			if (_isClosed) return;
 			_isClosed = true;
-			_allTargets.ClearList();
-			_allTargets.ApplyChanges();
 			_thisCubeGrid = null;
 			_thisGrid = null;
 		}
