@@ -1,4 +1,5 @@
-﻿using Sandbox.Game.Entities;
+﻿using System;
+using Sandbox.Game.Entities;
 using VRage.Game.ModAPI;
 using VRage.Game.VisualScripting.ScriptBuilder.Nodes;
 
@@ -18,7 +19,7 @@ namespace Eem.Thraxus.Common.DataTypes
 		}
 	}
 
-	public struct ValidTarget
+	public struct ValidTarget : IEquatable<ValidTarget>, IComparable<ValidTarget>
 	{
 		public readonly int Threat;
 
@@ -51,6 +52,16 @@ namespace Eem.Thraxus.Common.DataTypes
 			{
 				return ((Grid != null ? Grid.GetHashCode() : 0) * 397) ^ (Character != null ? Character.GetHashCode() : 0);
 			}
+		}
+
+		public int SortByThreatAscending(int threatLeft, int threatRight)
+		{
+			return threatLeft.CompareTo(threatRight);
+		}
+
+		public int CompareTo(ValidTarget validTarget)
+		{
+			return Threat.CompareTo(validTarget.Threat);
 		}
 
 		public override string ToString()

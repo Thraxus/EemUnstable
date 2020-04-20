@@ -10,7 +10,7 @@ namespace Eem.Thraxus.Common.BaseClasses
 	{
 		private readonly string _baseGeneralLogName;
 		private readonly string _baseDebugLogName;
-		private readonly string _baseType;
+		private readonly string _sessionCompName;
 
 		private readonly bool _noUpdate;
 
@@ -23,11 +23,11 @@ namespace Eem.Thraxus.Common.BaseClasses
 		private bool _earlySetupComplete;
 		private bool _lateSetupComplete;
 
-		protected BaseServerSessionComp(string generalLogName, string debugLogName, string baseType, bool noUpdate = true)
+		protected BaseServerSessionComp(string generalLogName, string debugLogName, string sessionCompName, bool noUpdate = true)
 		{
 			_baseGeneralLogName = generalLogName;
 			_baseDebugLogName = debugLogName;
-			_baseType = baseType;
+			_sessionCompName = sessionCompName;
 			_noUpdate = noUpdate;
 		}
 
@@ -146,20 +146,20 @@ namespace Eem.Thraxus.Common.BaseClasses
 		{
 			lock (_writeLocker)
 			{
-				_debugLog?.WriteToLog($"{_baseType}: {caller}", message);
+				_debugLog?.WriteToLog($"{_sessionCompName}: {caller}", message);
 			}
 		}
 
 		private void WriteException(string caller, string message)
 		{
-			StaticLog.WriteToLog($"{_baseType}: {caller}", $"Exception! {message}", LogType.Exception);
+			StaticLog.WriteToLog($"{_sessionCompName}: {caller}", $"Exception! {message}", LogType.Exception);
 		}
 
 		private void WriteGeneral(string caller, string message)
 		{
 			lock (_writeLocker)
 			{
-				_generalLog?.WriteToLog($"{_baseType}: {caller}", message);
+				_generalLog?.WriteToLog($"{_sessionCompName}: {caller}", message);
 			}
 		}
 

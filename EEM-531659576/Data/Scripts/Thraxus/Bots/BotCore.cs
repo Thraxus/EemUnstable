@@ -101,6 +101,7 @@ namespace Eem.Thraxus.Bots
 			_bot.BotWakeup -= WakeUp;
 			_bot.OnWriteToLog -= WriteToLog;
 			_bot.Unload();
+			_bot = null;
 		}
 
 		private void Sleep()

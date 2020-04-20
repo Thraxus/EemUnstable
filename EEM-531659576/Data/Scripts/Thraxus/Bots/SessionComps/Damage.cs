@@ -210,8 +210,6 @@ namespace Eem.Thraxus.Bots.SessionComps
 				return;
 			}
 
-			// TODO Grid weapons aren't being detected properly now;  need to get owner from weapon and declare war against them. MUST BE NPC FACTION AWARE for proper declarations between factions, so, for instance, this must report MGE Faction Leader if they are responsible for damage
-
 			if (attacker is IMyLargeTurretBase)
 			{
 				IdentifyOffendingIdentityFromEntity(damagedEntity, damagedBlock, attacker);

@@ -1,7 +1,9 @@
 ﻿using System;
 using Eem.Thraxus.Bots.Modules;
-using Eem.Thraxus.Bots.Modules.Support.Maneuvering;
-using Eem.Thraxus.Bots.Modules.Support.Reporting;
+using Eem.Thraxus.Bots.Modules.Alert;
+using Eem.Thraxus.Bots.Modules.Maneuvering;
+using Eem.Thraxus.Bots.Modules.Reporting;
+using Eem.Thraxus.Bots.Modules.Targeting;
 using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
@@ -243,6 +245,9 @@ namespace Eem.Thraxus.Bots.Models
 		{
 			_alertStatus = alert;
 			_emergencyLockDownProtocol.Alert(alert);
+			if (alert != AlertSetting.Peacetime) return;
+			_validTargets.ClearList();
+			_validTargets.ApplyChanges();
 		}
 
 		private void DamageHandlerOnTriggerAlert(long shipId, long blockId, long playerId)
