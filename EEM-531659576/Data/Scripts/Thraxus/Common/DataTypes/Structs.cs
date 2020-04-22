@@ -5,6 +5,17 @@ using VRage.Game.VisualScripting.ScriptBuilder.Nodes;
 
 namespace Eem.Thraxus.Common.DataTypes
 {
+	public class BlockValue // this is really a constructor-less struct.  GG SE profiling
+	{
+		public int Threat;
+		public int Value;
+
+		public override string ToString()
+		{
+			return $"{Threat} | {Value}";
+		}
+	}
+
 	public struct FactionRelationship
 	{
 		public readonly long FactionId;

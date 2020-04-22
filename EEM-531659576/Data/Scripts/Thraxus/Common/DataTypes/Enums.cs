@@ -20,4 +20,20 @@
 		Friends, 
 		Enemies
 	}
+
+
+	public enum GridOwnerType
+	{
+		Player,
+		Npc,
+		None
+	}
+
+	public enum GridType
+	{
+		Debris,
+		Projection,
+		Ship,
+		Station
+	}
 }
