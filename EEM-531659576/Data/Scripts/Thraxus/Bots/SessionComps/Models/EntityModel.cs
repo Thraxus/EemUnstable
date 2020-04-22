@@ -5,6 +5,7 @@ using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Factions.Utilities;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
@@ -27,7 +28,7 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 
 		private readonly IMyCubeGrid _thisMyCubeGrid;
 
-		private List<IMySlimBlock> _blocks = new List<IMySlimBlock>();
+		private readonly List<IMySlimBlock> _blocks = new List<IMySlimBlock>();
 
 		private int BlockCount => _thisCubeGrid.CubeBlocks.Count;
 
@@ -49,15 +50,15 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			_thisCubeGrid = (MyCubeGrid) ThisEntity;
 			_thisMyCubeGrid = (IMyCubeGrid) ThisEntity;
 			base.Id = thisEntity.EntityId.ToString();
-			Initialize();
-		}
-
-		private void Initialize()
-		{
 			_thisCubeGrid.OnClose += Close;
-			_thisCubeGrid.OnBlockOwnershipChanged += OwnershipChanged; 
+			_thisCubeGrid.OnBlockOwnershipChanged += OwnershipChanged;
 			_thisCubeGrid.OnBlockAdded += BlockAdded;
 			_thisCubeGrid.OnBlockRemoved += BlockRemoved;
+			_thisCubeGrid.OnGridSplit += GridSplit;
+		}
+
+		public void Initialize()
+		{
 			GetOwnerType();
 			GetGridType();
 			GridValuation();
@@ -72,6 +73,7 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			_thisCubeGrid.OnBlockOwnershipChanged -= OwnershipChanged;
 			_thisCubeGrid.OnBlockAdded -= BlockAdded;
 			_thisCubeGrid.OnBlockRemoved -= BlockRemoved;
+			_thisCubeGrid.OnGridSplit -= GridSplit;
 			WriteToLog($"Close", $"I'm out!", LogType.General);
 			TriggerClose();
 		}
@@ -80,13 +82,22 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 		{
 			GetGridType();
 			GetBlockValue(block);
-			WriteToLog($"BlockAdded", $"{block.FatBlock == null}", LogType.General);
+			WriteToLog($"BlockAdded", $"{block.BlockDefinition.GetType()}", LogType.General);
 		}
 
 		private void BlockRemoved(IMySlimBlock block)
 		{
 			GetGridType();
 			GetBlockValue(block, true);
+			WriteToLog($"BlockRemoved", $"{block.BlockDefinition.GetType()}", LogType.General);
+		}
+
+		private void GridSplit(MyCubeGrid unused, MyCubeGrid alsoUnused)
+		{
+			WriteToLog($"GridSplit", $"Resetting... {unused.EntityId} | {alsoUnused.EntityId}", LogType.General);
+			_gridThreat = 0;
+			_gridValue = 0;
+			GridValuation();
 		}
 
 		private void OwnershipChanged(MyCubeGrid unused)
@@ -102,6 +113,7 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			foreach (IMySlimBlock block in _blocks)
 				GetBlockValue(block);
 			_blocks.Clear();
+			WriteToLog($"GridValuation", $"Total Value: {_gridValue} | Total Threat: {_gridThreat}", LogType.General);
 		}
 
 		private void GetBlockValue(IMySlimBlock block, bool negate = false)
@@ -113,8 +125,8 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			}
 			BlockValue value = Statics.GetBlockValue(block.FatBlock.BlockDefinition.TypeId);
 			SetValues(value, negate);
-			WriteToLog($"GetBlockValue", $"{block.FatBlock.GetType()} | {block.FatBlock.BlockDefinition.TypeId} | {block.FatBlock.BlockDefinition.GetType()} -- {value}", LogType.General);
-			WriteToLog($"GetBlockValue", $"{block.FatBlock.GetType()} | {block.BlockDefinition} | {block.BlockDefinition.GetType()} -- {value}", LogType.General);
+			//WriteToLog($"GetBlockValue", $"{block.FatBlock.GetType()} | {block.FatBlock.BlockDefinition.TypeId} | {block.FatBlock.BlockDefinition.GetType()} -- {value}", LogType.General);
+			//WriteToLog($"GetBlockValue", $"{block.FatBlock.GetType()} | {block.BlockDefinition} | {block.BlockDefinition.GetType()} -- {value}", LogType.General);
 		}
 
 		private void SetValues(BlockValue value, bool negate)
@@ -124,15 +136,13 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			{
 				_gridThreat -= value.Threat;
 				_gridValue -= value.Value;
-				WriteToLog($"GetBlockValue", $"Total Value: {_gridValue}", LogType.General);
-				WriteToLog($"GetBlockValue", $"Total Threat: {_gridThreat}", LogType.General);
+				WriteToLog($"GetBlockValue", $"Total Value: {_gridValue} | Total Threat: {_gridThreat}", LogType.General);
 				return;
 			}
 			_gridThreat += value.Threat;
 			_gridValue += value.Value;
-			WriteToLog($"GetBlockValue", $"New Value: {value}", LogType.General);
-			WriteToLog($"GetBlockValue", $"Total Value: {_gridValue}", LogType.General);
-			WriteToLog($"GetBlockValue", $"Total Threat: {_gridThreat}", LogType.General);
+			//WriteToLog($"GetBlockValue", $"New Value: {value}", LogType.General);
+			WriteToLog($"GetBlockValue", $"Total Value: {_gridValue} | Total Threat: {_gridThreat}", LogType.General);
 		}
 
 		private void GetOwnerType()
@@ -140,11 +150,11 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			if (_thisCubeGrid.BigOwners.Count == 0)
 			{
 				_ownerType = GridOwnerType.None;
-				WriteToLog($"GetOwnerType", $"{_ownerType}", LogType.General);
+				//WriteToLog($"GetOwnerType", $"{_ownerType}", LogType.General);
 				return;
 			}
 			_ownerType = StaticMethods.ValidPlayer(_thisCubeGrid.BigOwners[0]) ? GridOwnerType.Player : GridOwnerType.Npc;
-			WriteToLog($"GetOwnerType", $"{_ownerType}", LogType.General);
+			//WriteToLog($"GetOwnerType", $"{_ownerType}", LogType.General);
 		}
 
 		private void GetGridType()
@@ -152,25 +162,25 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			if (_thisCubeGrid.Physics == null)
 			{
 				_gridType = GridType.Projection;
-				WriteToLog($"GetGridType", $"{_gridType}", LogType.General);
+				//WriteToLog($"GetGridType", $"{_gridType}", LogType.General);
 				return;
 			}
 
 			if (_thisCubeGrid.CubeBlocks.Count < 5)
 			{
 				_gridType = GridType.Debris;
-				WriteToLog($"GetGridType", $"{_gridType}", LogType.General);
+				//WriteToLog($"GetGridType", $"{_gridType}", LogType.General);
 				return;
 			}
 
 			if (_thisCubeGrid.IsStatic || _thisCubeGrid.IsUnsupportedStation)
 			{
 				_gridType = GridType.Station;
-				WriteToLog($"GetGridType", $"{_gridType}", LogType.General);
+				//WriteToLog($"GetGridType", $"{_gridType}", LogType.General);
 				return;
 			}
 			_gridType = GridType.Ship;
-			WriteToLog($"GetGridType", $"{_gridType}", LogType.General);
+			//WriteToLog($"GetGridType", $"{_gridType}", LogType.General);
 		}
 	}
 }

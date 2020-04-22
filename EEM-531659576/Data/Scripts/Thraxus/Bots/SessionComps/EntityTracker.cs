@@ -71,14 +71,13 @@ namespace Eem.Thraxus.Bots.SessionComps
 			EntityModel entity = new EntityModel(myEntity);
 			entity.OnWriteToLog += WriteToLog;
 			entity.OnTriggerClose += EntityClose;
+			entity.Initialize();
 			_entityModels.TryAdd(entity.ThisId, entity);
-			//PrintShipSpawn(myEntity);
 		}
 
 		private void OnEntityRemoved(IMyEntity myEntity)
 		{
 			if (myEntity.GetType() != typeof(MyCubeGrid)) return;
-			//PrintShipDespawn(myEntity);
 		}
 	}
 
