@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.SessionComps.Models;
+using Eem.Thraxus.Bots.SessionComps.Support;
 using Eem.Thraxus.Common.BaseClasses;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
@@ -34,8 +35,16 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			MyAPIGateway.Entities.OnEntityAdd += OnEntityAdd;
 			MyAPIGateway.Entities.OnEntityRemove += OnEntityRemoved;
+			GlobalEvents.OnRequestTargetInformation += OnRequestTargetInformation;
 		}
 
+		private void OnRequestTargetInformation(long requestorId, long request)
+		{
+			EntityModel response;
+			_entityModels.TryGetValue(request, out response);
+			GlobalEvents.TargetInformationResponse(requestorId, response);
+		}
+		
 		protected override void Unload()
 		{
 			Close();
@@ -46,6 +55,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 		{
 			MyAPIGateway.Entities.OnEntityAdd -= OnEntityAdd;
 			MyAPIGateway.Entities.OnEntityRemove -= OnEntityRemoved;
+			GlobalEvents.OnRequestTargetInformation -= OnRequestTargetInformation;
 			foreach (KeyValuePair<long, EntityModel> entity in _entityModels)
 				EntityClose(entity.Value);
 		}
@@ -53,7 +63,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 		private void EntityClose(EntityModel entity)
 		{
 			entity.OnWriteToLog -= WriteToLog;
-			entity.OnTriggerClose -= EntityClose;
+			entity.OnClose -= EntityClose;
 			entity.Close(entity.ThisEntity);
 			_entityModels.Remove(entity.ThisId);
 		}
@@ -70,7 +80,7 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (myEntity.GetType() != typeof(MyCubeGrid)) return;
 			EntityModel entity = new EntityModel(myEntity);
 			entity.OnWriteToLog += WriteToLog;
-			entity.OnTriggerClose += EntityClose;
+			entity.OnClose += EntityClose;
 			entity.Initialize();
 			_entityModels.TryAdd(entity.ThisId, entity);
 		}
@@ -80,5 +90,4 @@ namespace Eem.Thraxus.Bots.SessionComps
 			if (myEntity.GetType() != typeof(MyCubeGrid)) return;
 		}
 	}
-
 }

@@ -6,7 +6,6 @@ using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.Statics;
-using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Eem.Thraxus.Factions.DataTypes;
 using Eem.Thraxus.Factions.Utilities;
 using Sandbox.ModAPI;
@@ -18,7 +17,6 @@ namespace Eem.Thraxus.Factions.Models
 {
 	public class RelationshipManager : LogBaseEvent
 	{
-
 		// TODO: https://steamcommunity.com/sharedfiles/filedetails/?id=1903401450 
 		// Friendly faction for MES for once... probably should account for it...
 
@@ -120,7 +118,7 @@ namespace Eem.Thraxus.Factions.Models
 		/// <summary>
 		/// Holds the last known save game; only used to initialize factions when the game is loaded
 		/// </summary>
-		private SaveData _saveData;
+		private readonly SaveData _saveData;
 
 		/// <summary>
 		/// Ensures setup isn't run more than once for whatever reason
@@ -172,7 +170,6 @@ namespace Eem.Thraxus.Factions.Models
 			MyAPIGateway.Session.Factions.FactionCreated -= FactionCreated;
 			MyAPIGateway.Session.Factions.FactionEdited -= FactionEdited;
 			MyAPIGateway.Session.Factions.FactionAutoAcceptChanged -= MonitorAutoAccept;
-			//WarQueue. .Clear();
 			Players.Clear();
 			Identities.Clear();
 			_playerFactionDictionary.Clear();
@@ -311,7 +308,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 
 			// Remove bots
-			if (!Utilities.StaticMethods.ValidPlayer(id))
+			if (!StaticMethods.ValidPlayer(id))
 			{
 				WriteToLog("ValidIdentityRelationship", $"Identity {id} was invalid, invalidating.", LogType.General);
 				return false;
@@ -340,7 +337,7 @@ namespace Eem.Thraxus.Factions.Models
 		{   // They abandoned their faction and are now loners.  Way to go, asshole.
 
 			// This stops bots from making it into the dictionary
-			if (!Utilities.StaticMethods.ValidPlayer(playerId)) return;  
+			if (!StaticMethods.ValidPlayer(playerId)) return;  
 			
 			IMyIdentity myIdentity = GetIdentities().Find(x => x.IdentityId == playerId);
 
@@ -400,7 +397,7 @@ namespace Eem.Thraxus.Factions.Models
 		/// <param name="identity"></param>
 		private void AddNewIdentity(long identity)
 		{
-			if (!Utilities.StaticMethods.ValidPlayer(identity)) return;
+			if (!StaticMethods.ValidPlayer(identity)) return;
 			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
 			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
 			AddNewIdentity(gameIdentities.Find(x => x.IdentityId == identity));

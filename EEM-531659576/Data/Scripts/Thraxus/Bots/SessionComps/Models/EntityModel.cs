@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Eem.Thraxus.Bots.SessionComps.Support;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
@@ -13,15 +14,8 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 {
 	public class EntityModel : LogBaseEvent
 	{
-		public event TriggerEntityClose OnTriggerClose;
-		public delegate void TriggerEntityClose(long entityId);
-
-		public void TriggerClose()
-		{
-			if(!_isClosed) OnTriggerClose?.Invoke(ThisId);
-			_isClosed = true;
-		}
-
+		public event Action<long> OnClose;
+		
 		public readonly IMyEntity ThisEntity;
 		
 		private readonly MyCubeGrid _thisCubeGrid;
@@ -69,13 +63,14 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 		{
 			// Closing stuff happens here
 			if (_isClosed) return;
+			_isClosed = true;
 			_thisCubeGrid.OnClose -= Close;
 			_thisCubeGrid.OnBlockOwnershipChanged -= OwnershipChanged;
 			_thisCubeGrid.OnBlockAdded -= BlockAdded;
 			_thisCubeGrid.OnBlockRemoved -= BlockRemoved;
 			_thisCubeGrid.OnGridSplit -= GridSplit;
 			WriteToLog($"Close", $"I'm out!", LogType.General);
-			TriggerClose();
+			OnClose?.Invoke(ThisId);
 		}
 		
 		private void BlockAdded(IMySlimBlock block)

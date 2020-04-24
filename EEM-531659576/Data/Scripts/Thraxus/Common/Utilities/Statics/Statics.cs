@@ -214,20 +214,20 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			return (int)threat;
 		}
 
-		public static FactionRelationships GetRelationBetweenGrids(IMyCubeGrid npcGrid, IMyCubeGrid otherGrid)
+		public static FactionRelationship GetRelationBetweenGrids(IMyCubeGrid npcGrid, IMyCubeGrid otherGrid)
 		{
 			long npcGridOwner = npcGrid.BigOwners.FirstOrDefault();
 			long otherGridOwner = otherGrid.BigOwners.FirstOrDefault();
-			if (npcGridOwner == 0 || otherGridOwner == 0) return FactionRelationships.Enemies;
+			if (npcGridOwner == 0 || otherGridOwner == 0) return FactionRelationship.Enemies;
 			IMyFaction npcFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(npcGridOwner);
-			return MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(otherGridOwner, npcFaction.FactionId) >= -500 ? FactionRelationships.Friends : FactionRelationships.Enemies;
+			return MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(otherGridOwner, npcFaction.FactionId) >= -500 ? FactionRelationship.Friends : FactionRelationship.Enemies;
 		}
 
-		public static FactionRelationships GetRelationBetweenGridAndCharacter(IMyCubeGrid npcGrid, IMyCharacter character)
+		public static FactionRelationship GetRelationBetweenGridAndCharacter(IMyCubeGrid npcGrid, IMyCharacter character)
 		{
 			long npcGridOwner = npcGrid.BigOwners.FirstOrDefault();
 			IMyFaction npcFaction = MyAPIGateway.Session.Factions.TryGetPlayerFaction(npcGridOwner);
-			return MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(character.EntityId, npcFaction.FactionId) >= -500 ? FactionRelationships.Friends : FactionRelationships.Enemies;
+			return MyAPIGateway.Session.Factions.GetReputationBetweenPlayerAndFaction(character.EntityId, npcFaction.FactionId) >= -500 ? FactionRelationship.Friends : FactionRelationship.Enemies;
 		}
 
 		//Relative velocity proportional navigation

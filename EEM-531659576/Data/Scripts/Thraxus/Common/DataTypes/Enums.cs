@@ -2,7 +2,10 @@
 {
 	public enum LogType
 	{
-		Debug, Exception, General, Profiling
+		Debug, 
+		Exception, 
+		General, 
+		Profiling
 	}
 
 	public class BaseTargetPriorities
@@ -12,10 +15,11 @@
 
 	public enum AlertSetting
 	{
-		Peacetime, Wartime
+		Peacetime, 
+		Wartime
 	}
 
-	public enum FactionRelationships
+	public enum FactionRelationship
 	{
 		Friends, 
 		Enemies
@@ -35,5 +39,11 @@
 		Projection,
 		Ship,
 		Station
+	}
+
+	public enum GridSize
+	{
+		Large,
+		Small
 	}
 }

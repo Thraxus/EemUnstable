@@ -51,7 +51,7 @@ namespace Eem.Thraxus.Bots.Modules.Targeting
 				{
 					if (targetGrid == _thisCubeGrid) continue;
 					if (targetGrid.BigOwners.Contains(_gridOwnerId)) continue;
-					if (Statics.GetRelationBetweenGrids(_thisCubeGrid, targetGrid) == FactionRelationships.Friends) continue;
+					if (Statics.GetRelationBetweenGrids(_thisCubeGrid, targetGrid) == FactionRelationship.Friends) continue;
 					ValidTarget newTarget = new ValidTarget(Statics.CalculateGridThreat((MyCubeGrid)targetGrid), targetGrid, null);
 					if (_validTargets.Contains(newTarget)) continue;
 					_validTargets.Add(newTarget);
@@ -63,7 +63,7 @@ namespace Eem.Thraxus.Bots.Modules.Targeting
 				IMyCharacter targetCharacter = potentialTarget as IMyCharacter;
 				if (targetCharacter != null)
 				{
-					if (Statics.GetRelationBetweenGridAndCharacter(_thisCubeGrid, targetCharacter) == FactionRelationships.Friends) continue;
+					if (Statics.GetRelationBetweenGridAndCharacter(_thisCubeGrid, targetCharacter) == FactionRelationship.Friends) continue;
 					ValidTarget newTarget = new ValidTarget(Statics.CalculatePlayerThreat(targetCharacter, _thisCubeGrid.GetPosition()), null, targetCharacter);
 					if (_validTargets.Contains(newTarget)) continue;
 					_validTargets.Add(newTarget);

@@ -1,0 +1,60 @@
+﻿using System;
+using System.Collections.Generic;
+using Eem.Thraxus.Common.DataTypes;
+using VRage.Game.ModAPI;
+using VRageMath;
+
+namespace Eem.Thraxus.Bots.SessionComps.Interfaces
+{
+	public interface IPotentialTarget
+	{
+		// Events
+		event Action<long> OnClose;
+
+
+		// Targeting Characteristics
+		int Threat { get; }
+		
+		int Value { get; }
+
+
+		// Critical Systems
+		List<IMyCubeBlock> Controllers { get; }
+
+		List<IMyCubeBlock> Navigation { get; }
+
+		List<IMyCubeBlock> PowerSystems { get; }
+
+		List<IMyCubeBlock> Propulsion { get; }
+
+		List<IMyCubeBlock> Weapons { get; }
+		
+
+		// Ownership Information
+		long FactionId { get; }
+
+		long OwnerId { get; }
+
+		GridOwnerType OwnerType { get; }
+
+		FactionRelationship GetRelationship(long requestingGridOwnerId);
+
+
+		// Grid Information
+		bool HasBars { get; }
+
+		bool HasHeavyArmor { get; }
+
+		bool HasShields { get; }
+
+		bool IsClosed { get; }
+
+		bool IsModded { get; }
+
+		GridSize Size { get; }
+
+		GridType GridType { get; }
+
+		Vector3D Position { get; }
+	}
+}

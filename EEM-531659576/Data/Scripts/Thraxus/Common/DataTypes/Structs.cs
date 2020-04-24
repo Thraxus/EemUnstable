@@ -16,19 +16,19 @@ namespace Eem.Thraxus.Common.DataTypes
 		}
 	}
 
-	public struct FactionRelationship
-	{
-		public readonly long FactionId;
-		public readonly int Reputation;
-		public readonly string Tag;
+	//public struct FactionRelationship
+	//{
+	//	public readonly long FactionId;
+	//	public readonly int Reputation;
+	//	public readonly string Tag;
 
-		public FactionRelationship(long id, int rep, string tag)
-		{
-			FactionId = id;
-			Reputation = rep;
-			Tag = tag;
-		}
-	}
+	//	public FactionRelationship(long id, int rep, string tag)
+	//	{
+	//		FactionId = id;
+	//		Reputation = rep;
+	//		Tag = tag;
+	//	}
+	//}
 
 	public struct ValidTarget : IEquatable<ValidTarget>, IComparable<ValidTarget>
 	{
