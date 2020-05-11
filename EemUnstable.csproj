@@ -289,7 +289,6 @@
     <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Hydrozoa_Waystation.sbc" />
     <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Polyp_Small_Outpost.sbc" />
     <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Reef_Barrier_Station.sbc" />
-    <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Reef_Barrier_Station.sbcB1" />
     <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Rotifer_Waystation.sbc" />
     <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Seadevil_Minelayer.sbc" />
     <None Include="EEM-531659576\Data\Prefabs\Amphion %28AMPH%29\Amphion_Sunfish_Fast_Attack_Craft.sbc" />
@@ -688,10 +687,13 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Targeting\TargetIdentification.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Modules\Targeting\ThreatAssessment.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Damage.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Interfaces\IClose.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Interfaces\IPotentialTarget.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Models\EntityModel.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\EntityTracker.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Support\CubeProcessor.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Support\GlobalEvents.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Support\Reference.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Support\Statics.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseClientSessionComp.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseGameLogicComp.cs" />
@@ -758,9 +760,6 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Models\Dialogue.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Models\RelationshipManager.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Statics\Statics.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Utilities\StaticMethods.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Helpers\CleanEem.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Helpers\CleanEemRc.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Networking\FactionsMessage.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\EntityManager\Models\EntityTracker.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\EntityManager\EntityManagerCore.cs" />

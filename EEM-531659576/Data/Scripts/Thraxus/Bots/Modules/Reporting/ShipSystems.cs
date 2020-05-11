@@ -4,7 +4,6 @@ using Eem.Thraxus.Bots.Modules.Reporting.Systems;
 using Eem.Thraxus.Bots.Modules.Reporting.Systems.Support;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
-using SpaceEngineers.Game.ModAPI;
 using IMyUserControllableGun = Sandbox.ModAPI.Ingame.IMyUserControllableGun;
 
 namespace Eem.Thraxus.Bots.Modules.Reporting

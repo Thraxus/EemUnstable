@@ -4,6 +4,7 @@ using Eem.Thraxus.Common.DataTypes;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Game;
 using VRage.ObjectBuilders;
+using VRage.Utils;
 
 namespace Eem.Thraxus.Bots.SessionComps.Support
 {
@@ -100,6 +101,24 @@ namespace Eem.Thraxus.Bots.SessionComps.Support
 			{ typeof(MyObjectBuilder_SmallGatlingGun), SmallGatlingGun },
 			{ typeof(MyObjectBuilder_SmallMissileLauncher), SmallMissileLauncher },
 			{ typeof(MyObjectBuilder_SmallMissileLauncherReload), SmallMissileLauncherReload },
+		};
+
+		private static HashSet<MyStringHash> DefenseShieldSubtypes = new HashSet<MyStringHash>
+		{ // Base Type: MyObjectBuilder_UpgradeModule
+			MyStringHash.GetOrCompute("EmitterST"),
+			MyStringHash.GetOrCompute("EmitterL"),
+			MyStringHash.GetOrCompute("EmitterS"),
+			MyStringHash.GetOrCompute("EmitterLA"),
+			MyStringHash.GetOrCompute("EmitterSA")
+		};
+
+		private static HashSet<MyStringHash> EnergyShieldSubtypes = new HashSet<MyStringHash>
+		{ // Base Type: MyObjectBuilder_RefineryDefinition
+			MyStringHash.GetOrCompute("LargeShipSmallShieldGeneratorBase"),
+			MyStringHash.GetOrCompute("LargeShipLargeShieldGeneratorBase"),
+			MyStringHash.GetOrCompute("SmallShipSmallShieldGeneratorBase"),
+			MyStringHash.GetOrCompute("SmallShipMicroShieldGeneratorBase"),
+			MyStringHash.GetOrCompute("EmitterSA")
 		};
 
 		public static BlockValue GetBlockValue(Type type)

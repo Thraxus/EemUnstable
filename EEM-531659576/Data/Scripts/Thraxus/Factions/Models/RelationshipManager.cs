@@ -190,8 +190,8 @@ namespace Eem.Thraxus.Factions.Models
 		/// </summary>
 		/// <param name="myEntity">The entity detected by the game</param>
 		private void PlayerNet(IMyEntity myEntity)
-		{	// Catches players joining the game / server.  GET IT?!
-			IMyPlayer player = MyAPIGateway.Players.GetPlayerById(myEntity.EntityId);
+		{   // Catches players joining the game / server.  GET IT?!
+			IMyPlayer player = Statics.GetPlayer(myEntity.EntityId);
 			if (player == null) return;
 			PlayerJoined(player);
 			WriteToLog("Factions: OnEntityAdd", $"New Player: {player.DisplayName} - {player.IdentityId}", LogType.General);
@@ -308,7 +308,7 @@ namespace Eem.Thraxus.Factions.Models
 			}
 
 			// Remove bots
-			if (!StaticMethods.ValidPlayer(id))
+			if (!Statics.ValidPlayer(id))
 			{
 				WriteToLog("ValidIdentityRelationship", $"Identity {id} was invalid, invalidating.", LogType.General);
 				return false;
@@ -337,7 +337,7 @@ namespace Eem.Thraxus.Factions.Models
 		{   // They abandoned their faction and are now loners.  Way to go, asshole.
 
 			// This stops bots from making it into the dictionary
-			if (!StaticMethods.ValidPlayer(playerId)) return;  
+			if (!Statics.ValidPlayer(playerId)) return;  
 			
 			IMyIdentity myIdentity = GetIdentities().Find(x => x.IdentityId == playerId);
 
@@ -397,7 +397,7 @@ namespace Eem.Thraxus.Factions.Models
 		/// <param name="identity"></param>
 		private void AddNewIdentity(long identity)
 		{
-			if (!StaticMethods.ValidPlayer(identity)) return;
+			if (!Statics.ValidPlayer(identity)) return;
 			List<IMyIdentity> gameIdentities = new List<IMyIdentity>();
 			MyAPIGateway.Players.GetAllIdentites(gameIdentities);
 			AddNewIdentity(gameIdentities.Find(x => x.IdentityId == identity));

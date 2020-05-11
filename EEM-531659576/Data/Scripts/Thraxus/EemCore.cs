@@ -20,6 +20,12 @@ namespace Eem.Thraxus
 
 		public EemCore() : base(GeneralLogName, DebugLogName, SessionCompName) { } // Do nothing else
 
+		protected override void SuperEarlySetup()
+		{
+			base.SuperEarlySetup();
+			//GameSettings.Run();
+		}
+
 		/// <inheritdoc />
 		protected override void EarlySetup()
 		{

@@ -24,6 +24,40 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 	{
 		public static long GlobalTicks => MyAPIGateway.Session.ElapsedPlayTime.Ticks;
 
+		/// <summary>
+		/// Used to keep the Player List; avoids having to allocate a new list every time it's required
+		/// </summary>
+		private static readonly List<IMyPlayer> Players = new List<IMyPlayer>();
+
+		/// <summary>
+		/// Populates the player list with a fresh set of players
+		/// </summary>
+		/// <returns>All currently active players</returns>
+		private static List<IMyPlayer> GetPlayers()
+		{
+			Players.Clear();
+			MyAPIGateway.Players.GetPlayers(Players);
+			return Players;
+		}
+
+		/// <summary>
+		/// Takes an entity ID and converts it to a player, returns null if the player can't be retrieved
+		/// </summary>
+		/// <param name="entityId">The entity ID used to find a player</param>
+		/// <returns></returns>
+		public static IMyPlayer GetPlayer(long entityId)
+		{
+			IMyPlayer player = null;
+			foreach (IMyPlayer x in GetPlayers())
+			{
+				if (x.Character.EntityId != entityId) continue;
+				if (!ValidPlayer(x.IdentityId)) continue;
+				player = x;
+				break;
+			}
+			return player;
+		}
+
 		public static IEnumerable<MyEntity> DetectDynamicEntitiesInSphere(Vector3D detectionCenter, double range, bool reportOrigin = false)
 		{
 			if (reportOrigin) AddGpsLocation($"DetectDynamicEntitiesInSphere {range}", detectionCenter);
@@ -64,7 +98,7 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			return pruneList;
 		}
 
-		public static IEnumerable<MyEntity> DetectPlayersInSphere(Vector3D detectionCenter, double range, bool reportOrigin = false)
+		public static IEnumerable<IMyPlayer> DetectPlayersInSphere(Vector3D detectionCenter, double range, bool reportOrigin = false)
 		{
 			if (reportOrigin) AddGpsLocation($"DetectPlayersInSphere {range}", detectionCenter);
 
@@ -72,9 +106,15 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			List<MyEntity> pruneList = new List<MyEntity>();
 			MyGamePruningStructure.GetAllEntitiesInSphere(ref pruneSphere, pruneList, MyEntityQueryType.Dynamic);
 			List<IMyPlayer> players = new List<IMyPlayer>();
-			MyAPIGateway.Multiplayer.Players.GetPlayers(players, x => !x.IsBot);
-			pruneList.RemoveAll(x => players.Any(y => y.IdentityId == x.EntityId));
-			return pruneList;
+			foreach (MyEntity entity in pruneList)
+			{
+				IMyPlayer player = GetPlayer(entity.EntityId);
+				if (player == null) continue;
+				players.Add(player);
+			}
+			//MyAPIGateway.Multiplayer.Players.GetPlayers(players, x => !x.IsBot);
+			//pruneList.RemoveAll(x => players.Any(y => y.IdentityId == x.EntityId));
+			return players;
 		}
 
 		public static IMyPlayer GetPlayerById(this IMyPlayerCollection players, long playerId)
@@ -273,6 +313,16 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 			return (leftFaction == null || rightFaction == null);
 		}
 
+		/// <summary>
+		/// Utility method. Checks whether an identity is a bot or not
+		/// </summary>
+		/// <param name="identityId"></param>
+		/// <returns>Returns true if the identity is not a bot</returns>
+		public static bool ValidPlayer(long identityId)
+		{
+			return MyAPIGateway.Players.TryGetSteamId(identityId) != 0;
+		}
+
 		#region Debug methods - should not be used in production code
 
 		public static void PrintTerminalActions(IMyEntity block)
@@ -293,6 +343,5 @@ namespace Eem.Thraxus.Common.Utilities.Statics
 		}
 
 		#endregion
-
 	}
 }

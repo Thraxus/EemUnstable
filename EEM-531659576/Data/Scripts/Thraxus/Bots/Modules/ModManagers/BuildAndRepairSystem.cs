@@ -15,7 +15,7 @@ namespace Eem.Thraxus.Bots.Modules.ModManagers
 	{
 		private static readonly Type BarsType = typeof(MyObjectBuilder_ShipWelder);
 
-		private static IEnumerable<string> BuildAndRepairDefinitions { get; } = new List<string>()
+		private static IEnumerable<string> BuildAndRepairDefinitions { get; } = new List<string>
 		{
 			"SELtdNanobotBuildAndRepairSystem",
 			"SELtdLargeNanobotBuildAndRepairSystem",

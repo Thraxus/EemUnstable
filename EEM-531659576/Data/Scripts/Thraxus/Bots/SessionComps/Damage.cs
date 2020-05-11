@@ -11,6 +11,7 @@ using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Weapons;
 using VRage.Collections;
+using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
@@ -310,12 +311,11 @@ namespace Eem.Thraxus.Bots.SessionComps
 						}
 					}
 
-					List<MyEntity> detectEntitiesInSphere = (List<MyEntity>)Statics.DetectPlayersInSphere(myCubeGrid.GetPosition(), BotSettings.UnownedGridDetectionRange);
+					List<MyEntity> detectEntitiesInSphere = (List<MyEntity>)Statics.DetectTopMostEntitiesInSphere(myCubeGrid.GetPosition(), BotSettings.UnownedGridDetectionRange);
 					foreach (MyEntity myDetectedEntity in detectEntitiesInSphere)
 					{
 						myPlayer = MyAPIGateway.Players.GetPlayerById(BotMarshal.PlayerShipControllerHistory[myDetectedEntity.EntityId]);
 						if (myPlayer == null || myPlayer.IsBot) continue;
-						//_instance.WriteToLog("IdentifyOffendingPlayerFromEntity", $"War Target Identified via Detection: {myPlayer.DisplayName}", LogType.General);
 						AddToDamageQueue(damagedEntity, damagedBlock, myPlayer.IdentityId);
 					}
 					return;

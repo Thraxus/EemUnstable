@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eem.Thraxus.Common.DataTypes;
+using VRage.Game;
 using VRage.Game.ModAPI;
 using VRageMath;
 
 namespace Eem.Thraxus.Bots.SessionComps.Interfaces
 {
-	public interface IPotentialTarget
+	public interface IPotentialTarget : IClose
 	{
-		// Events
-		event Action<long> OnClose;
-
-
 		// Targeting Characteristics
 		int Threat { get; }
 		
@@ -51,7 +48,9 @@ namespace Eem.Thraxus.Bots.SessionComps.Interfaces
 
 		bool IsModded { get; }
 
-		GridSize Size { get; }
+		Vector3 LinearVelocity { get; }
+
+		MyCubeSize Size { get; }
 
 		GridType GridType { get; }
 
