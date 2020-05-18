@@ -5,6 +5,7 @@ using Eem.Thraxus.Bots.SessionComps.Support;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Factions.Utilities;
+using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
@@ -51,11 +52,11 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 		
 		public bool HasHeavyArmor { get; private set; }
 
-		public bool HasShields { get; private set; }
-		
+		public bool HasDefenseShields { get; private set; }
+
+		public bool HasEnergyShields { get; private set; }
+
 		public bool IsClosed { get; private set; }
-		
-		public bool IsModded { get; private set; }
 		
 		public Vector3 LinearVelocity => _thisCubeGrid.Physics?.LinearVelocity ?? Vector3.Zero;
 
@@ -155,21 +156,25 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 		private void GetBlockValue(IMySlimBlock block, bool negate = false)
 		{
 			CubeProcessor.ProcessCube(block);
-			if (block.FatBlock == null)
-			{
-				if (HasHeavyArmor == false)
-					if (block.BlockDefinition.Id.SubtypeName.Contains($"HeavyBlockArmor")) HasHeavyArmor = true;
-				SetValues(new BlockValue {Threat = 1, Value = 1}, negate);
-				return;
-			}
-			BlockValue value = Statics.GetBlockValue(block.FatBlock.BlockDefinition.TypeId);
-
+			//MyVisualScriptLogicProvider.
+			//if (block.FatBlock == null)
+			//{
+			//	if (HasHeavyArmor == false)
+			//		if (block.BlockDefinition.Id.SubtypeName.Contains($"HeavyBlockArmor")) HasHeavyArmor = true;
+			//	SetValues(new BlockData {Threat = 1, Value = 1}, negate);
+			//	return;
+			//}
+			BlockData value = Reference.GetBlockValue(block);
+			HasBars |= value.IsBars;
+			HasHeavyArmor |= value.IsHeavyArmor;
+			HasEnergyShields |= value.IsEnergyShields;
+			HasDefenseShields |= value.IsDefenseShields;
 			SetValues(value, negate);
 			//WriteToLog($"GetBlockValue", $"{block.FatBlock.GetType()} | {block.FatBlock.BlockDefinition.TypeId} | {block.FatBlock.BlockDefinition.GetType()} -- {value}", LogType.General);
 			//WriteToLog($"GetBlockValue", $"{block.FatBlock.GetType()} | {block.BlockDefinition} | {block.BlockDefinition.GetType()} -- {value}", LogType.General);
 		}
 
-		private void SetValues(BlockValue value, bool negate)
+		private void SetValues(BlockData value, bool negate)
 		{
 			WriteToLog($"GetBlockValue", $"New Value: {value} | Negate: {negate}", LogType.General);
 			if (negate)

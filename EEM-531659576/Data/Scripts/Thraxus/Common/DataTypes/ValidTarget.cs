@@ -1,51 +1,8 @@
 ﻿using System;
-using Sandbox.Game.Entities;
 using VRage.Game.ModAPI;
-using VRage.Game.VisualScripting.ScriptBuilder.Nodes;
 
 namespace Eem.Thraxus.Common.DataTypes
 {
-	public struct BlockValue 
-	{
-		public int Threat;
-		public int Value;
-
-		public override string ToString()
-		{
-			return $"{Threat} | {Value}";
-		}
-	}
-
-	public struct ProcessedCube
-	{
-		public bool IsHeavyArmor;
-		public bool IsBars;
-		public bool IsDefenseShield;
-		public bool IsEnergyShield;
-		public bool IsModded;
-
-		public BlockValue BlockValue;
-		
-		public override string ToString()
-		{
-			return $"{BlockValue}";
-		}
-	}
-
-	//public struct FactionRelationship
-	//{
-	//	public readonly long FactionId;
-	//	public readonly int Reputation;
-	//	public readonly string Tag;
-
-	//	public FactionRelationship(long id, int rep, string tag)
-	//	{
-	//		FactionId = id;
-	//		Reputation = rep;
-	//		Tag = tag;
-	//	}
-	//}
-
 	public struct ValidTarget : IEquatable<ValidTarget>, IComparable<ValidTarget>
 	{
 		public readonly int Threat;

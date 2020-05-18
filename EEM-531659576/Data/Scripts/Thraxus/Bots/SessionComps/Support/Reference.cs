@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Eem.Thraxus.Bots.SessionComps.Models;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using VRage.Game;
@@ -14,36 +11,11 @@ using VRage.Game.ModAPI;
 
 namespace Eem.Thraxus.Bots.SessionComps.Support
 {
-	public class MasterObjectBuilderRefernece
-	{
-		public Dictionary<MyStringHash, BlockValue> VanillaSubtypeIds;
-		public Dictionary<MyStringHash, BlockValue> ModdedSubtypeIds;
-		private BlockValue DefaultValue = new BlockValue { Value = 1, Threat = 1 };
-		public MyObjectBuilderType _type;
-
-		public BlockValue GetValue(MyObjectBuilderType type, MyStringHash subtype)
-		{
-			_type = type;
-			BlockValue returnValue;
-			if (VanillaSubtypeIds.TryGetValue(subtype, out returnValue))
-				return returnValue;
-			if (ModdedSubtypeIds.TryGetValue(subtype, out returnValue))
-				return returnValue;
-			return GetDefaultValue(subtype);
-		}
-
-		private BlockValue GetDefaultValue(MyStringHash subtype)
-		{
-			StaticLog.WriteToLog("MasterObjectBuilderRefernece", $"Value not found in any dictionaries: {_type} | {subtype}", LogType.General);
-			return DefaultValue;
-		}
-	}
-
 	public static class Reference
 	{
-		public static BlockValue GetBlockValue(IMySlimBlock block)
+		public static BlockData GetBlockValue(IMySlimBlock block)
 		{
-			MasterObjectBuilderRefernece refernece;
+			MasterObjectBuilderReference refernece;
 			if (ReferenceValues.TryGetValue(block.BlockDefinition.Id.TypeId, out refernece))
 			{
 				return refernece.GetValue(block.BlockDefinition.Id.TypeId, block.BlockDefinition.Id.SubtypeId);
@@ -51,13 +23,13 @@ namespace Eem.Thraxus.Bots.SessionComps.Support
 			return GetDefaultValue(block.BlockDefinition.Id.TypeId, block.BlockDefinition.Id.SubtypeId);
 		}
 
-		private static BlockValue GetDefaultValue(MyObjectBuilderType type, MyStringHash subtype)
+		private static BlockData GetDefaultValue(MyObjectBuilderType type, MyStringHash subtype)
 		{
 			StaticLog.WriteToLog("Reference", $"Value not found in any dictionaries: {type} | {subtype}", LogType.General);
-			return defaultValue;
+			return DefaultBlockValue;
 		}
 
-		private static readonly Dictionary<MyObjectBuilderType, MasterObjectBuilderRefernece> ReferenceValues = new Dictionary<MyObjectBuilderType, MasterObjectBuilderRefernece>
+		private static readonly Dictionary<MyObjectBuilderType, MasterObjectBuilderReference> ReferenceValues = new Dictionary<MyObjectBuilderType, MasterObjectBuilderReference>
 		{
 			{ typeof(MyObjectBuilder_AirtightHangarDoor), AirtightHangarDoor },
 			{ typeof(MyObjectBuilder_AirtightSlideDoor), AirtightSlideDoor },
@@ -141,1148 +113,1174 @@ namespace Eem.Thraxus.Bots.SessionComps.Support
 			{ typeof(MyObjectBuilder_WindTurbine), WindTurbine }
 		};
 
+		// Generics
+		private static readonly BlockData DefaultBlockValue = new BlockData { Value = 1, Threat = 1 };
+		private static readonly BlockData GenericWeaponBlockValue = new BlockData { Value = 50, Threat = 300 };
 
-		private static readonly BlockValue defaultValue = new BlockValue { Value = 1, Threat = 1 };
-		private static readonly BlockValue enhancedtValue = new BlockValue { Value = 5, Threat = 5 };
+		// Armor
+		private static readonly BlockData HeavyArmorBlockValue = new BlockData { Value = 5, Threat = 5, IsHeavyArmor = true };
 
 		// Cargo
-		private static readonly BlockValue cargoContainerValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue ShipConnectorValue = new BlockValue { Value = 20, Threat = 10 };
+		private static readonly BlockData CargoContainerValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData ShipConnectorValue = new BlockData { Value = 20, Threat = 10 };
 
 		// Communications
-		private static readonly BlockValue BeaconValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue LaserAntennaValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue RadioAntennaValue = new BlockValue { Value = 20, Threat = 10 };
+		private static readonly BlockData BeaconValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData LaserAntennaValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData RadioAntennaValue = new BlockData { Value = 20, Threat = 10 };
 
 		// Controllers
-		private static readonly BlockValue CockpitValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue RemoteControlValue = new BlockValue { Value = 20, Threat = 10 };
+		private static readonly BlockData CockpitValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData RemoteControlValue = new BlockData { Value = 20, Threat = 10 };
 
 		// Manufacturing
-		private static readonly BlockValue AssemblerValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue RefineryValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue SurvivalKitValue = new BlockValue { Value = 20, Threat = 10 };
+		private static readonly BlockData AssemblerValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData RefineryValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData SurvivalKitValue = new BlockData { Value = 20, Threat = 10 };
 
 		// Medical
-		private static readonly BlockValue CryoChamberValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue MedicalRoomValue = new BlockValue { Value = 20, Threat = 10 };
+		private static readonly BlockData CryoChamberValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData MedicalRoomValue = new BlockData { Value = 20, Threat = 10 };
 
 		// Power Producers or Providers
-		private static readonly BlockValue BatteryBlockValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue HydrogenEngineValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue ReactorValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue SolarPanelValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue WindTurbineValue = new BlockValue { Value = 20, Threat = 10 };
+		private static readonly BlockData BatteryBlockValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData HydrogenEngineValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData ReactorValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData SolarPanelValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData WindTurbineValue = new BlockData { Value = 20, Threat = 10 };
 
 		// Utility
-		private static readonly BlockValue GasTankValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue JumpDriveValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue MyProgrammableBlockValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue OxygenGeneratorValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue OxygenTankValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue ThrustValue = new BlockValue { Value = 20, Threat = 10 };
+		private static readonly BlockData GasTankValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData JumpDriveValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData MyProgrammableBlockValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData OxygenGeneratorValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData OxygenTankValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData ThrustValue = new BlockData { Value = 20, Threat = 10 };
 
 		// Weapons
-		private static readonly BlockValue InteriorTurretValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue LargeGatlingTurretValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue LargeMissileTurretValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue SmallGatlingGunValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue SmallMissileLauncherValue = new BlockValue { Value = 20, Threat = 10 };
-		private static readonly BlockValue SmallMissileLauncherReloadValue = new BlockValue { Value = 20, Threat = 10 };
+		private static readonly BlockData InteriorTurretValue = new BlockData { Value = 50, Threat = 300 };
+		private static readonly BlockData LargeGatlingTurretValue = new BlockData { Value = 50, Threat = 300 };
+		private static readonly BlockData LargeMissileTurretValue = new BlockData { Value = 50, Threat = 300 };
+		private static readonly BlockData SmallGatlingGunValue = new BlockData { Value = 50, Threat = 300 };
+		private static readonly BlockData SmallMissileLauncherValue = new BlockData { Value = 50, Threat = 300 };
+		private static readonly BlockData SmallMissileLauncherReloadValue = new BlockData { Value = 50, Threat = 300 };
+		private static readonly BlockData WarheadValue = new BlockData { Value = 50, Threat = 300 }; 
+
+		// Misc
+		private static readonly BlockData DecoyValue = new BlockData { Value = 30, Threat = 100 };
 
 		// Modded Blocks
-		private static readonly BlockValue DefenseShieldsValue = new BlockValue { Value = 200, Threat = 300 };
-		private static readonly BlockValue EnergyShieldsValue = new BlockValue { Value = 200, Threat = 300 };
+		private static readonly BlockData BuildAndRepairSystemValue = new BlockData { Value = 500, Threat = 500, IsBars = true };
+		private static readonly BlockData DefenseShieldsValue = new BlockData { Value = 200, Threat = 300, IsDefenseShields = true };
+		private static readonly BlockData EnergyShieldsValue = new BlockData { Value = 200, Threat = 300, IsEnergyShields = true };
+		private static readonly BlockData WeaponCoreBlockValue = new BlockData { Value = 50, Threat = 300 };
 
-
-		private static readonly MasterObjectBuilderRefernece AirtightHangarDoor = new MasterObjectBuilderRefernece
+		private static readonly MasterObjectBuilderReference AirtightHangarDoor = new MasterObjectBuilderReference
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute(""), defaultValue },
+				{ MyStringHash.GetOrCompute(""), DefaultBlockValue },
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_AirtightHangarDoor)
+			Type = typeof(MyObjectBuilder_AirtightHangarDoor)
 		};
 
-		private static readonly MasterObjectBuilderRefernece AirtightSlideDoor = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference AirtightSlideDoor = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockSlideDoor"), defaultValue },
+				{ MyStringHash.GetOrCompute("LargeBlockSlideDoor"), DefaultBlockValue },
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_AirtightSlideDoor)
+			Type = typeof(MyObjectBuilder_AirtightSlideDoor)
 		};
 
-		private static readonly MasterObjectBuilderRefernece AirVent = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference AirVent = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("SmallAirVent"), defaultValue },
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute("SmallAirVent"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute(""), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_AirVent)
+			Type = typeof(MyObjectBuilder_AirVent)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Assembler = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Assembler = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("BasicAssembler"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeAssembler"), defaultValue }
+				{ MyStringHash.GetOrCompute("BasicAssembler"), AssemblerValue },
+				{ MyStringHash.GetOrCompute("LargeAssembler"), AssemblerValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Assembler)
+			Type = typeof(MyObjectBuilder_Assembler)
 		};
 
-		private static readonly MasterObjectBuilderRefernece BatteryBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference BatteryBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockBatteryBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockBatteryBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockSmallBatteryBlock"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockBatteryBlock"), BatteryBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockBatteryBlock"), BatteryBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockSmallBatteryBlock"), BatteryBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_BatteryBlock)
+			Type = typeof(MyObjectBuilder_BatteryBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Beacon = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Beacon = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockBeacon"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockBeacon"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockBeacon"), BeaconValue },
+				{ MyStringHash.GetOrCompute("SmallBlockBeacon"), BeaconValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Beacon)
+			Type = typeof(MyObjectBuilder_Beacon)
 		};
 
-		private static readonly MasterObjectBuilderRefernece ButtonPanel = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference ButtonPanel = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("ButtonPanelLarge"), defaultValue },
-				{ MyStringHash.GetOrCompute("ButtonPanelSmall"), defaultValue }
+				{ MyStringHash.GetOrCompute("ButtonPanelLarge"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ButtonPanelSmall"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_ButtonPanel)
+			Type = typeof(MyObjectBuilder_ButtonPanel)
 		};
 
-		private static readonly MasterObjectBuilderRefernece CameraBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference CameraBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeCameraBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallCameraBlock"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeCameraBlock"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallCameraBlock"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_CameraBlock)
+			Type = typeof(MyObjectBuilder_CameraBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece CargoContainer = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference CargoContainer = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockLargeContainer"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockLockerRoom"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockLockerRoomCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockLockers"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockSmallContainer"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockLargeContainer"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockMediumContainer"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockSmallContainer"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockLargeContainer"), CargoContainerValue },
+				{ MyStringHash.GetOrCompute("LargeBlockLockerRoom"), CargoContainerValue },
+				{ MyStringHash.GetOrCompute("LargeBlockLockerRoomCorner"), CargoContainerValue },
+				{ MyStringHash.GetOrCompute("LargeBlockLockers"), CargoContainerValue },
+				{ MyStringHash.GetOrCompute("LargeBlockSmallContainer"), CargoContainerValue },
+				{ MyStringHash.GetOrCompute("SmallBlockLargeContainer"), CargoContainerValue },
+				{ MyStringHash.GetOrCompute("SmallBlockMediumContainer"), CargoContainerValue },
+				{ MyStringHash.GetOrCompute("SmallBlockSmallContainer"), CargoContainerValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_CargoContainer)
+			Type = typeof(MyObjectBuilder_CargoContainer),
+			DefaultValue = CargoContainerValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece Cockpit = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Cockpit = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("CockpitOpen"), defaultValue },
-				{ MyStringHash.GetOrCompute("DBSmallBlockFighterCockpit"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockBathroom"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockBathroomOpen"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockCockpit"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockCockpitIndustrial"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockCockpitSeat"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockCouch"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockCouchCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockDesk"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockDeskCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockToilet"), defaultValue },
-				{ MyStringHash.GetOrCompute("OpenCockpitLarge"), defaultValue },
-				{ MyStringHash.GetOrCompute("OpenCockpitSmall"), defaultValue },
-				{ MyStringHash.GetOrCompute("PassengerSeatLarge"), defaultValue },
-				{ MyStringHash.GetOrCompute("PassengerSeatSmall"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockCockpit"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockCockpitIndustrial"), defaultValue }
+				{ MyStringHash.GetOrCompute("CockpitOpen"), CockpitValue },
+				{ MyStringHash.GetOrCompute("DBSmallBlockFighterCockpit"), CockpitValue },
+				{ MyStringHash.GetOrCompute("LargeBlockBathroom"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockBathroomOpen"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockCockpit"), CockpitValue },
+				{ MyStringHash.GetOrCompute("LargeBlockCockpitIndustrial"), CockpitValue },
+				{ MyStringHash.GetOrCompute("LargeBlockCockpitSeat"), CockpitValue },
+				{ MyStringHash.GetOrCompute("LargeBlockCouch"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockCouchCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockDesk"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockDeskCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockToilet"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("OpenCockpitLarge"), CockpitValue },
+				{ MyStringHash.GetOrCompute("OpenCockpitSmall"), CockpitValue },
+				{ MyStringHash.GetOrCompute("PassengerSeatLarge"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("PassengerSeatSmall"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockCockpit"), CockpitValue },
+				{ MyStringHash.GetOrCompute("SmallBlockCockpitIndustrial"), CockpitValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Cockpit)
+			Type = typeof(MyObjectBuilder_Cockpit),
+			DefaultValue = CockpitValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece Collector = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Collector = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("Collector"), defaultValue },
-				{ MyStringHash.GetOrCompute("CollectorSmall"), defaultValue }
+				{ MyStringHash.GetOrCompute("Collector"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("CollectorSmall"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Collector)
+			Type = typeof(MyObjectBuilder_Collector)
 		};
 
-		private static readonly MasterObjectBuilderRefernece ContractBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference ContractBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("ContractBlock"), defaultValue }
+				{ MyStringHash.GetOrCompute("ContractBlock"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_ContractBlock)
+			Type = typeof(MyObjectBuilder_ContractBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Conveyor = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Conveyor = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockConveyor"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockConveyor"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallShipConveyorHub"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockConveyor"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockConveyor"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallShipConveyorHub"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Conveyor)
+			Type = typeof(MyObjectBuilder_Conveyor)
 		};
 
-		private static readonly MasterObjectBuilderRefernece ConveyorConnector = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference ConveyorConnector = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("ConveyorFrameMedium"), defaultValue },
-				{ MyStringHash.GetOrCompute("ConveyorTube"), defaultValue },
-				{ MyStringHash.GetOrCompute("ConveyorTubeCurved"), defaultValue },
-				{ MyStringHash.GetOrCompute("ConveyorTubeCurvedMedium"), defaultValue },
-				{ MyStringHash.GetOrCompute("ConveyorTubeMedium"), defaultValue },
-				{ MyStringHash.GetOrCompute("ConveyorTubeSmall"), defaultValue },
-				{ MyStringHash.GetOrCompute("ConveyorTubeSmallCurved"), defaultValue }
+				{ MyStringHash.GetOrCompute("ConveyorFrameMedium"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ConveyorTube"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ConveyorTubeCurved"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ConveyorTubeCurvedMedium"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ConveyorTubeMedium"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ConveyorTubeSmall"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ConveyorTubeSmallCurved"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_ConveyorConnector)
+			Type = typeof(MyObjectBuilder_ConveyorConnector)
 		};
 
-		private static readonly MasterObjectBuilderRefernece ConveyorSorter = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference ConveyorSorter = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockConveyorSorter"), defaultValue },
-				{ MyStringHash.GetOrCompute("MediumBlockConveyorSorter"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockConveyorSorter"), defaultValue },
+				{ MyStringHash.GetOrCompute("LargeBlockConveyorSorter"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("MediumBlockConveyorSorter"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockConveyorSorter"), DefaultBlockValue },
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_ConveyorSorter)
+			Type = typeof(MyObjectBuilder_ConveyorSorter)
 		};
 
-		private static readonly MasterObjectBuilderRefernece CryoChamber = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference CryoChamber = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockBed"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockCryoChamber"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockCryoChamber"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockBed"), CryoChamberValue },
+				{ MyStringHash.GetOrCompute("LargeBlockCryoChamber"), CryoChamberValue },
+				{ MyStringHash.GetOrCompute("SmallBlockCryoChamber"), CryoChamberValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_CryoChamber)
+			Type = typeof(MyObjectBuilder_CryoChamber), 
+			DefaultValue = CryoChamberValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece CubeBlock = new MasterObjectBuilderRefernece
+		private static readonly MasterObjectBuilderReference CubeBlock = new MasterObjectBuilderReference
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("DeadAstronaut"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeDeadAstronaut"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeRailStraight"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeRoundArmor_Corner"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeRoundArmor_CornerInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeRoundArmor_Slope"), defaultValue },
-				{ MyStringHash.GetOrCompute("Monolith"), defaultValue },
-				{ MyStringHash.GetOrCompute("Stereolith"), defaultValue },
-				{ MyStringHash.GetOrCompute("ArmorCenter"), defaultValue },
-				{ MyStringHash.GetOrCompute("ArmorCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("ArmorInvCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("ArmorSide"), defaultValue },
-				{ MyStringHash.GetOrCompute("Catwalk"), defaultValue },
-				{ MyStringHash.GetOrCompute("CatwalkCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("CatwalkRailingEnd"), defaultValue },
-				{ MyStringHash.GetOrCompute("CatwalkRailingHalfLeft"), defaultValue },
-				{ MyStringHash.GetOrCompute("CatwalkRailingHalfRight"), defaultValue },
-				{ MyStringHash.GetOrCompute("CatwalkStraight"), defaultValue },
-				{ MyStringHash.GetOrCompute("CatwalkWall"), defaultValue },
-				{ MyStringHash.GetOrCompute("DeadBody01"), defaultValue },
-				{ MyStringHash.GetOrCompute("DeadBody02"), defaultValue },
-				{ MyStringHash.GetOrCompute("DeadBody03"), defaultValue },
-				{ MyStringHash.GetOrCompute("DeadBody04"), defaultValue },
-				{ MyStringHash.GetOrCompute("DeadBody05"), defaultValue },
-				{ MyStringHash.GetOrCompute("DeadBody06"), defaultValue },
-				{ MyStringHash.GetOrCompute("Freight1"), defaultValue },
-				{ MyStringHash.GetOrCompute("Freight2"), defaultValue },
-				{ MyStringHash.GetOrCompute("Freight3"), defaultValue },
-				{ MyStringHash.GetOrCompute("GratedHalfStairs"), defaultValue },
-				{ MyStringHash.GetOrCompute("GratedHalfStairsMirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("GratedStairs"), defaultValue },
-				{ MyStringHash.GetOrCompute("HalfArmorBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("HalfSlopeArmorBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("HeavyHalfArmorBlock"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("HeavyHalfSlopeArmorBlock"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorCorner2Base"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorCorner2Tip"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorCornerInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorInvCorner2Base"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorInvCorner2Tip"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorRoundCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorRoundCornerInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorRoundSlope"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorSlope"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorSlope2Base"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockArmorSlope2Tip"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockDeskChairless"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockDeskChairlessCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockInteriorWall"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeCoverWall"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeCoverWallHalf"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeHalfArmorBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeHalfSlopeArmorBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorBlock"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorCorner"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorCorner2Base"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorCorner2Tip"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorCornerInv"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorInvCorner2Base"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorInvCorner2Tip"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorRoundCorner"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorRoundCornerInv"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorRoundSlope"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorSlope"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorSlope2Base"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorSlope2Tip"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyHalfArmorBlock"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeHeavyHalfSlopeArmorBlock"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("LargeInteriorPillar"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeRamp"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeStairs"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeSteelCatwalk"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeSteelCatwalk2Sides"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeSteelCatwalkCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeSteelCatwalkPlate"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeWindowEdge"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeWindowSquare"), defaultValue },
-				{ MyStringHash.GetOrCompute("RailingCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("RailingDiagonal"), defaultValue },
-				{ MyStringHash.GetOrCompute("RailingDouble"), defaultValue },
-				{ MyStringHash.GetOrCompute("RailingHalfLeft"), defaultValue },
-				{ MyStringHash.GetOrCompute("RailingHalfRight"), defaultValue },
-				{ MyStringHash.GetOrCompute("RailingStraight"), defaultValue },
-				{ MyStringHash.GetOrCompute("Shower"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallArmorCenter"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallArmorCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallArmorInvCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallArmorSide"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorCorner2Base"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorCorner2Tip"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorCornerInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorInvCorner2Base"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorInvCorner2Tip"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorRoundCorner"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorRoundCornerInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorRoundSlope"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorSlope"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorSlope2Base"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockArmorSlope2Tip"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorBlock"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorCorner"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorCorner2Base"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorCorner2Tip"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorCornerInv"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorInvCorner2Base"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorInvCorner2Tip"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorRoundCorner"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorRoundCornerInv"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorRoundSlope"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorSlope"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorSlope2Base"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorSlope2Tip"), enhancedtValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x1Face"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x1Flat"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x1FlatInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x1Inv"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x1Side"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x1SideInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x1Slope"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x2Face"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x2Flat"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x2FlatInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x2Inv"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x2SideLeft"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x2SideLeftInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x2SideRight"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x2SideRightInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow1x2Slope"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow2x3Flat"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow2x3FlatInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow3x3Flat"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWindow3x3FlatInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x1Face"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x1Flat"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x1FlatInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x1Inv"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x1Side"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x1SideInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x1Slope"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x2Face"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x2Flat"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x2FlatInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x2Inv"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x2SideLeft"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x2SideLeftInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x2SideRight"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x2SideRightInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window1x2Slope"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window2x3Flat"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window2x3FlatInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window3x3Flat"), defaultValue },
-				{ MyStringHash.GetOrCompute("Window3x3FlatInv"), defaultValue },
-				{ MyStringHash.GetOrCompute("WindowWall"), defaultValue },
-				{ MyStringHash.GetOrCompute("WindowWallLeft"), defaultValue },
-				{ MyStringHash.GetOrCompute("WindowWallRight"), defaultValue }
+				{ MyStringHash.GetOrCompute("DeadAstronaut"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeDeadAstronaut"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeRailStraight"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeRoundArmor_Corner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeRoundArmor_CornerInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeRoundArmor_Slope"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Monolith"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Stereolith"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ArmorCenter"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ArmorCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ArmorInvCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("ArmorSide"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Catwalk"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("CatwalkCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("CatwalkRailingEnd"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("CatwalkRailingHalfLeft"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("CatwalkRailingHalfRight"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("CatwalkStraight"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("CatwalkWall"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("DeadBody01"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("DeadBody02"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("DeadBody03"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("DeadBody04"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("DeadBody05"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("DeadBody06"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Freight1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Freight2"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Freight3"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("GratedHalfStairs"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("GratedHalfStairsMirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("GratedStairs"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("HalfArmorBlock"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("HalfSlopeArmorBlock"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("HeavyHalfArmorBlock"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("HeavyHalfSlopeArmorBlock"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorBlock"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorCorner2Base"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorCorner2Tip"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorCornerInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorInvCorner2Base"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorInvCorner2Tip"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorRoundCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorRoundCornerInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorRoundSlope"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorSlope"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorSlope2Base"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockArmorSlope2Tip"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockDeskChairless"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockDeskChairlessCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockInteriorWall"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeCoverWall"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeCoverWallHalf"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHalfArmorBlock"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHalfSlopeArmorBlock"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorBlock"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorCorner"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorCorner2Base"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorCorner2Tip"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorCornerInv"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorInvCorner2Base"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorInvCorner2Tip"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorRoundCorner"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorRoundCornerInv"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorRoundSlope"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorSlope"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorSlope2Base"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyBlockArmorSlope2Tip"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyHalfArmorBlock"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeHeavyHalfSlopeArmorBlock"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("LargeInteriorPillar"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeRamp"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeStairs"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeSteelCatwalk"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeSteelCatwalk2Sides"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeSteelCatwalkCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeSteelCatwalkPlate"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeWindowEdge"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeWindowSquare"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RailingCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RailingDiagonal"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RailingDouble"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RailingHalfLeft"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RailingHalfRight"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RailingStraight"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Shower"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallArmorCenter"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallArmorCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallArmorInvCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallArmorSide"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorBlock"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorCorner2Base"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorCorner2Tip"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorCornerInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorInvCorner2Base"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorInvCorner2Tip"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorRoundCorner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorRoundCornerInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorRoundSlope"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorSlope"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorSlope2Base"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockArmorSlope2Tip"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorBlock"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorCorner"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorCorner2Base"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorCorner2Tip"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorCornerInv"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorInvCorner2Base"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorInvCorner2Tip"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorRoundCorner"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorRoundCornerInv"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorRoundSlope"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorSlope"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorSlope2Base"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallHeavyBlockArmorSlope2Tip"), HeavyArmorBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x1Face"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x1Flat"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x1FlatInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x1Inv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x1Side"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x1SideInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x1Slope"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x2Face"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x2Flat"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x2FlatInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x2Inv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x2SideLeft"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x2SideLeftInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x2SideRight"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x2SideRightInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow1x2Slope"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow2x3Flat"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow2x3FlatInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow3x3Flat"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWindow3x3FlatInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x1Face"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x1Flat"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x1FlatInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x1Inv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x1Side"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x1SideInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x1Slope"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x2Face"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x2Flat"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x2FlatInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x2Inv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x2SideLeft"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x2SideLeftInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x2SideRight"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x2SideRightInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window1x2Slope"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window2x3Flat"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window2x3FlatInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window3x3Flat"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Window3x3FlatInv"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("WindowWall"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("WindowWallLeft"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("WindowWallRight"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_CubeBlock)
+			Type = typeof(MyObjectBuilder_CubeBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Decoy = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Decoy = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeDecoy"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallDecoy"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeDecoy"), DecoyValue },
+				{ MyStringHash.GetOrCompute("SmallDecoy"), DecoyValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Decoy)
+			Type = typeof(MyObjectBuilder_Decoy),
+			DefaultValue = DecoyValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece Door = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Door = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockGate"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockOffsetDoor"), defaultValue },
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockGate"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockOffsetDoor"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute(""), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Door)
+			Type = typeof(MyObjectBuilder_Door)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Drill = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Drill = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockDrill"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockDrill"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockDrill"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockDrill"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Drill)
+			Type = typeof(MyObjectBuilder_Drill)
 		};
 
-		private static readonly MasterObjectBuilderRefernece GravityGenerator = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference GravityGenerator = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute(""), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_GravityGenerator)
+			Type = typeof(MyObjectBuilder_GravityGenerator)
 		};
 
-		private static readonly MasterObjectBuilderRefernece GravityGeneratorSphere = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference GravityGeneratorSphere = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute(""), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_GravityGeneratorSphere)
+			Type = typeof(MyObjectBuilder_GravityGeneratorSphere)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Gyro = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Gyro = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockGyro"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockGyro"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockGyro"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockGyro"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Gyro)
+			Type = typeof(MyObjectBuilder_Gyro)
 		};
 
-		private static readonly MasterObjectBuilderRefernece HydrogenEngine = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference HydrogenEngine = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeHydrogenEngine"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallHydrogenEngine"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeHydrogenEngine"), HydrogenEngineValue },
+				{ MyStringHash.GetOrCompute("SmallHydrogenEngine"), HydrogenEngineValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_HydrogenEngine)
+			Type = typeof(MyObjectBuilder_HydrogenEngine),
+			DefaultValue = HydrogenEngineValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece InteriorLight = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference InteriorLight = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockLight_1corner"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockLight_2corner"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockLight_1corner"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockLight_2corner"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockSmallLight"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallLight"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockLight_1corner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockLight_2corner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockLight_1corner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockLight_2corner"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockSmallLight"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallLight"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_InteriorLight)
+			Type = typeof(MyObjectBuilder_InteriorLight)
 		};
 
-		private static readonly MasterObjectBuilderRefernece InteriorTurret = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference InteriorTurret = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeInteriorTurret"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeInteriorTurret"), InteriorTurretValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_InteriorTurret)
+			Type = typeof(MyObjectBuilder_InteriorTurret),
+
+			DefaultValue = GenericWeaponBlockValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece Jukebox = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Jukebox = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("Jukebox"), defaultValue }
+				{ MyStringHash.GetOrCompute("Jukebox"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Jukebox)
+			Type = typeof(MyObjectBuilder_Jukebox)
 		};
 
-		private static readonly MasterObjectBuilderRefernece JumpDrive = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference JumpDrive = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeJumpDrive"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeJumpDrive"), JumpDriveValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_JumpDrive)
+			Type = typeof(MyObjectBuilder_JumpDrive)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Kitchen = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Kitchen = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockKitchen"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockKitchen"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Kitchen)
+			Type = typeof(MyObjectBuilder_Kitchen)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Ladder2 = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Ladder2 = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LadderSmall"), defaultValue },
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute("LadderSmall"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute(""), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Ladder2)
+			Type = typeof(MyObjectBuilder_Ladder2)
 		};
 
-		private static readonly MasterObjectBuilderRefernece LandingGear = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference LandingGear = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockLandingGear"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockLandingGear"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockLandingGear"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockLandingGear"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_LandingGear)
+			Type = typeof(MyObjectBuilder_LandingGear)
 		};
 
-		private static readonly MasterObjectBuilderRefernece LargeGatlingTurret = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference LargeGatlingTurret = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("SmallGatlingTurret"), defaultValue },
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute("SmallGatlingTurret"), LargeGatlingTurretValue },
+				{ MyStringHash.GetOrCompute(""), LargeGatlingTurretValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_LargeGatlingTurret)
+			Type = typeof(MyObjectBuilder_LargeGatlingTurret),
+
+			DefaultValue = GenericWeaponBlockValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece LargeMissileTurret = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference LargeMissileTurret = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("SmallMissileTurret"), defaultValue },
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute("SmallMissileTurret"), LargeMissileTurretValue },
+				{ MyStringHash.GetOrCompute(""), LargeMissileTurretValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_LargeMissileTurret)
+			Type = typeof(MyObjectBuilder_LargeMissileTurret),
+
+			DefaultValue = GenericWeaponBlockValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece LaserAntenna = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference LaserAntenna = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockLaserAntenna"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockLaserAntenna"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockLaserAntenna"), LaserAntennaValue },
+				{ MyStringHash.GetOrCompute("SmallBlockLaserAntenna"), LaserAntennaValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_LaserAntenna)
+			Type = typeof(MyObjectBuilder_LaserAntenna),
+			DefaultValue = LaserAntennaValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece LCDPanelsBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference LCDPanelsBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LabEquipment"), defaultValue },
-				{ MyStringHash.GetOrCompute("MedicalStation"), defaultValue }
+				{ MyStringHash.GetOrCompute("LabEquipment"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("MedicalStation"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_LCDPanelsBlock)
+			Type = typeof(MyObjectBuilder_LCDPanelsBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece MedicalRoom = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference MedicalRoom = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeMedicalRoom"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeMedicalRoom"), MedicalRoomValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_MedicalRoom)
+			Type = typeof(MyObjectBuilder_MedicalRoom),
+			DefaultValue = MedicalRoomValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece MergeBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference MergeBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeShipMergeBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallShipMergeBlock"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeShipMergeBlock"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallShipMergeBlock"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_MergeBlock)
+			Type = typeof(MyObjectBuilder_MergeBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece MotorAdvancedRotor = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference MotorAdvancedRotor = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeAdvancedRotor"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallAdvancedRotor"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeAdvancedRotor"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallAdvancedRotor"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_MotorAdvancedRotor)
+			Type = typeof(MyObjectBuilder_MotorAdvancedRotor)
 		};
 
-		private static readonly MasterObjectBuilderRefernece MotorAdvancedStator = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference MotorAdvancedStator = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeAdvancedStator"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallAdvancedStator"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeAdvancedStator"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallAdvancedStator"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_MotorRotor)
+			Type = typeof(MyObjectBuilder_MotorRotor)
 		};
 
-		private static readonly MasterObjectBuilderRefernece MotorRotor = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference MotorRotor = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeRotor"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallRotor"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeRotor"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallRotor"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_MotorRotor)
+			Type = typeof(MyObjectBuilder_MotorRotor)
 		};
 
-		private static readonly MasterObjectBuilderRefernece MotorStator = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference MotorStator = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeStator"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallStator"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeStator"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallStator"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_MotorStator)
+			Type = typeof(MyObjectBuilder_MotorStator)
 		};
 
-		private static readonly MasterObjectBuilderRefernece MotorSuspension = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference MotorSuspension = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("SmallSuspension1x1"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallSuspension1x1mirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallSuspension3x3"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallSuspension3x3mirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallSuspension5x5"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallSuspension5x5mirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("Suspension1x1"), defaultValue },
-				{ MyStringHash.GetOrCompute("Suspension1x1mirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("Suspension3x3"), defaultValue },
-				{ MyStringHash.GetOrCompute("Suspension3x3mirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("Suspension5x5"), defaultValue },
-				{ MyStringHash.GetOrCompute("Suspension5x5mirrored"), defaultValue }
+				{ MyStringHash.GetOrCompute("SmallSuspension1x1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallSuspension1x1mirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallSuspension3x3"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallSuspension3x3mirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallSuspension5x5"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallSuspension5x5mirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Suspension1x1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Suspension1x1mirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Suspension3x3"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Suspension3x3mirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Suspension5x5"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Suspension5x5mirrored"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_MotorSuspension)
+			Type = typeof(MyObjectBuilder_MotorSuspension)
 		};
 
-		private static readonly MasterObjectBuilderRefernece MyProgrammableBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference MyProgrammableBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeProgrammableBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallProgrammableBlock"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeProgrammableBlock"), MyProgrammableBlockValue },
+				{ MyStringHash.GetOrCompute("SmallProgrammableBlock"), MyProgrammableBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_MyProgrammableBlock)
+			Type = typeof(MyObjectBuilder_MyProgrammableBlock),
+			DefaultValue = MyProgrammableBlockValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece OreDetector = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference OreDetector = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeOreDetector"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockOreDetector"), defaultValue },
+				{ MyStringHash.GetOrCompute("LargeOreDetector"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockOreDetector"), DefaultBlockValue },
 
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_OreDetector)
+			Type = typeof(MyObjectBuilder_OreDetector)
 		};
 
-		private static readonly MasterObjectBuilderRefernece OxygenFarm = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference OxygenFarm = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockOxygenFarm"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockOxygenFarm"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_OxygenFarm)
+			Type = typeof(MyObjectBuilder_OxygenFarm)
 		};
 
-		private static readonly MasterObjectBuilderRefernece OxygenGenerator = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference OxygenGenerator = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("OxygenGeneratorSmall"), defaultValue },
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute("OxygenGeneratorSmall"), OxygenGeneratorValue },
+				{ MyStringHash.GetOrCompute(""), OxygenGeneratorValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_OxygenGenerator)
+			Type = typeof(MyObjectBuilder_OxygenGenerator), 
+			DefaultValue = OxygenGeneratorValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece OxygenTank = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference OxygenTank = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeHydrogenTank"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeHydrogenTankSmall"), defaultValue },
-				{ MyStringHash.GetOrCompute("OxygenTankSmall"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallHydrogenTank"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallHydrogenTankSmall"), defaultValue },
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeHydrogenTank"), GasTankValue },
+				{ MyStringHash.GetOrCompute("LargeHydrogenTankSmall"), GasTankValue },
+				{ MyStringHash.GetOrCompute("OxygenTankSmall"), OxygenTankValue },
+				{ MyStringHash.GetOrCompute("SmallHydrogenTank"), GasTankValue },
+				{ MyStringHash.GetOrCompute("SmallHydrogenTankSmall"), GasTankValue },
+				{ MyStringHash.GetOrCompute(""), OxygenTankValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_OxygenTank)
+			Type = typeof(MyObjectBuilder_OxygenTank), 
+			DefaultValue = GasTankValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece Parachute = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Parachute = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LgParachute"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmParachute"), defaultValue }
+				{ MyStringHash.GetOrCompute("LgParachute"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmParachute"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Parachute)
+			Type = typeof(MyObjectBuilder_Parachute)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Passage = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Passage = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute(""), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Passage)
+			Type = typeof(MyObjectBuilder_Passage)
 		};
 
-		private static readonly MasterObjectBuilderRefernece PistonBase = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference PistonBase = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargePistonBase"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallPistonBase"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargePistonBase"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallPistonBase"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_PistonBase)
+			Type = typeof(MyObjectBuilder_PistonBase)
 		};
 
-		private static readonly MasterObjectBuilderRefernece PistonTop = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference PistonTop = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargePistonTop"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallPistonTop"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargePistonTop"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallPistonTop"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_PistonTop)
+			Type = typeof(MyObjectBuilder_PistonTop)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Planter = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Planter = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockPlanters"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockPlanters"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Planter)
+			Type = typeof(MyObjectBuilder_Planter)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Projector = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Projector = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockConsole"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeProjector"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallProjector"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockConsole"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeProjector"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallProjector"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Projector)
+			Type = typeof(MyObjectBuilder_Projector)
 		};
 
-		private static readonly MasterObjectBuilderRefernece RadioAntenna = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference RadioAntenna = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockRadioAntenna"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockRadioAntennaDish"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockRadioAntenna"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockRadioAntenna"), RadioAntennaValue },
+				{ MyStringHash.GetOrCompute("LargeBlockRadioAntennaDish"), RadioAntennaValue },
+				{ MyStringHash.GetOrCompute("SmallBlockRadioAntenna"), RadioAntennaValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_RadioAntenna)
+			Type = typeof(MyObjectBuilder_RadioAntenna), 
+			DefaultValue = RadioAntennaValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece Reactor = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Reactor = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockLargeGenerator"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockSmallGenerator"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockLargeGenerator"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockSmallGenerator"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockLargeGenerator"), ReactorValue },
+				{ MyStringHash.GetOrCompute("LargeBlockSmallGenerator"), ReactorValue },
+				{ MyStringHash.GetOrCompute("SmallBlockLargeGenerator"), ReactorValue },
+				{ MyStringHash.GetOrCompute("SmallBlockSmallGenerator"), ReactorValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Reactor)
+			Type = typeof(MyObjectBuilder_Reactor),
+			DefaultValue = ReactorValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece Refinery = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Refinery = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("Blast Furnace"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeRefinery"), defaultValue }
+				{ MyStringHash.GetOrCompute("Blast Furnace"), RefineryValue },
+				{ MyStringHash.GetOrCompute("LargeRefinery"), RefineryValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 				{ MyStringHash.GetOrCompute("LargeShipSmallShieldGeneratorBase"), EnergyShieldsValue },
 				{ MyStringHash.GetOrCompute("LargeShipLargeShieldGeneratorBase"), EnergyShieldsValue },
@@ -1291,329 +1289,340 @@ namespace Eem.Thraxus.Bots.SessionComps.Support
 				{ MyStringHash.GetOrCompute("EmitterSA"), EnergyShieldsValue }
 			},
 
-			_type = typeof(MyObjectBuilder_Refinery)
+			Type = typeof(MyObjectBuilder_Refinery),
+			DefaultValue = RefineryValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece RemoteControl = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference RemoteControl = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockRemoteControl"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockRemoteControl"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockRemoteControl"), RemoteControlValue },
+				{ MyStringHash.GetOrCompute("SmallBlockRemoteControl"), RemoteControlValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_RemoteControl)
+			Type = typeof(MyObjectBuilder_RemoteControl),
+			DefaultValue = RemoteControlValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece SafeZoneBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference SafeZoneBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("SafeZoneBlock"), defaultValue }
+				{ MyStringHash.GetOrCompute("SafeZoneBlock"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_SafeZoneBlock)
+			Type = typeof(MyObjectBuilder_SafeZoneBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece SensorBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference SensorBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockSensor"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockSensor"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockSensor"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockSensor"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_SensorBlock)
+			Type = typeof(MyObjectBuilder_SensorBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece ShipConnector = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference ShipConnector = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("Connector"), defaultValue },
-				{ MyStringHash.GetOrCompute("ConnectorMedium"), defaultValue },
-				{ MyStringHash.GetOrCompute("ConnectorSmall"), defaultValue }
+				{ MyStringHash.GetOrCompute("Connector"), ShipConnectorValue },
+				{ MyStringHash.GetOrCompute("ConnectorMedium"), ShipConnectorValue },
+				{ MyStringHash.GetOrCompute("ConnectorSmall"), ShipConnectorValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_ShipConnector)
+			Type = typeof(MyObjectBuilder_ShipConnector), 
+			DefaultValue = ShipConnectorValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece ShipGrinder = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference ShipGrinder = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeShipGrinder"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallShipGrinder"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeShipGrinder"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallShipGrinder"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_ShipGrinder)
+			Type = typeof(MyObjectBuilder_ShipGrinder)
 		};
 
-		private static readonly MasterObjectBuilderRefernece ShipWelder = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference ShipWelder = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeShipWelder"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallShipWelder"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeShipWelder"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallShipWelder"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-
+				{ MyStringHash.GetOrCompute("SELtdLargeNanobotBuildAndRepairSystem"), BuildAndRepairSystemValue },
+				{ MyStringHash.GetOrCompute("SELtdSmallNanobotBuildAndRepairSystem"), BuildAndRepairSystemValue }
 			},
 
-			_type = typeof(MyObjectBuilder_ShipWelder)
+			Type = typeof(MyObjectBuilder_ShipWelder)
 		};
 
-		private static readonly MasterObjectBuilderRefernece SmallGatlingGun = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference SmallGatlingGun = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute(""), SmallGatlingGunValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_SmallGatlingGun)
+			Type = typeof(MyObjectBuilder_SmallGatlingGun), 
+
+			DefaultValue = GenericWeaponBlockValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece SmallMissileLauncher = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference SmallMissileLauncher = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeMissileLauncher"), defaultValue },
-				{ MyStringHash.GetOrCompute(""), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeMissileLauncher"), SmallMissileLauncherValue },
+				{ MyStringHash.GetOrCompute(""), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_SmallMissileLauncher)
+			Type = typeof(MyObjectBuilder_SmallMissileLauncher),
+			DefaultValue = GenericWeaponBlockValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece SmallMissileLauncherReload = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference SmallMissileLauncherReload = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("SmallRocketLauncherReload"), defaultValue }
+				{ MyStringHash.GetOrCompute("SmallRocketLauncherReload"), SmallMissileLauncherReloadValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_SmallMissileLauncherReload)
+			Type = typeof(MyObjectBuilder_SmallMissileLauncherReload),
+			DefaultValue = GenericWeaponBlockValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece SolarPanel = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference SolarPanel = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockSolarPanel"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockSolarPanel"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockSolarPanel"), SolarPanelValue },
+				{ MyStringHash.GetOrCompute("SmallBlockSolarPanel"), SolarPanelValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_SolarPanel)
+			Type = typeof(MyObjectBuilder_SolarPanel), 
+			DefaultValue = SolarPanelValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece SoundBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference SoundBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockSoundBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockSoundBlock"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockSoundBlock"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockSoundBlock"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_SoundBlock)
+			Type = typeof(MyObjectBuilder_SoundBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece SpaceBall = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference SpaceBall = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("SpaceBallLarge"), defaultValue },
-				{ MyStringHash.GetOrCompute("SpaceBallSmall"), defaultValue }
+				{ MyStringHash.GetOrCompute("SpaceBallLarge"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SpaceBallSmall"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_SpaceBall)
+			Type = typeof(MyObjectBuilder_SpaceBall)
 		};
 
-		private static readonly MasterObjectBuilderRefernece StoreBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference StoreBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("AtmBlock"), defaultValue },
-				{ MyStringHash.GetOrCompute("StoreBlock"), defaultValue }
+				{ MyStringHash.GetOrCompute("AtmBlock"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("StoreBlock"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_StoreBlock)
+			Type = typeof(MyObjectBuilder_StoreBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece SurvivalKit = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference SurvivalKit = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("SurvivalKit"), defaultValue },
-				{ MyStringHash.GetOrCompute("SurvivalKitLarge"), defaultValue }
+				{ MyStringHash.GetOrCompute("SurvivalKit"), SurvivalKitValue },
+				{ MyStringHash.GetOrCompute("SurvivalKitLarge"), SurvivalKitValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_SurvivalKit)
+			Type = typeof(MyObjectBuilder_SurvivalKit), 
+			DefaultValue = SurvivalKitValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece TerminalBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference TerminalBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("ControlPanel"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallControlPanel"), defaultValue }
+				{ MyStringHash.GetOrCompute("ControlPanel"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallControlPanel"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_TerminalBlock)
+			Type = typeof(MyObjectBuilder_TerminalBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece TextPanel = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference TextPanel = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockCorner_LCD_1"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockCorner_LCD_2"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockCorner_LCD_Flat_1"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockCorner_LCD_Flat_2"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeLCDPanel"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeLCDPanelWide"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeTextPanel"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockCorner_LCD_1"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockCorner_LCD_2"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockCorner_LCD_Flat_1"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockCorner_LCD_Flat_2"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallLCDPanel"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallLCDPanelWide"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallTextPanel"), defaultValue },
-				{ MyStringHash.GetOrCompute("TransparentLCDLarge"), defaultValue },
-				{ MyStringHash.GetOrCompute("TransparentLCDSmall"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockCorner_LCD_1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockCorner_LCD_2"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockCorner_LCD_Flat_1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeBlockCorner_LCD_Flat_2"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeLCDPanel"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeLCDPanelWide"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeTextPanel"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockCorner_LCD_1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockCorner_LCD_2"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockCorner_LCD_Flat_1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallBlockCorner_LCD_Flat_2"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallLCDPanel"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallLCDPanelWide"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallTextPanel"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("TransparentLCDLarge"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("TransparentLCDSmall"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_TextPanel)
+			Type = typeof(MyObjectBuilder_TextPanel)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Thrust = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Thrust = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockLargeAtmosphericThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockLargeHydrogenThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockLargeThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockSmallAtmosphericThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockSmallHydrogenThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeBlockSmallThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockLargeAtmosphericThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockLargeHydrogenThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockLargeThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockSmallAtmosphericThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockSmallHydrogenThrust"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallBlockSmallThrust"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockLargeAtmosphericThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("LargeBlockLargeHydrogenThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("LargeBlockLargeThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("LargeBlockSmallAtmosphericThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("LargeBlockSmallHydrogenThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("LargeBlockSmallThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("SmallBlockLargeAtmosphericThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("SmallBlockLargeHydrogenThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("SmallBlockLargeThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("SmallBlockSmallAtmosphericThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("SmallBlockSmallHydrogenThrust"), ThrustValue },
+				{ MyStringHash.GetOrCompute("SmallBlockSmallThrust"), ThrustValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Thrust)
+			Type = typeof(MyObjectBuilder_Thrust),
+			DefaultValue = ThrustValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece TimerBlock = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference TimerBlock = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("TimerBlockLarge"), defaultValue },
-				{ MyStringHash.GetOrCompute("TimerBlockSmall"), defaultValue }
+				{ MyStringHash.GetOrCompute("TimerBlockLarge"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("TimerBlockSmall"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_TimerBlock)
+			Type = typeof(MyObjectBuilder_TimerBlock)
 		};
 
-		private static readonly MasterObjectBuilderRefernece UpgradeModule = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference UpgradeModule = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeEffectivenessModule"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeEnergyModule"), defaultValue },
-				{ MyStringHash.GetOrCompute("LargeProductivityModule"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeEffectivenessModule"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeEnergyModule"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("LargeProductivityModule"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 				{ MyStringHash.GetOrCompute("EmitterST"), DefenseShieldsValue },
 				{ MyStringHash.GetOrCompute("EmitterL"), DefenseShieldsValue },
@@ -1622,102 +1631,105 @@ namespace Eem.Thraxus.Bots.SessionComps.Support
 				{ MyStringHash.GetOrCompute("EmitterSA"), DefenseShieldsValue }
 			},
 
-			_type = typeof(MyObjectBuilder_UpgradeModule)
+			Type = typeof(MyObjectBuilder_UpgradeModule)
 		};
 
-		private static readonly MasterObjectBuilderRefernece VendingMachine = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference VendingMachine = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("FoodDispenser"), defaultValue },
-				{ MyStringHash.GetOrCompute("VendingMachine"), defaultValue }
+				{ MyStringHash.GetOrCompute("FoodDispenser"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("VendingMachine"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_VendingMachine)
+			Type = typeof(MyObjectBuilder_VendingMachine)
 		};
 
-		private static readonly MasterObjectBuilderRefernece VirtualMass = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference VirtualMass = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("VirtualMassLarge"), defaultValue },
-				{ MyStringHash.GetOrCompute("VirtualMassSmall"), defaultValue }
+				{ MyStringHash.GetOrCompute("VirtualMassLarge"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("VirtualMassSmall"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_VirtualMass)
+			Type = typeof(MyObjectBuilder_VirtualMass)
 		};
 
-		private static readonly MasterObjectBuilderRefernece Warhead = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Warhead = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeWarhead"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWarhead"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeWarhead"), WarheadValue },
+				{ MyStringHash.GetOrCompute("SmallWarhead"), WarheadValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Warhead)
+			Type = typeof(MyObjectBuilder_Warhead),
+
+			DefaultValue = GenericWeaponBlockValue
 		};
 
-		private static readonly MasterObjectBuilderRefernece Wheel = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference Wheel = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("RealWheel"), defaultValue },
-				{ MyStringHash.GetOrCompute("RealWheel1x1"), defaultValue },
-				{ MyStringHash.GetOrCompute("RealWheel1x1mirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("RealWheel5x5"), defaultValue },
-				{ MyStringHash.GetOrCompute("RealWheel5x5mirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("RealWheelmirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallRealWheel"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallRealWheel1x1"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallRealWheel1x1mirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallRealWheel5x5"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallRealWheel5x5mirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallRealWheelmirrored"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWheel1x1"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWheel3x3"), defaultValue },
-				{ MyStringHash.GetOrCompute("SmallWheel5x5"), defaultValue },
-				{ MyStringHash.GetOrCompute("Wheel1x1"), defaultValue },
-				{ MyStringHash.GetOrCompute("Wheel3x3"), defaultValue },
-				{ MyStringHash.GetOrCompute("Wheel5x5"), defaultValue }
+				{ MyStringHash.GetOrCompute("RealWheel"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RealWheel1x1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RealWheel1x1mirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RealWheel5x5"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RealWheel5x5mirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("RealWheelmirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallRealWheel"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallRealWheel1x1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallRealWheel1x1mirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallRealWheel5x5"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallRealWheel5x5mirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallRealWheelmirrored"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWheel1x1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWheel3x3"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("SmallWheel5x5"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Wheel1x1"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Wheel3x3"), DefaultBlockValue },
+				{ MyStringHash.GetOrCompute("Wheel5x5"), DefaultBlockValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_Wheel)
+			Type = typeof(MyObjectBuilder_Wheel)
 		};
 
-		private static readonly MasterObjectBuilderRefernece WindTurbine = new MasterObjectBuilderRefernece()
+		private static readonly MasterObjectBuilderReference WindTurbine = new MasterObjectBuilderReference()
 		{
-			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockWindTurbine"), defaultValue }
+				{ MyStringHash.GetOrCompute("LargeBlockWindTurbine"), WindTurbineValue }
 			},
 
-			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockValue>
+			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
 
 			},
 
-			_type = typeof(MyObjectBuilder_WindTurbine)
+			Type = typeof(MyObjectBuilder_WindTurbine),
+			DefaultValue = WindTurbineValue
 		};
 
 	}

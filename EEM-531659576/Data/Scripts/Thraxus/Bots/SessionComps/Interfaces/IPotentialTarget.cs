@@ -42,11 +42,11 @@ namespace Eem.Thraxus.Bots.SessionComps.Interfaces
 
 		bool HasHeavyArmor { get; }
 
-		bool HasShields { get; }
+		bool HasDefenseShields { get; }
+
+		bool HasEnergyShields { get; }
 
 		bool IsClosed { get; }
-
-		bool IsModded { get; }
 
 		Vector3 LinearVelocity { get; }
 
