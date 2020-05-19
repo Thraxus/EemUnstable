@@ -6,6 +6,6 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Types
 {
 	internal class PowerProducer : EemFunctionalBlock
 	{
-		public PowerProducer(SystemType type, IMyFunctionalBlock block) : base(type, block) {}
+		public PowerProducer(BotSystemType type, IMyFunctionalBlock block) : base(type, block) {}
 	}
 }

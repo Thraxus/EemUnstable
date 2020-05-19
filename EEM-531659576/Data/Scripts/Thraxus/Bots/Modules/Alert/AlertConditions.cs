@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Alert.Support;
 using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.ModAPI;

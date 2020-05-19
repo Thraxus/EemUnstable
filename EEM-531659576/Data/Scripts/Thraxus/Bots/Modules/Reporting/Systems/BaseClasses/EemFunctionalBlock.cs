@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Eem.Thraxus.Bots.Interfaces;
 using Eem.Thraxus.Bots.Modules.Reporting.Systems.Support;
-using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
@@ -24,7 +24,7 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.BaseClasses
 
 		private bool _isDisabled;
 
-		public SystemType Type { get; }
+		public BotSystemType Type { get; }
 
 		public bool IsClosed { get; private set; }
 
@@ -65,7 +65,7 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.BaseClasses
 			return true;
 		}
 
-		protected EemFunctionalBlock(SystemType type, IMyFunctionalBlock myFunctionalBlock)
+		protected EemFunctionalBlock(BotSystemType type, IMyFunctionalBlock myFunctionalBlock)
 		{
 			Type = type;
 			_myFunctionalBlock = myFunctionalBlock;

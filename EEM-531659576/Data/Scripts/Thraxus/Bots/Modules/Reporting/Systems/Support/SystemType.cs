@@ -1,6 +1,6 @@
 ﻿namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Support
 {
-	internal enum SystemType
+	internal enum BotSystemType
 	{
 		ForwardPropulsion,
 		ReversePropulsion,

@@ -17,9 +17,9 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.BaseClasses
 
 		private bool _reportedClosed;
 
-		public SystemType Type { get; }
+		public BotSystemType Type { get; }
 
-		protected EemFunctionalBlockCollection(SystemType type)
+		protected EemFunctionalBlockCollection(BotSystemType type)
 		{
 			Type = type;
 			LastReportedIntegrityRatio = 0;

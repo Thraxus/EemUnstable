@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Eem.Thraxus.Bots.Models;
 using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Common.Settings;
 using Sandbox.ModAPI;
 using VRage.Game;

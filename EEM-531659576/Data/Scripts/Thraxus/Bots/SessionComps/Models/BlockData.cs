@@ -1,7 +1,6 @@
-﻿using Sandbox.Game.Entities;
-using VRage.Game.VisualScripting.ScriptBuilder.Nodes;
+﻿using Eem.Thraxus.Common.Enums;
 
-namespace Eem.Thraxus.Common.DataTypes
+namespace Eem.Thraxus.Bots.SessionComps.Models
 {
 	public struct BlockData 
 	{
@@ -11,10 +10,11 @@ namespace Eem.Thraxus.Common.DataTypes
 		public bool IsDefenseShields;
 		public bool IsEnergyShields;
 		public bool IsBars;
+		public TargetSystemType Type;
 
 		public override string ToString()
 		{
-			return $"{Threat} | {Value}";
+			return $"{Threat} | {Value} | {Type}";
 		}
 	}
 }

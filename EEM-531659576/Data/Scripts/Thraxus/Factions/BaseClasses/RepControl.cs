@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
-using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Eem.Thraxus.Common.Utilities.Tools.Networking;

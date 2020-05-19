@@ -40,44 +40,44 @@ namespace Eem.Thraxus.Bots.Modules.Reporting
 				if (myThrust != null) 
 				{
 					if (controller.WorldMatrix.Forward * -1 == myThrust.WorldMatrix.Forward)
-						propulsion.AddBlock(SystemType.ForwardPropulsion, myThrust);
+						propulsion.AddBlock(BotSystemType.ForwardPropulsion, myThrust);
 					if (controller.WorldMatrix.Backward * -1 == myThrust.WorldMatrix.Forward)
-						propulsion.AddBlock(SystemType.ReversePropulsion, myThrust);
+						propulsion.AddBlock(BotSystemType.ReversePropulsion, myThrust);
 					if (controller.WorldMatrix.Left * -1 == myThrust.WorldMatrix.Forward)
-						propulsion.AddBlock(SystemType.LeftPropulsion, myThrust);
+						propulsion.AddBlock(BotSystemType.LeftPropulsion, myThrust);
 					if (controller.WorldMatrix.Right * -1 == myThrust.WorldMatrix.Forward)
-						propulsion.AddBlock(SystemType.RightPropulsion, myThrust);
+						propulsion.AddBlock(BotSystemType.RightPropulsion, myThrust);
 					if (controller.WorldMatrix.Up * -1 == myThrust.WorldMatrix.Forward)
-						propulsion.AddBlock(SystemType.UpPropulsion, myThrust);
+						propulsion.AddBlock(BotSystemType.UpPropulsion, myThrust);
 					if (controller.WorldMatrix.Down * -1 == myThrust.WorldMatrix.Forward)
-						propulsion.AddBlock(SystemType.DownPropulsion, myThrust);
+						propulsion.AddBlock(BotSystemType.DownPropulsion, myThrust);
 					continue;
 				}
 
 				IMyGyro myGyro = block as IMyGyro;
 				if (myGyro != null)
 				{
-					navigation.AddBlock(SystemType.Navigation, myGyro);
+					navigation.AddBlock(BotSystemType.Navigation, myGyro);
 					continue;
 				}
 
 				IMyPowerProducer myPower = block as IMyPowerProducer;
 				if (myPower != null)
 				{
-					power.AddBlock(SystemType.PowerProducer, (IMyFunctionalBlock) myPower);
+					power.AddBlock(BotSystemType.PowerProducer, (IMyFunctionalBlock) myPower);
 					continue;
 				}
 
 				IMyLargeTurretBase myLargeTurretBase = block as IMyLargeTurretBase;
 				if (myLargeTurretBase != null)
 				{
-					turrets.AddBlock(SystemType.Turret, myLargeTurretBase);
+					turrets.AddBlock(BotSystemType.Turret, myLargeTurretBase);
 					continue;
 				}
 
 				if (block is IMyUserControllableGun)
 				{
-					fixedWeapons.AddBlock(SystemType.FixedWeapon, (IMyFunctionalBlock) block);
+					fixedWeapons.AddBlock(BotSystemType.FixedWeapon, (IMyFunctionalBlock) block);
 				}
 
 			}

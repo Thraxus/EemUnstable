@@ -698,25 +698,24 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseClientSessionComp.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\BaseGameLogicComp.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\BaseClasses\LogBaseEvent.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\AlertSetting.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Enums\AlertSetting.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\BufferedBinaryReader.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\BaseTargetPriorities.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\FactionRelationship.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Enums\FactionRelationship.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\FastQueue.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\GridOwnerType.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\GridSize.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\GridType.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\LogType.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Enums\GridOwnerType.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Enums\GridType.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Enums\LogType.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\ProcessedCube.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\BlockData.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\SessionComps\Models\BlockData.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\TargetEntity.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Bots\Utilities\ModDetection.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\BotOrphan.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\EemPrefabConfig.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\MissileHistory.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\PrefabPreAlertBlockStatus.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\ShipControllerHistory.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\DataTypes\ValidTarget.cs" />
+    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Enums\TargetSystemType.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Settings\GeneralSettings.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\SaveGame\Load.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\SaveGame\Save.cs" />
@@ -769,8 +768,6 @@
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Models\RelationshipManager.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Common\Utilities\Statics\Statics.cs" />
     <Compile Include="EEM-531659576\Data\Scripts\Thraxus\Factions\Networking\FactionsMessage.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\EntityManager\Models\EntityTracker.cs" />
-    <Compile Include="EEM-531659576\Data\Scripts\Thraxus\EntityManager\EntityManagerCore.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="EEM-531659576\Data\Scripts\Thraxus\Common\SessionComps\" />

@@ -5,7 +5,7 @@ namespace Eem.Thraxus.Bots.Interfaces
 {
 	internal interface IReportDamage : INeedUpdates
 	{
-		event Action<SystemType, float> SystemDamaged;
+		event Action<BotSystemType, float> SystemDamaged;
 		
 		bool IsFunctional { get; }
 		

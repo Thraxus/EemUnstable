@@ -1,5 +1,4 @@
-﻿using Sandbox.Game;
-using Sandbox.ModAPI;
+﻿using Sandbox.ModAPI;
 using VRage.Game;
 
 namespace Eem.Thraxus.Debug

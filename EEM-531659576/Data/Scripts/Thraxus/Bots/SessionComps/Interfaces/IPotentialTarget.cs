@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Eem.Thraxus.Common.DataTypes;
+﻿using System.Collections.Concurrent;
+using Eem.Thraxus.Common.Enums;
+using VRage.Collections;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRageMath;
@@ -16,16 +16,7 @@ namespace Eem.Thraxus.Bots.SessionComps.Interfaces
 
 
 		// Critical Systems
-		List<IMyCubeBlock> Controllers { get; }
-
-		List<IMyCubeBlock> Navigation { get; }
-
-		List<IMyCubeBlock> PowerSystems { get; }
-
-		List<IMyCubeBlock> Propulsion { get; }
-
-		List<IMyCubeBlock> Weapons { get; }
-		
+		ConcurrentDictionary<TargetSystemType, ConcurrentCachingList<IMyCubeBlock>> TargetSystems { get; }
 
 		// Ownership Information
 		long FactionId { get; }

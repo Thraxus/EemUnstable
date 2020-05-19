@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Eem.Thraxus.Bots.SessionComps.Models;
 
 namespace Eem.Thraxus.Bots.SessionComps.Support

@@ -8,10 +8,10 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems
 	{
 		public Navigation(BotSystemsQuestLog questScreen) : base(questScreen)
 		{
-			NewSystem(SystemType.Navigation);
+			NewSystem(BotSystemType.Navigation);
 		}
 
-		protected sealed override void NewSystem(SystemType type)
+		protected sealed override void NewSystem(BotSystemType type)
 		{
 			if (_shipSystems.ContainsKey(type)) return;
 			NavigationCollection collection = new NavigationCollection(type);

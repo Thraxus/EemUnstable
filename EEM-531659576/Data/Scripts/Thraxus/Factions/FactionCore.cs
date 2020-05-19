@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.DataTypes;
+﻿using Eem.Thraxus.Common.BaseClasses;
+using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Factions.Models;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.SaveGame;
 using Eem.Thraxus.Factions.DataTypes;
 using VRage.Game;
 using VRage.Game.Components;
-using VRage.Game.ModAPI;
 
 
 namespace Eem.Thraxus.Factions

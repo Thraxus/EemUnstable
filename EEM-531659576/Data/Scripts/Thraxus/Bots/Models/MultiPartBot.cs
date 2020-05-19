@@ -1,5 +1,6 @@
 ﻿using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Sandbox.ModAPI;
 using IMyCubeGrid = VRage.Game.ModAPI.IMyCubeGrid;
 using IMyEntity = VRage.ModAPI.IMyEntity;

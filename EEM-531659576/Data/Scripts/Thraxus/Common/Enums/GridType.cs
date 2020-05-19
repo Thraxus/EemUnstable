@@ -1,4 +1,4 @@
-﻿namespace Eem.Thraxus.Common.DataTypes
+﻿namespace Eem.Thraxus.Common.Enums
 {
 	public enum GridType
 	{

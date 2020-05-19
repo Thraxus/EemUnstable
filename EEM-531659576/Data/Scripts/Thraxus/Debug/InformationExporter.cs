@@ -5,7 +5,6 @@ using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
-using VRage.Collections;
 using VRage.Game;
 using VRage.Game.ObjectBuilders.ComponentSystem;
 

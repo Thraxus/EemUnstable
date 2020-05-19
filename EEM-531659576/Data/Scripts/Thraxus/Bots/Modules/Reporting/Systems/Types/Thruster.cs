@@ -6,6 +6,6 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Types
 {
 	internal class Thruster : EemFunctionalBlock
 	{
-		public Thruster(SystemType type, IMyThrust thruster) : base(type, thruster) { }
+		public Thruster(BotSystemType type, IMyThrust thruster) : base(type, thruster) { }
 	}
 }

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Debug;
+using Eem.Thraxus.Common.Enums;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;

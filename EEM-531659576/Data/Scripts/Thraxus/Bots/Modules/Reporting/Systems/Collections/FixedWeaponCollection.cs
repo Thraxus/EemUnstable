@@ -7,7 +7,7 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Collections
 {
 	internal class FixedWeaponCollection : EemFunctionalBlockCollection
 	{
-		public FixedWeaponCollection(SystemType type) : base(type) { }
+		public FixedWeaponCollection(BotSystemType type) : base(type) { }
 
 		public override void AddBlock(IMyFunctionalBlock block)
 		{

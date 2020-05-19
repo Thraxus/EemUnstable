@@ -8,10 +8,10 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems
 	{
 		public FixedWeapons(BotSystemsQuestLog questScreen) : base(questScreen)
 		{
-			NewSystem(SystemType.FixedWeapon);
+			NewSystem(BotSystemType.FixedWeapon);
 		}
 
-		protected sealed override void NewSystem(SystemType type)
+		protected sealed override void NewSystem(BotSystemType type)
 		{
 			if (_shipSystems.ContainsKey(type)) return;
 			FixedWeaponCollection collection = new FixedWeaponCollection(type);

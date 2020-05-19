@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
 
 namespace Eem.Thraxus.Common.Utilities.Tools

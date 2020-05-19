@@ -7,14 +7,14 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Support
 	internal class BotSystemsQuestLog
 	{
 		private readonly QuestScreen _questScreen;
-		private readonly Dictionary<SystemType, QuestLogDetail> _questLogDetails = new Dictionary<SystemType, QuestLogDetail>();
+		private readonly Dictionary<BotSystemType, QuestLogDetail> _questLogDetails = new Dictionary<BotSystemType, QuestLogDetail>();
 
 		public BotSystemsQuestLog(string name)
 		{
 			_questScreen = new QuestScreen(name);
 		}
 
-		public void UpdateQuest(SystemType system, int currentFunctionalIntegrityRatio)
+		public void UpdateQuest(BotSystemType system, int currentFunctionalIntegrityRatio)
 		{
 			if (!_questLogDetails.ContainsKey(system)) return;
 			StringBuilder newQuest = new StringBuilder($"{system} Integrity: {currentFunctionalIntegrityRatio}%");
@@ -22,7 +22,7 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Support
 			_questScreen.UpdateQuest(_questLogDetails[system]);
 		}
 
-		public void NewQuest(SystemType system, int integrityRatio)
+		public void NewQuest(BotSystemType system, int integrityRatio)
 		{
 			if (_questLogDetails.ContainsKey(system)) return;
 			StringBuilder newQuest = new StringBuilder($"{system} Integrity: {integrityRatio}%");

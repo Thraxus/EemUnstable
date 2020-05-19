@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -10,7 +10,7 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 	{
 		public Dictionary<MyStringHash, BlockData> VanillaSubtypeIds;
 		public Dictionary<MyStringHash, BlockData> ModdedSubtypeIds;
-		public BlockData DefaultValue = new BlockData { Value = 1, Threat = 1 };
+		public BlockData DefaultValue = new BlockData { Value = 1, Threat = 1, Type = TargetSystemType.None };
 		public MyObjectBuilderType Type;
 
 		public BlockData GetValue(MyObjectBuilderType type, MyStringHash subtype)

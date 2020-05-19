@@ -7,7 +7,7 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Collections
 {
 	internal class PowerProducerCollection : EemFunctionalBlockCollection
 	{
-		public PowerProducerCollection(SystemType type) : base(type)  { }
+		public PowerProducerCollection(BotSystemType type) : base(type)  { }
 
 		public override void AddBlock(IMyFunctionalBlock block)
 		{

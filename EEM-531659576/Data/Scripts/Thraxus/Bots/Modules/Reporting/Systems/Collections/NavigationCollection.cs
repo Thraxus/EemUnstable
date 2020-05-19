@@ -7,7 +7,7 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Collections
 {
 	internal class NavigationCollection : EemFunctionalBlockCollection
 	{
-		public NavigationCollection(SystemType type) : base(type) { }
+		public NavigationCollection(BotSystemType type) : base(type) { }
 
 		public override void AddBlock(IMyFunctionalBlock block)
 		{

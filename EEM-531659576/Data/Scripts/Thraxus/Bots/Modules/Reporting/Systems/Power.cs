@@ -12,10 +12,10 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems
 
 		public Power(BotSystemsQuestLog questScreen) : base(questScreen)
 		{
-			NewSystem(SystemType.PowerProducer);
+			NewSystem(BotSystemType.PowerProducer);
 		}
 
-		protected sealed override void NewSystem(SystemType type)
+		protected sealed override void NewSystem(BotSystemType type)
 		{
 			if (_shipSystems.ContainsKey(type)) return;
 			PowerProducerCollection collection = new PowerProducerCollection(type);

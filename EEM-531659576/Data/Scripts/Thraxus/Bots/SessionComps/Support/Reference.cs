@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Eem.Thraxus.Bots.SessionComps.Models;
 using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using VRage.Game;
 using VRage.ObjectBuilders;
@@ -115,13 +116,13 @@ namespace Eem.Thraxus.Bots.SessionComps.Support
 
 		// Generics
 		private static readonly BlockData DefaultBlockValue = new BlockData { Value = 1, Threat = 1 };
-		private static readonly BlockData GenericWeaponBlockValue = new BlockData { Value = 50, Threat = 300 };
+		private static readonly BlockData GenericWeaponBlockValue = new BlockData { Value = 50, Threat = 300, Type = TargetSystemType.Weapon };
 
 		// Armor
 		private static readonly BlockData HeavyArmorBlockValue = new BlockData { Value = 5, Threat = 5, IsHeavyArmor = true };
 
 		// Cargo
-		private static readonly BlockData CargoContainerValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData CargoContainerValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Secondary };
 		private static readonly BlockData ShipConnectorValue = new BlockData { Value = 20, Threat = 10 };
 
 		// Communications
@@ -130,44 +131,47 @@ namespace Eem.Thraxus.Bots.SessionComps.Support
 		private static readonly BlockData RadioAntennaValue = new BlockData { Value = 20, Threat = 10 };
 
 		// Controllers
-		private static readonly BlockData CockpitValue = new BlockData { Value = 20, Threat = 10 };
-		private static readonly BlockData RemoteControlValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData CockpitValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Controller };
+		private static readonly BlockData RemoteControlValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Controller };
 
 		// Manufacturing
 		private static readonly BlockData AssemblerValue = new BlockData { Value = 20, Threat = 10 };
 		private static readonly BlockData RefineryValue = new BlockData { Value = 20, Threat = 10 };
-		private static readonly BlockData SurvivalKitValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData SurvivalKitValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Secondary };
 
 		// Medical
 		private static readonly BlockData CryoChamberValue = new BlockData { Value = 20, Threat = 10 };
-		private static readonly BlockData MedicalRoomValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData MedicalRoomValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Secondary };
+
+		// Navigation
+		private static readonly BlockData GyroValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Navigation };
 
 		// Power Producers or Providers
-		private static readonly BlockData BatteryBlockValue = new BlockData { Value = 20, Threat = 10 };
-		private static readonly BlockData HydrogenEngineValue = new BlockData { Value = 20, Threat = 10 };
-		private static readonly BlockData ReactorValue = new BlockData { Value = 20, Threat = 10 };
-		private static readonly BlockData SolarPanelValue = new BlockData { Value = 20, Threat = 10 };
-		private static readonly BlockData WindTurbineValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData BatteryBlockValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Power };
+		private static readonly BlockData HydrogenEngineValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Power };
+		private static readonly BlockData ReactorValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Power };
+		private static readonly BlockData SolarPanelValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Power };
+		private static readonly BlockData WindTurbineValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Power };
 
 		// Utility
-		private static readonly BlockData GasTankValue = new BlockData { Value = 20, Threat = 10 };
-		private static readonly BlockData JumpDriveValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData GasTankValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Secondary };
+		private static readonly BlockData JumpDriveValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Secondary };
 		private static readonly BlockData MyProgrammableBlockValue = new BlockData { Value = 20, Threat = 10 };
 		private static readonly BlockData OxygenGeneratorValue = new BlockData { Value = 20, Threat = 10 };
-		private static readonly BlockData OxygenTankValue = new BlockData { Value = 20, Threat = 10 };
-		private static readonly BlockData ThrustValue = new BlockData { Value = 20, Threat = 10 };
+		private static readonly BlockData OxygenTankValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Secondary };
+		private static readonly BlockData ThrustValue = new BlockData { Value = 20, Threat = 10, Type = TargetSystemType.Propulsion };
 
 		// Weapons
-		private static readonly BlockData InteriorTurretValue = new BlockData { Value = 50, Threat = 300 };
-		private static readonly BlockData LargeGatlingTurretValue = new BlockData { Value = 50, Threat = 300 };
-		private static readonly BlockData LargeMissileTurretValue = new BlockData { Value = 50, Threat = 300 };
-		private static readonly BlockData SmallGatlingGunValue = new BlockData { Value = 50, Threat = 300 };
-		private static readonly BlockData SmallMissileLauncherValue = new BlockData { Value = 50, Threat = 300 };
-		private static readonly BlockData SmallMissileLauncherReloadValue = new BlockData { Value = 50, Threat = 300 };
-		private static readonly BlockData WarheadValue = new BlockData { Value = 50, Threat = 300 }; 
+		private static readonly BlockData InteriorTurretValue = new BlockData { Value = 50, Threat = 300, Type = TargetSystemType.Weapon };
+		private static readonly BlockData LargeGatlingTurretValue = new BlockData { Value = 50, Threat = 300, Type = TargetSystemType.Weapon };
+		private static readonly BlockData LargeMissileTurretValue = new BlockData { Value = 50, Threat = 300, Type = TargetSystemType.Weapon };
+		private static readonly BlockData SmallGatlingGunValue = new BlockData { Value = 50, Threat = 300, Type = TargetSystemType.Weapon };
+		private static readonly BlockData SmallMissileLauncherValue = new BlockData { Value = 50, Threat = 300, Type = TargetSystemType.Weapon };
+		private static readonly BlockData SmallMissileLauncherReloadValue = new BlockData { Value = 50, Threat = 300, Type = TargetSystemType.Weapon };
+		private static readonly BlockData WarheadValue = new BlockData { Value = 50, Threat = 300, Type = TargetSystemType.Weapon }; 
 
 		// Misc
-		private static readonly BlockData DecoyValue = new BlockData { Value = 30, Threat = 100 };
+		private static readonly BlockData DecoyValue = new BlockData { Value = 30, Threat = 100, Type = TargetSystemType.Decoy };
 
 		// Modded Blocks
 		private static readonly BlockData BuildAndRepairSystemValue = new BlockData { Value = 500, Threat = 500, IsBars = true };
@@ -719,8 +723,8 @@ namespace Eem.Thraxus.Bots.SessionComps.Support
 		{
 			VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>
 			{
-				{ MyStringHash.GetOrCompute("LargeBlockGyro"), DefaultBlockValue },
-				{ MyStringHash.GetOrCompute("SmallBlockGyro"), DefaultBlockValue }
+				{ MyStringHash.GetOrCompute("LargeBlockGyro"), GyroValue },
+				{ MyStringHash.GetOrCompute("SmallBlockGyro"), GyroValue }
 			},
 
 			ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>
@@ -728,7 +732,8 @@ namespace Eem.Thraxus.Bots.SessionComps.Support
 
 			},
 
-			Type = typeof(MyObjectBuilder_Gyro)
+			Type = typeof(MyObjectBuilder_Gyro),
+			DefaultValue = GyroValue
 		};
 
 		private static readonly MasterObjectBuilderReference HydrogenEngine = new MasterObjectBuilderReference()

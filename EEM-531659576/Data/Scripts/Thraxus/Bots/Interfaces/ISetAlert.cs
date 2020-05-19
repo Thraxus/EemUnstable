@@ -1,4 +1,4 @@
-﻿using Eem.Thraxus.Common.DataTypes;
+﻿using Eem.Thraxus.Common.Enums;
 
 namespace Eem.Thraxus.Bots.Interfaces
 {

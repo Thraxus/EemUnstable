@@ -4,7 +4,7 @@ namespace Eem.Thraxus.Bots.Interfaces
 {
 	internal interface IReportIntegrity
 	{
-		SystemType Type { get; }
+		BotSystemType Type { get; }
 
 		int CurrentFunctionalIntegrityRatio();
 

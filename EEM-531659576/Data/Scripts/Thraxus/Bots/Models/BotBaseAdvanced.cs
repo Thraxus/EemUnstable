@@ -1,5 +1,4 @@
 ﻿using System;
-using Eem.Thraxus.Bots.Modules;
 using Eem.Thraxus.Bots.Modules.Alert;
 using Eem.Thraxus.Bots.Modules.Maneuvering;
 using Eem.Thraxus.Bots.Modules.Reporting;
@@ -7,8 +6,8 @@ using Eem.Thraxus.Bots.Modules.Targeting;
 using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Common.Settings;
-using Eem.Thraxus.Debug;
 using Eem.Thraxus.Factions;
 using Eem.Thraxus.Factions.DataTypes;
 using Sandbox.Game.Entities;
@@ -16,7 +15,6 @@ using Sandbox.ModAPI;
 using VRage.Collections;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
-using VRageMath;
 
 namespace Eem.Thraxus.Bots.Models
 {

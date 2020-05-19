@@ -8,15 +8,15 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems
 	{
 		public Propulsion(BotSystemsQuestLog questScreen) : base(questScreen)
 		{
-			NewSystem(SystemType.ForwardPropulsion);
-			NewSystem(SystemType.ReversePropulsion);
-			NewSystem(SystemType.LeftPropulsion);
-			NewSystem(SystemType.RightPropulsion);
-			NewSystem(SystemType.UpPropulsion);
-			NewSystem(SystemType.DownPropulsion);
+			NewSystem(BotSystemType.ForwardPropulsion);
+			NewSystem(BotSystemType.ReversePropulsion);
+			NewSystem(BotSystemType.LeftPropulsion);
+			NewSystem(BotSystemType.RightPropulsion);
+			NewSystem(BotSystemType.UpPropulsion);
+			NewSystem(BotSystemType.DownPropulsion);
 		}
 
-		protected sealed override void NewSystem(SystemType type)
+		protected sealed override void NewSystem(BotSystemType type)
 		{
 			if (_shipSystems.ContainsKey(type)) return;
 			ThrusterCollection collection = new ThrusterCollection(type);

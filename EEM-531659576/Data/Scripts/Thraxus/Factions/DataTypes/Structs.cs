@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using ProtoBuf;
-using VRage.Game.ModAPI;
 
 namespace Eem.Thraxus.Factions.DataTypes
 {

@@ -1,10 +1,6 @@
-﻿using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Common.Utilities.Tools.Logging;
-using Eem.Thraxus.Common.Utilities.Tools.Networking;
-using Eem.Thraxus.Factions.BaseClasses;
+﻿using Eem.Thraxus.Factions.BaseClasses;
 using Eem.Thraxus.Factions.DataTypes;
 using Sandbox.ModAPI;
-using VRage.Game;
 using VRage.Game.ModAPI;
 
 namespace Eem.Thraxus.Factions.Models

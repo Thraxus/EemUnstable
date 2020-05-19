@@ -7,7 +7,7 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.BaseClasses
 {
 	internal abstract class ShipSystemBase : INeedUpdates
 	{
-		protected readonly Dictionary<SystemType, EemFunctionalBlockCollection> _shipSystems = new Dictionary<SystemType, EemFunctionalBlockCollection>();
+		protected readonly Dictionary<BotSystemType, EemFunctionalBlockCollection> _shipSystems = new Dictionary<BotSystemType, EemFunctionalBlockCollection>();
 		private readonly BotSystemsQuestLog _questScreen;
 
 		protected ShipSystemBase(BotSystemsQuestLog questScreen)
@@ -21,26 +21,26 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.BaseClasses
 		{
 			if (IsClosed) return;
 
-			foreach (KeyValuePair<SystemType, EemFunctionalBlockCollection> system in _shipSystems)
+			foreach (KeyValuePair<BotSystemType, EemFunctionalBlockCollection> system in _shipSystems)
 			{
 				system.Value.Close();
 			}
 			IsClosed = true;
 		}
 
-		private void UpdateQuest(SystemType system, int currentFunctionalIntegrityRatio)
+		private void UpdateQuest(BotSystemType system, int currentFunctionalIntegrityRatio)
 		{
 			_questScreen.UpdateQuest(system, currentFunctionalIntegrityRatio);
 		}
 
-		protected void NewQuest(SystemType system, int integrityRatio)
+		protected void NewQuest(BotSystemType system, int integrityRatio)
 		{
 			_questScreen.NewQuest(system, integrityRatio);
 		}
 
-		protected abstract void NewSystem(SystemType type);
+		protected abstract void NewSystem(BotSystemType type);
 
-		public void AddBlock(SystemType type, IMyFunctionalBlock block)
+		public void AddBlock(BotSystemType type, IMyFunctionalBlock block)
 		{
 			if (!_shipSystems.ContainsKey(type)) return;
 			_shipSystems[type].AddBlock(block);
@@ -50,14 +50,14 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.BaseClasses
 
 		public void RunMassUpdate(long blockId)
 		{
-			foreach (KeyValuePair<SystemType, EemFunctionalBlockCollection> system in _shipSystems)
+			foreach (KeyValuePair<BotSystemType, EemFunctionalBlockCollection> system in _shipSystems)
 			{
 				bool updated = system.Value.UpdateCurrentFunctionalIntegrityRatio(blockId);
 				if(updated) UpdateQuest(system.Key, system.Value.LastReportedIntegrityRatio);
 			}
 		}
 
-		public int GetSystemIntegrity(SystemType type)
+		public int GetSystemIntegrity(BotSystemType type)
 		{
 			return !_shipSystems.ContainsKey(type) ? 0 : _shipSystems[type].LastReportedIntegrityRatio;
 		}

@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Common.Settings;
 using Eem.Thraxus.Common.Utilities.Statics;
 using Eem.Thraxus.Factions.DataTypes;

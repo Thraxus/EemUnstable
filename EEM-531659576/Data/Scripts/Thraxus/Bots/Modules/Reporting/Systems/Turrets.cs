@@ -10,10 +10,10 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems
 
 		public Turrets(BotSystemsQuestLog questScreen) : base(questScreen)
 		{
-			NewSystem(SystemType.Turret);
+			NewSystem(BotSystemType.Turret);
 		}
 
-		protected sealed override void NewSystem(SystemType type)
+		protected sealed override void NewSystem(BotSystemType type)
 		{
 			if (_shipSystems.ContainsKey(type)) return;
 			TurretCollection collection = new TurretCollection(type);

@@ -6,6 +6,6 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Types
 {
 	internal class Turret : EemFunctionalBlock
 	{
-		public Turret(SystemType type, IMyFunctionalBlock block) : base(type, block) { }
+		public Turret(BotSystemType type, IMyFunctionalBlock block) : base(type, block) { }
 	}
 }

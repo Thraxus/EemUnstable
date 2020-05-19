@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.DataTypes;
+using Eem.Thraxus.Common.Enums;
 using Sandbox.Game.Entities;
 using VRage.Game;
 using VRage.Game.ModAPI;

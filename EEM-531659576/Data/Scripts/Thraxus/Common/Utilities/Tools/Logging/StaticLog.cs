@@ -1,4 +1,4 @@
-﻿using Eem.Thraxus.Common.DataTypes;
+﻿using Eem.Thraxus.Common.Enums;
 using VRage.Game;
 using VRage.Game.Components;
 

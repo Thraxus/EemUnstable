@@ -7,7 +7,7 @@ namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Collections
 {
 	internal class TurretCollection : EemFunctionalBlockCollection
 	{
-		public TurretCollection(SystemType type) : base(type) { }
+		public TurretCollection(BotSystemType type) : base(type) { }
 
 		public override void AddBlock(IMyFunctionalBlock block)
 		{

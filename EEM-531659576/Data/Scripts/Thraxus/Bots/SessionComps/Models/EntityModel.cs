@@ -1,14 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.SessionComps.Interfaces;
 using Eem.Thraxus.Bots.SessionComps.Support;
 using Eem.Thraxus.Common.BaseClasses;
-using Eem.Thraxus.Common.DataTypes;
-using Eem.Thraxus.Factions.Utilities;
-using Sandbox.Game;
+using Eem.Thraxus.Common.Enums;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
+using VRage.Collections;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
@@ -24,17 +23,9 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 		public int Threat { get; private set; }
 		
 		public int Value { get; private set; }
-		
-		public List<IMyCubeBlock> Controllers { get; } = new List<IMyCubeBlock>();
-		
-		public List<IMyCubeBlock> Navigation { get; } = new List<IMyCubeBlock>();
-		
-		public List<IMyCubeBlock> PowerSystems { get; } = new List<IMyCubeBlock>();
-		
-		public List<IMyCubeBlock> Propulsion { get; } = new List<IMyCubeBlock>();
-		
-		public List<IMyCubeBlock> Weapons { get; } = new List<IMyCubeBlock>();
 
+		public ConcurrentDictionary<TargetSystemType, ConcurrentCachingList<IMyCubeBlock>> TargetSystems { get; } = new ConcurrentDictionary<TargetSystemType, ConcurrentCachingList<IMyCubeBlock>>();
+		
 		public long FactionId => MyAPIGateway.Session.Factions.TryGetPlayerFaction(OwnerId)?.FactionId ?? 0;
 
 		public long OwnerId => OwnerType == GridOwnerType.None ? 0 : _thisCubeGrid.BigOwners[0];
@@ -85,12 +76,19 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			ThisEntity = thisEntity;
 			_thisCubeGrid = (MyCubeGrid) ThisEntity;
 			_thisMyCubeGrid = (IMyCubeGrid) ThisEntity;
-			base.Id = thisEntity.EntityId.ToString();
+			Id = thisEntity.EntityId.ToString();
 			_thisCubeGrid.OnClose += Close;
 			_thisCubeGrid.OnBlockOwnershipChanged += OwnershipChanged;
 			_thisCubeGrid.OnBlockAdded += BlockAdded;
 			_thisCubeGrid.OnBlockRemoved += BlockRemoved;
 			_thisCubeGrid.OnGridSplit += GridSplit;
+			TargetSystems.TryAdd(TargetSystemType.Controller, new ConcurrentCachingList<IMyCubeBlock>());
+			TargetSystems.TryAdd(TargetSystemType.Decoy, new ConcurrentCachingList<IMyCubeBlock>());
+			TargetSystems.TryAdd(TargetSystemType.Navigation, new ConcurrentCachingList<IMyCubeBlock>());
+			TargetSystems.TryAdd(TargetSystemType.Power, new ConcurrentCachingList<IMyCubeBlock>());
+			TargetSystems.TryAdd(TargetSystemType.Propulsion, new ConcurrentCachingList<IMyCubeBlock>());
+			TargetSystems.TryAdd(TargetSystemType.Secondary, new ConcurrentCachingList<IMyCubeBlock>());
+			TargetSystems.TryAdd(TargetSystemType.Weapon, new ConcurrentCachingList<IMyCubeBlock>());
 		}
 
 		public void Initialize()
@@ -98,7 +96,7 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			GetOwnerType();
 			GetGridType();
 			GridValuation();
-			WriteToLog($"Initialize", $"{BlockCount} | {OwnerType} | {GridType}", LogType.General);
+			WriteToLog($"Initialize", $"Blocks: {BlockCount} | PCU: {_thisCubeGrid.BlocksPCU} | OwnerType: {OwnerType} | GridType: {GridType}", LogType.General);
 		}
 
 		public void Close(IMyEntity unused)
@@ -111,8 +109,19 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			_thisCubeGrid.OnBlockAdded -= BlockAdded;
 			_thisCubeGrid.OnBlockRemoved -= BlockRemoved;
 			_thisCubeGrid.OnGridSplit -= GridSplit;
+			ClearTargetSystems();
+			TargetSystems.Clear();
 			WriteToLog($"Close", $"I'm out!", LogType.General);
 			OnClose?.Invoke(ThisId);
+		}
+
+		private void ClearTargetSystems()
+		{
+			foreach (KeyValuePair<TargetSystemType, ConcurrentCachingList<IMyCubeBlock>> targetSystem in TargetSystems)
+			{
+				targetSystem.Value.ClearList();
+				targetSystem.Value.ApplyChanges();
+			}
 		}
 		
 		private void BlockAdded(IMySlimBlock block)
@@ -145,6 +154,7 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 		private void GridValuation()
 		{
 			_blocks.Clear();
+			ClearTargetSystems();
 			_thisMyCubeGrid.GetBlocks(_blocks);
 
 			foreach (IMySlimBlock block in _blocks)
@@ -155,23 +165,28 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 
 		private void GetBlockValue(IMySlimBlock block, bool negate = false)
 		{
-			CubeProcessor.ProcessCube(block);
-			//MyVisualScriptLogicProvider.
-			//if (block.FatBlock == null)
-			//{
-			//	if (HasHeavyArmor == false)
-			//		if (block.BlockDefinition.Id.SubtypeName.Contains($"HeavyBlockArmor")) HasHeavyArmor = true;
-			//	SetValues(new BlockData {Threat = 1, Value = 1}, negate);
-			//	return;
-			//}
 			BlockData value = Reference.GetBlockValue(block);
 			HasBars |= value.IsBars;
 			HasHeavyArmor |= value.IsHeavyArmor;
 			HasEnergyShields |= value.IsEnergyShields;
 			HasDefenseShields |= value.IsDefenseShields;
+			if (value.Type != TargetSystemType.None)
+				TargetSystemsAdjustment(value.Type, block.FatBlock, negate);
 			SetValues(value, negate);
 			//WriteToLog($"GetBlockValue", $"{block.FatBlock.GetType()} | {block.FatBlock.BlockDefinition.TypeId} | {block.FatBlock.BlockDefinition.GetType()} -- {value}", LogType.General);
 			//WriteToLog($"GetBlockValue", $"{block.FatBlock.GetType()} | {block.BlockDefinition} | {block.BlockDefinition.GetType()} -- {value}", LogType.General);
+		}
+
+		private void TargetSystemsAdjustment(TargetSystemType type, IMyCubeBlock block, bool negate)
+		{
+			if (negate)
+			{
+				TargetSystems[type].Remove(block);
+				TargetSystems[type].ApplyRemovals();
+				return;
+			}
+			TargetSystems[type].Add(block);
+			TargetSystems[type].ApplyAdditions();
 		}
 
 		private void SetValues(BlockData value, bool negate)
@@ -189,7 +204,7 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			//WriteToLog($"GetBlockValue", $"New Value: {value}", LogType.General);
 			WriteToLog($"GetBlockValue", $"Total Value: {Value} | Total Threat: {Threat}", LogType.General);
 		}
-
+		
 		private void GetOwnerType()
 		{
 			if (_thisCubeGrid.BigOwners.Count == 0)

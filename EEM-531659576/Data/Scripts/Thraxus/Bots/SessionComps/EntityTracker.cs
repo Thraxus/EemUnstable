@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Eem.Thraxus.Bots.SessionComps.Models;
 using Eem.Thraxus.Bots.SessionComps.Support;
 using Eem.Thraxus.Common.BaseClasses;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using VRage.Game.Components;
-using VRage.Game.Entity;
 using VRage.ModAPI;
 
 namespace Eem.Thraxus.Bots.SessionComps

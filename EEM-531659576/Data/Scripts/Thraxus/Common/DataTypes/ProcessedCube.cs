@@ -1,4 +1,6 @@
-﻿namespace Eem.Thraxus.Common.DataTypes
+﻿using Eem.Thraxus.Bots.SessionComps.Models;
+
+namespace Eem.Thraxus.Common.DataTypes
 {
 	public struct ProcessedCube
 	{
