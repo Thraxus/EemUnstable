@@ -1,7 +1,7 @@
 ﻿using System;
 using Eem.Thraxus.Bots.Modules.Alert;
+using Eem.Thraxus.Bots.Modules.FunctionalReporting;
 using Eem.Thraxus.Bots.Modules.Maneuvering;
-using Eem.Thraxus.Bots.Modules.Reporting;
 using Eem.Thraxus.Bots.Modules.Targeting;
 using Eem.Thraxus.Bots.SessionComps;
 using Eem.Thraxus.Common.BaseClasses;

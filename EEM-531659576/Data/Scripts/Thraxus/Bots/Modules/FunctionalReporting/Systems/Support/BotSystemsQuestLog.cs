@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Common.Utilities.Tools.OnScreenDisplay;
 
-namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Support
+namespace Eem.Thraxus.Bots.Modules.FunctionalReporting.Systems.Support
 {
 	internal class BotSystemsQuestLog
 	{

@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using Eem.Thraxus.Bots.Interfaces;
-using Eem.Thraxus.Bots.Modules.Reporting.Systems.Support;
 using Eem.Thraxus.Common.Enums;
 using Eem.Thraxus.Common.Utilities.Tools.Logging;
 using Sandbox.Game.Entities;
@@ -8,7 +7,7 @@ using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.BaseClasses
+namespace Eem.Thraxus.Bots.Modules.FunctionalReporting.Systems.BaseClasses
 {
 	internal abstract class EemFunctionalBlock : IReportIntegrity
 	{

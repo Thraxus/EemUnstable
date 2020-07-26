@@ -8,8 +8,8 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 {
 	public class MasterObjectBuilderReference
 	{
-		public Dictionary<MyStringHash, BlockData> VanillaSubtypeIds;
-		public Dictionary<MyStringHash, BlockData> ModdedSubtypeIds;
+		public Dictionary<MyStringHash, BlockData> VanillaSubtypeIds = new Dictionary<MyStringHash, BlockData>();
+		public Dictionary<MyStringHash, BlockData> ModdedSubtypeIds = new Dictionary<MyStringHash, BlockData>();
 		public BlockData DefaultValue = new BlockData { Value = 1, Threat = 1, Type = TargetSystemType.None };
 		public MyObjectBuilderType Type;
 
@@ -22,6 +22,13 @@ namespace Eem.Thraxus.Bots.SessionComps.Models
 			if (ModdedSubtypeIds.TryGetValue(subtype, out returnValue))
 				return returnValue;
 			return GetDefaultValue(subtype);
+		}
+
+		public void Clear()
+		{
+			VanillaSubtypeIds.Clear();
+			ModdedSubtypeIds.Clear();
+			Type = null;
 		}
 
 		private BlockData GetDefaultValue(MyStringHash subtype)

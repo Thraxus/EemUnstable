@@ -1,5 +1,5 @@
 ﻿using System;
-using Eem.Thraxus.Bots.Modules.Reporting.Systems.Support;
+using Eem.Thraxus.Common.Enums;
 
 namespace Eem.Thraxus.Bots.Interfaces
 {

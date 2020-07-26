@@ -10,12 +10,18 @@ namespace Eem.Thraxus.Debug
 			//TODO add any debug session settings here that matter. Global Events (all the garbage below) aren't available, so don't bother with them.
 
 			if (MyAPIGateway.Session.SessionSettings.BlockLimitsEnabled == MyBlockLimitsEnabledEnum.NONE)
-				MyAPIGateway.Session.SessionSettings.PiratePCU = 1000000;
+			{
+				if (MyAPIGateway.Utilities.IsDedicated)
+					MyAPIGateway.Utilities.ConfigDedicated.SessionSettings.PiratePCU = MyAPIGateway.Session.SessionSettings.TotalPCU * 1000000;
+				else MyAPIGateway.Session.SessionSettings.PiratePCU = 1000000;
+			}
 			else
 			{
 				if (MyAPIGateway.Session.SessionSettings.TotalPCU <= 100000)
 					MyAPIGateway.Session.SessionSettings.TotalPCU = 200000;
-				MyAPIGateway.Session.SessionSettings.PiratePCU = MyAPIGateway.Session.SessionSettings.TotalPCU * 3;
+				if (MyAPIGateway.Utilities.IsDedicated)
+					MyAPIGateway.Utilities.ConfigDedicated.SessionSettings.PiratePCU = MyAPIGateway.Session.SessionSettings.TotalPCU * 3;
+				else MyAPIGateway.Session.SessionSettings.PiratePCU = MyAPIGateway.Session.SessionSettings.TotalPCU * 3;
 			}
 
 

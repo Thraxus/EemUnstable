@@ -447,7 +447,7 @@ namespace Eem.Thraxus.Factions.Models
 		private void AddNewFaction(IMyFaction newFaction, bool? hostile = null)
 		{
 			if (hostile == null)
-				hostile = GeneralSettings.PlayerFactionExclusionList.Contains(newFaction.Description);
+				hostile = newFaction.Description == null || GeneralSettings.PlayerFactionExclusionList.Contains(newFaction.Description);
 			WriteToLog("AddNewFaction", $"Tag: {newFaction.Tag} | Hostile? {hostile.ToString()}", LogType.General);
 			FactionRelationships.Add(newFaction.FactionId, new FactionRelation(newFaction));
 
@@ -571,13 +571,13 @@ namespace Eem.Thraxus.Factions.Models
 			foreach (KeyValuePair<long, IMyFaction> faction in _playerFactionDictionary)
 			{
 				WriteToLog("FirstRunSetup", $"Adding new faction to FactionRelationships [Standard] {faction.Key} - {faction.Value.Tag}", LogType.General);
-				AddNewFaction(faction.Value, GeneralSettings.PlayerFactionExclusionList.Contains(faction.Value.Description));
+				AddNewFaction(faction.Value, faction.Value.Description == null || GeneralSettings.PlayerFactionExclusionList.Contains(faction.Value.Description));
 			}
 
 			foreach (KeyValuePair<long, IMyFaction> faction in _playerPirateFactionDictionary)
 			{
 				WriteToLog("FirstRunSetup", $"Adding new faction to FactionRelationships [Pirate] {faction.Key} - {faction.Value.Tag}", LogType.General);
-				AddNewFaction(faction.Value, GeneralSettings.PlayerFactionExclusionList.Contains(faction.Value.Description));
+				AddNewFaction(faction.Value, faction.Value.Description == null || GeneralSettings.PlayerFactionExclusionList.Contains(faction.Value.Description));
 			}
 			
 			foreach (IMyIdentity identity in GetIdentities().ToList())
@@ -845,7 +845,7 @@ namespace Eem.Thraxus.Factions.Models
 						continue;
 					}
 
-					if (faction.Value.IsEveryoneNpc() && GeneralSettings.AllNpcFactions.Contains(faction.Value.Tag))
+					if (!Statics.ValidPlayer(faction.Value.FounderId) && GeneralSettings.AllNpcFactions.Contains(faction.Value.Tag))
 					{ // If it's not an Enforcement or Lawful faction, it's a pirate.
 						WriteToLog("SetupFactionDictionaries", $"AddToPirateFactionDictionary:\t{faction.Key}\t{faction.Value.Tag}", LogType.General);
 						AddToPirateFactionDictionary(faction.Key, faction.Value);
@@ -860,14 +860,14 @@ namespace Eem.Thraxus.Factions.Models
 						continue;
 					}
 
-					if (!faction.Value.IsEveryoneNpc()) // If it's not one of my NPC's, I don't care!
+					if (Statics.ValidPlayer(faction.Value.FounderId)) // Players! 
 					{
 						WriteToLog("SetupFactionDictionaries", $"PlayerFaction.Add:\t{faction.Key}\t{faction.Value.Tag}", LogType.General);
 						AddToPlayerFactionDictionary(faction.Key, faction.Value);
 						continue;
 					}
 
-					_nonEemNpcFactionDictionary.Add(faction.Key, faction.Value); // Ok, I may care one day.
+					_nonEemNpcFactionDictionary.Add(faction.Key, faction.Value); // Non-EEM NPC Dictionary Catch-all.
 				}
 				catch (Exception e)
 				{

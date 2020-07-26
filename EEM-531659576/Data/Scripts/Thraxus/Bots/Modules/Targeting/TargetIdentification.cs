@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Linq;
 using Eem.Thraxus.Bots.Modules.Targeting.Support;
+using Eem.Thraxus.Bots.SessionComps.Models;
+using Eem.Thraxus.Bots.SessionComps.Support;
 using Eem.Thraxus.Common.BaseClasses;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Enums;
@@ -30,12 +33,27 @@ namespace Eem.Thraxus.Bots.Modules.Targeting
 		private readonly ConcurrentCachingList<ValidTarget> _validTargets;
 		private readonly TargetCompare _compare = new TargetCompare();
 
+		private readonly SortedList _baseTargetList = new SortedList();
+		private readonly SortedList _targetSync;
+
 		public TargetIdentification(MyCubeGrid myCubeGrid, long ownerId, ConcurrentCachingList<ValidTarget> validTargets)
 		{
 			_thisGrid = myCubeGrid;
 			_thisCubeGrid = myCubeGrid;
 			_gridOwnerId = ownerId;
 			_validTargets = validTargets;
+			_targetSync = SortedList.Synchronized(_baseTargetList);
+			GlobalEvents.OnResponseTargetInformation += GlobalEventsOnOnResponseTargetInformation;
+		}
+
+		private void GlobalEventsOnOnResponseTargetInformation(long requestorId, EntityModel targetInformation)
+		{
+			if (requestorId != _thisGrid.EntityId) return;
+		}
+
+		private void RequestTargetInformation(long targetId)
+		{
+			GlobalEvents.TargetInformationRequest(_thisGrid.EntityId, targetId);
 		}
 
 		public void GetAllEnemiesInRange()
@@ -82,6 +100,7 @@ namespace Eem.Thraxus.Bots.Modules.Targeting
 		{
 			if (_isClosed) return;
 			_isClosed = true;
+			GlobalEvents.OnResponseTargetInformation -= GlobalEventsOnOnResponseTargetInformation;
 			_thisCubeGrid = null;
 			_thisGrid = null;
 		}

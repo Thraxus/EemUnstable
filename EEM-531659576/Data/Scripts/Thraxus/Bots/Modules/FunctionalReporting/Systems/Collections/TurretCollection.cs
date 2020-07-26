@@ -1,9 +1,9 @@
-﻿using Eem.Thraxus.Bots.Modules.Reporting.Systems.BaseClasses;
-using Eem.Thraxus.Bots.Modules.Reporting.Systems.Support;
-using Eem.Thraxus.Bots.Modules.Reporting.Systems.Types;
+﻿using Eem.Thraxus.Bots.Modules.FunctionalReporting.Systems.BaseClasses;
+using Eem.Thraxus.Bots.Modules.FunctionalReporting.Systems.Types;
+using Eem.Thraxus.Common.Enums;
 using Sandbox.ModAPI;
 
-namespace Eem.Thraxus.Bots.Modules.Reporting.Systems.Collections
+namespace Eem.Thraxus.Bots.Modules.FunctionalReporting.Systems.Collections
 {
 	internal class TurretCollection : EemFunctionalBlockCollection
 	{

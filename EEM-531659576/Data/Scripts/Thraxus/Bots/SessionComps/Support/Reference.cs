@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Eem.Thraxus.Bots.SessionComps.Models;
 using Eem.Thraxus.Common.DataTypes;
 using Eem.Thraxus.Common.Enums;
@@ -14,14 +15,24 @@ namespace Eem.Thraxus.Bots.SessionComps.Support
 {
 	public static class Reference
 	{
+		private static MasterObjectBuilderReference refernece = new MasterObjectBuilderReference();
+
 		public static BlockData GetBlockValue(IMySlimBlock block)
 		{
-			MasterObjectBuilderReference refernece;
-			if (ReferenceValues.TryGetValue(block.BlockDefinition.Id.TypeId, out refernece))
+			try
 			{
-				return refernece.GetValue(block.BlockDefinition.Id.TypeId, block.BlockDefinition.Id.SubtypeId);
+				refernece.Clear();
+				if (ReferenceValues.TryGetValue(block.BlockDefinition.Id.TypeId, out refernece))
+				{
+					return refernece.GetValue(block.BlockDefinition.Id.TypeId, block.BlockDefinition.Id.SubtypeId);
+				}
+				return GetDefaultValue(block.BlockDefinition.Id.TypeId, block.BlockDefinition.Id.SubtypeId);
 			}
-			return GetDefaultValue(block.BlockDefinition.Id.TypeId, block.BlockDefinition.Id.SubtypeId);
+			catch (Exception e)
+			{
+				StaticLog.WriteToLog("Reference: GetBlockValue", $"{e}", LogType.Exception);
+				return GetDefaultValue(block.BlockDefinition.Id.TypeId, block.BlockDefinition.Id.SubtypeId);
+			}
 		}
 
 		private static BlockData GetDefaultValue(MyObjectBuilderType type, MyStringHash subtype)

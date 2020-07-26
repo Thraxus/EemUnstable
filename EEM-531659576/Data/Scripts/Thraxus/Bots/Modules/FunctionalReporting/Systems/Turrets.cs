@@ -1,8 +1,9 @@
-﻿using Eem.Thraxus.Bots.Modules.Reporting.Systems.BaseClasses;
-using Eem.Thraxus.Bots.Modules.Reporting.Systems.Collections;
-using Eem.Thraxus.Bots.Modules.Reporting.Systems.Support;
+﻿using Eem.Thraxus.Bots.Modules.FunctionalReporting.Systems.BaseClasses;
+using Eem.Thraxus.Bots.Modules.FunctionalReporting.Systems.Collections;
+using Eem.Thraxus.Bots.Modules.FunctionalReporting.Systems.Support;
+using Eem.Thraxus.Common.Enums;
 
-namespace Eem.Thraxus.Bots.Modules.Reporting.Systems
+namespace Eem.Thraxus.Bots.Modules.FunctionalReporting.Systems
 {
 	internal class Turrets : ShipSystemBase
 	{
